@@ -1,0 +1,25 @@
+MSDataFileReader Change Log
+
+Version 1.2.2355; June 13, 2006
+	- Now checking for a corrupted index at the end of an mzXML file
+
+Version 1.2.2330; May 19, 2006
+	- Added functions GetSpectrumHeaderInfoByIndex() and GetSpectrumHeaderInfoByScanNumber() to clsMSDataFileAccessorBaseClass
+		- These functions are faster than GetSpectrumByScanNumber() and GetSpectrumByIndex() since they do not parse the base-64 encoded MS and Intensity array data
+
+Version 1.2.2326; May 15, 2006
+	- Added support for indexing the spectra location in files, which allows for random access to spectra
+		- Use class clsMzDataFileAccessor or clsMzXMLFileAccessor for this 
+		- Class supports UTF8, UTF-16 Unicode, and Big Endian Unicode, in addition to Ascii files
+		- Supports files with either CRLF (Windows) or just LF (Unix) line termination symbols
+		- Using a redesigned clsBinaryTextReader that can read forward or backward
+	- Added support for reading and using the byte offset index at the end of the mzXml file, if present
+	- Now validating the mzXML version listed in the <mzXML> element at the start of the file
+		- Currently support mzXML version 2.x (normally 2.0 or 2.1)
+		- Set ParseFilesWithUnknownVersion to True to parse files with unknown/unsupported versions
+	- Now validating the mzData version listed in the <mzData> element at the start of the file
+		- Currently support mzData version 1.x (normally 1.05)
+		- Set ParseFilesWithUnknownVersion to True to parse files with unknown/unsupported versions
+
+Version 1.0.2285; April 4, 2006
+	- Initial release version (VB.NET DLL)

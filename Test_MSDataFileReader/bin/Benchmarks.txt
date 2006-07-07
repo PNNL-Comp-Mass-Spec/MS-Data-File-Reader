@@ -1,0 +1,30 @@
+Here's some benchmark stats for indexing and reading the scans from a 1.4 GB mzXML file from one of our LTQ-Orbitrap datasets (Ding-UG-G-IMAC-Label-60)
+
+Mode 1: Sequential XML reader (no caching or indexing)
+Peak memory usage: 20 MB
+Time to extract the mass spec data (m/z and intensity pairs) for all 53271 spectra (includes base-64 decoding): 169 seconds
+Time per scan overall: 3.2 msec/scan
+
+Mode 2: Use the Sequential XML reader, but cache the data for each scan in-memory
+Note: These stats are for reading just 50% of the file, since I ran out of memory
+Peak memory usage: 1291 MB for 50% of the file
+Time to cache the mass spec data (includes base-64 decoding): 83 seconds (50% of the file)
+Time to obtain the mass spec data for 29813 spectra: 1.36 seconds
+Time per scan to read data after caching is complete: 0.045 msec/scan
+Time per scan overall: 2.8 msec/scan
+
+Mode 3: Pre-index byte offsets of XML tags for each scan's start and end elements
+Peak memory usage: 35 MB
+Time to index the file: 76 seconds
+Time to extract the mass spec data for all 53271 spectra using the index (includes base-64 decoding): 229 seconds
+Time per scan to read data after caching is complete: 4.3 msec/scan
+Time per scan overall: 5.7 msec/scan
+
+
+In Mode 1, the Sequential XML reader uses a forward-only XML reader to parse the XML tags and return the data for each spectrum found; you cannot skip spectra and you cannot move backward, but the reading is fast and the memory usage is minimal.
+
+In Mode 2, the Sequential XML reader is used, but the m/z and intensity values for each scan are cached in two very large arrays (m/z is double precision, intensity is single precision).  After the data is cached, it can be obtained in any order very rapidly.  Downside -- large memory usage.
+
+In Mode 3, the indexing involves reading the file with a binary text file reader (which I wrote) that looks for LF bytes and returns the text between each LF (excluding CR if present) to an indexing class that then looks for important XML tags in the text.  The indexing class tracks the start and end byte offsets of the XML tags for each spectrum, so that once the file has been indexed, any mass spectrum can be obtained (in any order), since the reader can jump to the specific byte offset where the scan starts, extract the text between the start and end byte offsets, and then feed it to another class that parses XML data in mzXML files and returns a SpectrumInfo class that contains the m/z and intensity values plus other data associated with a scan.  
+
+Note that all three modes (including my binary text reader) support Windows (CRLF) and Unix (LF only) files, and all three support Unicode files (two bytes per character).  Also, I have both VB6 and VB.NET versions of all three modes (will be in CVS eventually, not there yet).

@@ -1,0 +1,17 @@
+Timing (on laptop without wall power)
+
+Serialize full class; requires simultaneous read from XML and write to serialized file
+
+4/22/2006 2:24:28 PM: Starting to read file (and write to cache file)
+4/22/2006 2:29:16 PM: Done caching
+4/22/2006 2:29:16 PM: Reading data from cache file for the 53271 spectra
+4/22/2006 2:30:49 PM: Done
+
+1.4 GB in mzXML and 1.6 GB serialized file
+
+Index full class using binary text reader
+
+TimeThis :  Command Line :  Test_MSDataFileReader.exe
+TimeThis :    Start Time :  Sat Apr 22 16:23:13 2006
+TimeThis :      End Time :  Sat Apr 22 16:25:00 2006
+TimeThis :  Elapsed Time :  00:01:47.562
