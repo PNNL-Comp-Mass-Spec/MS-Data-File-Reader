@@ -142,13 +142,21 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
 
     End Sub
 
-    Protected Sub ComputePercentageDataAboveThreshold(ByRef objSpectrumInfo As clsSpectrumInfoMsMsText, ByRef sngPctByCount As Single, ByRef sngPctByIntensity As Single)
+    Protected Sub ComputePercentageDataAboveThreshold(ByRef objSpectrumInfo As clsSpectrumInfoMsMsText, _
+                                                      ByRef sngPctByCount As Single, _
+                                                      ByRef sngPctByIntensity As Single)
         With objSpectrumInfo
-            ComputePercentageDataAboveThreshold(.DataCount, .MZList, .IntensityList, .ParentIonMZ, sngPctByCount, sngPctByIntensity)
+            ComputePercentageDataAboveThreshold(.DataCount, .MZList, .IntensityList, .ParentIonMZ, _
+                                                sngPctByCount, sngPctByIntensity)
         End With
     End Sub
 
-    Protected Sub ComputePercentageDataAboveThreshold(ByVal intDataCount As Integer, ByRef dblMZList() As Double, ByRef sngIntensityList() As Single, ByVal dblThresholdMZ As Double, ByRef sngPctByCount As Single, ByRef sngPctByIntensity As Single)
+    Protected Sub ComputePercentageDataAboveThreshold(ByVal intDataCount As Integer, _
+                                                      ByRef dblMZList() As Double, _
+                                                      ByRef sngIntensityList() As Single, _
+                                                      ByVal dblThresholdMZ As Double, _
+                                                      ByRef sngPctByCount As Single, _
+                                                      ByRef sngPctByIntensity As Single)
 
         Dim intIndex As Integer
 
@@ -232,21 +240,24 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         Return mSecondMostRecentSpectrumFileText
     End Function
 
-    Public Sub GuesstimateCharge(ByRef objSpectrumInfo As clsSpectrumInfoMsMsText, Optional ByVal blnAddToExistingChargeList As Boolean = False, Optional ByVal blnForceChargeAddnFor2and3Plus As Boolean = False)
+    Public Sub GuesstimateCharge(ByRef objSpectrumInfo As clsSpectrumInfoMsMsText, _
+                         Optional ByVal blnAddToExistingChargeList As Boolean = False, _
+                         Optional ByVal blnForceChargeAddnFor2and3Plus As Boolean = False)
 
         ' Guesstimate the parent ion charge based on its m/z and the ions in the fragmentation spectrum
         '
         ' Strategy:
-        '  1) If all frag peaks have m/z values less than the parent ion m/z, then definitely assume 1+ parent ion
+        '  1) If all frag peaks have m/z values less than the parent ion m/z, then definitely assume a
+        '       1+ parent ion
         '
         '  2) If less than mThresholdIonPctForSingleCharge percent of the data's m/z values are greater 
         '       than the parent ion, then definitely assume 1+ parent ion
         '     When determining percentage, use both # of data points and the sum of the ion intensities. 
         '     Both values must be less than mThresholdIonPctForSingleCharge percent to declare 1+
         '
-        '  3) If mThresholdIonPctForSingleCharge percent to mThresholdIonPctForDoubleCharge percent of the data's m/z values
-        '       are greater than the parent ion, then declare 1+, 2+, 3+ ... up to the charge that gives a deconvoluted parent 
-        '       ion that matches the above test (#2)
+        '  3) If mThresholdIonPctForSingleCharge percent to mThresholdIonPctForDoubleCharge percent 
+        '       of the data's m/z values are greater than the parent ion, then declare 1+, 2+, 3+ ... 
+        '       up to the charge that gives a deconvoluted parent ion that matches the above test (#2)
         '     At a minimum, include 2+ and 3+
         '     Allow up to 5+
         '     Allow a 3 Da mass tolerance when comparing deconvoluted mass to maximum ion mass
@@ -257,9 +268,10 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         '                      476*5-4 = 2376: this is greater than 1922
         '       Thus, assign charges 2+ to 5+
         '
-        '  4) Otherwise, if both test 2 and test 3 fail, then assume 2+, 3+, ... up to the charge that gives a deconvoluted
-        '       parent ion that matches the above test (#2)
-        '     The same tests as outlined in step 3 will be performed to determine the maximum charge to assign
+        '  4) Otherwise, if both test 2 and test 3 fail, then assume 2+, 3+, ... up to the charge that
+        '       gives a deconvoluted parent ion that matches the above test (#2)
+        '     The same tests as outlined in step 3 will be performed to determine the maximum charge 
+        '       to assign  
 
         ' Example, for parent ion at 700 m/z and following data, decide 1+, 2+, 3+ since percent above 700 m/z is 21%
         ' m/z		Intensity
@@ -278,7 +290,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         ' Sum all:	280
         ' Sum below 700:	220
         ' Sum above 700:	60
-        ' % above 700 by intensity summ:	21%
+        ' % above 700 by intensity sum:	21%
         ' % above 700 by data point count:	33%
 
         Dim sngPctByCount As Single, sngPctByIntensity As Single
@@ -301,11 +313,13 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
                 ' Find percentage of data with m/z values greater than the Parent Ion m/z
                 ' Compute this number using both raw data point counts and sum of intensity values
                 ComputePercentageDataAboveThreshold(objSpectrumInfo, sngPctByCount, sngPctByIntensity)
-                If sngPctByCount < mThresholdIonPctForSingleCharge And sngPctByIntensity < mThresholdIonPctForSingleCharge Then
+                If sngPctByCount < mThresholdIonPctForSingleCharge And _
+                   sngPctByIntensity < mThresholdIonPctForSingleCharge Then
                     ' Both percentages are less than the threshold for definitively single charge
                     objSpectrumInfo.AddOrUpdateChargeList(1, blnAddToExistingChargeList)
                 Else
-                    If sngPctByCount >= mThresholdIonPctForDoubleCharge And sngPctByIntensity >= mThresholdIonPctForDoubleCharge Then
+                    If sngPctByCount >= mThresholdIonPctForDoubleCharge And _
+                       sngPctByIntensity >= mThresholdIonPctForDoubleCharge Then
                         ' Both percentages are above the threshold for definitively double charge (or higher)
                         intChargeStart = 2
                     Else
@@ -329,7 +343,8 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
                             ' If so, do not alter the charge list
 
                             If objSpectrumInfo.ParentIonChargeCount = 1 Then
-                                If objSpectrumInfo.ParentIonCharges(0) = 2 Or objSpectrumInfo.ParentIonCharges(0) = 3 Then
+                                If objSpectrumInfo.ParentIonCharges(0) = 2 OrElse _
+                                   objSpectrumInfo.ParentIonCharges(0) = 3 Then
                                     ' The following will guarantee that the For intChargeIndex loop doesn't run
                                     intChargeStart = 0
                                     intChargeEnd = -1
