@@ -217,14 +217,27 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
         Else
             If intCurrentCharge = 1 Then
                 dblNewMZ = dblMassMZ
-            Else
+            ElseIf intCurrentCharge > 1 Then
+                ' Convert dblMassMZ to M+H
                 dblNewMZ = (dblMassMZ * intCurrentCharge) - dblChargeCarrierMass * (intCurrentCharge - 1)
+            ElseIf intCurrentCharge = 0 Then
+                ' Convert dblMassMZ (which is neutral) to M+H and store in dblNewMZ
+                dblNewMZ = dblMassMZ + dblChargeCarrierMass
+            Else
+                ' Negative charges are not supported; return 0
+                Return 0
             End If
 
             If intDesiredCharge > 1 Then
                 dblNewMZ = (dblNewMZ + dblChargeCarrierMass * (intDesiredCharge - 1)) / intDesiredCharge
+            ElseIf intDesiredCharge = 1 Then
+                ' Return M+H, which is currently stored in dblNewMZ
             ElseIf intDesiredCharge = 0 Then
+                ' Return the neutral mass
                 dblNewMZ -= dblChargeCarrierMass
+            Else
+                ' Negative charges are not supported; return 0
+                dblNewMZ = 0
             End If
         End If
 
