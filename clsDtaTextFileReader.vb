@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified April 17, 2006
+' Last modified December 14, 2006
 
 Public Class clsDtaTextFileReader
     Inherits clsMSTextFileReaderBaseClass
@@ -302,7 +302,7 @@ Public Class clsDtaTextFileReader
             strValue = strParentIonLineText.Substring(0, intCharIndex)
             If MyBase.IsNumber(strValue) Then
                 With objSpectrumInfoMsMsText
-                    .ParentIonMH = CSng(strValue)
+                    .ParentIonMH = CDbl(strValue)
 
                     strValue = strParentIonLineText.Substring(intCharIndex + 1)
 
@@ -321,7 +321,7 @@ Public Class clsDtaTextFileReader
                             .ParentIonMZ = .ParentIonMH
                             .ParentIonCharges(0) = 1
                         Else
-                            .ParentIonMZ = CSng(MyBase.ConvoluteMass(.ParentIonMH, 1, .ParentIonCharges(0)))
+                            .ParentIonMZ = MyBase.ConvoluteMass(.ParentIonMH, 1, .ParentIonCharges(0))
                         End If
 
                         blnSpectrumFound = True

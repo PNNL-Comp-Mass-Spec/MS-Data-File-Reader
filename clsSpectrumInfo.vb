@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified April 4, 2006
+' Last modified December 14, 2006
 <Serializable()> _
 Public Class clsSpectrumInfo
     Implements ICloneable
@@ -53,7 +53,7 @@ Public Class clsSpectrumInfo
     Protected mBasePeakIntensity As Single
 
     Protected mTotalIonCurrent As Double
-    Protected mParentIonMZ As Single
+    Protected mParentIonMZ As Double
     Protected mParentIonIntensity As Single
 
     Public DataCount As Integer                 ' Number of m/z and intensity pairs in this spectrum; see note concerning mAutoShrinkDataLists below
@@ -174,6 +174,7 @@ Public Class clsSpectrumInfo
             mmzRangeEnd = Value
         End Set
     End Property
+
     Public Property BasePeakMZ() As Double
         Get
             Return mBasePeakMZ
@@ -183,6 +184,7 @@ Public Class clsSpectrumInfo
             mBasePeakMZ = Value
         End Set
     End Property
+
     Public Property BasePeakIntensity() As Single
         Get
             Return mBasePeakIntensity
@@ -202,15 +204,17 @@ Public Class clsSpectrumInfo
             mTotalIonCurrent = Value
         End Set
     End Property
-    Public Property ParentIonMZ() As Single
+
+    Public Property ParentIonMZ() As Double
         Get
             Return mParentIonMZ
         End Get
-        Set(ByVal Value As Single)
+        Set(ByVal Value As Double)
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mParentIonMZ = Value
         End Set
     End Property
+
     Public Property ParentIonIntensity() As Single
         Get
             Return mParentIonIntensity

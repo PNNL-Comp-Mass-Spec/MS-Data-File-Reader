@@ -1,5 +1,8 @@
 MSDataFileReader Change Log
 
+Version 1.2.2539; December 14, 2006
+	 - Changed the parent ion m/z precision from single to double precision to allow for additional digits of precision
+
 Version 1.2.2355; June 13, 2006
 	- Now checking for a corrupted index at the end of an mzXML file
 

@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified May 22, 2006
+' Last modified December 14, 2006
 
 Public Class clsMGFFileReader
     Inherits clsMSTextFileReaderBaseClass
@@ -239,7 +239,7 @@ Public Class clsMGFFileReader
                                                 strLineIn = strLineIn.Substring(8).Trim
                                                 strSplitLine = strLineIn.Split(strSepChars)
                                                 If strSplitLine.Length > 0 AndAlso MyBase.IsNumber(strSplitLine(0)) Then
-                                                    mCurrentSpectrum.ParentIonMZ = CSng(strSplitLine(0))
+                                                    mCurrentSpectrum.ParentIonMZ = CDbl(strSplitLine(0))
                                                     blnParentIonFound = True
                                                 Else
                                                     ' Invalid LINE_START_PEPMASS Line
@@ -320,7 +320,7 @@ Public Class clsMGFFileReader
                                     ' Thus, compute .ParentIonMH using .ParentIonMZ
                                     With mCurrentSpectrum
                                         If .ParentIonChargeCount >= 1 Then
-                                            .ParentIonMH = CSng(MyBase.ConvoluteMass(.ParentIonMZ, .ParentIonCharges(0), 1))
+                                            .ParentIonMH = MyBase.ConvoluteMass(.ParentIonMZ, .ParentIonCharges(0), 1)
                                         Else
                                             .ParentIonMH = .ParentIonMZ
                                         End If

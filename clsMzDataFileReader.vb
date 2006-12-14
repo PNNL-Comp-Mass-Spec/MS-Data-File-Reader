@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified May 22, 2006
+' Last modified December 14, 2006
 
 Public Class clsMzDataFileReader
     Inherits clsMSXMLFileReaderBaseClass
@@ -192,7 +192,7 @@ Public Class clsMzDataFileReader
     End Property
 #End Region
 
-    Protected Function FindIonIntensityInRecentSpectra(ByVal intSpectrumIDToFind As Integer, ByVal sngMZToFind As Single) As Single
+    Protected Function FindIonIntensityInRecentSpectra(ByVal intSpectrumIDToFind As Integer, ByVal dblMZToFind As Double) As Single
         Dim sngIntensityMatch As Single
         Dim objEnumerator As IEnumerator
         Dim objSpectrum As clsSpectrumInfoMzData
@@ -203,7 +203,7 @@ Public Class clsMzDataFileReader
             Do While objEnumerator.MoveNext
                 objSpectrum = CType(objEnumerator.Current, clsSpectrumInfoMzData)
                 If objSpectrum.SpectrumID = intSpectrumIDToFind Then
-                    sngIntensityMatch = objSpectrum.LookupIonIntensityByMZ(sngMZToFind, 0)
+                    sngIntensityMatch = objSpectrum.LookupIonIntensityByMZ(dblMZToFind, 0)
                     Exit Do
                 End If
             Loop
@@ -527,7 +527,7 @@ Public Class clsMzDataFileReader
                         If GetCVNameAndValue(strCVName, strValue) Then
                             Select Case strCVName
                                 Case PrecursorIonSelectionCVParamNames.MassToChargeRatio
-                                    mCurrentSpectrum.ParentIonMZ = CSngSafe(strValue, 0)
+                                    mCurrentSpectrum.ParentIonMZ = CDblSafe(strValue, 0)
                                     With mCurrentSpectrum
                                         .ParentIonIntensity = FindIonIntensityInRecentSpectra(.ParentIonSpectrumID, .ParentIonMZ)
                                     End With

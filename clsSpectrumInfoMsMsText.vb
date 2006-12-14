@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified April 4, 2006
+' Last modified December 14, 2006
 
 <Serializable()> _
 Public Class clsSpectrumInfoMsMsText
@@ -27,7 +27,7 @@ Public Class clsSpectrumInfoMsMsText
     Protected mSpectrumTitleWithCommentChars As String
     Protected mSpectrumTitle As String
     Protected mParentIonLineText As String
-    Protected mParentIonMH As Single                ' DTA files include this value, but not the MZ value
+    Protected mParentIonMH As Double                ' DTA files include this value, but not the MZ value
 
     Public ParentIonChargeCount As Integer
     Public ParentIonCharges() As Integer            ' 0 if unknown, otherwise typically 1, 2, or 3; Max index is MAX_CHARGE_COUNT-1
@@ -45,6 +45,7 @@ Public Class clsSpectrumInfoMsMsText
             mSpectrumTitleWithCommentChars = Value
         End Set
     End Property
+
     Public Property SpectrumTitle() As String
         Get
             Return mSpectrumTitle
@@ -54,6 +55,7 @@ Public Class clsSpectrumInfoMsMsText
             mSpectrumTitle = Value
         End Set
     End Property
+
     Public Property ParentIonLineText() As String
         Get
             Return mParentIonLineText
@@ -63,11 +65,12 @@ Public Class clsSpectrumInfoMsMsText
             mParentIonLineText = Value
         End Set
     End Property
-    Public Property ParentIonMH() As Single
+
+    Public Property ParentIonMH() As Double
         Get
             Return mParentIonMH
         End Get
-        Set(ByVal Value As Single)
+        Set(ByVal Value As Double)
             MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
             mParentIonMH = Value
         End Set
@@ -242,11 +245,11 @@ Public Class clsSpectrumInfoMsMsText
 
         If ParentIonMZ <> 0 And ParentIonMH = 0 Then
             If ParentIonChargeCount > 0 Then
-                ParentIonMH = CSng(clsMSDataFileReaderBaseClass.ConvoluteMass(ParentIonMZ, ParentIonCharges(0), 1, clsMSDataFileReaderBaseClass.CHARGE_CARRIER_MASS_MONOISO))
+                ParentIonMH = clsMSDataFileReaderBaseClass.ConvoluteMass(ParentIonMZ, ParentIonCharges(0), 1, clsMSDataFileReaderBaseClass.CHARGE_CARRIER_MASS_MONOISO)
             End If
         ElseIf ParentIonMZ = 0 And ParentIonMH <> 0 Then
             If ParentIonChargeCount > 0 Then
-                ParentIonMZ = CSng(clsMSDataFileReaderBaseClass.ConvoluteMass(ParentIonMH, 1, ParentIonCharges(0), clsMSDataFileReaderBaseClass.CHARGE_CARRIER_MASS_MONOISO))
+                ParentIonMZ = clsMSDataFileReaderBaseClass.ConvoluteMass(ParentIonMH, 1, ParentIonCharges(0), clsMSDataFileReaderBaseClass.CHARGE_CARRIER_MASS_MONOISO)
             End If
         End If
 

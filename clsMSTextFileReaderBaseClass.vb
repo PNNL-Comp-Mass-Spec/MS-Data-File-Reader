@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified April 18, 2006
+' Last modified December 14, 2006
 
 Public MustInherit Class clsMSTextFileReaderBaseClass
     Inherits clsMsDataFileReaderBaseClass
@@ -297,7 +297,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         Dim intChargeStart As Integer, intChargeEnd As Integer
         Dim intChargeIndex As Integer
 
-        Dim sngParentIonMH As Single
+        Dim dblParentIonMH As Double
 
         If objSpectrumInfo.DataCount <= 0 OrElse objSpectrumInfo.MZList Is Nothing Then
             ' This shouldn't happen, but we'll handle it anyway
@@ -329,8 +329,8 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
 
                     ' Determine whether intChargeEnd should be higher than 3+
                     Do
-                        sngParentIonMH = CSng(MyBase.ConvoluteMass(objSpectrumInfo.ParentIonMZ, intChargeEnd, 1))
-                        If sngParentIonMH < objSpectrumInfo.MZList(objSpectrumInfo.DataCount - 1) + 3 Then
+                        dblParentIonMH = MyBase.ConvoluteMass(objSpectrumInfo.ParentIonMZ, intChargeEnd, 1)
+                        If dblParentIonMH < objSpectrumInfo.MZList(objSpectrumInfo.DataCount - 1) + 3 Then
                             intChargeEnd += 1
                         Else
                             Exit Do

@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified May 22, 2006
+' Last modified December 14, 2006
 
 Public Class clsMzXMLFileReader
     Inherits clsMSXMLFileReaderBaseClass
@@ -295,7 +295,7 @@ Public Class clsMzXMLFileReader
                 Select Case mCurrentElement
                     Case ScanSectionNames.precursorMz
                         Try
-                            mCurrentSpectrum.ParentIonMZ = CSng(XMLTextReaderGetInnerText())
+                            mCurrentSpectrum.ParentIonMZ = CDbl(XMLTextReaderGetInnerText())
                         Catch ex As Exception
                             mCurrentSpectrum.ParentIonMZ = 0
                         End Try
@@ -395,7 +395,7 @@ Public Class clsMzXMLFileReader
                             .RetentionTimeMin = GetAttribTimeValueMinutes(ScanAttributeNames.retentionTime)
                             .mzRangeStart = GetAttribValue(ScanAttributeNames.lowMz, CSng(0))
                             .mzRangeEnd = GetAttribValue(ScanAttributeNames.highMz, CSng(0))
-                            .BasePeakMZ = GetAttribValue(ScanAttributeNames.basePeakMz, CSng(0))
+                            .BasePeakMZ = GetAttribValue(ScanAttributeNames.basePeakMz, CDbl(0))
                             .BasePeakIntensity = GetAttribValue(ScanAttributeNames.basePeakIntensity, CSng(0))
                             .TotalIonCurrent = GetAttribValue(ScanAttributeNames.totIonCurrent, CDbl(0))
                         End With
