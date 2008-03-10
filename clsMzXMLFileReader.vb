@@ -485,7 +485,7 @@ Public Class clsMzXMLFileReader
         Try
             mFileVersion = String.Empty
 
-            ' Currently, the only version supported is mzXML_2.x
+    ' Currently, the supported versions are mzXML_2.x and mzXML_3.x
             objFileVersionRegEx = New System.Text.RegularExpressions.Regex("mzXML_[^\s""/]+", Text.RegularExpressions.RegexOptions.IgnoreCase)
 
             ' Validate the mzXML file version
@@ -499,8 +499,8 @@ Public Class clsMzXMLFileReader
             End If
 
             If mFileVersion.Length > 0 Then
-                If mFileVersion.IndexOf("mzXML_2") < 0 Then
-                    ' strFileVersion contains mzXML_ but not mxXML_2
+                If Not (mFileVersion.ToLower.IndexOf("mzxml_2") >= 0 OrElse mFileVersion.ToLower.IndexOf("mzxml_3") >= 0) Then
+                    ' strFileVersion contains mzXML_ but not mxXML_2 or mxXML_3
                     ' Thus, assume unknown version
                     ' Log error and abort if mParseFilesWithUnknownVersion = False
                     strMessage = "Unknown mzXML file version: " & mFileVersion

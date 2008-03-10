@@ -53,12 +53,14 @@ echo.
 echo 5) Copying %SourceAndSupportingDLLsFile% to %DistributionFolderFinal%
 Copy %SourceAndSupportingDLLsFile% %DistributionFolderFinal%
 
+goto done
+
 rem echo.
 rem echo 6) Creating Zipped Installer file
 rem If Exist %ZippedInstallerFile% (Del %ZippedInstallerFile%)
 rem "c:\program files\winrar\winRar.exe" a -ep %ZippedInstallerFile% ..\%InstallerFolder%\*.msi
 rem "c:\program files\winrar\winRar.exe" a -ep %ZippedInstallerFile% ..\bin\ReadMe.txt
-"c:\program files\winrar\winRar.exe" a -ep %ZippedInstallerFile% ..\bin\RevisionHistory.txt
+rem "c:\program files\winrar\winRar.exe" a -ep %ZippedInstallerFile% ..\bin\RevisionHistory.txt
 
 rem echo.
 rem echo 7) Copying %ZippedInstallerFile% to %DistributionFolderFinal%

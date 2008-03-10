@@ -1,5 +1,9 @@
 MSDataFileReader Change Log
 
+Version 1.2.2991; March 10, 2008
+	- Updated to allow reading mzXML files that are version 3.x (normally 3.0)
+		- Note that v3.x is backwards compatible with v2, so no actual code modifications were required
+
 Version 1.2.2539; December 14, 2006
 	 - Changed the parent ion m/z precision from single to double precision to allow for additional digits of precision
 
