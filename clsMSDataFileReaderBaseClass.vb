@@ -151,6 +151,15 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
             Return mReadingAndStoringSpectra
         End Get
     End Property
+
+    ' Note: When reading mzXML and mzData files the the FileReader classes, this value is not populated until after the first scan is read
+    ' When using the FileAccessor classes, this value is populated after the file is indexed
+    ' For .MGF and .DtaText files, this value will always be 0
+    Public ReadOnly Property ScanCount() As Integer
+        Get
+            Return mInputFileStats.ScanCount
+        End Get
+    End Property
 #End Region
 
     Public Sub AbortProcessingNow()

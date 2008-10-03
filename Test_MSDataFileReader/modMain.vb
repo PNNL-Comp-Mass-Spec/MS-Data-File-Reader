@@ -28,13 +28,13 @@ Module modMain
             'TestMGFReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached)
             'TestMGFReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential)
 
-            'TestMZXmlReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached)
-            'TestMZXmlReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential)
+            TestMZXmlReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached)
+            TestMZXmlReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential)
             TestMZXmlReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Indexed)
 
             'TestMZDataReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached)
             'TestMZDataReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential)
-            TestMZDataReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Indexed)
+            'TestMZDataReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Indexed)
 
             'TestBinaryTextReader("SampleData_QC_Standards_Excerpt.mzXML")
             'TestBinaryTextReader("Unicode_SampleData_myo_excerpt_1.05cv.mzdata")
@@ -293,6 +293,8 @@ Module modMain
                 dtEndTime = Now
                 LogFileReadEvent(strInputFilePath, "ReadAndCacheEntireFile", dtEndTime.Subtract(dtStartTime), "Reader = " & objMSFileReader.GetType.ToString & ControlChars.Tab & "DataReaderMode = " & eDataReaderMode.ToString)
 
+                Console.WriteLine("Scan Count: " & objMSFileReader.ScanCount.ToString)
+
                 strMessage = "Calling GetSpectrumByIndex; SpectrumCount = " & objMSFileReader.CachedSpectrumCount.ToString
                 Console.WriteLine(strMessage)
                 mProgressForm.InitializeProgressForm(strMessage, 0, objMSFileReader.CachedSpectrumCount)
@@ -302,6 +304,7 @@ Module modMain
                     If objMSFileReader.GetSpectrumByIndex(intIndex, objSpectrumInfo) Then
                         TestReaderShowSpectrumInfo(objSpectrumInfo)
                     End If
+
                     If intIndex Mod 10 = 0 Then
                         mProgressForm.UpdateProgressBar(intIndex)
                         System.Windows.Forms.Application.DoEvents()
@@ -367,6 +370,10 @@ Module modMain
                 dtStartTime = Now
                 intIndex = 0
                 Do While objMSFileReader.ReadNextSpectrum(objSpectrumInfo)
+                    If intIndex = 0 Then
+                        Console.WriteLine("Scan Count: " & objMSFileReader.ScanCount.ToString)
+                    End If
+
                     TestReaderShowSpectrumInfo(objSpectrumInfo)
                     intIndex += 1
                 Loop

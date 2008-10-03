@@ -1,5 +1,10 @@
 MSDataFileReader Change Log
 
+Version 1.2.3198; October 3, 2008
+	- Added ScanCount public property
+		- Only valid for .mzXML and .mzData files
+		- When using clsMzDataFileReader or clsMzXMLFileReader, this value is not populated until after the first scan is read
+
 Version 1.2.2991; March 10, 2008
 	- Updated to allow reading mzXML files that are version 3.x (normally 3.0)
 		- Note that v3.x is backwards compatible with v2, so no actual code modifications were required
