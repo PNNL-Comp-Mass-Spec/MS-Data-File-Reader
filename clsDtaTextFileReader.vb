@@ -134,17 +134,22 @@ Public Class clsDtaTextFileReader
                             blnSpectrumFound = ReadSingleSpectrum(srInFile, strLineIn, mCurrentMsMsDataList, mCurrentMsMsDataCount, mCurrentSpectrum, mInFileLineNumber, intLastProgressUpdateLine, strMostRecentLineIn)
 
                             If blnSpectrumFound Then
-                                With mCurrentSpectrum
-                                    Try
-                                        .DataCount = MyBase.ParseMsMsDataList(mCurrentMsMsDataList, mCurrentMsMsDataCount, .MZList, .IntensityList, .AutoShrinkDataLists)
+                                If MyBase.mReadTextDataOnly Then
+                                    ' Do not parse the text data to populate .MZList and .IntensityList
+                                    mCurrentSpectrum.DataCount = 0
+                                Else
+                                    With mCurrentSpectrum
+                                        Try
+                                            .DataCount = MyBase.ParseMsMsDataList(mCurrentMsMsDataList, mCurrentMsMsDataCount, .MZList, .IntensityList, .AutoShrinkDataLists)
 
-                                        .Validate(blnComputeBasePeakAndTIC:=True, blnUpdateMZRange:=True)
+                                            .Validate(blnComputeBasePeakAndTIC:=True, blnUpdateMZRange:=True)
 
-                                    Catch ex As Exception
-                                        .DataCount = 0
-                                        blnSpectrumFound = False
-                                    End Try
-                                End With
+                                        Catch ex As Exception
+                                            .DataCount = 0
+                                            blnSpectrumFound = False
+                                        End Try
+                                    End With
+                                End If
                             End If
 
                             If blnSpectrumFound And mCombineIdenticalSpectra And mCurrentSpectrum.ParentIonCharges(0) = 2 Then

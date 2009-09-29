@@ -1,5 +1,10 @@
 MSDataFileReader Change Log
 
+Version 1.2.3559; September 29, 2009
+	- Added functions GetSpectrumTitle and GetSpectrumTitleWithCommentChars to the MSTextFileReader base class
+	- Added property ReadTextDataOnly to the MSTextFileReader base class
+	- Changed mMostRecentSpectrumFileText in clsMSTextFileReaderBaseClass to use the StringBuilder class for string concatenation
+
 Version 1.2.3198; October 3, 2008
 	- Added ScanCount public property
 		- Only valid for .mzXML and .mzData files

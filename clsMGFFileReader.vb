@@ -358,17 +358,22 @@ Public Class clsMGFFileReader
                                     Loop
                                     blnSpectrumFound = True
 
-                                    With mCurrentSpectrum
-                                        Try
-                                            .DataCount = MyBase.ParseMsMsDataList(mCurrentMsMsDataList, mCurrentMsMsDataCount, .MZList, .IntensityList, .AutoShrinkDataLists)
+                                    If MyBase.mReadTextDataOnly Then
+                                        ' Do not parse the text data to populate .MZList and .IntensityList
+                                        mCurrentSpectrum.DataCount = 0
+                                    Else
+                                        With mCurrentSpectrum
+                                            Try
+                                                .DataCount = MyBase.ParseMsMsDataList(mCurrentMsMsDataList, mCurrentMsMsDataCount, .MZList, .IntensityList, .AutoShrinkDataLists)
 
-                                            .Validate(blnComputeBasePeakAndTIC:=True, blnUpdateMZRange:=True)
+                                                .Validate(blnComputeBasePeakAndTIC:=True, blnUpdateMZRange:=True)
 
-                                        Catch ex As Exception
-                                            .DataCount = 0
-                                            blnSpectrumFound = False
-                                        End Try
-                                    End With
+                                            Catch ex As Exception
+                                                .DataCount = 0
+                                                blnSpectrumFound = False
+                                            End Try
+                                        End With
+                                    End If
                                 End If
 
                                 ' Copy the scan number to mScanNumberStartSaved

@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified December 14, 2006
+' Last modified September 24, 2009
 
 Public MustInherit Class clsMSTextFileReaderBaseClass
     Inherits clsMsDataFileReaderBaseClass
@@ -46,13 +46,15 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
     Protected mCommentLineStartChar As Char = "="c
 
     Private mSecondMostRecentSpectrumFileText As String
-    Private mMostRecentSpectrumFileText As String
+    Private mMostRecentSpectrumFileText As System.Text.StringBuilder
 
     Protected mInFileLineNumber As Integer
 
     Protected mCurrentSpectrum As clsSpectrumInfoMsMsText
     Protected mCurrentMsMsDataCount As Integer
     Protected mCurrentMsMsDataList() As String
+
+    Protected mReadTextDataOnly As Boolean  ' When true, then reads the data and populates mCurrentMsMsDataList() but does not populate mCurrentSpectrum.MZList() or mCurrentSpectrum.IntensityList()
 
     Protected mTotalBytesRead As Long
     Protected mInFileStreamLength As Long
@@ -65,6 +67,15 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         End Get
         Set(ByVal Value As Char)
             mCommentLineStartChar = Value
+        End Set
+    End Property
+
+    Public Property ReadTextDataOnly() As Boolean
+        Get
+            Return mReadTextDataOnly
+        End Get
+        Set(ByVal Value As Boolean)
+            mReadTextDataOnly = Value
         End Set
     End Property
 
@@ -116,8 +127,8 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
     Protected Sub AddNewRecentFileText(ByVal strNewText As String, Optional ByVal blnNewSpectrum As Boolean = False, Optional ByVal blnAddCrLfIfNeeded As Boolean = True)
 
         If blnNewSpectrum Then
-            mSecondMostRecentSpectrumFileText = String.Copy(mMostRecentSpectrumFileText)
-            mMostRecentSpectrumFileText = String.Empty
+            mSecondMostRecentSpectrumFileText = mMostRecentSpectrumFileText.ToString
+            mMostRecentSpectrumFileText.Length = 0
         End If
 
         If blnAddCrLfIfNeeded Then
@@ -126,7 +137,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
             End If
         End If
 
-        mMostRecentSpectrumFileText &= strNewText
+        mMostRecentSpectrumFileText.Append(strNewText)
 
     End Sub
 
@@ -233,11 +244,23 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
     End Function
 
     Public Function GetMostRecentSpectrumFileText() As String
-        Return mMostRecentSpectrumFileText
+        If mMostRecentSpectrumFileText Is Nothing Then
+            Return String.Empty
+        Else
+            Return mMostRecentSpectrumFileText.ToString
+        End If
     End Function
 
     Public Function GetSecondMostRecentSpectrumFileText() As String
         Return mSecondMostRecentSpectrumFileText
+    End Function
+
+    Public Function GetSpectrumTitle() As String
+        Return mCurrentSpectrum.SpectrumTitle
+    End Function
+
+    Public Function GetSpectrumTitleWithCommentChars() As String
+        Return mCurrentSpectrum.SpectrumTitleWithCommentChars
     End Function
 
     Public Sub GuesstimateCharge(ByRef objSpectrumInfo As clsSpectrumInfoMsMsText, _
@@ -374,7 +397,9 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         mThresholdIonPctForSingleCharge = 10    ' Percentage
         mThresholdIonPctForDoubleCharge = 25    ' Percentage
 
-        mMostRecentSpectrumFileText = String.Empty
+        mMostRecentSpectrumFileText = New System.text.StringBuilder
+        mMostRecentSpectrumFileText.Length = 0
+
         mSecondMostRecentSpectrumFileText = String.Empty
 
         mInFileLineNumber = 0

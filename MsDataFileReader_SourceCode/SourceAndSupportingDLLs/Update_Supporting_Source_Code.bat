@@ -5,4 +5,4 @@ rem Del SharedVBNetRoutines_Source*.zip
 @echo off
 echo;
 
-rem Copy "D:\My Documents\Projects\DataMining\SharedVBNetRoutines\SharedVBNetRoutines_SourceCode\*.zip" .
+rem Copy "F:\My Documents\Projects\DataMining\SharedVBNetRoutines\SharedVBNetRoutines_SourceCode\*.zip" .
