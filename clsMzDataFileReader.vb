@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified December 14, 2006
+' Last modified September 17, 2010
 
 Public Class clsMzDataFileReader
     Inherits clsMSXMLFileReaderBaseClass
@@ -308,14 +308,14 @@ Public Class clsMzDataFileReader
 
                 Select Case NumericPrecisionOfData
                     Case 32
-                        If mBase64Decoder.DecodeNumericArray(strMSMSDataBase64Encoded, sngDataArray, eEndianMode) Then
+                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, sngDataArray, eEndianMode) Then
                             ReDim sngValues(sngDataArray.Length - 1)
                             sngDataArray.CopyTo(sngValues, 0)
 
                             blnSuccess = True
                         End If
                     Case 64
-                        If mBase64Decoder.DecodeNumericArray(strMSMSDataBase64Encoded, dblDataArray, eEndianMode) Then
+                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, dblDataArray, eEndianMode) Then
                             ReDim sngValues(dblDataArray.Length - 1)
 
                             For intIndex = 0 To dblDataArray.Length - 1
@@ -358,7 +358,6 @@ Public Class clsMzDataFileReader
         Dim dblDataArray() As Double
 
         Dim eEndianMode As clsBase64EncodeDecode.eEndianTypeConstants
-        Dim intIndex As Integer
         Dim blnSuccess As Boolean
 
         blnSuccess = False
@@ -370,14 +369,14 @@ Public Class clsMzDataFileReader
 
                 Select Case NumericPrecisionOfData
                     Case 32
-                        If mBase64Decoder.DecodeNumericArray(strMSMSDataBase64Encoded, sngDataArray, eEndianMode) Then
+                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, sngDataArray, eEndianMode) Then
                             ReDim dblValues(sngDataArray.Length - 1)
                             sngDataArray.CopyTo(dblValues, 0)
 
                             blnSuccess = True
                         End If
                     Case 64
-                        If mBase64Decoder.DecodeNumericArray(strMSMSDataBase64Encoded, dblDataArray, eEndianMode) Then
+                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, dblDataArray, eEndianMode) Then
                             ReDim dblValues(dblDataArray.Length - 1)
                             dblDataArray.CopyTo(dblValues, 0)
 
@@ -477,8 +476,8 @@ Public Class clsMzDataFileReader
 
     Protected Overrides Sub ParseStartElement()
 
-        Dim strCVName As String
-        Dim strValue As String
+        Dim strCVName As String = String.Empty
+        Dim strValue As String = String.Empty
 
         If mAbortProcessing Then Exit Sub
         If mCurrentSpectrum Is Nothing Then Exit Sub

@@ -215,7 +215,7 @@ Public Class clsSpectrumInfoMzData
     End Function
 
     Public Overloads Sub CopyTo(ByRef objTarget As clsSpectrumInfoMzData)
-        ''' Note; in classes derived from clsSpectrumInfo, call MyBase.CopyTo() but do not call objTarget.Clear()
+        '' Note; in classes derived from clsSpectrumInfo, call MyBase.CopyTo() but do not call objTarget.Clear()
         ''Dim objTargetBase As clsSpectrumInfo
 
         ''If objTarget Is Nothing Then
@@ -227,7 +227,7 @@ Public Class clsSpectrumInfoMzData
         ''objTargetBase = objTarget
         ''MyBase.CopyTo(objTargetBase)
 
-        ''' Perform a deep copy of this class's members to objTarget
+        '' Perform a deep copy of this class's members to objTarget
         ''With objTarget
         ''    .mCollisionEnergy = Me.mCollisionEnergy
         ''    .mCollisionEnergyUnits = Me.mCollisionEnergyUnits

@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified April 4, 2006
+' Last modified September 17, 2010
 
 <Serializable()> _
 Public Class clsSpectrumInfoMzXML
@@ -30,10 +30,26 @@ Public Class clsSpectrumInfoMzXML
         Public Const MZandIntensity As String = "m/z-int"
         Public Const IntensityAndMZ As String = "int-m/z"
     End Class
+
+    Public Class ScanTypeNames
+        Public Const Full As String = "Full"
+        Public Const zoom As String = "zoom"
+        Public Const SIM As String = "SIM"
+        Public Const SRM As String = "SRM"      ' MRM is synonymous with SRM
+        Public Const CRM As String = "CRM"
+        Public Const Q1 As String = "Q1"
+        Public Const Q3 As String = "Q3"
+        Public Const MRM As String = "MRM"
+    End Class
 #End Region
 
 #Region "Spectrum Variables"
     Protected mCollisionEnergy As Single
+
+    Protected mScanType As String                   ' See class ScanTypeNames for typical names
+    Protected mFilterLine As String                 ' Thermo-specific filter line text
+    Protected mStartMZ As Single                    ' Setted low m/z boundary (this is the instrumetal setting)
+    Protected mEndMZ As Single                      ' Setted high m/z boundary (this is the instrumetal setting)
 
     Protected mNumericPrecisionOfData As Integer            ' Typically 32 or 64
     Protected mPeaksByteOrder As String                     ' See class ByteOrderTypes for values; typically ByteOrderTypes.network
@@ -53,7 +69,15 @@ Public Class clsSpectrumInfoMzXML
             mCollisionEnergy = Value
         End Set
     End Property
-
+    Public Property FilterLine() As String
+        Get
+            Return mFilterLine
+        End Get
+        Set(ByVal value As String)
+            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            mFilterLine = value
+        End Set
+    End Property
     Public Property NumericPrecisionOfData() As Integer
         Get
             Return mNumericPrecisionOfData
@@ -81,12 +105,44 @@ Public Class clsSpectrumInfoMzXML
             mPeaksPairOrder = Value
         End Set
     End Property
+    Public Property EndMZ() As Single
+        Get
+            Return mEndMZ
+        End Get
+        Set(ByVal value As Single)
+            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            mEndMZ = value
+        End Set
+    End Property
+    Public Property StartMZ() As Single
+        Get
+            Return mStartMZ
+        End Get
+        Set(ByVal value As Single)
+            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            mStartMZ = value
+        End Set
+    End Property
+    Public Property ScanType() As String
+        Get
+            Return mScanType
+        End Get
+        Set(ByVal value As String)
+            mSpectrumStatus = eSpectrumStatusConstants.DataDefined
+            mScanType = value
+        End Set
+    End Property
 #End Region
 
     Public Overrides Sub Clear()
         MyBase.Clear()
 
         mCollisionEnergy = 0
+
+        mScanType = ScanTypeNames.Full
+        mFilterLine = String.Empty
+        mStartMZ = 0
+        mEndMZ = 0
 
         mNumericPrecisionOfData = 32            ' Assume 32-bit for now
         mPeaksByteOrder = ByteOrderTypes.network
@@ -124,7 +180,7 @@ Public Class clsSpectrumInfoMzXML
     End Function
 
     Public Overloads Sub CopyTo(ByRef objTarget As clsSpectrumInfoMzXML)
-        ''' Note; in classes derived from clsSpectrumInfo, call MyBase.CopyTo() but do not call objTarget.Clear()
+        '' Note; in classes derived from clsSpectrumInfo, call MyBase.CopyTo() but do not call objTarget.Clear()
         ''Dim objTargetBase As clsSpectrumInfo
 
 
@@ -137,7 +193,7 @@ Public Class clsSpectrumInfoMzXML
         ''objTargetBase = objTarget
         ''MyBase.CopyTo(objTargetBase)
 
-        ''' Perform a deep copy of this class's members to objTarget
+        '' Perform a deep copy of this class's members to objTarget
         ''With objTarget
         ''    .mCollisionEnergy = Me.mCollisionEnergy
 

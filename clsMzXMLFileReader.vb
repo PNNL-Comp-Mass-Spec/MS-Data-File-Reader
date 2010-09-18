@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified December 14, 2006
+' Last modified September 17, 2010
 
 Public Class clsMzXMLFileReader
     Inherits clsMSXMLFileReaderBaseClass
@@ -62,13 +62,17 @@ Public Class clsMzXMLFileReader
         Public Const msLevel As String = "msLevel"
         Public Const peaksCount As String = "peaksCount"
         Public Const polarity As String = "polarity"
+        Public Const scanType As String = "scanType"                    ' Options are: Full, zoom, SIM, SRM, MRM, CRM, Q1, or Q3; note that MRM and SRM and functionally equivalent; ReadW uses SRM
+        Public Const filterLine As String = "filterLine"                ' Thermo-specific filter-line text; added by ReadW
         Public Const retentionTime As String = "retentionTime"
-        Public Const collisionEnergy As String = "collisionEnergy"
-        Public Const lowMz As String = "lowMz"
-        Public Const highMz As String = "highMz"
-        Public Const basePeakMz As String = "basePeakMz"
-        Public Const basePeakIntensity As String = "basePeakIntensity"
-        Public Const totIonCurrent As String = "totIonCurrent"
+        Public Const collisionEnergy As String = "collisionEnergy"      ' Collision energy used to fragment the parent ion
+        Public Const startMz As String = "startMz"                      ' Setted low m/z boundary (this is the instrumetal setting); not present in .mzXML files created with ReadW
+        Public Const endMz As String = "endMz"                          ' Setted high m/z boundary (this is the instrumetal setting); not present in .mzXML files created with ReadW
+        Public Const lowMz As String = "lowMz"                          ' Observed low m/z (this is what the actual data looks like
+        Public Const highMz As String = "highMz"                        ' Observed high m/z (this is what the actual data looks like
+        Public Const basePeakMz As String = "basePeakMz"                ' m/z of the base peak (most intense peak)
+        Public Const basePeakIntensity As String = "basePeakIntensity"  ' Intensity of the base peak (most intense peak)
+        Public Const totIonCurrent As String = "totIonCurrent"          ' Total ion current (total intensity in the scan)
     End Class
 
     Protected Class PrecursorAttributeNames
@@ -201,7 +205,7 @@ Public Class clsMzXMLFileReader
 
                 Select Case mCurrentSpectrum.NumericPrecisionOfData
                     Case 32
-                        If mBase64Decoder.DecodeNumericArray(strMSMSDataBase64Encoded, sngDataArray, eEndianMode) Then
+                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, sngDataArray, eEndianMode) Then
                             ' sngDataArray now contains pairs of singles, either m/z and intensity or intensity and m/z
                             ' Need to split this apart into two arrays
 
@@ -226,7 +230,7 @@ Public Class clsMzXMLFileReader
                             blnSuccess = True
                         End If
                     Case 64
-                        If mBase64Decoder.DecodeNumericArray(strMSMSDataBase64Encoded, dblDataArray, eEndianMode) Then
+                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, dblDataArray, eEndianMode) Then
                             ' dblDataArray now contains pairs of doubles, either m/z and intensity or intensity and m/z
                             ' Need to split this apart into two arrays
 
@@ -393,8 +397,16 @@ Public Class clsMzXMLFileReader
                             .DataCount = GetAttribValue(ScanAttributeNames.peaksCount, 0)
                             .Polarity = GetAttribValue(ScanAttributeNames.polarity, "+")
                             .RetentionTimeMin = GetAttribTimeValueMinutes(ScanAttributeNames.retentionTime)
+
+                            .ScanType = GetAttribValue(ScanAttributeNames.scanType, "")
+                            .FilterLine = GetAttribValue(ScanAttributeNames.filterLine, "")
+
+                            .StartMZ = GetAttribValue(ScanAttributeNames.startMz, CSng(0))
+                            .EndMZ = GetAttribValue(ScanAttributeNames.endMz, CSng(0))
+
                             .mzRangeStart = GetAttribValue(ScanAttributeNames.lowMz, CSng(0))
                             .mzRangeEnd = GetAttribValue(ScanAttributeNames.highMz, CSng(0))
+
                             .BasePeakMZ = GetAttribValue(ScanAttributeNames.basePeakMz, CDbl(0))
                             .BasePeakIntensity = GetAttribValue(ScanAttributeNames.basePeakIntensity, CSng(0))
                             .TotalIonCurrent = GetAttribValue(ScanAttributeNames.totIonCurrent, CDbl(0))

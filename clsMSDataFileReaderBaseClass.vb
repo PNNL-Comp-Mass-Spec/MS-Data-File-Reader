@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified May 22, 2006
+' Last modified September 17, 2010
 
 Public MustInherit Class clsMSDataFileReaderBaseClass
 
@@ -480,9 +480,8 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
     End Sub
 
     Public Shared Function IsNumber(ByVal strValue As String) As Boolean
-        Dim objFormatProvider As System.Globalization.NumberFormatInfo
         Try
-            Return Double.TryParse(strValue, Globalization.NumberStyles.Any, objFormatProvider, 0)
+            Return Double.TryParse(strValue, 0)
         Catch ex As Exception
             Return False
         End Try

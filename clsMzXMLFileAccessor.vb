@@ -28,7 +28,7 @@ Option Strict On
 ' SOFTWARE.  This notice including this sentence must appear on any copies of
 ' this computer software.
 '
-' Last modified June 13, 2006
+' Last modified September 17, 2010
 
 Public Class clsMzXMLFileAccessor
     Inherits clsMSDataFileAccessorBaseClass
@@ -464,7 +464,7 @@ Public Class clsMzXMLFileAccessor
         Const DEBUG_MODE As Boolean = False
         Dim srOutfile As System.IO.StreamWriter
 
-        Dim strExtractedText As String
+        Dim strExtractedText As String = String.Empty
 
         Dim blnSuccess As Boolean
 

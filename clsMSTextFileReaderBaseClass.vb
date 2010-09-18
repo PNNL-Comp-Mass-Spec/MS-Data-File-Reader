@@ -215,7 +215,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
                         ' Reverse strSplitLine
                         Array.Reverse(strSplitLine)
 
-                        If MyBase.IsNumber(strSplitLine(0)) And MyBase.IsNumber(strSplitLine(1)) Then
+                        If clsMSDataFileReaderBaseClass.IsNumber(strSplitLine(0)) And clsMSDataFileReaderBaseClass.IsNumber(strSplitLine(1)) Then
                             ' Note: because we reversed strSplitLine, the start scan is at index 1, the end scan is at index 0
                             intScanNumberStart = CInt(strSplitLine(1))
                             intScanNumberEnd = CInt(strSplitLine(0))
@@ -358,7 +358,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
                         Else
                             Exit Do
                         End If
-                    Loop While intChargeEnd < objSpectrumInfo.MAX_CHARGE_COUNT
+                    Loop While intChargeEnd < clsSpectrumInfoMsMsText.MAX_CHARGE_COUNT
 
                     If blnAddToExistingChargeList Then
                         If Not blnForceChargeAddnFor2and3Plus And intChargeStart = 2 And intChargeEnd = 3 Then
@@ -492,7 +492,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
                 ' Use the .Split function to parse the numbers in the line to extract the mass and intensity, and ignore the charge (if present)
                 strSplitLine = strMSMSData(i).Split(strSepChars)
                 If strSplitLine.Length >= 2 Then
-                    If MyBase.IsNumber(strSplitLine(0)) And MyBase.IsNumber(strSplitLine(1)) Then
+                    If clsMSDataFileReaderBaseClass.IsNumber(strSplitLine(0)) And clsMSDataFileReaderBaseClass.IsNumber(strSplitLine(1)) Then
                         dblMasses(intDataCount) = CDbl(strSplitLine(0))
                         sngIntensities(intDataCount) = CSng(strSplitLine(1))
                         intDataCount += 1

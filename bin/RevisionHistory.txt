@@ -1,5 +1,13 @@
 MSDataFileReader Change Log
 
+Version 1.3.3912; September 17, 2010
+	- Added support for additional mzXML scan attributes
+		- Added support for scanType tag in .mzXML files
+			- Options are: Full, zoom, SIM, SRM, CRM, Q1, Q3, or MRM
+		- Added support for filterLine, which lists the Thermo-specific filter line text for each scan
+		- Looking for startMZ and endMZ, which are used by mzStar and MassWolf to indicate MRM transition masses
+	- Updated to Visual Studio 2010
+
 Version 1.2.3559; September 29, 2009
 	- Added functions GetSpectrumTitle and GetSpectrumTitleWithCommentChars to the MSTextFileReader base class
 	- Added property ReadTextDataOnly to the MSTextFileReader base class

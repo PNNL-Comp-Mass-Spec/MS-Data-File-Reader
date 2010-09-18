@@ -161,7 +161,7 @@ Public Class clsMGFFileReader
                                             End If
                                         Loop
 
-                                        If MyBase.IsNumber(strTemp) Then
+                                        If clsMSDataFileReaderBaseClass.IsNumber(strTemp) Then
                                             mCurrentSpectrum.ScanNumberEnd = CInt(strTemp)
                                         End If
                                     End If
@@ -173,9 +173,9 @@ Public Class clsMGFFileReader
                                     strRemaining = strLineIn.Substring(intCharIndex + 1).Trim
                                     strLineIn = strLineIn.Substring(0, intCharIndex).Trim
 
-                                    If MyBase.IsNumber(strLineIn) Then
+                                    If clsMSDataFileReaderBaseClass.IsNumber(strLineIn) Then
                                         mCurrentSpectrum.ScanNumber = CInt(strLineIn)
-                                        If MyBase.IsNumber(strRemaining) Then
+                                        If clsMSDataFileReaderBaseClass.IsNumber(strRemaining) Then
                                             If mCurrentSpectrum.ScanNumberEnd = 0 Then
                                                 mCurrentSpectrum.ScanNumberEnd = CInt(strRemaining)
                                             End If
@@ -185,7 +185,7 @@ Public Class clsMGFFileReader
                                         blnScanNumberFound = True
                                     End If
                                 Else
-                                    If MyBase.IsNumber(strLineIn) Then
+                                    If clsMSDataFileReaderBaseClass.IsNumber(strLineIn) Then
                                         mCurrentSpectrum.ScanNumber = CInt(strLineIn)
                                         If mCurrentSpectrum.ScanNumberEnd = 0 Then
                                             mCurrentSpectrum.ScanNumberEnd = mCurrentSpectrum.ScanNumber
@@ -238,7 +238,7 @@ Public Class clsMGFFileReader
                                                 ' We do not save the intensity value since it cannot be included in a .Dta file
                                                 strLineIn = strLineIn.Substring(8).Trim
                                                 strSplitLine = strLineIn.Split(strSepChars)
-                                                If strSplitLine.Length > 0 AndAlso MyBase.IsNumber(strSplitLine(0)) Then
+                                                If strSplitLine.Length > 0 AndAlso clsMSDataFileReaderBaseClass.IsNumber(strSplitLine(0)) Then
                                                     mCurrentSpectrum.ParentIonMZ = CDbl(strSplitLine(0))
                                                     blnParentIonFound = True
                                                 Else
@@ -261,9 +261,9 @@ Public Class clsMGFFileReader
                                                     For intIndex = 0 To strSplitLine.Length - 1
                                                         ' Step through the split line and add any numbers to the charge list
                                                         ' Typically, strSplitLine(1) will contain "and"
-                                                        If MyBase.IsNumber(strSplitLine(intIndex).Trim) Then
+                                                        If clsMSDataFileReaderBaseClass.IsNumber(strSplitLine(intIndex).Trim) Then
                                                             With mCurrentSpectrum
-                                                                If .ParentIonChargeCount < mCurrentSpectrum.MAX_CHARGE_COUNT Then
+                                                                If .ParentIonChargeCount < clsSpectrumInfoMsMsText.MAX_CHARGE_COUNT Then
                                                                     .ParentIonCharges(.ParentIonChargeCount) = CInt(strSplitLine(intIndex).Trim)
                                                                     .ParentIonChargeCount += 1
                                                                 End If
@@ -271,7 +271,7 @@ Public Class clsMGFFileReader
                                                         End If
                                                     Next intIndex
                                                 Else
-                                                    If MyBase.IsNumber(strLineIn) Then
+                                                    If clsMSDataFileReaderBaseClass.IsNumber(strLineIn) Then
                                                         With mCurrentSpectrum
                                                             .ParentIonChargeCount = 1
                                                             .ParentIonCharges(0) = CInt(strLineIn)

@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified May 23, 2006
+' Last modified September 17, 2010
 
 Public MustInherit Class clsMSXMLFileReaderBaseClass
     Inherits clsMSDataFileReaderBaseClass
@@ -124,8 +124,7 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
         Const ZERO_SOAP_DURATION_FULL As String = "P0Y0M0DT0H0M0S"
         Const ZERO_SOAP_DURATION_SHORT As String = "PT0S"
 
-        Dim objSOAPDuration As System.Runtime.Remoting.Metadata.W3cXsd2001.SoapDuration
-        Dim strXMLDuration As String
+        Dim strXMLDuration As String = String.Empty
 
         Dim intCharIndex As Integer
         Dim intCharIndex2 As Integer
@@ -142,7 +141,7 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
             If dtTimeSpan.Equals(System.TimeSpan.Zero) Then
                 blnReturnZero = True
             Else
-                strXMLDuration = objSOAPDuration.ToString(dtTimeSpan)
+                strXMLDuration = System.Runtime.Remoting.Metadata.W3cXsd2001.SoapDuration.ToString(dtTimeSpan)
                 If strXMLDuration.Length = 0 Then
                     blnReturnZero = True
                     Exit Try
@@ -232,10 +231,9 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
         ' P1Y2M3DT4H5M6.7S is one year, two months, three days, four hours, five minutes, and 6.7 seconds.
 
         Dim dtTimeSpan As TimeSpan
-        Dim objSOAPDuration As System.Runtime.Remoting.Metadata.W3cXsd2001.SoapDuration
 
         Try
-            dtTimeSpan = objSOAPDuration.Parse(strTime)
+            dtTimeSpan = System.Runtime.Remoting.Metadata.W3cXsd2001.SoapDuration.Parse(strTime)
         Catch ex As Exception
             dtTimeSpan = dtDefaultTimeSpan
         End Try

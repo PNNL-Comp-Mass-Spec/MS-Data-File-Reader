@@ -28,7 +28,7 @@ Option Strict On
 ' SOFTWARE.  This notice including this sentence must appear on any copies of
 ' this computer software.
 '
-' Last modified June 13, 2006
+' Last modified September 17, 2010
 
 Public Class clsMzDataFileAccessor
     Inherits clsMSDataFileAccessorBaseClass
@@ -112,7 +112,7 @@ Public Class clsMzDataFileAccessor
         Dim lngByteOffsetForRewind As Long
 
         Dim blnLookForScanCountOnNextRead As Boolean
-        Dim strScanCountSearchText As String
+        Dim strScanCountSearchText As String = String.Empty
 
         Dim intCharIndex As Integer
 
@@ -323,7 +323,7 @@ Public Class clsMzDataFileAccessor
         Const DEBUG_MODE As Boolean = False
         Dim srOutfile As System.IO.StreamWriter
 
-        Dim strExtractedText As String
+        Dim strExtractedText As String = String.Empty
 
         Dim blnSuccess As Boolean
 
@@ -385,7 +385,6 @@ Public Class clsMzDataFileAccessor
         ' Returns True if success, False if failure
         ' Only valid if we have Indexed data in memory
 
-        Dim intPointer As Integer
         Dim intSpectrumIndex As Integer
         Dim objIndex As Object
 

@@ -68,7 +68,8 @@ Public Class clsDtaTextFileReader
         ' Returns True if a spectrum is found, otherwise, returns False
         ' If blnCombineIdenticalSpectra = True, then combines spectra that only differ by their charge state
 
-        Dim strLineIn As String, strMostRecentLineIn As String
+        Dim strLineIn As String
+        Dim strMostRecentLineIn As String = String.Empty
         Dim intLastProgressUpdateLine As Integer
         Dim strCompareTitle As String
 
@@ -305,7 +306,7 @@ Public Class clsDtaTextFileReader
         intCharIndex = strParentIonLineText.IndexOf(" ")
         If intCharIndex >= 1 Then
             strValue = strParentIonLineText.Substring(0, intCharIndex)
-            If MyBase.IsNumber(strValue) Then
+            If clsMSDataFileReaderBaseClass.IsNumber(strValue) Then
                 With objSpectrumInfoMsMsText
                     .ParentIonMH = CDbl(strValue)
 
@@ -316,7 +317,7 @@ Public Class clsDtaTextFileReader
                     If intCharIndex > 0 Then
                         strValue = strValue.Substring(0, intCharIndex)
                     End If
-                    If MyBase.IsNumber(strValue) Then
+                    If clsMSDataFileReaderBaseClass.IsNumber(strValue) Then
                         .ParentIonChargeCount = 1
                         .ParentIonCharges(0) = CInt(strValue)
 

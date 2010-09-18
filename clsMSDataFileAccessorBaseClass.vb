@@ -127,8 +127,6 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
         Dim bytData() As Byte
         Dim intBytesToRead As Integer
 
-        Dim intIndex As Integer
-
         Try
             If Not mBinaryReader Is Nothing AndAlso mBinaryReader.CanRead Then
                 mBinaryReader.Seek(lngStartByteOffset, IO.SeekOrigin.Begin)
@@ -278,7 +276,6 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
         ' This does not include the header or footer XML for the file
         ' Only valid if we have Indexed data in memory
 
-        Dim intPointer As Integer
         Dim intSpectrumIndex As Integer
         Dim objIndex As Object
 
@@ -354,7 +351,6 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
         ' Returns True if success, False if failure
         ' Only valid if we have Cached or Indexed data in memory
 
-        Dim intPointer As Integer
         Dim intSpectrumIndex As Integer
         Dim objIndex As Object
 

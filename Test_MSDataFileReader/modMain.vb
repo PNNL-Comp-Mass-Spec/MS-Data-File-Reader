@@ -205,6 +205,8 @@ Module modMain
     End Sub
 
     Private Sub TestMZXmlReader(ByVal eDataReaderMode As MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants)
+        TestMZXmlReader("SRM_HeavyPeptide_5nM_buffer2_mazama.mzXML", eDataReaderMode)
+
         TestMZXmlReader("SampleData_QC_Standards_Excerpt.mzXML", eDataReaderMode)
         'TestMZXmlReader("Mini_proteome_CytochromeC02-LCQ-1_Profile.mzXML", eDataReaderMode)
         'TestMZXmlReader("MSFMS_018_Agilent_Fusion_031305.mzXML", eDataReaderMode)

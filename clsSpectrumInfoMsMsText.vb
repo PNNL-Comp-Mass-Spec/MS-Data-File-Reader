@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified December 14, 2006
+' Last modified September 17, 2010
 
 <Serializable()> _
 Public Class clsSpectrumInfoMsMsText
@@ -207,7 +207,7 @@ Public Class clsSpectrumInfoMsMsText
     ''End Function
 
     Public Overloads Sub CopyTo(ByRef objTarget As clsSpectrumInfoMsMsText)
-        ''' Note; in classes derived from clsSpectrumInfo, call MyBase.CopyTo() but do not call objTarget.Clear()
+        '' Note; in classes derived from clsSpectrumInfo, call MyBase.CopyTo() but do not call objTarget.Clear()
         ''Dim objTargetBase As clsSpectrumInfo
 
         ''If objTarget Is Nothing Then
@@ -219,7 +219,7 @@ Public Class clsSpectrumInfoMsMsText
         ''objTargetBase = objTarget
         ''MyBase.CopyTo(objTargetBase)
 
-        ''' Perform a deep copy of this class's members to objTarget
+        '' Perform a deep copy of this class's members to objTarget
         ''With objTarget
         ''    .mSpectrumTitleWithCommentChars = Me.mSpectrumTitleWithCommentChars
         ''    .mSpectrumTitle = Me.mSpectrumTitle

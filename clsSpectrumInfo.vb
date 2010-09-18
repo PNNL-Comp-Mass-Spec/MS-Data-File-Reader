@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified December 14, 2006
+' Last modified September 17, 2010
 <Serializable()> _
 Public Class clsSpectrumInfo
     Implements ICloneable
@@ -29,7 +29,7 @@ Public Class clsSpectrumInfo
 
     Public Enum eSpectrumStatusConstants
         Initialized = 0                     ' This is set when .Clear() is called
-        DataDefined = 1                     ' This is set when any of the 
+        DataDefined = 1                     ' This is set when any of the values are set via a property
         Validated = 2                       ' This is set when .Validate() is called
     End Enum
 #End Region
@@ -40,7 +40,7 @@ Public Class clsSpectrumInfo
     Protected mScanCount As Integer                 ' Number of spectra combined together to get the given spectrum
     Protected mScanNumberEnd As Integer             ' Last scan if more than one scan was combined to make this spectrum
 
-    Protected mSpectrumType As String               ' See class SpectrumTypeNames for typical names
+    Protected mSpectrumType As String               ' See Class SpectrumTypeNames for typical names
     Protected mSpectrumCombinationMethod As String
 
     Protected mMSLevel As Integer                   ' 1 for MS, 2 for MS/MS, 3 for MS^3, etc.
