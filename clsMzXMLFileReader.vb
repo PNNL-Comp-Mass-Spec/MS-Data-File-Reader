@@ -264,9 +264,20 @@ Public Class clsMzXMLFileReader
                             If .DataCount = 0 AndAlso .MZList.Length > 0 AndAlso .MZList(0) = 0 AndAlso .IntensityList(0) = 0 Then
                                 ' Leave .PeaksCount at 0
                             Else
-                                ' This shouldn't normally be necessary
-                                LogErrors("ParseBinaryData", "Unexpected condition: .MZList.Length <> .DataCount and .DataCount > 0")
-                                .DataCount = .MZList.Length
+                                If .MZList.Length > 1 AndAlso .IntensityList.Length > 1 Then
+                                    ' Check whether the last entry has a mass and intensity of 0
+                                    If .MZList(.MZList.Length - 1) = 0 AndAlso .IntensityList(.MZList.Length - 1) = 0 Then
+                                        ' Remove the final entry
+                                        ReDim Preserve .MZList(.MZList.Length - 2)
+                                        ReDim Preserve .IntensityList(.IntensityList.Length - 2)
+                                    End If
+                                End If
+
+                                If .MZList.Length <> .DataCount Then
+                                    ' This shouldn't normally be necessary
+                                    LogErrors("ParseBinaryData", "Unexpected condition: .MZList.Length <> .DataCount and .DataCount > 0")
+                                    .DataCount = .MZList.Length
+                                End If
                             End If
                         End If
                     End With
