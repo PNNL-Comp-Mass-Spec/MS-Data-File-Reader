@@ -1,5 +1,8 @@
 MSDataFileReader Change Log
 
+Version 1.3.4139; May 2, 2011
+	- Compiled in release mode
+
 Version 1.3.3922; September 27, 2010
 	- Now checking for the final entry in a mass spectrum having an m/z and intensity of 0
 		- Removing the final entry if this is the case
