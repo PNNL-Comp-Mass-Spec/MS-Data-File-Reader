@@ -505,7 +505,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
             If Not LastCallingFunction Is Nothing Then
                 If LastCallingFunction = strCallingFunction AndAlso _
                 LastErrorMessage = strErrorDescription Then
-                    If System.DateTime.Now.Subtract(LastSaveTime).TotalMilliseconds < 500 Then
+                    If System.DateTime.UtcNow.Subtract(LastSaveTime).TotalSeconds < 0.5 Then
                         ' Duplicate message, less than 500 milliseconds since the last save
                         ' Do not update the log file
                         Exit Sub
@@ -515,7 +515,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
 
             LastCallingFunction = String.Copy(strCallingFunction)
             LastErrorMessage = String.Copy(strErrorDescription)
-            LastSaveTime = System.DateTime.Now
+            LastSaveTime = System.DateTime.UtcNow
 
             strLogFilePath = "MSDataFileReader_ErrorLog.txt"
             swErrorLog = New System.IO.StreamWriter(strLogFilePath, True)

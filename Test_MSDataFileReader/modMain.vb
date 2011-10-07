@@ -99,7 +99,7 @@ Module modMain
             strLogFilePath = System.IO.Path.GetFileNameWithoutExtension(System.Reflection.Assembly.GetExecutingAssembly().Location) & "_EventLog.txt"
 
             swOutFile = New System.IO.StreamWriter(strLogFilePath, True)
-            swOutFile.WriteLine(Now().ToString & ControlChars.Tab & _
+            swOutFile.WriteLine(System.DateTime.Now().ToString & ControlChars.Tab & _
                                 System.IO.Path.GetFileName(strInputFilePath) & ControlChars.Tab & _
                                 Math.Round(dblFileSizeMB, 2) & ControlChars.Tab & _
                                 strTask & ControlChars.Tab & _
@@ -290,9 +290,9 @@ Module modMain
             Case MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached, _
                  MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Indexed
 
-                dtStartTime = Now
+                dtStartTime = System.DateTime.UtcNow
                 objMSFileReader.ReadAndCacheEntireFile()
-                dtEndTime = Now
+                dtEndTime = System.DateTime.UtcNow
                 LogFileReadEvent(strInputFilePath, "ReadAndCacheEntireFile", dtEndTime.Subtract(dtStartTime), "Reader = " & objMSFileReader.GetType.ToString & ControlChars.Tab & "DataReaderMode = " & eDataReaderMode.ToString)
 
                 Console.WriteLine("Scan Count: " & objMSFileReader.ScanCount.ToString)
@@ -301,7 +301,7 @@ Module modMain
                 Console.WriteLine(strMessage)
                 mProgressForm.InitializeProgressForm(strMessage, 0, objMSFileReader.CachedSpectrumCount)
 
-                dtStartTime = Now
+                dtStartTime = System.DateTime.UtcNow
                 For intIndex = 0 To objMSFileReader.CachedSpectrumCount - 1
                     If objMSFileReader.GetSpectrumByIndex(intIndex, objSpectrumInfo) Then
                         TestReaderShowSpectrumInfo(objSpectrumInfo)
@@ -313,7 +313,7 @@ Module modMain
                         If mProgressForm.KeyPressAbortProcess Then Exit For
                     End If
                 Next intIndex
-                dtEndTime = Now
+                dtEndTime = System.DateTime.UtcNow
                 LogFileReadEvent(strInputFilePath, "Calling GetSpectrumByIndex", dtEndTime.Subtract(dtStartTime), "SpectrumCount = " & objMSFileReader.CachedSpectrumCount.ToString)
 
                 strMessage = "Calling GetSpectrumByScanNumber; Minimum = " & objMSFileReader.CachedSpectraScanNumberMinimum.ToString & "; Maximum = " & objMSFileReader.CachedSpectraScanNumberMaximum.ToString
@@ -331,7 +331,7 @@ Module modMain
                     Console.WriteLine(strMessage)
                     mProgressForm.InitializeProgressForm(strMessage, 0, intScanNumberList.Length)
 
-                    dtStartTime = Now
+                    dtStartTime = System.DateTime.UtcNow
                     For intIndex = 0 To intScanNumberList.Length - 1
                         If objMSFileReader.GetSpectrumByScanNumber(intScanNumberList(intIndex), objSpectrumInfo) Then
                             TestReaderShowSpectrumInfo(objSpectrumInfo)
@@ -343,7 +343,7 @@ Module modMain
                             If mProgressForm.KeyPressAbortProcess Then Exit For
                         End If
                     Next intIndex
-                    dtEndTime = Now
+                    dtEndTime = System.DateTime.UtcNow
                     LogFileReadEvent(strInputFilePath, "Calling GetSpectrumByScanNumber using ScanNumberList", dtEndTime.Subtract(dtStartTime), "SpectrumCount = " & intScanNumberList.Length)
                 End If
 
@@ -369,7 +369,7 @@ Module modMain
                 strMessage = "Calling ReadNextSpectrum (no caching)"
                 Console.WriteLine(strMessage)
 
-                dtStartTime = Now
+                dtStartTime = System.DateTime.UtcNow
                 intIndex = 0
                 Do While objMSFileReader.ReadNextSpectrum(objSpectrumInfo)
                     If intIndex = 0 Then
@@ -379,7 +379,7 @@ Module modMain
                     TestReaderShowSpectrumInfo(objSpectrumInfo)
                     intIndex += 1
                 Loop
-                dtEndTime = Now
+                dtEndTime = System.DateTime.UtcNow
                 LogFileReadEvent(strInputFilePath, strMessage, dtEndTime.Subtract(dtStartTime), "SpectrumCount = " & intIndex)
 
         End Select
