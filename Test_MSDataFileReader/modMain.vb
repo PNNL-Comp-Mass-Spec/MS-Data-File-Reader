@@ -22,15 +22,15 @@ Module modMain
         Try
             mProgressForm = New ProgressFormNET.frmProgress
 
-            'TestDTATextReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached)
-            'TestDTATextReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential)
+			TestDTATextReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached)
+			TestDTATextReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential)
 
-            'TestMGFReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached)
-            'TestMGFReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential)
+			TestMGFReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached)
+			TestMGFReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential)
 
-            TestMZXmlReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached)
-            TestMZXmlReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential)
-            TestMZXmlReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Indexed)
+			'TestMZXmlReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached)
+			'TestMZXmlReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential)
+			'TestMZXmlReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Indexed)
 
             'TestMZDataReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached)
             'TestMZDataReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential)
@@ -190,7 +190,8 @@ Module modMain
 
     End Sub
     Private Sub TestMGFReader(ByVal eDataReaderMode As MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants)
-        TestMGFReader("Kolker10percentlessTFA3.mgf", eDataReaderMode)
+		TestMGFReader("Kolker10percentlessTFA3.mgf", eDataReaderMode)
+		'TestMGFReader("CPTAC_Peptidome_Test1_P1_R2_Poroshell_03Feb12_Frodo_Poroshell300SB.mgf", eDataReaderMode)
     End Sub
 
     Private Sub TestMGFReader(ByVal strInputFilePath As String, ByVal eDataReaderMode As MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants)

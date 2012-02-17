@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified December 14, 2006
+' Last modified February 16, 2012
 
 Public Class clsDtaTextFileReader
     Inherits clsMSTextFileReaderBaseClass
@@ -132,7 +132,7 @@ Public Class clsDtaTextFileReader
                             MyBase.AddNewRecentFileText(strLineIn)
 
                             ' Parse the parent ion info and read the MsMs Data
-                            blnSpectrumFound = ReadSingleSpectrum(srInFile, strLineIn, mCurrentMsMsDataList, mCurrentMsMsDataCount, mCurrentSpectrum, mInFileLineNumber, intLastProgressUpdateLine, strMostRecentLineIn)
+							blnSpectrumFound = ReadSingleSpectrum(srInFile, strLineIn, mCurrentMsMsDataList, mCurrentSpectrum, mInFileLineNumber, intLastProgressUpdateLine, strMostRecentLineIn)
 
                             If blnSpectrumFound Then
                                 If MyBase.mReadTextDataOnly Then
@@ -141,7 +141,7 @@ Public Class clsDtaTextFileReader
                                 Else
                                     With mCurrentSpectrum
                                         Try
-                                            .DataCount = MyBase.ParseMsMsDataList(mCurrentMsMsDataList, mCurrentMsMsDataCount, .MZList, .IntensityList, .AutoShrinkDataLists)
+											.DataCount = MyBase.ParseMsMsDataList(mCurrentMsMsDataList, .MZList, .IntensityList, .AutoShrinkDataLists)
 
                                             .Validate(blnComputeBasePeakAndTIC:=True, blnUpdateMZRange:=True)
 
@@ -231,11 +231,12 @@ Public Class clsDtaTextFileReader
     Public Function ReadSingleDtaFile(ByVal strInputFilePath As String, ByRef strMsMsDataList() As String, ByRef intMsMsDataCount As Integer, ByRef objSpectrumInfoMsMsText As clsSpectrumInfoMsMsText) As Boolean
 
         ' Open the .Dta file and read the spectrum
-        Dim srInFile As System.IO.StreamReader
-        Dim intLastProgressUpdateLine As Integer
+		Dim intLastProgressUpdateLine As Integer
 
         Dim strLineIn As String
         Dim blnSpectrumFound As Boolean
+
+		Dim lstMsMsDataList As System.Collections.Generic.List(Of String) = New System.Collections.Generic.List(Of String)
 
         If objSpectrumInfoMsMsText Is Nothing Then
             objSpectrumInfoMsMsText = New clsSpectrumInfoMsMsText
@@ -243,143 +244,148 @@ Public Class clsDtaTextFileReader
             objSpectrumInfoMsMsText.Clear()
         End If
 
-        Try
-            srInFile = New System.IO.StreamReader(strInputFilePath)
+		Try
+			intMsMsDataCount = 0
 
-            mTotalBytesRead = 0
-            MyBase.ResetProgress("Parsing " & System.IO.Path.GetFileName(strInputFilePath))
+			Using srInFile As System.IO.StreamReader = New System.IO.StreamReader(strInputFilePath)
 
-            mInFileLineNumber = 0
-            intLastProgressUpdateLine = mInFileLineNumber
-            Do While srInFile.Peek() >= 0 And Not mAbortProcessing
-                strLineIn = srInFile.ReadLine
-                mInFileLineNumber += 1
+				mTotalBytesRead = 0
+				MyBase.ResetProgress("Parsing " & System.IO.Path.GetFileName(strInputFilePath))
 
-                If Not strLineIn Is Nothing Then mTotalBytesRead += strLineIn.Length + 2
-                If Not strLineIn Is Nothing AndAlso strLineIn.Trim.Length > 0 Then
-                    If Char.IsDigit(strLineIn.Trim, 0) Then
-                        blnSpectrumFound = ReadSingleSpectrum(srInFile, strLineIn, strMsMsDataList, intMsMsDataCount, objSpectrumInfoMsMsText, mInFileLineNumber, intLastProgressUpdateLine)
-                        Exit Do
-                    End If
-                End If
+				mInFileLineNumber = 0
+				intLastProgressUpdateLine = mInFileLineNumber
+				Do While srInFile.Peek() >= 0 And Not mAbortProcessing
+					strLineIn = srInFile.ReadLine
+					mInFileLineNumber += 1
 
-                If mInFileLineNumber - intLastProgressUpdateLine >= 100 Then
-                    intLastProgressUpdateLine = mInFileLineNumber
-                    'MyBase.UpdateProgress(srInFile.BaseStream.Position / srInFile.BaseStream.Length * 100.0)
-                    MyBase.UpdateProgress(mTotalBytesRead / srInFile.BaseStream.Length * 100.0)
-                End If
-            Loop
+					If Not strLineIn Is Nothing Then mTotalBytesRead += strLineIn.Length + 2
+					If Not strLineIn Is Nothing AndAlso strLineIn.Trim.Length > 0 Then
+						If Char.IsDigit(strLineIn.Trim, 0) Then
+							blnSpectrumFound = ReadSingleSpectrum(srInFile, strLineIn, lstMsMsDataList, objSpectrumInfoMsMsText, mInFileLineNumber, intLastProgressUpdateLine)
+							Exit Do
+						End If
+					End If
 
-            If blnSpectrumFound Then
-                ' Try to determine the scan numbers by parsing strInputFilePath
-                With objSpectrumInfoMsMsText
-                    MyBase.ExtractScanInfoFromDtaHeader(System.IO.Path.GetFileName(strInputFilePath), .ScanNumber, .ScanNumberEnd, .ScanCount)
-                End With
-            End If
+					If mInFileLineNumber - intLastProgressUpdateLine >= 100 Then
+						intLastProgressUpdateLine = mInFileLineNumber
+						'MyBase.UpdateProgress(srInFile.BaseStream.Position / srInFile.BaseStream.Length * 100.0)
+						MyBase.UpdateProgress(mTotalBytesRead / srInFile.BaseStream.Length * 100.0)
+					End If
+				Loop
 
-            If Not mAbortProcessing Then
-                MyBase.OperationComplete()
-            End If
+				If blnSpectrumFound Then
+					' Try to determine the scan numbers by parsing strInputFilePath
+					With objSpectrumInfoMsMsText
+						MyBase.ExtractScanInfoFromDtaHeader(System.IO.Path.GetFileName(strInputFilePath), .ScanNumber, .ScanNumberEnd, .ScanCount)
+					End With
 
-        Catch ex As Exception
-            LogErrors("ReadSingleDtaFile", ex.Message)
-        End Try
+					ReDim strMsMsDataList(lstMsMsDataList.Count - 1)
+					lstMsMsDataList.CopyTo(strMsMsDataList)
+					
+				Else
+					ReDim strMsMsDataList(0)
+				End If
 
-        If Not srInFile Is Nothing Then srInFile.Close()
-        Return blnSpectrumFound
+				If Not mAbortProcessing Then
+					MyBase.OperationComplete()
+				End If
 
-    End Function
+			End Using
 
-    Private Function ReadSingleSpectrum(ByVal srInFile As System.IO.TextReader, ByVal strParentIonLineText As String, ByRef strMsMsDataList() As String, ByRef intMsMsDataCount As Integer, ByRef objSpectrumInfoMsMsText As clsSpectrumInfoMsMsText, ByRef intLinesRead As Integer, ByRef intLastProgressUpdateLine As Integer, Optional ByRef strMostRecentLineIn As String = "") As Boolean
-        ' Returns True if a valid spectrum is found, otherwise, returns False
+		Catch ex As Exception
+			LogErrors("ReadSingleDtaFile", ex.Message)
+		End Try
 
-        Dim intCharIndex As Integer
-        Dim strValue As String
-        Dim strLineIn As String
-
-        Dim blnSpectrumFound As Boolean
-
-        objSpectrumInfoMsMsText.ParentIonLineText = String.Copy(strParentIonLineText)
-        strParentIonLineText = strParentIonLineText.Trim
-
-        ' Look for the first space
-        intCharIndex = strParentIonLineText.IndexOf(" ")
-        If intCharIndex >= 1 Then
-            strValue = strParentIonLineText.Substring(0, intCharIndex)
-            If clsMSDataFileReaderBaseClass.IsNumber(strValue) Then
-                With objSpectrumInfoMsMsText
-                    .ParentIonMH = CDbl(strValue)
-
-                    strValue = strParentIonLineText.Substring(intCharIndex + 1)
-
-                    ' See if strValue contains another space
-                    intCharIndex = strValue.IndexOf(" ")
-                    If intCharIndex > 0 Then
-                        strValue = strValue.Substring(0, intCharIndex)
-                    End If
-                    If clsMSDataFileReaderBaseClass.IsNumber(strValue) Then
-                        .ParentIonChargeCount = 1
-                        .ParentIonCharges(0) = CInt(strValue)
-
-                        ' Note: Dta files have Parent Ion MH defined by not Parent Ion m/z
-                        ' Thus, compute .ParentIonMZ using .ParentIonMH
-                        If .ParentIonCharges(0) <= 1 Then
-                            .ParentIonMZ = .ParentIonMH
-                            .ParentIonCharges(0) = 1
-                        Else
-                            .ParentIonMZ = MyBase.ConvoluteMass(.ParentIonMH, 1, .ParentIonCharges(0))
-                        End If
-
-                        blnSpectrumFound = True
-                    End If
-                End With
-            End If
-        End If
-
-        strMostRecentLineIn = String.Empty
-        If blnSpectrumFound Then
-            ' Read all of the MS/MS spectrum ions up to the next blank line or up to the next line starting with COMMENT_LINE_START_CHAR
-            intMsMsDataCount = 0
-            If strMsMsDataList Is Nothing OrElse strMsMsDataList.Length < 100 Then
-                ReDim strMsMsDataList(99)
-            End If
-
-            Do While srInFile.Peek >= 0
-                strLineIn = srInFile.ReadLine
-                intLinesRead += 1
-
-                ' See if strLineIn is blank
-                If Not strLineIn Is Nothing Then
-                    mTotalBytesRead += strLineIn.Length + 2
-                    strMostRecentLineIn = String.Copy(strLineIn)
-
-                    If strLineIn.Trim.Length = 0 OrElse strLineIn.StartsWith(COMMENT_LINE_START_CHAR) Then
-                        Exit Do
-                    Else
-                        If intMsMsDataCount >= strMsMsDataList.Length Then
-                            ReDim Preserve strMsMsDataList(intMsMsDataCount + 100 - 1)
-                        End If
-
-                        ' Add to MS/MS data string list
-                        strMsMsDataList(intMsMsDataCount) = strLineIn.Trim
-                        intMsMsDataCount += 1
-                        MyBase.AddNewRecentFileText(strLineIn)
-                    End If
-                End If
-
-                If intLinesRead - intLastProgressUpdateLine >= 250 Then
-                    intLastProgressUpdateLine = intLinesRead
-                    UpdateStreamReaderProgress()
-                End If
-
-            Loop
-
-        End If
-
-        ' Do not shrink strMsMsDataList back down
-        ' The array size is tracked using intMsMsDataCount, which is returned ByRef
-        Return blnSpectrumFound
+		Return blnSpectrumFound
 
     End Function
+
+	Private Function ReadSingleSpectrum(ByVal srInFile As System.IO.TextReader, ByVal strParentIonLineText As String, ByRef lstMsMsDataList As System.Collections.Generic.List(Of String), ByRef objSpectrumInfoMsMsText As clsSpectrumInfoMsMsText, ByRef intLinesRead As Integer, ByRef intLastProgressUpdateLine As Integer, Optional ByRef strMostRecentLineIn As String = "") As Boolean
+		' Returns True if a valid spectrum is found, otherwise, returns False
+
+		Dim intCharIndex As Integer
+		Dim strValue As String
+		Dim strLineIn As String
+
+		Dim blnSpectrumFound As Boolean
+
+		objSpectrumInfoMsMsText.ParentIonLineText = String.Copy(strParentIonLineText)
+		strParentIonLineText = strParentIonLineText.Trim
+
+		' Look for the first space
+		intCharIndex = strParentIonLineText.IndexOf(" ")
+		If intCharIndex >= 1 Then
+			strValue = strParentIonLineText.Substring(0, intCharIndex)
+			If clsMSDataFileReaderBaseClass.IsNumber(strValue) Then
+				With objSpectrumInfoMsMsText
+					.ParentIonMH = CDbl(strValue)
+
+					strValue = strParentIonLineText.Substring(intCharIndex + 1)
+
+					' See if strValue contains another space
+					intCharIndex = strValue.IndexOf(" ")
+					If intCharIndex > 0 Then
+						strValue = strValue.Substring(0, intCharIndex)
+					End If
+					If clsMSDataFileReaderBaseClass.IsNumber(strValue) Then
+						.ParentIonChargeCount = 1
+						.ParentIonCharges(0) = CInt(strValue)
+
+						' Note: Dta files have Parent Ion MH defined by not Parent Ion m/z
+						' Thus, compute .ParentIonMZ using .ParentIonMH
+						If .ParentIonCharges(0) <= 1 Then
+							.ParentIonMZ = .ParentIonMH
+							.ParentIonCharges(0) = 1
+						Else
+							.ParentIonMZ = MyBase.ConvoluteMass(.ParentIonMH, 1, .ParentIonCharges(0))
+						End If
+
+						blnSpectrumFound = True
+					End If
+				End With
+			End If
+		End If
+
+		strMostRecentLineIn = String.Empty
+		If blnSpectrumFound Then
+			' Read all of the MS/MS spectrum ions up to the next blank line or up to the next line starting with COMMENT_LINE_START_CHAR
+			If lstMsMsDataList Is Nothing Then
+				lstMsMsDataList = New System.Collections.Generic.List(Of String)
+			Else
+				lstMsMsDataList.Clear()
+			End If
+
+			Do While srInFile.Peek >= 0
+				strLineIn = srInFile.ReadLine
+				intLinesRead += 1
+
+				' See if strLineIn is blank
+				If Not strLineIn Is Nothing Then
+					mTotalBytesRead += strLineIn.Length + 2
+					strMostRecentLineIn = String.Copy(strLineIn)
+
+					If strLineIn.Trim.Length = 0 OrElse strLineIn.StartsWith(COMMENT_LINE_START_CHAR) Then
+						Exit Do
+					Else						
+
+						' Add to MS/MS data string list
+						lstMsMsDataList.Add(strLineIn.Trim)
+
+						MyBase.AddNewRecentFileText(strLineIn)
+					End If
+				End If
+
+				If intLinesRead - intLastProgressUpdateLine >= 250 Then
+					intLastProgressUpdateLine = intLinesRead
+					UpdateStreamReaderProgress()
+				End If
+
+			Loop
+
+		End If
+
+		Return blnSpectrumFound
+
+	End Function
 
 End Class

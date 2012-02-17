@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified December 14, 2006
+' Last modified February 16, 2012
 
 Public Class clsMGFFileReader
     Inherits clsMSTextFileReaderBaseClass
@@ -40,7 +40,7 @@ Public Class clsMGFFileReader
 
 #Region "Classwide Variables"
     ' mScanNumberStartSaved is used to create fake scan numbers when reading .MGF files that do not have
-    '  scan numbers defined using   ###MSMS: #1234   or   TITLE=Filename.1234.1234.2.dta
+	'  scan numbers defined using   ###MSMS: #1234   or   TITLE=Filename.1234.1234.2.dta  or  TITLE=Filename.1234.1234.2
     Protected mScanNumberStartSaved As Integer
 
 #End Region
@@ -120,7 +120,7 @@ Public Class clsMGFFileReader
                             ' Look for LINE_START_MSMS in strLineIn
                             ' This will be present in MGF files created using Agilent's DataAnalysis software
                             If strLineIn.ToUpper.StartsWith(LINE_START_MSMS) Then
-                                strLineIn = strLineIn.Substring(5).Trim
+								strLineIn = strLineIn.Substring(LINE_START_MSMS.Length).Trim
 
                                 ' Initialize these values
                                 mCurrentSpectrum.ScanNumberEnd = 0
@@ -212,10 +212,11 @@ Public Class clsMGFFileReader
                                 End If
 
                                 ' Initialize mCurrentMsMsDataList
-                                mCurrentMsMsDataCount = 0
-                                If mCurrentMsMsDataList Is Nothing OrElse mCurrentMsMsDataList.Length < 100 Then
-                                    ReDim mCurrentMsMsDataList(99)
-                                End If
+								If mCurrentMsMsDataList Is Nothing Then
+									mCurrentMsMsDataList = New System.Collections.Generic.List(Of String)
+								Else
+									mCurrentMsMsDataList.Clear()
+								End If
 
                                 blnParentIonFound = False
 
@@ -236,7 +237,7 @@ Public Class clsMGFFileReader
                                                 ' It may simply contain the m/z value, or it may also contain an intensity value
                                                 ' The two values will be separated by a space or a tab
                                                 ' We do not save the intensity value since it cannot be included in a .Dta file
-                                                strLineIn = strLineIn.Substring(8).Trim
+												strLineIn = strLineIn.Substring(LINE_START_PEPMASS.Length).Trim
                                                 strSplitLine = strLineIn.Split(strSepChars)
                                                 If strSplitLine.Length > 0 AndAlso clsMSDataFileReaderBaseClass.IsNumber(strSplitLine(0)) Then
                                                     mCurrentSpectrum.ParentIonMZ = CDbl(strSplitLine(0))
@@ -251,7 +252,7 @@ Public Class clsMGFFileReader
                                                 ' It may simply contain a single charge, like 1+ or 2+
                                                 ' It may also contain two charges, as in 2+ and 3+
                                                 ' Not all spectra in the MGF file will have a CHARGE= entry
-                                                strLineIn = strLineIn.Substring(7).Trim
+												strLineIn = strLineIn.Substring(LINE_START_CHARGE.Length).Trim
 
                                                 ' Remove any + signs in the line
                                                 strLineIn = strLineIn.Replace("+", "")
@@ -285,9 +286,8 @@ Public Class clsMGFFileReader
 
                                                 If Not blnScanNumberFound Then
                                                     ' We didn't find a scan number in a ### MSMS: comment line
-                                                    ' See if the Title ends in .dta
-                                                    ' If it does, extract out the scan numbers from the title
-                                                    strLineIn = strLineIn.Substring(6).Trim
+													' Attempt to extract out the scan numbers from the Title
+													strLineIn = strLineIn.Substring(LINE_START_TITLE.Length).Trim
                                                     With mCurrentSpectrum
                                                         MyBase.ExtractScanInfoFromDtaHeader(strLineIn, .ScanNumber, .ScanNumberEnd, .ScanCount)
                                                     End With
@@ -299,12 +299,8 @@ Public Class clsMGFFileReader
                                                 ' Found the start of the ion list
                                                 ' Add to the MsMs data list
                                                 If blnParentIonFound Then
-                                                    If mCurrentMsMsDataCount >= mCurrentMsMsDataList.Length Then
-                                                        ReDim Preserve mCurrentMsMsDataList(mCurrentMsMsDataCount + 100 - 1)
-                                                    End If
-                                                    mCurrentMsMsDataList(mCurrentMsMsDataCount) = strLineIn
-                                                    mCurrentMsMsDataCount += 1
-                                                End If
+													mCurrentMsMsDataList.Add(strLineIn)
+												End If
 
                                                 Exit Do
                                             End If
@@ -340,14 +336,10 @@ Public Class clsMGFFileReader
                                             If strLineIn.Trim.Length > 0 Then
                                                 If strLineIn.Trim.ToUpper.StartsWith(LINE_START_END_IONS) Then
                                                     Exit Do
-                                                Else
-                                                    If mCurrentMsMsDataCount >= mCurrentMsMsDataList.Length Then
-                                                        ReDim Preserve mCurrentMsMsDataList(mCurrentMsMsDataCount + 100 - 1)
-                                                    End If
-                                                    ' Add to MS/MS data sting list
-                                                    mCurrentMsMsDataList(mCurrentMsMsDataCount) = strLineIn.Trim
-                                                    mCurrentMsMsDataCount += 1
-                                                End If
+                                                Else                                                   
+													' Add to MS/MS data sting list
+													mCurrentMsMsDataList.Add(strLineIn.Trim)
+												End If
                                             End If
                                         End If
 
@@ -364,7 +356,7 @@ Public Class clsMGFFileReader
                                     Else
                                         With mCurrentSpectrum
                                             Try
-                                                .DataCount = MyBase.ParseMsMsDataList(mCurrentMsMsDataList, mCurrentMsMsDataCount, .MZList, .IntensityList, .AutoShrinkDataLists)
+												.DataCount = MyBase.ParseMsMsDataList(mCurrentMsMsDataList, .MZList, .IntensityList, .AutoShrinkDataLists)
 
                                                 .Validate(blnComputeBasePeakAndTIC:=True, blnUpdateMZRange:=True)
 

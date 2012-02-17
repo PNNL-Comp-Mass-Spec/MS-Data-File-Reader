@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified September 24, 2009
+' Last modified February 16, 2012
 
 Public MustInherit Class clsMSTextFileReaderBaseClass
     Inherits clsMsDataFileReaderBaseClass
@@ -51,10 +51,10 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
     Protected mInFileLineNumber As Integer
 
     Protected mCurrentSpectrum As clsSpectrumInfoMsMsText
-    Protected mCurrentMsMsDataCount As Integer
-    Protected mCurrentMsMsDataList() As String
 
-    Protected mReadTextDataOnly As Boolean  ' When true, then reads the data and populates mCurrentMsMsDataList() but does not populate mCurrentSpectrum.MZList() or mCurrentSpectrum.IntensityList()
+	Protected mCurrentMsMsDataList As System.Collections.Generic.List(Of String)
+
+	Protected mReadTextDataOnly As Boolean	' When true, then reads the data and populates mCurrentMsMsDataList but does not populate mCurrentSpectrum.MZList() or mCurrentSpectrum.IntensityList()
 
     Protected mTotalBytesRead As Long
     Protected mInFileStreamLength As Long
@@ -70,6 +70,11 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         End Set
     End Property
 
+	Public ReadOnly Property CurrentSpectrum As clsSpectrumInfoMsMsText
+		Get
+			Return mCurrentSpectrum
+		End Get
+	End Property
     Public Property ReadTextDataOnly() As Boolean
         Get
             Return mReadTextDataOnly
@@ -193,55 +198,76 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
 
     End Sub
 
-    Public Function ExtractScanInfoFromDtaHeader(ByVal strSpectrumHeader As String, ByRef intScanNumberStart As Integer, ByRef intScanNumberEnd As Integer, ByRef intScanCount As Integer) As Boolean
-        ' The header should be similar to: FileName.1234.1234.2.dta
-        ' Returns True if the scan numbers are found in the header
+	Public Function ExtractScanInfoFromDtaHeader(ByVal strSpectrumHeader As String, ByRef intScanNumberStart As Integer, ByRef intScanNumberEnd As Integer, ByRef intScanCount As Integer) As Boolean
+		Return ExtractScanInfoFromDtaHeader(strSpectrumHeader, intScanNumberStart, intScanNumberEnd, intScanCount, 0)
+	End Function
 
-        Dim strSplitLine() As String
-        Dim blnScanNumberFound As Boolean
+	Public Function ExtractScanInfoFromDtaHeader(ByVal strSpectrumHeader As String, ByRef intScanNumberStart As Integer, ByRef intScanNumberEnd As Integer, ByRef intScanCount As Integer, ByRef intCharge As Integer) As Boolean
+		' The header should be similar to one of the following 
+		'   FileName.1234.1234.2.dta
+		'   FileName.1234.1234.2      (StartScan.EndScan.Charge)
+		'   FileName.1234.1234.       (Proteowizard uses this format to indicate unknown charge)
+		' Returns True if the scan numbers are found in the header
 
-        Try
-            blnScanNumberFound = False
-            If Not strSpectrumHeader Is Nothing AndAlso strSpectrumHeader.ToLower.Trim.EndsWith(".dta") Then
-                ' Remove the trailing charge and .dta
-                strSpectrumHeader = strSpectrumHeader.Trim
-                strSpectrumHeader = strSpectrumHeader.Substring(0, strSpectrumHeader.Length - 6)
+		Static reDtaHeaderScanAndCharge As System.Text.RegularExpressions.Regex = New System.Text.RegularExpressions.Regex(".+\.(\d+)\.(\d+).(\d*)$", Text.RegularExpressions.RegexOptions.Compiled)
 
-                If Char.IsNumber(strSpectrumHeader.Chars(strSpectrumHeader.Length - 1)) Then
-                    ' Split on the periods
-                    strSplitLine = strSpectrumHeader.Split("."c)
+		Dim blnScanNumberFound As Boolean
+		Dim reMatch As System.Text.RegularExpressions.Match
 
-                    If strSplitLine.Length >= 3 Then
-                        ' Reverse strSplitLine
-                        Array.Reverse(strSplitLine)
+		Try
+			blnScanNumberFound = False
+			If Not strSpectrumHeader Is Nothing Then
+				strSpectrumHeader = strSpectrumHeader.Trim()
+				If strSpectrumHeader.ToLower.EndsWith(".dta") Then
+					' Remove the trailing .dta
+					strSpectrumHeader = strSpectrumHeader.Substring(0, strSpectrumHeader.Length - 4)
+				End If
 
-                        If clsMSDataFileReaderBaseClass.IsNumber(strSplitLine(0)) And clsMSDataFileReaderBaseClass.IsNumber(strSplitLine(1)) Then
-                            ' Note: because we reversed strSplitLine, the start scan is at index 1, the end scan is at index 0
-                            intScanNumberStart = CInt(strSplitLine(1))
-                            intScanNumberEnd = CInt(strSplitLine(0))
+				' Extract the scans and charge using a RegEx
+				reMatch = reDtaHeaderScanAndCharge.Match(strSpectrumHeader)
 
-                            If intScanNumberEnd > intScanNumberStart Then
-                                intScanCount = intScanNumberEnd - intScanNumberStart + 1
-                            Else
-                                intScanCount = 1
-                            End If
+				If reMatch.Success Then
 
-                            blnScanNumberFound = True
-                        End If
-                    End If
-                End If
-            End If
-        Catch ex As Exception
-            LogErrors("ExtractScanInfoFromDtaHeader", ex.Message)
-        End Try
+					If Int32.TryParse(reMatch.Groups(1).Value, intScanNumberStart) Then
+						If Int32.TryParse(reMatch.Groups(2).Value, intScanNumberEnd) Then
 
-        Return blnScanNumberFound
 
-    End Function
+							If intScanNumberEnd > intScanNumberStart Then
+								intScanCount = intScanNumberEnd - intScanNumberStart + 1
+							Else
+								intScanCount = 1
+							End If
+
+							blnScanNumberFound = True
+
+							' Also try to parse out the charge
+							intCharge = 0
+							Int32.TryParse(reMatch.Groups(3).Value, intCharge)
+
+						End If
+					End If
+				End If
+
+			End If
+		Catch ex As Exception
+			LogErrors("ExtractScanInfoFromDtaHeader", ex.Message)
+		End Try
+
+		Return blnScanNumberFound
+
+	End Function
 
     Protected Overrides Function GetInputFileLocation() As String
         Return "Line " & mInFileLineNumber.ToString
     End Function
+
+	Public Function GetMSMSDataAsText() As System.Collections.Generic.List(Of String)
+		If mCurrentMsMsDataList Is Nothing Then
+			Return New System.Collections.Generic.List(Of String)
+		Else
+			Return mCurrentMsMsDataList
+		End If
+	End Function
 
     Public Function GetMostRecentSpectrumFileText() As String
         If mMostRecentSpectrumFileText Is Nothing Then
@@ -402,7 +428,9 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
 
         mSecondMostRecentSpectrumFileText = String.Empty
 
-        mInFileLineNumber = 0
+		mInFileLineNumber = 0
+
+		mCurrentMsMsDataList = New System.Collections.Generic.List(Of String)
     End Sub
 
     Public Overrides Function OpenFile(ByVal strInputFilePath As String) As Boolean
@@ -419,7 +447,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
                 strInputFilePath = String.Empty
             End If
 
-            objStreamReader = New System.IO.StreamReader(strInputFilePath)
+			objStreamReader = New System.IO.StreamReader(New System.IO.FileStream(strInputFilePath, IO.FileMode.Open, IO.FileAccess.Read, IO.FileShare.Read))
             mInFileStreamLength = objStreamReader.BaseStream.Length
             srInFile = objStreamReader
 
@@ -468,55 +496,68 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
 
     End Function
 
-    Public Function ParseMsMsDataList(ByVal strMSMSData() As String, ByVal intMsMsDataCount As Integer, ByRef dblMasses() As Double, ByRef sngIntensities() As Single, ByVal blnShrinkDataArrays As Boolean) As Integer
-        ' Returns the number of data points in dblMasses() and sngIntensities()
-        ' If blnShrinkDataArrays = False, then will not shrink dblMasses or sngIntensities
+	Public Function ParseMsMsDataList(ByVal strMSMSData() As String, ByVal intMsMsDataCount As Integer, ByRef dblMasses() As Double, ByRef sngIntensities() As Single, ByVal blnShrinkDataArrays As Boolean) As Integer
+		Dim lstMSMSData As System.Collections.Generic.List(Of String) = New System.Collections.Generic.List(Of String)
 
-        Dim strSplitLine() As String
+		For intIndex As Integer = 0 To intMsMsDataCount - 1
+			lstMSMSData.Add(strMSMSData(intIndex))
+		Next
 
-        Dim intDataCount As Integer
+		Return ParseMsMsDataList(lstMSMSData, dblMasses, sngIntensities, blnShrinkDataArrays)
 
-        Dim strSepChars As Char() = New Char() {" "c, ControlChars.Tab}
+	End Function
 
-        If intMsMsDataCount > 0 Then
-            If blnShrinkDataArrays OrElse dblMasses Is Nothing OrElse sngIntensities Is Nothing OrElse _
-               dblMasses.Length < intMsMsDataCount OrElse sngIntensities.Length < intMsMsDataCount Then
-                ReDim dblMasses(intMsMsDataCount - 1)
-                ReDim sngIntensities(intMsMsDataCount - 1)
-            End If
+	Public Function ParseMsMsDataList(ByVal lstMSMSData As System.Collections.Generic.List(Of String), ByRef dblMasses() As Double, ByRef sngIntensities() As Single, ByVal blnShrinkDataArrays As Boolean) As Integer
+		' Returns the number of data points in dblMasses() and sngIntensities()
+		' If blnShrinkDataArrays = False, then will not shrink dblMasses or sngIntensities
 
-            intDataCount = 0
-            For i As Integer = 0 To intMsMsDataCount - 1
-                ' Each line in strMSMSData should contain a mass and intensity pair, separated by a space or Tab
-                ' MGF files sometimes contain a third number, the charge of the ion
-                ' Use the .Split function to parse the numbers in the line to extract the mass and intensity, and ignore the charge (if present)
-                strSplitLine = strMSMSData(i).Split(strSepChars)
-                If strSplitLine.Length >= 2 Then
-                    If clsMSDataFileReaderBaseClass.IsNumber(strSplitLine(0)) And clsMSDataFileReaderBaseClass.IsNumber(strSplitLine(1)) Then
-                        dblMasses(intDataCount) = CDbl(strSplitLine(0))
-                        sngIntensities(intDataCount) = CSng(strSplitLine(1))
-                        intDataCount += 1
-                    End If
-                End If
-            Next
+		Dim strSplitLine() As String
 
-        Else
-            intDataCount = 0
-        End If
+		Dim intDataCount As Integer
 
-        If intDataCount <= 0 Then
-            ReDim dblMasses(0)
-            ReDim sngIntensities(0)
-        Else
-            If intDataCount <> intMsMsDataCount And blnShrinkDataArrays Then
-                ReDim Preserve dblMasses(intDataCount - 1)
-                ReDim Preserve sngIntensities(intDataCount - 1)
-            End If
-        End If
+		Dim strSepChars As Char() = New Char() {" "c, ControlChars.Tab}
 
-        Return intDataCount
+		If Not lstMSMSData Is Nothing AndAlso lstMSMSData.Count > 0 Then
 
-    End Function
+			If blnShrinkDataArrays OrElse dblMasses Is Nothing OrElse sngIntensities Is Nothing OrElse _
+			   dblMasses.Length < lstMSMSData.Count OrElse sngIntensities.Length < lstMSMSData.Count Then
+				ReDim dblMasses(lstMSMSData.Count - 1)
+				ReDim sngIntensities(lstMSMSData.Count - 1)
+			End If
+
+			intDataCount = 0
+			For Each strItem As String In lstMSMSData
+
+				' Each line in strMSMSData should contain a mass and intensity pair, separated by a space or Tab
+				' MGF files sometimes contain a third number, the charge of the ion
+				' Use the .Split function to parse the numbers in the line to extract the mass and intensity, and ignore the charge (if present)
+				strSplitLine = strItem.Split(strSepChars)
+				If strSplitLine.Length >= 2 Then
+					If clsMSDataFileReaderBaseClass.IsNumber(strSplitLine(0)) And clsMSDataFileReaderBaseClass.IsNumber(strSplitLine(1)) Then
+						dblMasses(intDataCount) = CDbl(strSplitLine(0))
+						sngIntensities(intDataCount) = CSng(strSplitLine(1))
+						intDataCount += 1
+					End If
+				End If
+			Next
+
+		Else
+			intDataCount = 0
+		End If
+
+		If intDataCount <= 0 Then
+			ReDim dblMasses(0)
+			ReDim sngIntensities(0)
+		Else
+			If intDataCount <> lstMSMSData.Count And blnShrinkDataArrays Then
+				ReDim Preserve dblMasses(intDataCount - 1)
+				ReDim Preserve sngIntensities(intDataCount - 1)
+			End If
+		End If
+
+		Return intDataCount
+
+	End Function
 
     Protected Sub UpdateStreamReaderProgress()
         If TypeOf srInFile Is System.IO.StreamReader Then
