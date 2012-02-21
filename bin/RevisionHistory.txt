@@ -1,5 +1,13 @@
 MSDataFileReader Change Log
 
+Version 1.3.4429; February 16, 2012
+	- Added support for MGF files created by ProteoWizard
+		- Title Line contains the file name, start scan, end scan, and charge (if known)
+	- Added function GetMSMSDataAsText
+	- Added ReadOnly Property CurrentSpectrum
+	- Updated to Visual Studio 2010
+	- Now tracking MS/MS text lines with a generic string collection instead of an array
+
 Version 1.3.4139; May 2, 2011
 	- Compiled in release mode
 
