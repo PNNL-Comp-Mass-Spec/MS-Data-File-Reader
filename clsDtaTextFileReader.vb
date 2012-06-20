@@ -97,121 +97,121 @@ Public Class clsDtaTextFileReader
                 MyBase.AddNewRecentFileText(String.Empty, True, False)
 
                 intLastProgressUpdateLine = mInFileLineNumber
-                Do While Not blnSpectrumFound And srInFile.Peek() >= 0 And Not mAbortProcessing
+				Do While Not blnSpectrumFound And srInFile.Peek() > -1 And Not mAbortProcessing
 
-                    If mHeaderSaved.Length > 0 Then
-                        strLineIn = String.Copy(mHeaderSaved)
-                        mHeaderSaved = String.Empty
-                    Else
-                        strLineIn = srInFile.ReadLine
-                        If Not strLineIn Is Nothing Then mTotalBytesRead += strLineIn.Length + 2
-                        mInFileLineNumber += 1
-                    End If
+					If mHeaderSaved.Length > 0 Then
+						strLineIn = String.Copy(mHeaderSaved)
+						mHeaderSaved = String.Empty
+					Else
+						strLineIn = srInFile.ReadLine
+						If Not strLineIn Is Nothing Then mTotalBytesRead += strLineIn.Length + 2
+						mInFileLineNumber += 1
+					End If
 
-                    ' See if strLineIn is nothing or starts with the comment line character (equals sign)
-                    If Not strLineIn Is Nothing AndAlso strLineIn.Trim.StartsWith(mCommentLineStartChar) Then
-                        MyBase.AddNewRecentFileText(strLineIn)
+					' See if strLineIn is nothing or starts with the comment line character (equals sign)
+					If Not strLineIn Is Nothing AndAlso strLineIn.Trim.StartsWith(mCommentLineStartChar) Then
+						MyBase.AddNewRecentFileText(strLineIn)
 
-                        With mCurrentSpectrum
-                            .SpectrumTitleWithCommentChars = strLineIn
-                            .SpectrumTitle = MyBase.CleanupComment(strLineIn, mCommentLineStartChar, True)
-                            MyBase.ExtractScanInfoFromDtaHeader(.SpectrumTitle, .ScanNumber, .ScanNumberEnd, .ScanCount)
+						With mCurrentSpectrum
+							.SpectrumTitleWithCommentChars = strLineIn
+							.SpectrumTitle = MyBase.CleanupComment(strLineIn, mCommentLineStartChar, True)
+							MyBase.ExtractScanInfoFromDtaHeader(.SpectrumTitle, .ScanNumber, .ScanNumberEnd, .ScanCount)
 
-                            .MSLevel = 2
-                            .SpectrumID = .ScanNumber
-                        End With
+							.MSLevel = 2
+							.SpectrumID = .ScanNumber
+						End With
 
-                        ' Read the next line, which should have the parent ion MH value and charge
-                        strLineIn = srInFile.ReadLine
-                        If Not strLineIn Is Nothing Then mTotalBytesRead += strLineIn.Length + 2
-                        mInFileLineNumber += 1
+						' Read the next line, which should have the parent ion MH value and charge
+						strLineIn = srInFile.ReadLine
+						If Not strLineIn Is Nothing Then mTotalBytesRead += strLineIn.Length + 2
+						mInFileLineNumber += 1
 
-                        If strLineIn Is Nothing OrElse strLineIn.Trim.Length = 0 Then
-                            ' Spectrum header is not followed by a parent ion value and charge; ignore the line
-                        Else
-                            MyBase.AddNewRecentFileText(strLineIn)
+						If strLineIn Is Nothing OrElse strLineIn.Trim.Length = 0 Then
+							' Spectrum header is not followed by a parent ion value and charge; ignore the line
+						Else
+							MyBase.AddNewRecentFileText(strLineIn)
 
-                            ' Parse the parent ion info and read the MsMs Data
+							' Parse the parent ion info and read the MsMs Data
 							blnSpectrumFound = ReadSingleSpectrum(srInFile, strLineIn, mCurrentMsMsDataList, mCurrentSpectrum, mInFileLineNumber, intLastProgressUpdateLine, strMostRecentLineIn)
 
-                            If blnSpectrumFound Then
-                                If MyBase.mReadTextDataOnly Then
-                                    ' Do not parse the text data to populate .MZList and .IntensityList
-                                    mCurrentSpectrum.DataCount = 0
-                                Else
-                                    With mCurrentSpectrum
-                                        Try
+							If blnSpectrumFound Then
+								If MyBase.mReadTextDataOnly Then
+									' Do not parse the text data to populate .MZList and .IntensityList
+									mCurrentSpectrum.DataCount = 0
+								Else
+									With mCurrentSpectrum
+										Try
 											.DataCount = MyBase.ParseMsMsDataList(mCurrentMsMsDataList, .MZList, .IntensityList, .AutoShrinkDataLists)
 
-                                            .Validate(blnComputeBasePeakAndTIC:=True, blnUpdateMZRange:=True)
+											.Validate(blnComputeBasePeakAndTIC:=True, blnUpdateMZRange:=True)
 
-                                        Catch ex As Exception
-                                            .DataCount = 0
-                                            blnSpectrumFound = False
-                                        End Try
-                                    End With
-                                End If
-                            End If
+										Catch ex As Exception
+											.DataCount = 0
+											blnSpectrumFound = False
+										End Try
+									End With
+								End If
+							End If
 
-                            If blnSpectrumFound And mCombineIdenticalSpectra And mCurrentSpectrum.ParentIonCharges(0) = 2 Then
-                                ' See if the next spectrum is the identical data, but the charge is 3 (this is a common situation with .dta files prepared by Lcq_Dta)
+							If blnSpectrumFound And mCombineIdenticalSpectra And mCurrentSpectrum.ParentIonCharges(0) = 2 Then
+								' See if the next spectrum is the identical data, but the charge is 3 (this is a common situation with .dta files prepared by Lcq_Dta)
 
-                                strLineIn = String.Copy(strMostRecentLineIn)
-                                If Not strLineIn Is Nothing AndAlso strLineIn.Trim.Length = 0 AndAlso srInFile.Peek >= 0 Then
-                                    ' Read the next line
-                                    strLineIn = srInFile.ReadLine
-                                    If Not strLineIn Is Nothing Then mTotalBytesRead += strLineIn.Length + 2
-                                    mInFileLineNumber += 1
-                                End If
+								strLineIn = String.Copy(strMostRecentLineIn)
+								If Not strLineIn Is Nothing AndAlso strLineIn.Trim.Length = 0 AndAlso srInFile.Peek() > -1 Then
+									' Read the next line
+									strLineIn = srInFile.ReadLine
+									If Not strLineIn Is Nothing Then mTotalBytesRead += strLineIn.Length + 2
+									mInFileLineNumber += 1
+								End If
 
-                                If Not strLineIn Is Nothing AndAlso strLineIn.StartsWith(mCommentLineStartChar) Then
-                                    mHeaderSaved = String.Copy(strLineIn)
-                                    strCompareTitle = MyBase.CleanupComment(mHeaderSaved, mCommentLineStartChar, True)
+								If Not strLineIn Is Nothing AndAlso strLineIn.StartsWith(mCommentLineStartChar) Then
+									mHeaderSaved = String.Copy(strLineIn)
+									strCompareTitle = MyBase.CleanupComment(mHeaderSaved, mCommentLineStartChar, True)
 
-                                    If strCompareTitle.ToLower.EndsWith("3.dta") Then
-                                        If mCurrentSpectrum.SpectrumTitle.Substring(0, mCurrentSpectrum.SpectrumTitle.Length - 5) = strCompareTitle.Substring(0, strCompareTitle.Length - 5) Then
-                                            ' Yes, the spectra match
+									If strCompareTitle.ToLower.EndsWith("3.dta") Then
+										If mCurrentSpectrum.SpectrumTitle.Substring(0, mCurrentSpectrum.SpectrumTitle.Length - 5) = strCompareTitle.Substring(0, strCompareTitle.Length - 5) Then
+											' Yes, the spectra match
 
-                                            With mCurrentSpectrum
-                                                .ParentIonChargeCount = 2
-                                                .ParentIonCharges(1) = 3
-                                                .ChargeIs2And3Plus = True
-                                            End With
+											With mCurrentSpectrum
+												.ParentIonChargeCount = 2
+												.ParentIonCharges(1) = 3
+												.ChargeIs2And3Plus = True
+											End With
 
-                                            mHeaderSaved = String.Empty
+											mHeaderSaved = String.Empty
 
-                                            ' Read the next set of lines until the next blank line or comment line is found
-                                            Do While srInFile.Peek >= 0
-                                                strLineIn = srInFile.ReadLine
-                                                mInFileLineNumber += 1
+											' Read the next set of lines until the next blank line or comment line is found
+											Do While srInFile.Peek() > -1
+												strLineIn = srInFile.ReadLine
+												mInFileLineNumber += 1
 
-                                                ' See if strLineIn is blank or starts with an equals sign
-                                                If Not strLineIn Is Nothing Then
-                                                    mTotalBytesRead += strLineIn.Length + 2
-                                                    If strLineIn.Trim.Length = 0 Then
-                                                        Exit Do
-                                                    ElseIf strLineIn.Trim.StartsWith(mCommentLineStartChar) Then
-                                                        mHeaderSaved = String.Copy(strLineIn)
-                                                        Exit Do
-                                                    End If
-                                                End If
-                                            Loop
-                                        End If
-                                    End If
-                                End If
-                            Else
-                                If strMostRecentLineIn.StartsWith(mCommentLineStartChar) Then
-                                    mHeaderSaved = String.Copy(strMostRecentLineIn)
-                                End If
-                            End If  ' EndIf for blnSpectrumFound = True
-                        End If
-                    End If  ' EndIf for strLineIn.Trim.StartsWith(mCommentLineStartChar)
+												' See if strLineIn is blank or starts with an equals sign
+												If Not strLineIn Is Nothing Then
+													mTotalBytesRead += strLineIn.Length + 2
+													If strLineIn.Trim.Length = 0 Then
+														Exit Do
+													ElseIf strLineIn.Trim.StartsWith(mCommentLineStartChar) Then
+														mHeaderSaved = String.Copy(strLineIn)
+														Exit Do
+													End If
+												End If
+											Loop
+										End If
+									End If
+								End If
+							Else
+								If strMostRecentLineIn.StartsWith(mCommentLineStartChar) Then
+									mHeaderSaved = String.Copy(strMostRecentLineIn)
+								End If
+							End If	' EndIf for blnSpectrumFound = True
+						End If
+					End If	' EndIf for strLineIn.Trim.StartsWith(mCommentLineStartChar)
 
-                    If mInFileLineNumber - intLastProgressUpdateLine >= 250 Or blnSpectrumFound Then
-                        intLastProgressUpdateLine = mInFileLineNumber
-                        UpdateStreamReaderProgress()
-                    End If
-                Loop
+					If mInFileLineNumber - intLastProgressUpdateLine >= 250 Or blnSpectrumFound Then
+						intLastProgressUpdateLine = mInFileLineNumber
+						UpdateStreamReaderProgress()
+					End If
+				Loop
 
                 objSpectrumInfo = mCurrentSpectrum
 
@@ -254,7 +254,7 @@ Public Class clsDtaTextFileReader
 
 				mInFileLineNumber = 0
 				intLastProgressUpdateLine = mInFileLineNumber
-				Do While srInFile.Peek() >= 0 And Not mAbortProcessing
+				Do While srInFile.Peek() > -1 And Not mAbortProcessing
 					strLineIn = srInFile.ReadLine
 					mInFileLineNumber += 1
 
@@ -355,7 +355,7 @@ Public Class clsDtaTextFileReader
 				lstMsMsDataList.Clear()
 			End If
 
-			Do While srInFile.Peek >= 0
+			Do While srInFile.Peek() > -1
 				strLineIn = srInFile.ReadLine
 				intLinesRead += 1
 
@@ -366,7 +366,7 @@ Public Class clsDtaTextFileReader
 
 					If strLineIn.Trim.Length = 0 OrElse strLineIn.StartsWith(COMMENT_LINE_START_CHAR) Then
 						Exit Do
-					Else						
+					Else
 
 						' Add to MS/MS data string list
 						lstMsMsDataList.Add(strLineIn.Trim)

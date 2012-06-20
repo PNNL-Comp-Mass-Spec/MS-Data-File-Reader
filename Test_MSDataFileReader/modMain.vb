@@ -22,14 +22,15 @@ Module modMain
         Try
             mProgressForm = New ProgressFormNET.frmProgress
 
-			TestDTATextReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached)
-			TestDTATextReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential)
+			TestDTATextReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Indexed)
+			'TestDTATextReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached)
+			'TestDTATextReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential)
 
-			TestMGFReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached)
-			TestMGFReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential)
+			'TestMGFReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached)
+			'TestMGFReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential)
 
 			'TestMZXmlReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached)
-			'TestMZXmlReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential)
+			TestMZXmlReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential)
 			'TestMZXmlReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Indexed)
 
             'TestMZDataReader(MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached)
@@ -206,15 +207,16 @@ Module modMain
     End Sub
 
     Private Sub TestMZXmlReader(ByVal eDataReaderMode As MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants)
-        TestMZXmlReader("SRM_HeavyPeptide_5nM_buffer2_mazama.mzXML", eDataReaderMode)
+		'TestMZXmlReader("SRM_HeavyPeptide_5nM_buffer2_mazama.mzXML", eDataReaderMode)
 
-        TestMZXmlReader("SampleData_QC_Standards_Excerpt.mzXML", eDataReaderMode)
+		'TestMZXmlReader("SampleData_QC_Standards_Excerpt.mzXML", eDataReaderMode)
         'TestMZXmlReader("Mini_proteome_CytochromeC02-LCQ-1_Profile.mzXML", eDataReaderMode)
         'TestMZXmlReader("MSFMS_018_Agilent_Fusion_031305.mzXML", eDataReaderMode)
 
         'TestMZXmlReader("Gsulf326_LTQFT_run2_23Aug05_Andro_0705-06.mzXML", eDataReaderMode)
         'TestMZXmlReader("Unicode_Gsulf326_LTQFT.mzxml", eDataReaderMode)
-        'TestMZXmlReader("Ding-UG-G-IMAC-Label-60.mzXML", eDataReaderMode)
+		'TestMZXmlReader("Ding-UG-G-IMAC-Label-60.mzXML", eDataReaderMode)
+		TestMZXmlReader("BW_60_Ecoli_R1_win3_02142012_Aragon.mzXML", eDataReaderMode)
     End Sub
 
     Private Sub TestMZXmlReader(ByVal strInputFilePath As String, ByVal eDataReaderMode As MSDataFileReader.clsMSDataFileReaderBaseClass.drmDataReaderModeConstants)
@@ -388,15 +390,31 @@ Module modMain
         objMSFileReader.CloseFile()
     End Sub
 
-    Private Sub TestReaderShowSpectrumInfo(ByVal objSpectrumInfo As MSDataFileReader.clsSpectrumInfo)
-        With objSpectrumInfo
-            If .DataCount = 0 Then
-                Console.WriteLine(.ScanNumber & ControlChars.Tab & .MSLevel & ControlChars.Tab & .DataCount)
-            Else
-                Console.WriteLine(.ScanNumber & ControlChars.Tab & .MSLevel & ControlChars.Tab & .DataCount & ControlChars.Tab & .MZList(0) & ControlChars.Tab & .IntensityList(0))
-            End If
-        End With
-    End Sub
+	Private Sub TestReaderShowSpectrumInfo(ByVal objSpectrumInfo As MSDataFileReader.clsSpectrumInfo)
+		Dim blnShowDetails As Boolean = False
+		With objSpectrumInfo
+			If .DataCount = 0 Then
+				Console.WriteLine(.ScanNumber & ControlChars.Tab & .MSLevel & ControlChars.Tab & .DataCount)
+			Else
+				Console.WriteLine(.ScanNumber & ControlChars.Tab & .MSLevel & ControlChars.Tab & .DataCount & ControlChars.Tab & .MZList(0) & ControlChars.Tab & .IntensityList(0))
+				For intIndex As Integer = 0 To .DataCount - 1
+					If .MZList(intIndex) <= 0 OrElse .IntensityList(intIndex) < 0 Then
+						Console.WriteLine("Possibly invalid point: m/z " & .MZList(intIndex) & "   " & .IntensityList(intIndex))
+						If Not blnShowDetails Then
+							blnShowDetails = True
+						End If
+					ElseIf intIndex <= 10 OrElse blnShowDetails Then
+						Console.WriteLine("    m/z " & .MZList(intIndex) & "   " & .IntensityList(intIndex))
+					End If
+
+					If intIndex > 0 AndAlso blnShowDetails AndAlso intIndex Mod 50 = 0 Then
+						Console.WriteLine("...")
+					End If
+				Next
+			End If
+		End With
+		Console.WriteLine()
+	End Sub
 
     Private Sub mMSFileReader_ProgressChanged(ByVal taskDescription As String, ByVal percentComplete As Single) Handles mMSFileReader.ProgressChanged
         mProgressForm.UpdateCurrentTask(taskDescription)
