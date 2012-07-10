@@ -1,5 +1,8 @@
 MSDataFileReader Change Log
 
+Version 1.3.4574; July 10, 2012
+	- Switched to using Double.TryParse and Integer.TryParse in ReadSingleSpectrum
+
 Version 1.3.4553; June 19, 2012
 	- Fixed MGF file parsing bug that failed to skip spectra that did not have any ions
 

@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified February 16, 2012
+' Last modified July 10, 2012
 
 Public MustInherit Class clsMSTextFileReaderBaseClass
     Inherits clsMsDataFileReaderBaseClass

@@ -304,10 +304,12 @@ Public Class clsDtaTextFileReader
 		' Returns True if a valid spectrum is found, otherwise, returns False
 
 		Dim intCharIndex As Integer
-		Dim strValue As String
 		Dim strLineIn As String
+		Dim strValue As String
+		Dim dblValue As Double
 
 		Dim blnSpectrumFound As Boolean
+		Dim intCharge As Integer
 
 		objSpectrumInfoMsMsText.ParentIonLineText = String.Copy(strParentIonLineText)
 		strParentIonLineText = strParentIonLineText.Trim
@@ -316,9 +318,9 @@ Public Class clsDtaTextFileReader
 		intCharIndex = strParentIonLineText.IndexOf(" ")
 		If intCharIndex >= 1 Then
 			strValue = strParentIonLineText.Substring(0, intCharIndex)
-			If clsMSDataFileReaderBaseClass.IsNumber(strValue) Then
+			If Double.TryParse(strValue, dblValue) Then
 				With objSpectrumInfoMsMsText
-					.ParentIonMH = CDbl(strValue)
+					.ParentIonMH = dblValue
 
 					strValue = strParentIonLineText.Substring(intCharIndex + 1)
 
@@ -327,9 +329,10 @@ Public Class clsDtaTextFileReader
 					If intCharIndex > 0 Then
 						strValue = strValue.Substring(0, intCharIndex)
 					End If
-					If clsMSDataFileReaderBaseClass.IsNumber(strValue) Then
+
+					If Integer.TryParse(strValue, intCharge) Then
 						.ParentIonChargeCount = 1
-						.ParentIonCharges(0) = CInt(strValue)
+						.ParentIonCharges(0) = intCharge
 
 						' Note: Dta files have Parent Ion MH defined by not Parent Ion m/z
 						' Thus, compute .ParentIonMZ using .ParentIonMH
