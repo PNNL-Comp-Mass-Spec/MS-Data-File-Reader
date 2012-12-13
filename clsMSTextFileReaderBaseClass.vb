@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified July 10, 2012
+' Last modified December 12, 2012
 
 Public MustInherit Class clsMSTextFileReaderBaseClass
     Inherits clsMsDataFileReaderBaseClass
@@ -209,7 +209,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
 		'   FileName.1234.1234.       (Proteowizard uses this format to indicate unknown charge)
 		' Returns True if the scan numbers are found in the header
 
-		Static reDtaHeaderScanAndCharge As System.Text.RegularExpressions.Regex = New System.Text.RegularExpressions.Regex(".+\.(\d+)\.(\d+).(\d*)$", Text.RegularExpressions.RegexOptions.Compiled)
+		Static reDtaHeaderScanAndCharge As System.Text.RegularExpressions.Regex = New System.Text.RegularExpressions.Regex(".+\.(\d+)\.(\d+)\.(\d*)$", Text.RegularExpressions.RegexOptions.Compiled)
 
 		Dim blnScanNumberFound As Boolean
 		Dim reMatch As System.Text.RegularExpressions.Match
