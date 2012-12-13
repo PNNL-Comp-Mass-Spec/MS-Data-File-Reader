@@ -182,8 +182,8 @@ Public Class clsMzXMLFileReader
     Protected Function ParseBinaryData(ByRef strMSMSDataBase64Encoded As String) As Boolean
         ' Parses strMSMSDataBase64Encoded and stores the data in mIntensityList() and mMZList()
 
-        Dim sngDataArray() As Single
-        Dim dblDataArray() As Double
+		Dim sngDataArray() As Single = Nothing
+		Dim dblDataArray() As Double = Nothing
 
         Dim eEndianMode As clsBase64EncodeDecode.eEndianTypeConstants = clsBase64EncodeDecode.eEndianTypeConstants.BigEndian
         Dim intIndex As Integer

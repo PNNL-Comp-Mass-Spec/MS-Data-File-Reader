@@ -315,7 +315,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
         ' If the file type cannot be determined, then returns Nothing
 
         Dim eFileType As dftDataFileTypeConstants
-        Dim objFileReader As clsMSDataFileReaderBaseClass
+		Dim objFileReader As clsMSDataFileReaderBaseClass = Nothing
 
         If DetermineFileType(strFileNameOrPath, eFileType) Then
             Select Case eFileType
@@ -341,7 +341,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
         ' If the file type is _Dta.txt or .MGF then returns Nothing since those file types do not have file accessors
 
         Dim eFileType As dftDataFileTypeConstants
-        Dim objFileAccessor As clsMSDataFileAccessorBaseClass
+		Dim objFileAccessor As clsMSDataFileAccessorBaseClass = Nothing
 
         If DetermineFileType(strFileNameOrPath, eFileType) Then
             Select Case eFileType

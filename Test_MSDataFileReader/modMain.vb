@@ -267,7 +267,7 @@ Module modMain
         Dim strText As String
 
         Dim srInFile As System.IO.StreamReader
-        Dim intScanNumberList() As Integer
+		Dim intScanNumberList() As Integer = Nothing
 
         Dim dtStartTime As DateTime
         Dim dtEndTime As DateTime

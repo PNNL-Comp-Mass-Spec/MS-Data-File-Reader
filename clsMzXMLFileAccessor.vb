@@ -735,7 +735,7 @@ Public Class clsMzXMLFileAccessor
     End Sub
 
     Protected Function ParseMzXMLOffsetIndex(ByRef strTextStream As String) As Boolean
-        Dim objXMLReader As System.Xml.XmlTextReader
+		Dim objXMLReader As System.Xml.XmlTextReader = Nothing
         Dim blnReadSuccessful As Boolean
 
         Dim strCurrentElement As String

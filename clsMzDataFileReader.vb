@@ -234,7 +234,7 @@ Public Class clsMzDataFileReader
     End Function
 
     Protected Overrides Sub InitializeCurrentSpectrum(ByRef objTemplateSpectrum As clsSpectrumInfo)
-        Dim objSpectrumCopy As clsSpectrumInfoMzData
+		Dim objSpectrumCopy As clsSpectrumInfoMzData = Nothing
 
         If Not mCurrentSpectrum Is Nothing Then
             If mCurrentSpectrum.MSLevel = 1 Then
@@ -292,8 +292,8 @@ Public Class clsMzDataFileReader
     Protected Function ParseBinaryData(ByRef strMSMSDataBase64Encoded As String, ByRef sngValues() As Single, ByVal NumericPrecisionOfData As Integer, ByVal PeaksEndianMode As String, ByVal blnUpdatePeaksCountIfInconsistent As Boolean) As Boolean
         ' Parses strMSMSDataBase64Encoded and stores the data in sngValues
 
-        Dim sngDataArray() As Single
-        Dim dblDataArray() As Double
+		Dim sngDataArray() As Single = Nothing
+		Dim dblDataArray() As Double = Nothing
 
         Dim eEndianMode As clsBase64EncodeDecode.eEndianTypeConstants
         Dim intIndex As Integer
@@ -354,8 +354,8 @@ Public Class clsMzDataFileReader
     Protected Function ParseBinaryData(ByRef strMSMSDataBase64Encoded As String, ByRef dblValues() As Double, ByVal NumericPrecisionOfData As Integer, ByVal PeaksEndianMode As String, ByVal blnUpdatePeaksCountIfInconsistent As Boolean) As Boolean
         ' Parses strMSMSDataBase64Encoded and stores the data in dblValues
 
-        Dim sngDataArray() As Single
-        Dim dblDataArray() As Double
+		Dim sngDataArray() As Single = Nothing
+		Dim dblDataArray() As Double = Nothing
 
         Dim eEndianMode As clsBase64EncodeDecode.eEndianTypeConstants
         Dim blnSuccess As Boolean
