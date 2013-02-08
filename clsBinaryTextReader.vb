@@ -547,41 +547,42 @@ Public Class clsBinaryTextReader
         ' Make sure any open file or text stream is closed
         Me.Close()
 
-        Try
-            If InputFilePath Is Nothing Then
-                InputFilePath = String.Empty
-            End If
+		Try
+			blnSuccess = False
+			If String.IsNullOrEmpty(InputFilePath) Then
+				mErrorMessage = "Error opening file: input file path is blank"
+				Return False
+			End If
 
-            blnSuccess = False
-            If Not System.IO.File.Exists(InputFilePath) Then
-                mErrorMessage = "File not found: " & InputFilePath
-                Return False
-            End If
+			If Not System.IO.File.Exists(InputFilePath) Then
+				mErrorMessage = "File not found: " & InputFilePath
+				Return False
+			End If
 
-            InitializeLocalVariables()
+			InitializeLocalVariables()
 
-            mInputFilePath = String.Copy(InputFilePath)
+			mInputFilePath = String.Copy(InputFilePath)
 
-            ' Note that this sets mCharSize to 1
-            SetInputFileEncoding(InputFileEncodingConstants.Ascii)
+			' Note that this sets mCharSize to 1
+			SetInputFileEncoding(InputFileEncodingConstants.Ascii)
 
-            ' Initialize the binary reader
-            mBinaryReader = New System.IO.FileStream(mInputFilePath, IO.FileMode.Open, IO.FileAccess.Read, share)
+			' Initialize the binary reader
+			mBinaryReader = New System.IO.FileStream(mInputFilePath, IO.FileMode.Open, IO.FileAccess.Read, share)
 
-            If mBinaryReader.Length = 0 Then
-                Close()
+			If mBinaryReader.Length = 0 Then
+				Close()
 
-                mErrorMessage = "File is zero-length"
-                blnSuccess = False
-            Else
-                MoveToBeginning()
-                blnSuccess = True
-            End If
+				mErrorMessage = "File is zero-length"
+				blnSuccess = False
+			Else
+				MoveToBeginning()
+				blnSuccess = True
+			End If
 
-        Catch ex As Exception
-            LogErrors("OpenFile", "Error opening file: " & InputFilePath & "; " & ex.Message)
-            blnSuccess = False
-        End Try
+		Catch ex As Exception
+			LogErrors("OpenFile", "Error opening file: " & InputFilePath & "; " & ex.Message)
+			blnSuccess = False
+		End Try
 
         Return blnSuccess
     End Function

@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified December 12, 2012
+' Last modified February 8, 2013
 
 Public MustInherit Class clsMSTextFileReaderBaseClass
     Inherits clsMsDataFileReaderBaseClass
@@ -152,7 +152,8 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
                 srInFile.Close()
             End If
 
-            mInFileLineNumber = 0
+			mInFileLineNumber = 0
+			mInputFilePath = String.Empty
         Catch ex As Exception
         End Try
 
@@ -439,13 +440,9 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         Dim blnSuccess As Boolean
         Dim objStreamReader As System.IO.StreamReader
 
-        ' Make sure any open file or text stream is closed
-        CloseFile()
-
         Try
-            If strInputFilePath Is Nothing Then
-                strInputFilePath = String.Empty
-            End If
+			blnSuccess = OpenFileInit(strInputFilePath)
+			If Not blnSuccess Then Return False
 
 			objStreamReader = New System.IO.StreamReader(New System.IO.FileStream(strInputFilePath, IO.FileMode.Open, IO.FileAccess.Read, IO.FileShare.Read))
             mInFileStreamLength = objStreamReader.BaseStream.Length
@@ -471,13 +468,9 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
 
         Dim blnSuccess As Boolean
 
-        ' Make sure any open file or text stream is closed
-        CloseFile()
-
         Try
-            If strTextStream Is Nothing Then
-                strTextStream = String.Empty
-            End If
+			blnSuccess = OpenFileInit(strTextStream)
+			If Not blnSuccess Then Return False
 
             srInFile = New System.IO.StringReader(strTextStream)
             mInFileStreamLength = strTextStream.Length

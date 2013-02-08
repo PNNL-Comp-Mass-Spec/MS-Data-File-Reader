@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified September 17, 2010
+' Last modified February 8, 2013
 
 Public MustInherit Class clsMSDataFileReaderBaseClass
 
@@ -69,7 +69,8 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
     Protected mAbortProcessing As Boolean
     Protected mParseFilesWithUnknownVersion As Boolean = False
 
-    Protected mInputFileStats As udtFileStatsType
+	Protected mInputFilePath As String = String.Empty
+	Protected mInputFileStats As udtFileStatsType
 
     ' These variables are used when mDataReaderMode = Cached
     Protected mCachedSpectrumCount As Integer
@@ -117,6 +118,12 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
             Return mErrorMessage
         End Get
     End Property
+
+	Public ReadOnly Property InputFilePath() As String
+		Get
+			Return mInputFilePath
+		End Get
+	End Property
 
     Public ReadOnly Property FileVersion() As String
         Get
@@ -535,7 +542,32 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
 
     Public MustOverride Function OpenFile(ByVal strInputFilePath As String) As Boolean
 
-    Public MustOverride Function OpenTextStream(ByRef strTextStream As String) As Boolean
+	Public MustOverride Function OpenTextStream(ByRef strTextStream As String) As Boolean
+
+	''' <summary>
+	''' Validates that strInputFilePath exists
+	''' </summary>
+	''' <param name="strInputFilePath"></param>
+	''' <returns>True if the file exists, otherwise false</returns>
+	''' <remarks>Updates mFilePath if the file is valid</remarks>
+	Protected Function OpenFileInit(ByVal strInputFilePath As String) As Boolean
+
+		' Make sure any open file or text stream is closed
+		CloseFile()
+
+		If String.IsNullOrEmpty(strInputFilePath) Then
+			mErrorMessage = "Error opening file: input file path is blank"
+			Return False
+		End If
+
+		If Not System.IO.File.Exists(strInputFilePath) Then
+			mErrorMessage = "File not found: " & strInputFilePath
+			Return False
+		Else
+			mInputFilePath = strInputFilePath
+			Return True
+		End If
+	End Function
 
     Protected Sub OperationComplete()
         RaiseEvent ProgressComplete()

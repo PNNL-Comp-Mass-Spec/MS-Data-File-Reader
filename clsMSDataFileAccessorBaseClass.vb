@@ -42,8 +42,9 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
 
         Try
             CloseFile()
-        Catch ex As Exception
-        End Try
+		Catch ex As Exception
+			' Ignore errors here
+		End Try
 
     End Sub
 
@@ -66,9 +67,7 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
 #End Region
 
 #Region "Classwide Variables"
-    Protected mInputFilePath As String
-
-    Protected mInputFileEncoding As clsBinaryTextReader.InputFileEncodingConstants
+	Protected mInputFileEncoding As clsBinaryTextReader.InputFileEncodingConstants
     Protected mCharSize As Byte
     Protected mIndexingComplete As Boolean
 
@@ -472,18 +471,9 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
 
         Dim blnSuccess As Boolean
 
-        ' Make sure any open file or text stream is closed
-        CloseFile()
-
         Try
-            If strInputFilePath Is Nothing Then
-                strInputFilePath = String.Empty
-            End If
-
-            If Not System.IO.File.Exists(strInputFilePath) Then
-                mErrorMessage = "File not found: " & strInputFilePath
-                Return False
-            End If
+			blnSuccess = OpenFileInit(strInputFilePath)
+			If Not blnSuccess Then Return False
 
             InitializeFileTrackingVariables()
 
@@ -528,8 +518,14 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
 
     End Function
 
+	''' <summary>
+	''' This reading mode is not appropriate for the MS Data File Accessor
+	''' </summary>
+	''' <param name="strTextStream"></param>
+	''' <returns>Always returns false</returns>
+	''' <remarks></remarks>
     Public Overrides Function OpenTextStream(ByRef strTextStream As String) As Boolean
-        ' This reading mode is not appropriate for the MS Data File Accessor
+		mErrorMessage = "The OpenTextStream method is not valid for clsMSDataFileAccessorBaseClass"
         CloseFile()
         Return False
     End Function

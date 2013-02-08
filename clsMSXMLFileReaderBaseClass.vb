@@ -104,6 +104,7 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
             mXMLReader.Close()
         End If
 
+		mInputFilePath = String.Empty
     End Sub
 
     Public Shared Function ConvertTimeFromTimespanToXmlDuration(ByVal dtTimeSpan As TimeSpan, ByVal blnTrimLeadingZeroValues As Boolean, Optional ByVal bytSecondsValueDigitsAfterDecimal As Byte = 3) As String
@@ -357,39 +358,29 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
 
         Dim blnSuccess As Boolean
 
-        ' Make sure any open file or text stream is closed
-        CloseFile()
+		Try
+			blnSuccess = OpenFileInit(strInputFilePath)
+			If Not blnSuccess Then Return False
 
-        Try
-            If strInputFilePath Is Nothing Then
-                strInputFilePath = String.Empty
-            End If
+			' Initialize the stream reader and the XML Text Reader
+			mDataFileOrTextStream = New System.IO.StreamReader(strInputFilePath)
+			mXMLReader = New System.Xml.XmlTextReader(mDataFileOrTextStream)
 
-            blnSuccess = False
-            If Not System.IO.File.Exists(strInputFilePath) Then
-                mErrorMessage = "File not found: " & strInputFilePath
-                Return False
-            End If
+			' Skip all whitespace
+			mXMLReader.WhitespaceHandling = Xml.WhitespaceHandling.None
 
-            ' Initialize the stream reader and the XML Text Reader
-            mDataFileOrTextStream = New System.IO.StreamReader(strInputFilePath)
-            mXMLReader = New System.Xml.XmlTextReader(mDataFileOrTextStream)
+			mErrorMessage = String.Empty
 
-            ' Skip all whitespace
-            mXMLReader.WhitespaceHandling = Xml.WhitespaceHandling.None
+			InitializeLocalVariables()
 
-            mErrorMessage = String.Empty
+			MyBase.ResetProgress("Parsing " & System.IO.Path.GetFileName(strInputFilePath))
 
-            InitializeLocalVariables()
+			blnSuccess = True
 
-            MyBase.ResetProgress("Parsing " & System.IO.Path.GetFileName(strInputFilePath))
-
-            blnSuccess = True
-
-        Catch ex As Exception
-            mErrorMessage = "Error opening file: " & strInputFilePath & "; " & ex.Message
-            blnSuccess = False
-        End Try
+		Catch ex As Exception
+			mErrorMessage = "Error opening file: " & strInputFilePath & "; " & ex.Message
+			blnSuccess = False
+		End Try
 
         Return blnSuccess
     End Function
@@ -399,34 +390,29 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
 
         Dim blnSuccess As Boolean
 
-        ' Make sure any open file or text stream is closed
-        CloseFile()
+		Try
+			blnSuccess = OpenFileInit(strTextStream)
+			If Not blnSuccess Then Return False
 
-        Try
-            blnSuccess = False
-            If strTextStream Is Nothing Then
-                strTextStream = String.Empty
-            End If
+			' Initialize the stream reader and the XML Text Reader
+			mDataFileOrTextStream = New System.IO.StringReader(strTextStream)
+			mXMLReader = New System.Xml.XmlTextReader(mDataFileOrTextStream)
 
-            ' Initialize the stream reader and the XML Text Reader
-            mDataFileOrTextStream = New System.IO.StringReader(strTextStream)
-            mXMLReader = New System.Xml.XmlTextReader(mDataFileOrTextStream)
+			' Skip all whitespace
+			mXMLReader.WhitespaceHandling = Xml.WhitespaceHandling.None
 
-            ' Skip all whitespace
-            mXMLReader.WhitespaceHandling = Xml.WhitespaceHandling.None
+			mErrorMessage = String.Empty
 
-            mErrorMessage = String.Empty
+			InitializeLocalVariables()
 
-            InitializeLocalVariables()
+			MyBase.ResetProgress("Parsing text stream")
 
-            MyBase.ResetProgress("Parsing text stream")
+			blnSuccess = True
 
-            blnSuccess = True
-
-        Catch ex As Exception
-            mErrorMessage = "Error opening text stream"
-            blnSuccess = False
-        End Try
+		Catch ex As Exception
+			mErrorMessage = "Error opening text stream"
+			blnSuccess = False
+		End Try
 
         Return blnSuccess
     End Function
