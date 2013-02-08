@@ -468,9 +468,11 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
 
         Dim blnSuccess As Boolean
 
+		' Make sure any open file or text stream is closed
+		CloseFile()
+
         Try
-			blnSuccess = OpenFileInit(strTextStream)
-			If Not blnSuccess Then Return False
+			mInputFilePath = "TextStream"
 
             srInFile = New System.IO.StringReader(strTextStream)
             mInFileStreamLength = strTextStream.Length

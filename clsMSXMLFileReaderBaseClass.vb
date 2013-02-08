@@ -390,9 +390,11 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
 
         Dim blnSuccess As Boolean
 
+		' Make sure any open file or text stream is closed
+		CloseFile()
+
 		Try
-			blnSuccess = OpenFileInit(strTextStream)
-			If Not blnSuccess Then Return False
+			mInputFilePath = "TextStream"
 
 			' Initialize the stream reader and the XML Text Reader
 			mDataFileOrTextStream = New System.IO.StringReader(strTextStream)
