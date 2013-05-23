@@ -295,6 +295,8 @@ Public Class clsMzDataFileReader
 		Dim sngDataArray() As Single = Nothing
 		Dim dblDataArray() As Double = Nothing
 
+		Dim zLibCompressed As Boolean = False
+
         Dim eEndianMode As clsBase64EncodeDecode.eEndianTypeConstants
         Dim intIndex As Integer
         Dim blnSuccess As Boolean
@@ -306,43 +308,43 @@ Public Class clsMzDataFileReader
             Try
                 eEndianMode = mCurrentSpectrum.GetEndianModeValue(PeaksEndianMode)
 
-                Select Case NumericPrecisionOfData
-                    Case 32
-                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, sngDataArray, eEndianMode) Then
-                            ReDim sngValues(sngDataArray.Length - 1)
-                            sngDataArray.CopyTo(sngValues, 0)
+				Select Case NumericPrecisionOfData
+					Case 32
+						If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, sngDataArray, zLibCompressed, eEndianMode) Then
+							ReDim sngValues(sngDataArray.Length - 1)
+							sngDataArray.CopyTo(sngValues, 0)
 
-                            blnSuccess = True
-                        End If
-                    Case 64
-                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, dblDataArray, eEndianMode) Then
-                            ReDim sngValues(dblDataArray.Length - 1)
+							blnSuccess = True
+						End If
+					Case 64
+						If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, dblDataArray, zLibCompressed, eEndianMode) Then
+							ReDim sngValues(dblDataArray.Length - 1)
 
-                            For intIndex = 0 To dblDataArray.Length - 1
-                                sngValues(intIndex) = CSng(dblDataArray(intIndex))
-                            Next intIndex
+							For intIndex = 0 To dblDataArray.Length - 1
+								sngValues(intIndex) = CSng(dblDataArray(intIndex))
+							Next intIndex
 
-                            blnSuccess = True
-                        End If
-                    Case Else
-                        ' Invalid numeric precision
-                End Select
+							blnSuccess = True
+						End If
+					Case Else
+						' Invalid numeric precision
+				End Select
 
-                If blnSuccess Then
-                    With mCurrentSpectrum
-                        If sngValues.Length <> .DataCount Then
-                            If .DataCount = 0 AndAlso sngValues.Length > 0 AndAlso sngValues(0) = 0 Then
-                                ' Leave .PeaksCount at 0
-                            ElseIf blnUpdatePeaksCountIfInconsistent Then
-                                ' This shouldn't normally be necessary
-                                LogErrors("ParseBinaryData (Single Precision)", "Unexpected condition: sngValues.Length <> .DataCount and .DataCount > 0")
-                                .DataCount = sngValues.Length
-                            End If
-                        End If
-                    End With
-                End If
+				If blnSuccess Then
+					With mCurrentSpectrum
+						If sngValues.Length <> .DataCount Then
+							If .DataCount = 0 AndAlso sngValues.Length > 0 AndAlso sngValues(0) = 0 Then
+								' Leave .PeaksCount at 0
+							ElseIf blnUpdatePeaksCountIfInconsistent Then
+								' This shouldn't normally be necessary
+								LogErrors("ParseBinaryData (Single Precision)", "Unexpected condition: sngValues.Length <> .DataCount and .DataCount > 0")
+								.DataCount = sngValues.Length
+							End If
+						End If
+					End With
+				End If
 
-            Catch ex As Exception
+			Catch ex As Exception
                 LogErrors("ParseBinaryData (Single Precision)", ex.Message)
             End Try
         End If
@@ -357,6 +359,8 @@ Public Class clsMzDataFileReader
 		Dim sngDataArray() As Single = Nothing
 		Dim dblDataArray() As Double = Nothing
 
+		Dim zLibCompressed As Boolean = False
+
         Dim eEndianMode As clsBase64EncodeDecode.eEndianTypeConstants
         Dim blnSuccess As Boolean
 
@@ -369,19 +373,19 @@ Public Class clsMzDataFileReader
 
                 Select Case NumericPrecisionOfData
                     Case 32
-                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, sngDataArray, eEndianMode) Then
-                            ReDim dblValues(sngDataArray.Length - 1)
-                            sngDataArray.CopyTo(dblValues, 0)
+						If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, sngDataArray, zLibCompressed, eEndianMode) Then
+							ReDim dblValues(sngDataArray.Length - 1)
+							sngDataArray.CopyTo(dblValues, 0)
 
-                            blnSuccess = True
-                        End If
+							blnSuccess = True
+						End If
                     Case 64
-                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, dblDataArray, eEndianMode) Then
-                            ReDim dblValues(dblDataArray.Length - 1)
-                            dblDataArray.CopyTo(dblValues, 0)
+						If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, dblDataArray, zLibCompressed, eEndianMode) Then
+							ReDim dblValues(dblDataArray.Length - 1)
+							dblDataArray.CopyTo(dblValues, 0)
 
-                            blnSuccess = True
-                        End If
+							blnSuccess = True
+						End If
                     Case Else
                         ' Invalid numeric precision
                 End Select

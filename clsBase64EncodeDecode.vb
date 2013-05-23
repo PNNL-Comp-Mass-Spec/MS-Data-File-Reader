@@ -36,175 +36,233 @@ Public Class clsBase64EncodeDecode
 
     End Function
 
-    Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, ByRef dataArray() As System.Int16, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
-        ' Extracts an array of 16-bit integers from a base-64 encoded string
+	Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, ByRef dataArray() As System.Int16, ByVal zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
+		' Extracts an array of 16-bit integers from a base-64 encoded string
 
-        Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 2
-        Dim bytArray() As System.Byte
-        Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As System.Byte
+		Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 2
+		Dim bytArray() As System.Byte
+		Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As System.Byte
 
-        Dim intIndex As Integer
+		Dim intIndex As Integer
 
-        bytArray = System.Convert.FromBase64String(strBase64EncodedText)
+		If zLibCompressed Then
+			bytArray = DecompressZLib(strBase64EncodedText)
+		Else
+			bytArray = System.Convert.FromBase64String(strBase64EncodedText)
+		End If
 
-        If Not bytArray.Length Mod DATA_TYPE_PRECISION_BYTES = 0 Then
-            ' Array is not divisible by DATA_TYPE_PRECISION_BYTES; not the correct length
-            Return False
-        End If
+		If Not bytArray.Length Mod DATA_TYPE_PRECISION_BYTES = 0 Then
+			' Array is not divisible by DATA_TYPE_PRECISION_BYTES; not the correct length
+			Return False
+		End If
 
-        ReDim dataArray(CInt(bytArray.Length / DATA_TYPE_PRECISION_BYTES) - 1)
+		ReDim dataArray(CInt(bytArray.Length / DATA_TYPE_PRECISION_BYTES) - 1)
 
-        For intIndex = 0 To bytArray.Length - 1 Step DATA_TYPE_PRECISION_BYTES
+		For intIndex = 0 To bytArray.Length - 1 Step DATA_TYPE_PRECISION_BYTES
 
-            ' I'm not sure if I've got Little and Big endian correct or not in the following If statement
-            ' What I do know is that mzXML works with what I'm calling emBigEndian
-            '  and mzData works with what I'm calling emLittleEndian
-            If eEndianMode = eEndianTypeConstants.LittleEndian Then
-                ' Do not swap bytes
-                Array.Copy(bytArray, intIndex, bytArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES)
-            Else
-                ' eEndianTypeConstants.BigEndian
-                ' Swap bytes before converting from DATA_TYPE_PRECISION_BYTES bits to one 16-bit integer
-                bytArrayOneValue(0) = bytArray(intIndex + 1)
-                bytArrayOneValue(1) = bytArray(intIndex + 0)
-            End If
+			' I'm not sure if I've got Little and Big endian correct or not in the following If statement
+			' What I do know is that mzXML works with what I'm calling emBigEndian
+			'  and mzData works with what I'm calling emLittleEndian
+			If eEndianMode = eEndianTypeConstants.LittleEndian Then
+				' Do not swap bytes
+				Array.Copy(bytArray, intIndex, bytArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES)
+			Else
+				' eEndianTypeConstants.BigEndian
+				' Swap bytes before converting from DATA_TYPE_PRECISION_BYTES bits to one 16-bit integer
+				bytArrayOneValue(0) = bytArray(intIndex + 1)
+				bytArrayOneValue(1) = bytArray(intIndex + 0)
+			End If
 
-            dataArray(CInt(intIndex / DATA_TYPE_PRECISION_BYTES)) = BitConverter.ToInt16(bytArrayOneValue, 0)
-        Next intIndex
+			dataArray(CInt(intIndex / DATA_TYPE_PRECISION_BYTES)) = BitConverter.ToInt16(bytArrayOneValue, 0)
+		Next intIndex
 
-        Return True
+		Return True
 
-    End Function
+	End Function
 
-    Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, ByRef dataArray() As System.Int32, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
-        ' Extracts an array of 32-bit integers from a base-64 encoded string
+	Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, ByRef dataArray() As System.Int32, ByVal zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
+		' Extracts an array of 32-bit integers from a base-64 encoded string
 
-        Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 4
-        Dim bytArray() As System.Byte
-        Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As System.Byte
+		Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 4
+		Dim bytArray() As System.Byte
+		Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As System.Byte
 
-        Dim intIndex As Integer
+		Dim intIndex As Integer
 
-        bytArray = System.Convert.FromBase64String(strBase64EncodedText)
+		If zLibCompressed Then
+			bytArray = DecompressZLib(strBase64EncodedText)
+		Else
+			bytArray = System.Convert.FromBase64String(strBase64EncodedText)
+		End If
 
-        If Not bytArray.Length Mod DATA_TYPE_PRECISION_BYTES = 0 Then
-            ' Array is not divisible by DATA_TYPE_PRECISION_BYTES; not the correct length
-            Return False
-        End If
+		If Not bytArray.Length Mod DATA_TYPE_PRECISION_BYTES = 0 Then
+			' Array is not divisible by DATA_TYPE_PRECISION_BYTES; not the correct length
+			Return False
+		End If
 
-        ReDim dataArray(CInt(bytArray.Length / DATA_TYPE_PRECISION_BYTES) - 1)
+		ReDim dataArray(CInt(bytArray.Length / DATA_TYPE_PRECISION_BYTES) - 1)
 
-        For intIndex = 0 To bytArray.Length - 1 Step DATA_TYPE_PRECISION_BYTES
+		For intIndex = 0 To bytArray.Length - 1 Step DATA_TYPE_PRECISION_BYTES
 
-            ' I'm not sure if I've got Little and Big endian correct or not in the following If statement
-            ' What I do know is that mzXML works with what I'm calling emBigEndian
-            '  and mzData works with what I'm calling emLittleEndian
-            If eEndianMode = eEndianTypeConstants.LittleEndian Then
-                ' Do not swap bytes
-                Array.Copy(bytArray, intIndex, bytArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES)
-            Else
-                ' eEndianTypeConstants.BigEndian
-                ' Swap bytes before converting from DATA_TYPE_PRECISION_BYTES bits to one 32-bit integer
-                bytArrayOneValue(0) = bytArray(intIndex + 3)
-                bytArrayOneValue(1) = bytArray(intIndex + 2)
-                bytArrayOneValue(2) = bytArray(intIndex + 1)
-                bytArrayOneValue(3) = bytArray(intIndex + 0)
-            End If
+			' I'm not sure if I've got Little and Big endian correct or not in the following If statement
+			' What I do know is that mzXML works with what I'm calling emBigEndian
+			'  and mzData works with what I'm calling emLittleEndian
+			If eEndianMode = eEndianTypeConstants.LittleEndian Then
+				' Do not swap bytes
+				Array.Copy(bytArray, intIndex, bytArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES)
+			Else
+				' eEndianTypeConstants.BigEndian
+				' Swap bytes before converting from DATA_TYPE_PRECISION_BYTES bits to one 32-bit integer
+				bytArrayOneValue(0) = bytArray(intIndex + 3)
+				bytArrayOneValue(1) = bytArray(intIndex + 2)
+				bytArrayOneValue(2) = bytArray(intIndex + 1)
+				bytArrayOneValue(3) = bytArray(intIndex + 0)
+			End If
 
-            dataArray(CInt(intIndex / DATA_TYPE_PRECISION_BYTES)) = BitConverter.ToInt32(bytArrayOneValue, 0)
-        Next intIndex
+			dataArray(CInt(intIndex / DATA_TYPE_PRECISION_BYTES)) = BitConverter.ToInt32(bytArrayOneValue, 0)
+		Next intIndex
 
-        Return True
+		Return True
 
-    End Function
+	End Function
 
-    Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, ByRef dataArray() As Single, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
-        ' Extracts an array of Singles from a base-64 encoded string
+	Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, ByRef dataArray() As Single, ByVal zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
+		' Extracts an array of Singles from a base-64 encoded string
 
-        Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 4
-        Dim bytArray() As System.Byte
-        Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As System.Byte
+		Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 4
+		Dim bytArray() As System.Byte
+		Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As System.Byte
 
-        Dim intIndex As Integer
+		Dim intIndex As Integer
 
-        bytArray = System.Convert.FromBase64String(strBase64EncodedText)
+		If zLibCompressed Then
+			bytArray = DecompressZLib(strBase64EncodedText)
+		Else
+			bytArray = System.Convert.FromBase64String(strBase64EncodedText)
+		End If
 
-        If Not bytArray.Length Mod DATA_TYPE_PRECISION_BYTES = 0 Then
-            ' Array is not divisible by DATA_TYPE_PRECISION_BYTES; not the correct length
-            Return False
-        End If
+		If Not bytArray.Length Mod DATA_TYPE_PRECISION_BYTES = 0 Then
+			' Array is not divisible by DATA_TYPE_PRECISION_BYTES; not the correct length
+			Return False
+		End If
 
-        ReDim dataArray(CInt(bytArray.Length / DATA_TYPE_PRECISION_BYTES) - 1)
+		ReDim dataArray(CInt(bytArray.Length / DATA_TYPE_PRECISION_BYTES) - 1)
 
-        For intIndex = 0 To bytArray.Length - 1 Step DATA_TYPE_PRECISION_BYTES
+		For intIndex = 0 To bytArray.Length - 1 Step DATA_TYPE_PRECISION_BYTES
 
-            ' I'm not sure if I've got Little and Big endian correct or not in the following If statement
-            ' What I do know is that mzXML works with what I'm calling emBigEndian
-            '  and mzData works with what I'm calling emLittleEndian
-            If eEndianMode = eEndianTypeConstants.LittleEndian Then
-                ' Do not swap bytes
-                Array.Copy(bytArray, intIndex, bytArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES)
-            Else
-                ' eEndianTypeConstants.BigEndian
-                ' Swap bytes before converting from DATA_TYPE_PRECISION_BYTES bits to one single
-                bytArrayOneValue(0) = bytArray(intIndex + 3)
-                bytArrayOneValue(1) = bytArray(intIndex + 2)
-                bytArrayOneValue(2) = bytArray(intIndex + 1)
-                bytArrayOneValue(3) = bytArray(intIndex + 0)
-            End If
+			' I'm not sure if I've got Little and Big endian correct or not in the following If statement
+			' What I do know is that mzXML works with what I'm calling emBigEndian
+			'  and mzData works with what I'm calling emLittleEndian
+			If eEndianMode = eEndianTypeConstants.LittleEndian Then
+				' Do not swap bytes
+				Array.Copy(bytArray, intIndex, bytArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES)
+			Else
+				' eEndianTypeConstants.BigEndian
+				' Swap bytes before converting from DATA_TYPE_PRECISION_BYTES bits to one single
+				bytArrayOneValue(0) = bytArray(intIndex + 3)
+				bytArrayOneValue(1) = bytArray(intIndex + 2)
+				bytArrayOneValue(2) = bytArray(intIndex + 1)
+				bytArrayOneValue(3) = bytArray(intIndex + 0)
+			End If
 
-            dataArray(CInt(intIndex / DATA_TYPE_PRECISION_BYTES)) = BitConverter.ToSingle(bytArrayOneValue, 0)
-        Next intIndex
+			dataArray(CInt(intIndex / DATA_TYPE_PRECISION_BYTES)) = BitConverter.ToSingle(bytArrayOneValue, 0)
+		Next intIndex
 
-        Return True
+		Return True
 
-    End Function
+	End Function
 
-    Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, ByRef dataArray() As Double, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
-        ' Extracts an array of Doubles from a base-64 encoded string
+	Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, ByRef dataArray() As Double, ByVal zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
+		' Extracts an array of Doubles from a base-64 encoded string
 
-        Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 8
-        Dim bytArray() As System.Byte
-        Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As System.Byte
+		Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 8
+		Dim bytArray() As System.Byte
+		Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As System.Byte
 
-        Dim intIndex As Integer
+		Dim intIndex As Integer
 
-        bytArray = System.Convert.FromBase64String(strBase64EncodedText)
+		If zLibCompressed Then
+			bytArray = DecompressZLib(strBase64EncodedText)
+		Else
+			bytArray = System.Convert.FromBase64String(strBase64EncodedText)
+		End If
 
-        If Not bytArray.Length Mod DATA_TYPE_PRECISION_BYTES = 0 Then
-            ' Array is not divisible by DATA_TYPE_PRECISION_BYTES; not the correct length
-            Return False
-        End If
+		If Not bytArray.Length Mod DATA_TYPE_PRECISION_BYTES = 0 Then
+			' Array is not divisible by DATA_TYPE_PRECISION_BYTES; not the correct length
+			Return False
+		End If
 
-        ReDim dataArray(CInt(bytArray.Length / DATA_TYPE_PRECISION_BYTES) - 1)
+		ReDim dataArray(CInt(bytArray.Length / DATA_TYPE_PRECISION_BYTES) - 1)
 
-        For intIndex = 0 To bytArray.Length - 1 Step DATA_TYPE_PRECISION_BYTES
+		For intIndex = 0 To bytArray.Length - 1 Step DATA_TYPE_PRECISION_BYTES
 
-            ' I'm not sure if I've got Little and Big endian correct or not in the following If statement
-            ' What I do know is that mzXML works with what I'm calling emBigEndian
-            '  and mzData works with what I'm calling emLittleEndian
-            If eEndianMode = eEndianTypeConstants.LittleEndian Then
-                ' Do not swap bytes
-                Array.Copy(bytArray, intIndex, bytArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES)
-            Else
-                ' eEndianTypeConstants.BigEndian
-                ' Swap bytes before converting from DATA_TYPE_PRECISION_BYTES bits to one double
-                bytArrayOneValue(0) = bytArray(intIndex + 7)
-                bytArrayOneValue(1) = bytArray(intIndex + 6)
-                bytArrayOneValue(2) = bytArray(intIndex + 5)
-                bytArrayOneValue(3) = bytArray(intIndex + 4)
-                bytArrayOneValue(4) = bytArray(intIndex + 3)
-                bytArrayOneValue(5) = bytArray(intIndex + 2)
-                bytArrayOneValue(6) = bytArray(intIndex + 1)
-                bytArrayOneValue(7) = bytArray(intIndex)
-            End If
+			' I'm not sure if I've got Little and Big endian correct or not in the following If statement
+			' What I do know is that mzXML works with what I'm calling emBigEndian
+			'  and mzData works with what I'm calling emLittleEndian
+			If eEndianMode = eEndianTypeConstants.LittleEndian Then
+				' Do not swap bytes
+				Array.Copy(bytArray, intIndex, bytArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES)
+			Else
+				' eEndianTypeConstants.BigEndian
+				' Swap bytes before converting from DATA_TYPE_PRECISION_BYTES bits to one double
+				bytArrayOneValue(0) = bytArray(intIndex + 7)
+				bytArrayOneValue(1) = bytArray(intIndex + 6)
+				bytArrayOneValue(2) = bytArray(intIndex + 5)
+				bytArrayOneValue(3) = bytArray(intIndex + 4)
+				bytArrayOneValue(4) = bytArray(intIndex + 3)
+				bytArrayOneValue(5) = bytArray(intIndex + 2)
+				bytArrayOneValue(6) = bytArray(intIndex + 1)
+				bytArrayOneValue(7) = bytArray(intIndex)
+			End If
 
-            dataArray(CInt(intIndex / DATA_TYPE_PRECISION_BYTES)) = BitConverter.ToDouble(bytArrayOneValue, 0)
-        Next intIndex
+			dataArray(CInt(intIndex / DATA_TYPE_PRECISION_BYTES)) = BitConverter.ToDouble(bytArrayOneValue, 0)
+		Next intIndex
 
-        Return True
+		Return True
 
-    End Function
+	End Function
+
+	Protected Shared Function DecompressZLib(ByVal strBase64EncodedText As String) As Byte()
+
+		Dim msCompressed As System.IO.MemoryStream
+		msCompressed = New System.IO.MemoryStream(System.Convert.FromBase64String(strBase64EncodedText))
+
+		Dim msInflated As System.IO.MemoryStream = New System.IO.MemoryStream(strBase64EncodedText.Length * 2)
+
+		' We must skip the first two bytes
+		' See http://george.chiramattel.com/blog/2007/09/deflatestream-block-length-does-not-match.html
+		msCompressed.ReadByte()
+		msCompressed.ReadByte()
+
+		Using inflater As System.IO.Compression.DeflateStream = New System.IO.Compression.DeflateStream(msCompressed, IO.Compression.CompressionMode.Decompress)
+
+			Dim bytBuffer() As System.Byte
+			Dim intBytesRead As Integer
+
+			ReDim bytBuffer(4095)
+
+			While inflater.CanRead
+				intBytesRead = inflater.Read(bytBuffer, 0, bytBuffer.Length)
+				If intBytesRead = 0 Then Exit While
+				msInflated.Write(bytBuffer, 0, intBytesRead)
+			End While
+
+			msInflated.Seek(0, IO.SeekOrigin.Begin)
+		End Using
+
+		Dim bytArray() As System.Byte
+		Dim intTotalBytesDecompressed As Integer = CInt(msInflated.Length)
+
+		If intTotalBytesDecompressed > 0 Then
+			ReDim bytArray(intTotalBytesDecompressed - 1)
+			msInflated.Read(bytArray, 0, intTotalBytesDecompressed)
+		Else
+			ReDim bytArray(-1)
+		End If
+
+		Return bytArray
+
+	End Function
 
     Public Shared Function EncodeNumericArray(ByRef dataArray() As System.Byte, ByRef intPrecisionBitsReturn As System.Int32, ByRef strDataTypeNameReturn As String) As String
         ' Converts an array of Bytes to a base-64 encoded string

@@ -43,7 +43,8 @@ Public Class clsSpectrumInfo
     Protected mSpectrumType As String               ' See Class SpectrumTypeNames for typical names
     Protected mSpectrumCombinationMethod As String
 
-    Protected mMSLevel As Integer                   ' 1 for MS, 2 for MS/MS, 3 for MS^3, etc.
+	Protected mMSLevel As Integer					' 1 for MS, 2 for MS/MS, 3 for MS^3, etc.
+	Protected mCentroided As Boolean				' True if the data is centroided (supported by mzXML v3.x)
     Protected mPolarity As String
     Protected mRetentionTimeMin As Single
 
@@ -136,7 +137,17 @@ Public Class clsSpectrumInfo
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mMSLevel = Value
         End Set
-    End Property
+	End Property
+
+	Public Property Centroided() As Boolean
+		Get
+			Return mCentroided
+		End Get
+		Set(value As Boolean)
+			mCentroided = value
+		End Set
+	End Property
+
     Public Property Polarity() As String
         Get
             Return mPolarity
@@ -259,7 +270,8 @@ Public Class clsSpectrumInfo
         mSpectrumType = SpectrumTypeNames.discrete
         mSpectrumCombinationMethod = String.Empty
 
-        mMSLevel = 1
+		mMSLevel = 1
+		mCentroided = False
         mPolarity = "Positive"
         mRetentionTimeMin = 0
 
