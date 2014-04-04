@@ -74,12 +74,27 @@ Public Class clsSpectrumInfoMzXML
 	Protected mCompressionType As String					' See class CompressionTypes for values; will be "none" or "zlib"
 	Protected mCompressedLen As Integer
 
+	Protected mActivationMethod As String
+	Protected mIsolationWindow As Single
+	Protected mParentIonCharge As Integer
+	Protected mPrecursorScanNum As Integer
+	
 #End Region
 
 #Region "Classwide Variables"
 #End Region
 
 #Region "Spectrum Variable Interface Functions"
+
+	Public Property ActivationMethod() As String
+		Get
+			Return mActivationMethod
+		End Get
+		Set(value As String)
+			mActivationMethod = value
+		End Set
+	End Property
+
 	Public Property CollisionEnergy() As Single
 		Get
 			Return mCollisionEnergy
@@ -89,6 +104,7 @@ Public Class clsSpectrumInfoMzXML
 			mCollisionEnergy = Value
 		End Set
 	End Property
+
 	Public Property FilterLine() As String
 		Get
 			Return mFilterLine
@@ -98,6 +114,7 @@ Public Class clsSpectrumInfoMzXML
 			mFilterLine = value
 		End Set
 	End Property
+
 	Public Property NumericPrecisionOfData() As Integer
 		Get
 			Return mNumericPrecisionOfData
@@ -107,6 +124,7 @@ Public Class clsSpectrumInfoMzXML
 			mNumericPrecisionOfData = Value
 		End Set
 	End Property
+
 	Public Property PeaksByteOrder() As String
 		Get
 			Return mPeaksByteOrder
@@ -116,6 +134,7 @@ Public Class clsSpectrumInfoMzXML
 			mPeaksByteOrder = Value
 		End Set
 	End Property
+
 	Public Property PeaksPairOrder() As String
 		Get
 			Return mPeaksPairOrder
@@ -125,6 +144,7 @@ Public Class clsSpectrumInfoMzXML
 			mPeaksPairOrder = Value
 		End Set
 	End Property
+
 	Public Property CompressionType() As String
 		Get
 			Return mCompressionType
@@ -133,6 +153,7 @@ Public Class clsSpectrumInfoMzXML
 			mCompressionType = value
 		End Set
 	End Property
+
 	Public Property CompressedLen() As Integer
 		Get
 			Return mCompressedLen
@@ -141,6 +162,7 @@ Public Class clsSpectrumInfoMzXML
 			mCompressedLen = value
 		End Set
 	End Property
+
 	Public Property EndMZ() As Single
 		Get
 			Return mEndMZ
@@ -150,6 +172,34 @@ Public Class clsSpectrumInfoMzXML
 			mEndMZ = value
 		End Set
 	End Property
+
+	Public Property IsolationWindow() As Single
+		Get
+			Return mIsolationWindow
+		End Get
+		Set(ByVal Value As Single)
+			mIsolationWindow = Value
+		End Set
+	End Property
+
+	Public Property ParentIonCharge() As Integer
+		Get
+			Return mParentIonCharge
+		End Get
+		Set(ByVal Value As Integer)
+			mParentIonCharge = Value
+		End Set
+	End Property
+
+	Public Property PrecursorScanNum() As Integer
+		Get
+			Return mPrecursorScanNum
+		End Get
+		Set(ByVal Value As Integer)
+			mPrecursorScanNum = Value
+		End Set
+	End Property
+
 	Public Property StartMZ() As Single
 		Get
 			Return mStartMZ
@@ -159,6 +209,7 @@ Public Class clsSpectrumInfoMzXML
 			mStartMZ = value
 		End Set
 	End Property
+
 	Public Property ScanType() As String
 		Get
 			Return mScanType
@@ -186,6 +237,13 @@ Public Class clsSpectrumInfoMzXML
 
 		mCompressionType = CompressionTypes.none
 		mCompressedLen = 0
+
+		mParentIonCharge = 0
+		mActivationMethod = String.Empty
+
+		mIsolationWindow = 0
+		mPrecursorScanNum = 0
+
 	End Sub
 
 	Public Shadows Function Clone() As clsSpectrumInfoMzXML

@@ -22,33 +22,33 @@ Public Class clsBase64EncodeDecode
     End Enum
 
     Private Shared Function B64Encode(ByVal BinaryData() As Byte) As String
-        Return System.Convert.ToBase64String(BinaryData).Replace("="c, String.Empty)
-    End Function
+		Return Convert.ToBase64String(BinaryData).Replace("="c, String.Empty)
+	End Function
 
-    Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, ByRef dataArray() As System.Byte) As Boolean
-        ' Extracts an array of Bytes from a base-64 encoded string
+	Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, ByRef dataArray() As Byte) As Boolean
+		' Extracts an array of Bytes from a base-64 encoded string
 
-        Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 1
+		' Const DATA_TYPE_PRECISION_BYTES As  Int32 = 1
 
-        dataArray = System.Convert.FromBase64String(strBase64EncodedText)
+		dataArray = Convert.FromBase64String(strBase64EncodedText)
 
-        Return True
+		Return True
 
-    End Function
+	End Function
 
-	Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, ByRef dataArray() As System.Int16, ByVal zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
+	Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, ByRef dataArray() As Int16, ByVal zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
 		' Extracts an array of 16-bit integers from a base-64 encoded string
 
-		Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 2
-		Dim bytArray() As System.Byte
-		Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As System.Byte
+		Const DATA_TYPE_PRECISION_BYTES As Int32 = 2
+		Dim bytArray() As Byte
+		Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As Byte
 
 		Dim intIndex As Integer
 
 		If zLibCompressed Then
 			bytArray = DecompressZLib(strBase64EncodedText)
 		Else
-			bytArray = System.Convert.FromBase64String(strBase64EncodedText)
+			bytArray = Convert.FromBase64String(strBase64EncodedText)
 		End If
 
 		If Not bytArray.Length Mod DATA_TYPE_PRECISION_BYTES = 0 Then
@@ -80,19 +80,19 @@ Public Class clsBase64EncodeDecode
 
 	End Function
 
-	Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, ByRef dataArray() As System.Int32, ByVal zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
+	Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, ByRef dataArray() As Int32, ByVal zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
 		' Extracts an array of 32-bit integers from a base-64 encoded string
 
-		Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 4
-		Dim bytArray() As System.Byte
-		Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As System.Byte
+		Const DATA_TYPE_PRECISION_BYTES As Int32 = 4
+		Dim bytArray() As Byte
+		Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As Byte
 
 		Dim intIndex As Integer
 
 		If zLibCompressed Then
 			bytArray = DecompressZLib(strBase64EncodedText)
 		Else
-			bytArray = System.Convert.FromBase64String(strBase64EncodedText)
+			bytArray = Convert.FromBase64String(strBase64EncodedText)
 		End If
 
 		If Not bytArray.Length Mod DATA_TYPE_PRECISION_BYTES = 0 Then
@@ -129,16 +129,16 @@ Public Class clsBase64EncodeDecode
 	Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, ByRef dataArray() As Single, ByVal zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
 		' Extracts an array of Singles from a base-64 encoded string
 
-		Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 4
-		Dim bytArray() As System.Byte
-		Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As System.Byte
+		Const DATA_TYPE_PRECISION_BYTES As Int32 = 4
+		Dim bytArray() As Byte
+		Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As Byte
 
 		Dim intIndex As Integer
 
 		If zLibCompressed Then
 			bytArray = DecompressZLib(strBase64EncodedText)
 		Else
-			bytArray = System.Convert.FromBase64String(strBase64EncodedText)
+			bytArray = Convert.FromBase64String(strBase64EncodedText)
 		End If
 
 		If Not bytArray.Length Mod DATA_TYPE_PRECISION_BYTES = 0 Then
@@ -175,16 +175,16 @@ Public Class clsBase64EncodeDecode
 	Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, ByRef dataArray() As Double, ByVal zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
 		' Extracts an array of Doubles from a base-64 encoded string
 
-		Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 8
-		Dim bytArray() As System.Byte
-		Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As System.Byte
+		Const DATA_TYPE_PRECISION_BYTES As Int32 = 8
+		Dim bytArray() As Byte
+		Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As Byte
 
 		Dim intIndex As Integer
 
 		If zLibCompressed Then
 			bytArray = DecompressZLib(strBase64EncodedText)
 		Else
-			bytArray = System.Convert.FromBase64String(strBase64EncodedText)
+			bytArray = Convert.FromBase64String(strBase64EncodedText)
 		End If
 
 		If Not bytArray.Length Mod DATA_TYPE_PRECISION_BYTES = 0 Then
@@ -224,19 +224,19 @@ Public Class clsBase64EncodeDecode
 
 	Protected Shared Function DecompressZLib(ByVal strBase64EncodedText As String) As Byte()
 
-		Dim msCompressed As System.IO.MemoryStream
-		msCompressed = New System.IO.MemoryStream(System.Convert.FromBase64String(strBase64EncodedText))
+		Dim msCompressed As IO.MemoryStream
+		msCompressed = New IO.MemoryStream(Convert.FromBase64String(strBase64EncodedText))
 
-		Dim msInflated As System.IO.MemoryStream = New System.IO.MemoryStream(strBase64EncodedText.Length * 2)
+		Dim msInflated As IO.MemoryStream = New IO.MemoryStream(strBase64EncodedText.Length * 2)
 
 		' We must skip the first two bytes
 		' See http://george.chiramattel.com/blog/2007/09/deflatestream-block-length-does-not-match.html
 		msCompressed.ReadByte()
 		msCompressed.ReadByte()
 
-		Using inflater As System.IO.Compression.DeflateStream = New System.IO.Compression.DeflateStream(msCompressed, IO.Compression.CompressionMode.Decompress)
+		Using inflater As IO.Compression.DeflateStream = New IO.Compression.DeflateStream(msCompressed, IO.Compression.CompressionMode.Decompress)
 
-			Dim bytBuffer() As System.Byte
+			Dim bytBuffer() As Byte
 			Dim intBytesRead As Integer
 
 			ReDim bytBuffer(4095)
@@ -250,7 +250,7 @@ Public Class clsBase64EncodeDecode
 			msInflated.Seek(0, IO.SeekOrigin.Begin)
 		End Using
 
-		Dim bytArray() As System.Byte
+		Dim bytArray() As Byte
 		Dim intTotalBytesDecompressed As Integer = CInt(msInflated.Length)
 
 		If intTotalBytesDecompressed > 0 Then
@@ -264,212 +264,212 @@ Public Class clsBase64EncodeDecode
 
 	End Function
 
-    Public Shared Function EncodeNumericArray(ByRef dataArray() As System.Byte, ByRef intPrecisionBitsReturn As System.Int32, ByRef strDataTypeNameReturn As String) As String
-        ' Converts an array of Bytes to a base-64 encoded string
-        ' In addition, returns the bits of precision and datatype name for the given data type
+	Public Shared Function EncodeNumericArray(ByRef dataArray() As Byte, ByRef intPrecisionBitsReturn As Int32, ByRef strDataTypeNameReturn As String) As String
+		' Converts an array of Bytes to a base-64 encoded string
+		' In addition, returns the bits of precision and datatype name for the given data type
 
-        Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 1
-        Const DATA_TYPE_NAME As String = "byte"
+		Const DATA_TYPE_PRECISION_BYTES As Int32 = 1
+		Const DATA_TYPE_NAME As String = "byte"
 
-        intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8
-        strDataTypeNameReturn = DATA_TYPE_NAME
+		intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8
+		strDataTypeNameReturn = DATA_TYPE_NAME
 
-        If dataArray Is Nothing OrElse dataArray.Length = -1 Then
-            Return String.Empty
-        Else
-            Return B64Encode(dataArray)
-        End If
+		If dataArray Is Nothing OrElse dataArray.Length = -1 Then
+			Return String.Empty
+		Else
+			Return B64Encode(dataArray)
+		End If
 
-    End Function
+	End Function
 
-    Public Shared Function EncodeNumericArray(ByRef dataArray() As System.Int16, ByRef intPrecisionBitsReturn As System.Int32, ByRef strDataTypeNameReturn As String, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As String
-        ' Converts an array of 16-bit integers to a base-64 encoded string
-        ' In addition, returns the bits of precision and datatype name for the given data type
+	Public Shared Function EncodeNumericArray(ByRef dataArray() As Int16, ByRef intPrecisionBitsReturn As Int32, ByRef strDataTypeNameReturn As String, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As String
+		' Converts an array of 16-bit integers to a base-64 encoded string
+		' In addition, returns the bits of precision and datatype name for the given data type
 
-        Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 2
-        Const DATA_TYPE_NAME As String = "int"
+		Const DATA_TYPE_PRECISION_BYTES As Int32 = 2
+		Const DATA_TYPE_NAME As String = "int"
 
-        Dim bytArray() As System.Byte
-        Dim bytNewBytes(DATA_TYPE_PRECISION_BYTES - 1) As System.Byte
+		Dim bytArray() As Byte
+		Dim bytNewBytes(DATA_TYPE_PRECISION_BYTES - 1) As Byte
 
-        Dim intIndex As Integer
-        Dim intBaseIndex As Integer
+		Dim intIndex As Integer
+		Dim intBaseIndex As Integer
 
-        intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8
-        strDataTypeNameReturn = DATA_TYPE_NAME
+		intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8
+		strDataTypeNameReturn = DATA_TYPE_NAME
 
-        If dataArray Is Nothing OrElse dataArray.Length = -1 Then
-            Return String.Empty
-        Else
-            ReDim bytArray(dataArray.Length * DATA_TYPE_PRECISION_BYTES - 1)
+		If dataArray Is Nothing OrElse dataArray.Length = -1 Then
+			Return String.Empty
+		Else
+			ReDim bytArray(dataArray.Length * DATA_TYPE_PRECISION_BYTES - 1)
 
-            For intIndex = 0 To dataArray.Length - 1
-                intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES
+			For intIndex = 0 To dataArray.Length - 1
+				intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES
 
-                bytNewBytes = BitConverter.GetBytes(dataArray(intIndex))
+				bytNewBytes = BitConverter.GetBytes(dataArray(intIndex))
 
-                ' I'm not sure if I've got Little and Big endian correct or not in the following If statement
-                ' What I do know is that mzXML works with what I'm calling emBigEndian
-                '  and mzData works with what I'm calling emLittleEndian
-                If eEndianMode = eEndianTypeConstants.LittleEndian Then
-                    ' Do not swap bytes
-                    Array.Copy(bytNewBytes, 0, bytArray, intIndex, DATA_TYPE_PRECISION_BYTES)
-                Else
-                    ' eEndianTypeConstants.BigEndian
-                    ' Swap bytes when copying into bytArray
-                    bytArray(intBaseIndex + 0) = bytNewBytes(1)
-                    bytArray(intBaseIndex + 1) = bytNewBytes(0)
-                End If
+				' I'm not sure if I've got Little and Big endian correct or not in the following If statement
+				' What I do know is that mzXML works with what I'm calling emBigEndian
+				'  and mzData works with what I'm calling emLittleEndian
+				If eEndianMode = eEndianTypeConstants.LittleEndian Then
+					' Do not swap bytes
+					Array.Copy(bytNewBytes, 0, bytArray, intIndex, DATA_TYPE_PRECISION_BYTES)
+				Else
+					' eEndianTypeConstants.BigEndian
+					' Swap bytes when copying into bytArray
+					bytArray(intBaseIndex + 0) = bytNewBytes(1)
+					bytArray(intBaseIndex + 1) = bytNewBytes(0)
+				End If
 
-            Next intIndex
-            Return B64Encode(bytArray)
-        End If
+			Next intIndex
+			Return B64Encode(bytArray)
+		End If
 
-    End Function
+	End Function
 
-    Public Shared Function EncodeNumericArray(ByRef dataArray() As System.Int32, ByRef intPrecisionBitsReturn As System.Int32, ByRef strDataTypeNameReturn As String, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As String
-        ' Converts an array of 32-bit integers to a base-64 encoded string
-        ' In addition, returns the bits of precision and datatype name for the given data type
+	Public Shared Function EncodeNumericArray(ByRef dataArray() As Int32, ByRef intPrecisionBitsReturn As Int32, ByRef strDataTypeNameReturn As String, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As String
+		' Converts an array of 32-bit integers to a base-64 encoded string
+		' In addition, returns the bits of precision and datatype name for the given data type
 
-        Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 4
-        Const DATA_TYPE_NAME As String = "int"
+		Const DATA_TYPE_PRECISION_BYTES As Int32 = 4
+		Const DATA_TYPE_NAME As String = "int"
 
-        Dim bytArray() As System.Byte
-        Dim bytNewBytes(DATA_TYPE_PRECISION_BYTES - 1) As System.Byte
+		Dim bytArray() As Byte
+		Dim bytNewBytes(DATA_TYPE_PRECISION_BYTES - 1) As Byte
 
-        Dim intIndex As Integer
-        Dim intBaseIndex As Integer
+		Dim intIndex As Integer
+		Dim intBaseIndex As Integer
 
-        intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8
-        strDataTypeNameReturn = DATA_TYPE_NAME
+		intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8
+		strDataTypeNameReturn = DATA_TYPE_NAME
 
-        If dataArray Is Nothing OrElse dataArray.Length = -1 Then
-            Return String.Empty
-        Else
-            ReDim bytArray(dataArray.Length * DATA_TYPE_PRECISION_BYTES - 1)
+		If dataArray Is Nothing OrElse dataArray.Length = -1 Then
+			Return String.Empty
+		Else
+			ReDim bytArray(dataArray.Length * DATA_TYPE_PRECISION_BYTES - 1)
 
-            For intIndex = 0 To dataArray.Length - 1
-                intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES
+			For intIndex = 0 To dataArray.Length - 1
+				intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES
 
-                bytNewBytes = BitConverter.GetBytes(dataArray(intIndex))
+				bytNewBytes = BitConverter.GetBytes(dataArray(intIndex))
 
-                ' I'm not sure if I've got Little and Big endian correct or not in the following If statement
-                ' What I do know is that mzXML works with what I'm calling emBigEndian
-                '  and mzData works with what I'm calling emLittleEndian
-                If eEndianMode = eEndianTypeConstants.LittleEndian Then
-                    ' Do not swap bytes
-                    Array.Copy(bytNewBytes, 0, bytArray, intIndex, DATA_TYPE_PRECISION_BYTES)
-                Else
-                    ' eEndianTypeConstants.BigEndian
-                    ' Swap bytes when copying into bytArray
-                    bytArray(intBaseIndex + 0) = bytNewBytes(3)
-                    bytArray(intBaseIndex + 1) = bytNewBytes(2)
-                    bytArray(intBaseIndex + 2) = bytNewBytes(1)
-                    bytArray(intBaseIndex + 3) = bytNewBytes(0)
-                End If
+				' I'm not sure if I've got Little and Big endian correct or not in the following If statement
+				' What I do know is that mzXML works with what I'm calling emBigEndian
+				'  and mzData works with what I'm calling emLittleEndian
+				If eEndianMode = eEndianTypeConstants.LittleEndian Then
+					' Do not swap bytes
+					Array.Copy(bytNewBytes, 0, bytArray, intIndex, DATA_TYPE_PRECISION_BYTES)
+				Else
+					' eEndianTypeConstants.BigEndian
+					' Swap bytes when copying into bytArray
+					bytArray(intBaseIndex + 0) = bytNewBytes(3)
+					bytArray(intBaseIndex + 1) = bytNewBytes(2)
+					bytArray(intBaseIndex + 2) = bytNewBytes(1)
+					bytArray(intBaseIndex + 3) = bytNewBytes(0)
+				End If
 
-            Next intIndex
-            Return B64Encode(bytArray)
-        End If
+			Next intIndex
+			Return B64Encode(bytArray)
+		End If
 
-    End Function
+	End Function
 
-    Public Shared Function EncodeNumericArray(ByRef dataArray() As System.Single, ByRef intPrecisionBitsReturn As System.Int32, ByRef strDataTypeNameReturn As String, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As String
-        ' Converts an array of singles to a base-64 encoded string
-        ' In addition, returns the bits of precision and datatype name for the given data type
+	Public Shared Function EncodeNumericArray(ByRef dataArray() As Single, ByRef intPrecisionBitsReturn As Int32, ByRef strDataTypeNameReturn As String, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As String
+		' Converts an array of singles to a base-64 encoded string
+		' In addition, returns the bits of precision and datatype name for the given data type
 
-        Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 4
-        Const DATA_TYPE_NAME As String = "float"
+		Const DATA_TYPE_PRECISION_BYTES As Int32 = 4
+		Const DATA_TYPE_NAME As String = "float"
 
-        Dim bytArray() As System.Byte
-        Dim bytNewBytes(DATA_TYPE_PRECISION_BYTES - 1) As System.Byte
+		Dim bytArray() As Byte
+		Dim bytNewBytes(DATA_TYPE_PRECISION_BYTES - 1) As Byte
 
-        Dim intIndex As Integer
-        Dim intBaseIndex As Integer
+		Dim intIndex As Integer
+		Dim intBaseIndex As Integer
 
-        intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8
-        strDataTypeNameReturn = DATA_TYPE_NAME
+		intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8
+		strDataTypeNameReturn = DATA_TYPE_NAME
 
-        If dataArray Is Nothing OrElse dataArray.Length = -1 Then
-            Return String.Empty
-        Else
-            ReDim bytArray(dataArray.Length * DATA_TYPE_PRECISION_BYTES - 1)
+		If dataArray Is Nothing OrElse dataArray.Length = -1 Then
+			Return String.Empty
+		Else
+			ReDim bytArray(dataArray.Length * DATA_TYPE_PRECISION_BYTES - 1)
 
-            For intIndex = 0 To dataArray.Length - 1
-                intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES
+			For intIndex = 0 To dataArray.Length - 1
+				intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES
 
-                bytNewBytes = BitConverter.GetBytes(dataArray(intIndex))
+				bytNewBytes = BitConverter.GetBytes(dataArray(intIndex))
 
-                ' I'm not sure if I've got Little and Big endian correct or not in the following If statement
-                ' What I do know is that mzXML works with what I'm calling emBigEndian
-                '  and mzData works with what I'm calling emLittleEndian
-                If eEndianMode = eEndianTypeConstants.LittleEndian Then
-                    ' Do not swap bytes
-                    Array.Copy(bytNewBytes, 0, bytArray, intIndex, DATA_TYPE_PRECISION_BYTES)
-                Else
-                    ' eEndianTypeConstants.BigEndian
-                    ' Swap bytes when copying into bytArray
-                    bytArray(intBaseIndex + 0) = bytNewBytes(3)
-                    bytArray(intBaseIndex + 1) = bytNewBytes(2)
-                    bytArray(intBaseIndex + 2) = bytNewBytes(1)
-                    bytArray(intBaseIndex + 3) = bytNewBytes(0)
-                End If
+				' I'm not sure if I've got Little and Big endian correct or not in the following If statement
+				' What I do know is that mzXML works with what I'm calling emBigEndian
+				'  and mzData works with what I'm calling emLittleEndian
+				If eEndianMode = eEndianTypeConstants.LittleEndian Then
+					' Do not swap bytes
+					Array.Copy(bytNewBytes, 0, bytArray, intIndex, DATA_TYPE_PRECISION_BYTES)
+				Else
+					' eEndianTypeConstants.BigEndian
+					' Swap bytes when copying into bytArray
+					bytArray(intBaseIndex + 0) = bytNewBytes(3)
+					bytArray(intBaseIndex + 1) = bytNewBytes(2)
+					bytArray(intBaseIndex + 2) = bytNewBytes(1)
+					bytArray(intBaseIndex + 3) = bytNewBytes(0)
+				End If
 
-            Next intIndex
-            Return B64Encode(bytArray)
-        End If
+			Next intIndex
+			Return B64Encode(bytArray)
+		End If
 
-    End Function
+	End Function
 
-    Public Shared Function EncodeNumericArray(ByRef dataArray() As System.Double, ByRef intPrecisionBitsReturn As System.Int32, ByRef strDataTypeNameReturn As String, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As String
-        ' Converts an array of doubles to a base-64 encoded string
-        ' In addition, returns the bits of precision and datatype name for the given data type
+	Public Shared Function EncodeNumericArray(ByRef dataArray() As Double, ByRef intPrecisionBitsReturn As Int32, ByRef strDataTypeNameReturn As String, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As String
+		' Converts an array of doubles to a base-64 encoded string
+		' In addition, returns the bits of precision and datatype name for the given data type
 
-        Const DATA_TYPE_PRECISION_BYTES As System.Int32 = 8
-        Const DATA_TYPE_NAME As String = "float"
+		Const DATA_TYPE_PRECISION_BYTES As Int32 = 8
+		Const DATA_TYPE_NAME As String = "float"
 
-        Dim bytArray() As System.Byte
-        Dim bytNewBytes(DATA_TYPE_PRECISION_BYTES - 1) As System.Byte
+		Dim bytArray() As Byte
+		Dim bytNewBytes(DATA_TYPE_PRECISION_BYTES - 1) As Byte
 
-        Dim intIndex As Integer
-        Dim intBaseIndex As Integer
+		Dim intIndex As Integer
+		Dim intBaseIndex As Integer
 
-        intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8
-        strDataTypeNameReturn = DATA_TYPE_NAME
+		intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8
+		strDataTypeNameReturn = DATA_TYPE_NAME
 
-        If dataArray Is Nothing OrElse dataArray.Length = -1 Then
-            Return String.Empty
-        Else
-            ReDim bytArray(dataArray.Length * DATA_TYPE_PRECISION_BYTES - 1)
+		If dataArray Is Nothing OrElse dataArray.Length = -1 Then
+			Return String.Empty
+		Else
+			ReDim bytArray(dataArray.Length * DATA_TYPE_PRECISION_BYTES - 1)
 
-            For intIndex = 0 To dataArray.Length - 1
-                intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES
+			For intIndex = 0 To dataArray.Length - 1
+				intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES
 
-                bytNewBytes = BitConverter.GetBytes(dataArray(intIndex))
+				bytNewBytes = BitConverter.GetBytes(dataArray(intIndex))
 
-                ' I'm not sure if I've got Little and Big endian correct or not in the following If statement
-                ' What I do know is that mzXML works with what I'm calling emBigEndian
-                '  and mzData works with what I'm calling emLittleEndian
-                If eEndianMode = eEndianTypeConstants.LittleEndian Then
-                    ' Do not swap bytes
-                    Array.Copy(bytNewBytes, 0, bytArray, intIndex, DATA_TYPE_PRECISION_BYTES)
-                Else
-                    ' eEndianTypeConstants.BigEndian
-                    ' Swap bytes when copying into bytArray
-                    bytArray(intBaseIndex + 0) = bytNewBytes(7)
-                    bytArray(intBaseIndex + 1) = bytNewBytes(6)
-                    bytArray(intBaseIndex + 2) = bytNewBytes(5)
-                    bytArray(intBaseIndex + 3) = bytNewBytes(4)
-                    bytArray(intBaseIndex + 4) = bytNewBytes(3)
-                    bytArray(intBaseIndex + 5) = bytNewBytes(2)
-                    bytArray(intBaseIndex + 6) = bytNewBytes(1)
-                    bytArray(intBaseIndex + 7) = bytNewBytes(0)
-                End If
+				' I'm not sure if I've got Little and Big endian correct or not in the following If statement
+				' What I do know is that mzXML works with what I'm calling emBigEndian
+				'  and mzData works with what I'm calling emLittleEndian
+				If eEndianMode = eEndianTypeConstants.LittleEndian Then
+					' Do not swap bytes
+					Array.Copy(bytNewBytes, 0, bytArray, intIndex, DATA_TYPE_PRECISION_BYTES)
+				Else
+					' eEndianTypeConstants.BigEndian
+					' Swap bytes when copying into bytArray
+					bytArray(intBaseIndex + 0) = bytNewBytes(7)
+					bytArray(intBaseIndex + 1) = bytNewBytes(6)
+					bytArray(intBaseIndex + 2) = bytNewBytes(5)
+					bytArray(intBaseIndex + 3) = bytNewBytes(4)
+					bytArray(intBaseIndex + 4) = bytNewBytes(3)
+					bytArray(intBaseIndex + 5) = bytNewBytes(2)
+					bytArray(intBaseIndex + 6) = bytNewBytes(1)
+					bytArray(intBaseIndex + 7) = bytNewBytes(0)
+				End If
 
-            Next intIndex
-            Return B64Encode(bytArray)
-        End If
+			Next intIndex
+			Return B64Encode(bytArray)
+		End If
 
-    End Function
+	End Function
 
 End Class

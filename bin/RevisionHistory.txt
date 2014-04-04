@@ -1,5 +1,12 @@
 MSDataFileReader Change Log
 
+Version 1.3.5206; April 3, 2014
+	- Added support for new MzXML elements for precursor ions
+		- PrecursorCharge (accessible via ParentIonCharge)
+		- ActivationMethod (e.g. CID, ETD, or HCD)
+		- WindowWideness (accessible via IsolationWindow)
+		- PrecursorScanNum
+
 Version 1.3.4890; May 22, 2013
 	- Added support for mzXML v3.x
 		- Supports zlib compressed data and the new contentType and compressionType attributes

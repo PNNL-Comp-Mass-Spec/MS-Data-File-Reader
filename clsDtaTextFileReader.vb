@@ -12,91 +12,92 @@ Option Strict On
 ' -------------------------------------------------------------------------------
 '
 ' Last modified February 16, 2012
+Imports System.Collections.Generic
 
 Public Class clsDtaTextFileReader
-    Inherits clsMSTextFileReaderBaseClass
+	Inherits clsMSTextFileReaderBaseClass
 
-    Public Sub New()
-        Me.New(True)
-    End Sub
+	Public Sub New()
+		Me.New(True)
+	End Sub
 
-    Public Sub New(ByVal blnCombineIdenticalSpectra As Boolean)
-        mCombineIdenticalSpectra = blnCombineIdenticalSpectra
-        InitializeLocalVariables()
-    End Sub
+	Public Sub New(ByVal blnCombineIdenticalSpectra As Boolean)
+		mCombineIdenticalSpectra = blnCombineIdenticalSpectra
+		InitializeLocalVariables()
+	End Sub
 
 #Region "Constants and Enums"
-    ' Note: The extension must be in all caps
-    Public Const DTA_TEXT_FILE_EXTENSION As String = "_DTA.TXT"
+	' Note: The extension must be in all caps
+	Public Const DTA_TEXT_FILE_EXTENSION As String = "_DTA.TXT"
 
-    Protected Const COMMENT_LINE_START_CHAR As Char = "="c        ' The comment character is an Equals sign
+	Protected Const COMMENT_LINE_START_CHAR As Char = "="c		  ' The comment character is an Equals sign
 #End Region
 
 #Region "Classwide Variables"
-    Protected mCombineIdenticalSpectra As Boolean
+	Protected mCombineIdenticalSpectra As Boolean
 
-    ' mHeaderSaved is used to store the previous header title; it is needed when the next
-    '  header was read for comparison with the current scan, but it didn't match, and thus
-    '  wasn't used for grouping
-    Protected mHeaderSaved As String
+	' mHeaderSaved is used to store the previous header title; it is needed when the next
+	'  header was read for comparison with the current scan, but it didn't match, and thus
+	'  wasn't used for grouping
+	Protected mHeaderSaved As String
 #End Region
 
 #Region "Processing Options and Interface Functions"
-    Public Property CombineIdenticalSpectra() As Boolean
-        Get
-            Return mCombineIdenticalSpectra
-        End Get
-        Set(ByVal Value As Boolean)
-            mCombineIdenticalSpectra = Value
-        End Set
-    End Property
+	Public Property CombineIdenticalSpectra() As Boolean
+		Get
+			Return mCombineIdenticalSpectra
+		End Get
+		Set(ByVal Value As Boolean)
+			mCombineIdenticalSpectra = Value
+		End Set
+	End Property
 #End Region
 
-    Protected Overrides Sub InitializeLocalVariables()
-        MyBase.InitializeLocalVariables()
+	Protected Overrides Sub InitializeLocalVariables()
+		MyBase.InitializeLocalVariables()
 
-        mCommentLineStartChar = COMMENT_LINE_START_CHAR
-        mHeaderSaved = String.Empty
-    End Sub
+		mCommentLineStartChar = COMMENT_LINE_START_CHAR
+		mHeaderSaved = String.Empty
+	End Sub
 
-    Protected Overrides Sub LogErrors(ByVal strCallingFunction As String, ByVal strErrorDescription As String)
-        MyBase.LogErrors("clsDtaTextFileReader." & strCallingFunction, strErrorDescription)
-    End Sub
+	Protected Overrides Sub LogErrors(ByVal strCallingFunction As String, ByVal strErrorDescription As String)
+		MyBase.LogErrors("clsDtaTextFileReader." & strCallingFunction, strErrorDescription)
+	End Sub
 
-    Public Overrides Function ReadNextSpectrum(ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
-        ' Reads the next spectrum from a _Dta.txt file
-        ' Returns True if a spectrum is found, otherwise, returns False
-        ' If blnCombineIdenticalSpectra = True, then combines spectra that only differ by their charge state
+	Public Overrides Function ReadNextSpectrum(ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+		' Reads the next spectrum from a _Dta.txt file
+		' Returns True if a spectrum is found, otherwise, returns False
+		' If blnCombineIdenticalSpectra = True, then combines spectra that only differ by their charge state
 
-        Dim strLineIn As String
-        Dim strMostRecentLineIn As String = String.Empty
-        Dim intLastProgressUpdateLine As Integer
-        Dim strCompareTitle As String
+		Dim strLineIn As String
+		Dim strMostRecentLineIn As String = String.Empty
+		Dim intLastProgressUpdateLine As Integer
+		Dim strCompareTitle As String
 
-        Dim blnSpectrumFound As Boolean
+		Dim blnSpectrumFound As Boolean
 
-        Try
-            If MyBase.ReadingAndStoringSpectra OrElse mCurrentSpectrum Is Nothing Then
-                mCurrentSpectrum = New clsSpectrumInfoMsMsText
-            Else
-                mCurrentSpectrum.Clear()
-            End If
-            If Not objSpectrumInfo Is Nothing Then
-                mCurrentSpectrum.AutoShrinkDataLists = objSpectrumInfo.AutoShrinkDataLists
-            End If
+		Try
+			If MyBase.ReadingAndStoringSpectra OrElse mCurrentSpectrum Is Nothing Then
+				mCurrentSpectrum = New clsSpectrumInfoMsMsText
+			Else
+				mCurrentSpectrum.Clear()
+			End If
+			If Not objSpectrumInfo Is Nothing Then
+				mCurrentSpectrum.AutoShrinkDataLists = objSpectrumInfo.AutoShrinkDataLists
+			End If
 
-            blnSpectrumFound = False
-            If srInFile Is Nothing Then
-                If objSpectrumInfo Is Nothing Then
-                    objSpectrumInfo = New clsSpectrumInfoMsMsText
-                Else
-                    objSpectrumInfo.Clear()
-                End If
-                mErrorMessage = "Data file not currently open"
-            Else
-                MyBase.AddNewRecentFileText(String.Empty, True, False)
+			blnSpectrumFound = False
+			If srInFile Is Nothing Then
+				If objSpectrumInfo Is Nothing Then
+					objSpectrumInfo = New clsSpectrumInfoMsMsText
+				Else
+					objSpectrumInfo.Clear()
+				End If
+				mErrorMessage = "Data file not currently open"
+			Else
+				MyBase.AddNewRecentFileText(String.Empty, True, False)
 
-                intLastProgressUpdateLine = mInFileLineNumber
+				intLastProgressUpdateLine = mInFileLineNumber
 				Do While Not blnSpectrumFound And srInFile.Peek() > -1 And Not mAbortProcessing
 
 					If mHeaderSaved.Length > 0 Then
@@ -213,44 +214,44 @@ Public Class clsDtaTextFileReader
 					End If
 				Loop
 
-                objSpectrumInfo = mCurrentSpectrum
+				objSpectrumInfo = mCurrentSpectrum
 
-                If blnSpectrumFound AndAlso Not MyBase.ReadingAndStoringSpectra Then
-                    MyBase.UpdateFileStats(objSpectrumInfo.ScanNumber)
-                End If
-            End If
+				If blnSpectrumFound AndAlso Not MyBase.ReadingAndStoringSpectra Then
+					MyBase.UpdateFileStats(objSpectrumInfo.ScanNumber)
+				End If
+			End If
 
-        Catch ex As Exception
-            LogErrors("ReadNextSpectrum", ex.Message)
-        End Try
+		Catch ex As Exception
+			LogErrors("ReadNextSpectrum", ex.Message)
+		End Try
 
-        Return blnSpectrumFound
+		Return blnSpectrumFound
 
-    End Function
+	End Function
 
-    Public Function ReadSingleDtaFile(ByVal strInputFilePath As String, ByRef strMsMsDataList() As String, ByRef intMsMsDataCount As Integer, ByRef objSpectrumInfoMsMsText As clsSpectrumInfoMsMsText) As Boolean
+	Public Function ReadSingleDtaFile(ByVal strInputFilePath As String, ByRef strMsMsDataList() As String, ByRef intMsMsDataCount As Integer, ByRef objSpectrumInfoMsMsText As clsSpectrumInfoMsMsText) As Boolean
 
-        ' Open the .Dta file and read the spectrum
+		' Open the .Dta file and read the spectrum
 		Dim intLastProgressUpdateLine As Integer
 
-        Dim strLineIn As String
-        Dim blnSpectrumFound As Boolean
+		Dim strLineIn As String
+		Dim blnSpectrumFound As Boolean
 
-		Dim lstMsMsDataList As System.Collections.Generic.List(Of String) = New System.Collections.Generic.List(Of String)
+		Dim lstMsMsDataList As List(Of String) = New List(Of String)
 
-        If objSpectrumInfoMsMsText Is Nothing Then
-            objSpectrumInfoMsMsText = New clsSpectrumInfoMsMsText
-        Else
-            objSpectrumInfoMsMsText.Clear()
-        End If
+		If objSpectrumInfoMsMsText Is Nothing Then
+			objSpectrumInfoMsMsText = New clsSpectrumInfoMsMsText
+		Else
+			objSpectrumInfoMsMsText.Clear()
+		End If
 
 		Try
 			intMsMsDataCount = 0
 
-			Using srInFile As System.IO.StreamReader = New System.IO.StreamReader(strInputFilePath)
+			Using srInFile As IO.StreamReader = New IO.StreamReader(strInputFilePath)
 
 				mTotalBytesRead = 0
-				MyBase.ResetProgress("Parsing " & System.IO.Path.GetFileName(strInputFilePath))
+				MyBase.ResetProgress("Parsing " & IO.Path.GetFileName(strInputFilePath))
 
 				mInFileLineNumber = 0
 				intLastProgressUpdateLine = mInFileLineNumber
@@ -281,7 +282,7 @@ Public Class clsDtaTextFileReader
 
 					ReDim strMsMsDataList(lstMsMsDataList.Count - 1)
 					lstMsMsDataList.CopyTo(strMsMsDataList)
-					
+
 				Else
 					ReDim strMsMsDataList(0)
 				End If
@@ -298,9 +299,9 @@ Public Class clsDtaTextFileReader
 
 		Return blnSpectrumFound
 
-    End Function
+	End Function
 
-	Private Function ReadSingleSpectrum(ByVal srInFile As System.IO.TextReader, ByVal strParentIonLineText As String, ByRef lstMsMsDataList As System.Collections.Generic.List(Of String), ByRef objSpectrumInfoMsMsText As clsSpectrumInfoMsMsText, ByRef intLinesRead As Integer, ByRef intLastProgressUpdateLine As Integer, Optional ByRef strMostRecentLineIn As String = "") As Boolean
+	Private Function ReadSingleSpectrum(ByVal srInFile As IO.TextReader, ByVal strParentIonLineText As String, ByRef lstMsMsDataList As List(Of String), ByRef objSpectrumInfoMsMsText As clsSpectrumInfoMsMsText, ByRef intLinesRead As Integer, ByRef intLastProgressUpdateLine As Integer, Optional ByRef strMostRecentLineIn As String = "") As Boolean
 		' Returns True if a valid spectrum is found, otherwise, returns False
 
 		Dim intCharIndex As Integer
@@ -353,7 +354,7 @@ Public Class clsDtaTextFileReader
 		If blnSpectrumFound Then
 			' Read all of the MS/MS spectrum ions up to the next blank line or up to the next line starting with COMMENT_LINE_START_CHAR
 			If lstMsMsDataList Is Nothing Then
-				lstMsMsDataList = New System.Collections.Generic.List(Of String)
+				lstMsMsDataList = New List(Of String)
 			Else
 				lstMsMsDataList.Clear()
 			End If

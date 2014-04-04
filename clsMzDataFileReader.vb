@@ -702,38 +702,38 @@ Public Class clsMzDataFileReader
     Protected Sub ValidateMZDataFileVersion(ByVal strFileVersion As String)
         ' This sub should be called from ParseElementContent
 
-        Dim objFileVersionRegEx As System.Text.RegularExpressions.Regex
-        Dim objMatch As System.Text.RegularExpressions.Match
-        Dim strMessage As String
+		Dim objFileVersionRegEx As Text.RegularExpressions.Regex
+		Dim objMatch As Text.RegularExpressions.Match
+		Dim strMessage As String
 
-        Try
-            mFileVersion = String.Empty
+		Try
+			mFileVersion = String.Empty
 
-            ' Currently, the only version supported is 1.x (typically 1.05)
-            objFileVersionRegEx = New System.Text.RegularExpressions.Regex("1\.[0-9]+", Text.RegularExpressions.RegexOptions.IgnoreCase)
+			' Currently, the only version supported is 1.x (typically 1.05)
+			objFileVersionRegEx = New Text.RegularExpressions.Regex("1\.[0-9]+", Text.RegularExpressions.RegexOptions.IgnoreCase)
 
-            ' Validate the mzData file version
-            If Not strFileVersion Is Nothing AndAlso strFileVersion.Length > 0 Then
-                mFileVersion = String.Copy(strFileVersion)
+			' Validate the mzData file version
+			If Not strFileVersion Is Nothing AndAlso strFileVersion.Length > 0 Then
+				mFileVersion = String.Copy(strFileVersion)
 
-                objMatch = objFileVersionRegEx.Match(strFileVersion)
-                If Not objMatch.Success Then
-                    ' Unknown version
-                    ' Log error and abort if mParseFilesWithUnknownVersion = False
-                    strMessage = "Unknown mzData file version: " & mFileVersion
-                    If mParseFilesWithUnknownVersion Then
-                        strMessage &= "; attempting to parse since ParseFilesWithUnknownVersion = True"
-                    Else
-                        mAbortProcessing = True
-                        strMessage &= "; aborting read"
-                    End If
-                    LogErrors("ValidateMZDataFileVersion", strMessage)
-                End If
-            End If
-        Catch ex As Exception
-            LogErrors("ValidateMZDataFileVersion", ex.Message)
-            mFileVersion = String.Empty
-        End Try
+				objMatch = objFileVersionRegEx.Match(strFileVersion)
+				If Not objMatch.Success Then
+					' Unknown version
+					' Log error and abort if mParseFilesWithUnknownVersion = False
+					strMessage = "Unknown mzData file version: " & mFileVersion
+					If mParseFilesWithUnknownVersion Then
+						strMessage &= "; attempting to parse since ParseFilesWithUnknownVersion = True"
+					Else
+						mAbortProcessing = True
+						strMessage &= "; aborting read"
+					End If
+					LogErrors("ValidateMZDataFileVersion", strMessage)
+				End If
+			End If
+		Catch ex As Exception
+			LogErrors("ValidateMZDataFileVersion", ex.Message)
+			mFileVersion = String.Empty
+		End Try
 
     End Sub
 

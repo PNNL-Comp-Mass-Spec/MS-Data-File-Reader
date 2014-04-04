@@ -40,7 +40,7 @@ Public Class clsSpectrumInfo
     Protected mScanCount As Integer                 ' Number of spectra combined together to get the given spectrum
     Protected mScanNumberEnd As Integer             ' Last scan if more than one scan was combined to make this spectrum
 
-    Protected mSpectrumType As String               ' See Class SpectrumTypeNames for typical names
+	Protected mSpectrumType As String				' See Class SpectrumTypeNames for typical names (discrete or continuous)
     Protected mSpectrumCombinationMethod As String
 
 	Protected mMSLevel As Integer					' 1 for MS, 2 for MS/MS, 3 for MS^3, etc.
@@ -81,7 +81,8 @@ Public Class clsSpectrumInfo
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mSpectrumID = Value
         End Set
-    End Property
+	End Property
+
     Public Property ScanNumber() As Integer
         Get
             Return mScanNumber
@@ -90,7 +91,8 @@ Public Class clsSpectrumInfo
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mScanNumber = Value
         End Set
-    End Property
+	End Property
+
     Public Property ScanCount() As Integer
         Get
             Return mScanCount
@@ -99,7 +101,8 @@ Public Class clsSpectrumInfo
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mScanCount = Value
         End Set
-    End Property
+	End Property
+
     Public Property ScanNumberEnd() As Integer
         Get
             Return mScanNumberEnd
@@ -118,7 +121,8 @@ Public Class clsSpectrumInfo
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mSpectrumType = Value
         End Set
-    End Property
+	End Property
+
     Public Property SpectrumCombinationMethod() As String
         Get
             Return mSpectrumCombinationMethod
@@ -156,7 +160,8 @@ Public Class clsSpectrumInfo
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mPolarity = Value
         End Set
-    End Property
+	End Property
+
     Public Property RetentionTimeMin() As Single
         Get
             Return mRetentionTimeMin
@@ -175,7 +180,8 @@ Public Class clsSpectrumInfo
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mmzRangeStart = Value
         End Set
-    End Property
+	End Property
+
     Public Property mzRangeEnd() As Single
         Get
             Return mmzRangeEnd
@@ -302,10 +308,10 @@ Public Class clsSpectrumInfo
         mErrorMessage = String.Empty
     End Sub
 
-    Protected Function CloneMe() As Object Implements System.ICloneable.Clone
-        ' Use the strongly typed Clone module to do the cloning
-        Return Clone()
-    End Function
+	Protected Function CloneMe() As Object Implements ICloneable.Clone
+		' Use the strongly typed Clone module to do the cloning
+		Return Clone()
+	End Function
 
     Public Function Clone() As clsSpectrumInfo
         ' Note: Clone() functions in the derived SpectrumInfo classes Shadow this function and duplicate its code

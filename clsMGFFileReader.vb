@@ -12,6 +12,7 @@ Option Strict On
 ' -------------------------------------------------------------------------------
 '
 ' Last modified February 16, 2012
+Imports System.Collections.Generic
 
 Public Class clsMGFFileReader
     Inherits clsMSTextFileReaderBaseClass
@@ -88,7 +89,7 @@ Public Class clsMGFFileReader
 
 			' Initialize mCurrentMsMsDataList
 			If mCurrentMsMsDataList Is Nothing Then
-				mCurrentMsMsDataList = New System.Collections.Generic.List(Of String)
+				mCurrentMsMsDataList = New List(Of String)
 			Else
 				mCurrentMsMsDataList.Clear()
 			End If
@@ -381,8 +382,8 @@ Public Class clsMGFFileReader
 					If mInFileLineNumber - intLastProgressUpdateLine >= 250 Or blnSpectrumFound Then
 						intLastProgressUpdateLine = mInFileLineNumber
 
-						If TypeOf srInFile Is System.IO.StreamReader Then
-							With CType(srInFile, System.IO.StreamReader)
+						If TypeOf srInFile Is IO.StreamReader Then
+							With CType(srInFile, IO.StreamReader)
 								MyBase.UpdateProgress((.BaseStream.Position / .BaseStream.Length * 100.0))
 							End With
 						ElseIf mInFileStreamLength > 0 Then

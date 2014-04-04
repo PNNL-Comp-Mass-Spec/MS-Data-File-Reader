@@ -275,272 +275,272 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
                 Return False
             End If
 
-            strFileName = System.IO.Path.GetFileName(strFileNameOrPath.ToUpper)
-            strFileExtension = System.IO.Path.GetExtension(strFileName)
-            If strFileExtension Is Nothing OrElse strFileExtension.Length = 0 Then
-                Return False
-            End If
+			strFileName = IO.Path.GetFileName(strFileNameOrPath.ToUpper)
+			strFileExtension = IO.Path.GetExtension(strFileName)
+			If strFileExtension Is Nothing OrElse strFileExtension.Length = 0 Then
+				Return False
+			End If
 
-            If Not strFileExtension.StartsWith(".") Then
-                strFileExtension = "."c & strFileExtension
-            End If
+			If Not strFileExtension.StartsWith(".") Then
+				strFileExtension = "."c & strFileExtension
+			End If
 
-            ' Assume known file type for now
-            blnKnownType = True
+			' Assume known file type for now
+			blnKnownType = True
 
-            Select Case strFileExtension
-                Case clsMzDataFileReader.MZDATA_FILE_EXTENSION
-                    eFileType = dftDataFileTypeConstants.mzData
-                Case clsMzXMLFileReader.MZXML_FILE_EXTENSION
-                    eFileType = dftDataFileTypeConstants.mzXML
-                Case clsMGFFileReader.MGF_FILE_EXTENSION
-                    eFileType = dftDataFileTypeConstants.MGF
-                Case Else
-                    ' See if the filename ends with MZDATA_FILE_EXTENSION_XML or MZXML_FILE_EXTENSION_XML
-                    If strFileName.EndsWith(clsMzDataFileReader.MZDATA_FILE_EXTENSION_XML) Then
-                        eFileType = dftDataFileTypeConstants.mzData
-                    ElseIf strFileName.EndsWith(clsMzXMLFileReader.MZXML_FILE_EXTENSION_XML) Then
-                        eFileType = dftDataFileTypeConstants.mzXML
-                    ElseIf strFileName.EndsWith(clsDtaTextFileReader.DTA_TEXT_FILE_EXTENSION) Then
-                        eFileType = dftDataFileTypeConstants.DtaText
-                    Else
-                        ' Unknown file type
-                        blnKnownType = False
-                    End If
-            End Select
+			Select Case strFileExtension
+				Case clsMzDataFileReader.MZDATA_FILE_EXTENSION
+					eFileType = dftDataFileTypeConstants.mzData
+				Case clsMzXMLFileReader.MZXML_FILE_EXTENSION
+					eFileType = dftDataFileTypeConstants.mzXML
+				Case clsMGFFileReader.MGF_FILE_EXTENSION
+					eFileType = dftDataFileTypeConstants.MGF
+				Case Else
+					' See if the filename ends with MZDATA_FILE_EXTENSION_XML or MZXML_FILE_EXTENSION_XML
+					If strFileName.EndsWith(clsMzDataFileReader.MZDATA_FILE_EXTENSION_XML) Then
+						eFileType = dftDataFileTypeConstants.mzData
+					ElseIf strFileName.EndsWith(clsMzXMLFileReader.MZXML_FILE_EXTENSION_XML) Then
+						eFileType = dftDataFileTypeConstants.mzXML
+					ElseIf strFileName.EndsWith(clsDtaTextFileReader.DTA_TEXT_FILE_EXTENSION) Then
+						eFileType = dftDataFileTypeConstants.DtaText
+					Else
+						' Unknown file type
+						blnKnownType = False
+					End If
+			End Select
 
-        Catch ex As Exception
-            blnKnownType = False
-        End Try
+		Catch ex As Exception
+			blnKnownType = False
+		End Try
 
-        Return blnKnownType
+		Return blnKnownType
 
-    End Function
+	End Function
 
-    Public Shared Function GetFileReaderBasedOnFileType(ByVal strFileNameOrPath As String) As clsMSDataFileReaderBaseClass
-        ' Returns a file reader based on strFileNameOrPath
-        ' If the file type cannot be determined, then returns Nothing
+	Public Shared Function GetFileReaderBasedOnFileType(ByVal strFileNameOrPath As String) As clsMSDataFileReaderBaseClass
+		' Returns a file reader based on strFileNameOrPath
+		' If the file type cannot be determined, then returns Nothing
 
-        Dim eFileType As dftDataFileTypeConstants
+		Dim eFileType As dftDataFileTypeConstants
 		Dim objFileReader As clsMSDataFileReaderBaseClass = Nothing
 
-        If DetermineFileType(strFileNameOrPath, eFileType) Then
-            Select Case eFileType
-                Case dftDataFileTypeConstants.DtaText
-                    objFileReader = New clsDtaTextFileReader
-                Case dftDataFileTypeConstants.MGF
-                    objFileReader = New clsMGFFileReader
-                Case dftDataFileTypeConstants.mzData
-                    objFileReader = New clsMzDataFileReader
-                Case dftDataFileTypeConstants.mzXML
-                    objFileReader = New clsMzXMLFileReader
-                Case Else
-                    ' Unknown file type
-            End Select
-        End If
+		If DetermineFileType(strFileNameOrPath, eFileType) Then
+			Select Case eFileType
+				Case dftDataFileTypeConstants.DtaText
+					objFileReader = New clsDtaTextFileReader
+				Case dftDataFileTypeConstants.MGF
+					objFileReader = New clsMGFFileReader
+				Case dftDataFileTypeConstants.mzData
+					objFileReader = New clsMzDataFileReader
+				Case dftDataFileTypeConstants.mzXML
+					objFileReader = New clsMzXMLFileReader
+				Case Else
+					' Unknown file type
+			End Select
+		End If
 
-        Return objFileReader
-    End Function
+		Return objFileReader
+	End Function
 
-    Public Shared Function GetFileAccessorBasedOnFileType(ByVal strFileNameOrPath As String) As clsMSDataFileAccessorBaseClass
-        ' Returns a file accessor based on strFileNameOrPath
-        ' If the file type cannot be determined, then returns Nothing
-        ' If the file type is _Dta.txt or .MGF then returns Nothing since those file types do not have file accessors
+	Public Shared Function GetFileAccessorBasedOnFileType(ByVal strFileNameOrPath As String) As clsMSDataFileAccessorBaseClass
+		' Returns a file accessor based on strFileNameOrPath
+		' If the file type cannot be determined, then returns Nothing
+		' If the file type is _Dta.txt or .MGF then returns Nothing since those file types do not have file accessors
 
-        Dim eFileType As dftDataFileTypeConstants
+		Dim eFileType As dftDataFileTypeConstants
 		Dim objFileAccessor As clsMSDataFileAccessorBaseClass = Nothing
 
-        If DetermineFileType(strFileNameOrPath, eFileType) Then
-            Select Case eFileType
-                Case dftDataFileTypeConstants.mzData
-                    objFileAccessor = New clsMzDataFileAccessor
-                Case dftDataFileTypeConstants.mzXML
-                    objFileAccessor = New clsMzXMLFileAccessor
-                Case dftDataFileTypeConstants.DtaText, dftDataFileTypeConstants.MGF
-                    ' These file types do not have file accessors
-                Case Else
-                    ' Unknown file type
-            End Select
-        End If
+		If DetermineFileType(strFileNameOrPath, eFileType) Then
+			Select Case eFileType
+				Case dftDataFileTypeConstants.mzData
+					objFileAccessor = New clsMzDataFileAccessor
+				Case dftDataFileTypeConstants.mzXML
+					objFileAccessor = New clsMzXMLFileAccessor
+				Case dftDataFileTypeConstants.DtaText, dftDataFileTypeConstants.MGF
+					' These file types do not have file accessors
+				Case Else
+					' Unknown file type
+			End Select
+		End If
 
-        Return objFileAccessor
+		Return objFileAccessor
 
-    End Function
+	End Function
 
-    Protected MustOverride Function GetInputFileLocation() As String
+	Protected MustOverride Function GetInputFileLocation() As String
 
-    Public Overridable Function GetScanNumberList(ByRef ScanNumberList() As Integer) As Boolean
-        ' Return the list of cached scan numbers (aka acquisition numbers)
+	Public Overridable Function GetScanNumberList(ByRef ScanNumberList() As Integer) As Boolean
+		' Return the list of cached scan numbers (aka acquisition numbers)
 
-        Dim blnSuccess As Boolean
-        Dim intSpectrumIndex As Integer
+		Dim blnSuccess As Boolean
+		Dim intSpectrumIndex As Integer
 
-        Try
-            blnSuccess = False
-            If mDataReaderMode = drmDataReaderModeConstants.Cached And Not mCachedSpectra Is Nothing Then
-                ReDim ScanNumberList(mCachedSpectrumCount - 1)
+		Try
+			blnSuccess = False
+			If mDataReaderMode = drmDataReaderModeConstants.Cached And Not mCachedSpectra Is Nothing Then
+				ReDim ScanNumberList(mCachedSpectrumCount - 1)
 
-                For intSpectrumIndex = 0 To ScanNumberList.Length - 1
-                    ScanNumberList(intSpectrumIndex) = mCachedSpectra(intSpectrumIndex).ScanNumber
-                Next intSpectrumIndex
-                blnSuccess = True
-            Else
-                ReDim ScanNumberList(-1)
-            End If
-        Catch ex As Exception
-            LogErrors("GetScanNumberList", ex.Message)
-        End Try
+				For intSpectrumIndex = 0 To ScanNumberList.Length - 1
+					ScanNumberList(intSpectrumIndex) = mCachedSpectra(intSpectrumIndex).ScanNumber
+				Next intSpectrumIndex
+				blnSuccess = True
+			Else
+				ReDim ScanNumberList(-1)
+			End If
+		Catch ex As Exception
+			LogErrors("GetScanNumberList", ex.Message)
+		End Try
 
-        Return blnSuccess
+		Return blnSuccess
 
-    End Function
+	End Function
 
-    Public Overridable Function GetSpectrumByIndex(ByVal intSpectrumIndex As Integer, ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
-        ' Returns True if success, False if failure
-        ' Only valid if we have Cached data in memory
+	Public Overridable Function GetSpectrumByIndex(ByVal intSpectrumIndex As Integer, ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+		' Returns True if success, False if failure
+		' Only valid if we have Cached data in memory
 
-        Dim blnSuccess As Boolean
+		Dim blnSuccess As Boolean
 
-        blnSuccess = False
-        If mDataReaderMode = drmDataReaderModeConstants.Cached AndAlso mCachedSpectrumCount > 0 Then
-            If intSpectrumIndex >= 0 And intSpectrumIndex < mCachedSpectrumCount And Not mCachedSpectra Is Nothing Then
-                objSpectrumInfo = mCachedSpectra(intSpectrumIndex)
-                blnSuccess = True
-            Else
-                mErrorMessage = "Invalid spectrum index: " & intSpectrumIndex.ToString
-            End If
-        Else
-            mErrorMessage = "Cached data not in memory"
-        End If
+		blnSuccess = False
+		If mDataReaderMode = drmDataReaderModeConstants.Cached AndAlso mCachedSpectrumCount > 0 Then
+			If intSpectrumIndex >= 0 And intSpectrumIndex < mCachedSpectrumCount And Not mCachedSpectra Is Nothing Then
+				objSpectrumInfo = mCachedSpectra(intSpectrumIndex)
+				blnSuccess = True
+			Else
+				mErrorMessage = "Invalid spectrum index: " & intSpectrumIndex.ToString
+			End If
+		Else
+			mErrorMessage = "Cached data not in memory"
+		End If
 
-        Return blnSuccess
+		Return blnSuccess
 
-    End Function
+	End Function
 
-    Public Overridable Function GetSpectrumByScanNumber(ByVal intScanNumber As Integer, ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
-        ' Looks for the first entry in mCachedSpectra with .ScanNumber = intScanNumber
-        ' Returns True if success, False if failure
-        ' Only valid if we have Cached data in memory
+	Public Overridable Function GetSpectrumByScanNumber(ByVal intScanNumber As Integer, ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+		' Looks for the first entry in mCachedSpectra with .ScanNumber = intScanNumber
+		' Returns True if success, False if failure
+		' Only valid if we have Cached data in memory
 
-        Dim intSpectrumIndex As Integer
-        Dim objIndex As Object
-        Dim blnSuccess As Boolean
+		Dim intSpectrumIndex As Integer
+		Dim objIndex As Object
+		Dim blnSuccess As Boolean
 
-        Try
-            blnSuccess = False
-            mErrorMessage = String.Empty
-            If mDataReaderMode = drmDataReaderModeConstants.Cached Then
-                If mCachedSpectraScanToIndex Is Nothing OrElse mCachedSpectraScanToIndex.Count = 0 Then
-                    For intSpectrumIndex = 0 To mCachedSpectrumCount - 1
-                        If mCachedSpectra(intSpectrumIndex).ScanNumber = intScanNumber Then
-                            objSpectrumInfo = mCachedSpectra(intSpectrumIndex)
-                            blnSuccess = True
-                            Exit For
-                        End If
-                    Next intSpectrumIndex
-                Else
-                    objIndex = mCachedSpectraScanToIndex(intScanNumber)
-                    If Not objIndex Is Nothing Then
-                        objSpectrumInfo = mCachedSpectra(CType(objIndex, Integer))
-                        blnSuccess = True
-                    End If
-                End If
+		Try
+			blnSuccess = False
+			mErrorMessage = String.Empty
+			If mDataReaderMode = drmDataReaderModeConstants.Cached Then
+				If mCachedSpectraScanToIndex Is Nothing OrElse mCachedSpectraScanToIndex.Count = 0 Then
+					For intSpectrumIndex = 0 To mCachedSpectrumCount - 1
+						If mCachedSpectra(intSpectrumIndex).ScanNumber = intScanNumber Then
+							objSpectrumInfo = mCachedSpectra(intSpectrumIndex)
+							blnSuccess = True
+							Exit For
+						End If
+					Next intSpectrumIndex
+				Else
+					objIndex = mCachedSpectraScanToIndex(intScanNumber)
+					If Not objIndex Is Nothing Then
+						objSpectrumInfo = mCachedSpectra(CType(objIndex, Integer))
+						blnSuccess = True
+					End If
+				End If
 
-                If Not blnSuccess AndAlso mErrorMessage.Length = 0 Then
-                    mErrorMessage = "Invalid scan number: " & intScanNumber.ToString
-                End If
-            Else
-                mErrorMessage = "Cached data not in memory"
-            End If
-        Catch ex As Exception
-            LogErrors("GetSpectrumByScanNumber", ex.Message)
-        End Try
+				If Not blnSuccess AndAlso mErrorMessage.Length = 0 Then
+					mErrorMessage = "Invalid scan number: " & intScanNumber.ToString
+				End If
+			Else
+				mErrorMessage = "Cached data not in memory"
+			End If
+		Catch ex As Exception
+			LogErrors("GetSpectrumByScanNumber", ex.Message)
+		End Try
 
-        Return blnSuccess
+		Return blnSuccess
 
-    End Function
+	End Function
 
-    Protected Overridable Sub InitializeLocalVariables()
-        mChargeCarrierMass = CHARGE_CARRIER_MASS_MONOISO
-        mErrorMessage = String.Empty
-        mFileVersion = String.Empty
+	Protected Overridable Sub InitializeLocalVariables()
+		mChargeCarrierMass = CHARGE_CARRIER_MASS_MONOISO
+		mErrorMessage = String.Empty
+		mFileVersion = String.Empty
 
-        mProgressStepDescription = String.Empty
-        mProgressPercentComplete = 0
+		mProgressStepDescription = String.Empty
+		mProgressPercentComplete = 0
 
-        mCachedSpectrumCount = 0
-        ReDim mCachedSpectra(499)
+		mCachedSpectrumCount = 0
+		ReDim mCachedSpectra(499)
 
-        With mInputFileStats
-            .ScanCount = 0
-            .ScanNumberMinimum = 0
-            .ScanNumberMaximum = 0
-        End With
+		With mInputFileStats
+			.ScanCount = 0
+			.ScanNumberMinimum = 0
+			.ScanNumberMaximum = 0
+		End With
 
-        If mCachedSpectraScanToIndex Is Nothing Then
-            mCachedSpectraScanToIndex = New Hashtable
-        Else
-            mCachedSpectraScanToIndex.Clear()
-        End If
+		If mCachedSpectraScanToIndex Is Nothing Then
+			mCachedSpectraScanToIndex = New Hashtable
+		Else
+			mCachedSpectraScanToIndex.Clear()
+		End If
 
-        mAbortProcessing = False
-    End Sub
+		mAbortProcessing = False
+	End Sub
 
-    Public Shared Function IsNumber(ByVal strValue As String) As Boolean
-        Try
-            Return Double.TryParse(strValue, 0)
-        Catch ex As Exception
-            Return False
-        End Try
-    End Function
+	Public Shared Function IsNumber(ByVal strValue As String) As Boolean
+		Try
+			Return Double.TryParse(strValue, 0)
+		Catch ex As Exception
+			Return False
+		End Try
+	End Function
 
-    Protected Overridable Sub LogErrors(ByVal strCallingFunction As String, ByVal strErrorDescription As String)
-        Dim swErrorLog As System.IO.StreamWriter
-        Dim strLogFilePath As String
+	Protected Overridable Sub LogErrors(ByVal strCallingFunction As String, ByVal strErrorDescription As String)
+		Dim swErrorLog As IO.StreamWriter
+		Dim strLogFilePath As String
 
-        Static LastCallingFunction As String
-        Static LastErrorMessage As String
-        Static LastSaveTime As DateTime
+		Static LastCallingFunction As String
+		Static LastErrorMessage As String
+		Static LastSaveTime As DateTime
 
-        Try
-            If Not strErrorDescription Is Nothing Then
-                mErrorMessage = String.Copy(strErrorDescription)
-            Else
-                mErrorMessage = "Unknown error"
-            End If
+		Try
+			If Not strErrorDescription Is Nothing Then
+				mErrorMessage = String.Copy(strErrorDescription)
+			Else
+				mErrorMessage = "Unknown error"
+			End If
 
-            If Not LastCallingFunction Is Nothing Then
-                If LastCallingFunction = strCallingFunction AndAlso _
-                LastErrorMessage = strErrorDescription Then
-                    If System.DateTime.UtcNow.Subtract(LastSaveTime).TotalSeconds < 0.5 Then
-                        ' Duplicate message, less than 500 milliseconds since the last save
-                        ' Do not update the log file
-                        Exit Sub
-                    End If
-                End If
-            End If
+			If Not LastCallingFunction Is Nothing Then
+				If LastCallingFunction = strCallingFunction AndAlso _
+				LastErrorMessage = strErrorDescription Then
+					If DateTime.UtcNow.Subtract(LastSaveTime).TotalSeconds < 0.5 Then
+						' Duplicate message, less than 500 milliseconds since the last save
+						' Do not update the log file
+						Exit Sub
+					End If
+				End If
+			End If
 
-            LastCallingFunction = String.Copy(strCallingFunction)
-            LastErrorMessage = String.Copy(strErrorDescription)
-            LastSaveTime = System.DateTime.UtcNow
+			LastCallingFunction = String.Copy(strCallingFunction)
+			LastErrorMessage = String.Copy(strErrorDescription)
+			LastSaveTime = DateTime.UtcNow
 
-            strLogFilePath = "MSDataFileReader_ErrorLog.txt"
-            swErrorLog = New System.IO.StreamWriter(strLogFilePath, True)
+			strLogFilePath = "MSDataFileReader_ErrorLog.txt"
+			swErrorLog = New IO.StreamWriter(strLogFilePath, True)
 
-            swErrorLog.WriteLine(System.DateTime.Now & ControlChars.Tab & _
-                                  strCallingFunction & ControlChars.Tab & _
-                                  mErrorMessage & ControlChars.Tab & _
-                                  GetInputFileLocation())
-            swErrorLog.Close()
+			swErrorLog.WriteLine(System.DateTime.Now & ControlChars.Tab & _
+								  strCallingFunction & ControlChars.Tab & _
+								  mErrorMessage & ControlChars.Tab & _
+								  GetInputFileLocation())
+			swErrorLog.Close()
 
-            swErrorLog = Nothing
+			swErrorLog = Nothing
 
-        Catch ex As Exception
-            ' Ignore errors that occur while logging errors
-        End Try
-    End Sub
+		Catch ex As Exception
+			' Ignore errors that occur while logging errors
+		End Try
+	End Sub
 
-    Public MustOverride Function OpenFile(ByVal strInputFilePath As String) As Boolean
+	Public MustOverride Function OpenFile(ByVal strInputFilePath As String) As Boolean
 
 	Public MustOverride Function OpenTextStream(ByRef strTextStream As String) As Boolean
 
@@ -560,7 +560,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
 			Return False
 		End If
 
-		If Not System.IO.File.Exists(strInputFilePath) Then
+		If Not IO.File.Exists(strInputFilePath) Then
 			mErrorMessage = "File not found: " & strInputFilePath
 			Return False
 		Else

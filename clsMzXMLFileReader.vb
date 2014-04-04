@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified September 17, 2010
+' Last modified April 3, 2014
 
 Public Class clsMzXMLFileReader
     Inherits clsMSXMLFileReaderBaseClass
@@ -77,9 +77,13 @@ Public Class clsMzXMLFileReader
 		Public Const msInstrumentID As String = "msInstrumentID"
     End Class
 
-    Protected Class PrecursorAttributeNames
-        Public Const precursorIntensity As String = "precursorIntensity"
-    End Class
+	Protected Class PrecursorAttributeNames
+		Public Const precursorScanNum As String = "precursorScanNum"		' Scan number of the precursor
+		Public Const precursorIntensity As String = "precursorIntensity"	' Intensity of the precursor ion
+		Public Const precursorCharge As String = "precursorCharge"			' Charge of the precursor, typically determined at time of acquisition by the mass spectrometer
+		Public Const activationMethod As String = "activationMethod"		' Fragmentation method, e.g. CID, ETD, or HCD
+		Public Const windowWideness As String = "windowWideness"			' Isolation window width, e.g. 2.0
+	End Class
 
     Protected Class PeaksAttributeNames
         Public Const precision As String = "precision"
@@ -455,7 +459,13 @@ Public Class clsMzXMLFileReader
 
             Case ScanSectionNames.precursorMz
                 If mXMLReader.HasAttributes Then
-                    mCurrentSpectrum.ParentIonIntensity = GetAttribValue(PrecursorAttributeNames.precursorIntensity, CSng(0))
+					mCurrentSpectrum.ParentIonIntensity = GetAttribValue(PrecursorAttributeNames.precursorIntensity, CSng(0))
+
+					mCurrentSpectrum.ActivationMethod = GetAttribValue(PrecursorAttributeNames.activationMethod, String.Empty)
+					mCurrentSpectrum.ParentIonCharge = GetAttribValue(PrecursorAttributeNames.precursorCharge, 0)
+					mCurrentSpectrum.PrecursorScanNum = GetAttribValue(PrecursorAttributeNames.precursorScanNum, 0)
+					mCurrentSpectrum.IsolationWindow = GetAttribValue(PrecursorAttributeNames.windowWideness, CSng(0))
+
                 End If
 
             Case ScanSectionNames.peaks
@@ -540,45 +550,45 @@ Public Class clsMzXMLFileReader
     Protected Sub ValidateMZXmlFileVersion(ByVal strFileVersion As String)
         ' This sub should be called from ParseStartElement
 
-        Dim objFileVersionRegEx As System.Text.RegularExpressions.Regex
-        Dim objMatch As System.Text.RegularExpressions.Match
-        Dim strMessage As String
+		Dim objFileVersionRegEx As Text.RegularExpressions.Regex
+		Dim objMatch As Text.RegularExpressions.Match
+		Dim strMessage As String
 
-        Try
-            mFileVersion = String.Empty
+		Try
+			mFileVersion = String.Empty
 
-    ' Currently, the supported versions are mzXML_2.x and mzXML_3.x
-            objFileVersionRegEx = New System.Text.RegularExpressions.Regex("mzXML_[^\s""/]+", Text.RegularExpressions.RegexOptions.IgnoreCase)
+			' Currently, the supported versions are mzXML_2.x and mzXML_3.x
+			objFileVersionRegEx = New Text.RegularExpressions.Regex("mzXML_[^\s""/]+", Text.RegularExpressions.RegexOptions.IgnoreCase)
 
-            ' Validate the mzXML file version
-            If Not strFileVersion Is Nothing AndAlso strFileVersion.Length > 0 Then
-                ' Parse out the version number
-                objMatch = objFileVersionRegEx.Match(strFileVersion)
-                If objMatch.Success AndAlso Not objMatch.Value Is Nothing Then
-                    ' Record the version
-                    mFileVersion = objMatch.Value
-                End If
-            End If
+			' Validate the mzXML file version
+			If Not strFileVersion Is Nothing AndAlso strFileVersion.Length > 0 Then
+				' Parse out the version number
+				objMatch = objFileVersionRegEx.Match(strFileVersion)
+				If objMatch.Success AndAlso Not objMatch.Value Is Nothing Then
+					' Record the version
+					mFileVersion = objMatch.Value
+				End If
+			End If
 
-            If mFileVersion.Length > 0 Then
-                If Not (mFileVersion.ToLower.IndexOf("mzxml_2") >= 0 OrElse mFileVersion.ToLower.IndexOf("mzxml_3") >= 0) Then
-                    ' strFileVersion contains mzXML_ but not mxXML_2 or mxXML_3
-                    ' Thus, assume unknown version
-                    ' Log error and abort if mParseFilesWithUnknownVersion = False
-                    strMessage = "Unknown mzXML file version: " & mFileVersion
-                    If mParseFilesWithUnknownVersion Then
-                        strMessage &= "; attempting to parse since ParseFilesWithUnknownVersion = True"
-                    Else
-                        mAbortProcessing = True
-                        strMessage &= "; aborting read"
-                    End If
-                    LogErrors("ValidateMZXmlFileVersion", strMessage)
-                End If
-            End If
-        Catch ex As Exception
-            LogErrors("ValidateMZXmlFileVersion", ex.Message)
-            mFileVersion = String.Empty
-        End Try
+			If mFileVersion.Length > 0 Then
+				If Not (mFileVersion.ToLower.IndexOf("mzxml_2") >= 0 OrElse mFileVersion.ToLower.IndexOf("mzxml_3") >= 0) Then
+					' strFileVersion contains mzXML_ but not mxXML_2 or mxXML_3
+					' Thus, assume unknown version
+					' Log error and abort if mParseFilesWithUnknownVersion = False
+					strMessage = "Unknown mzXML file version: " & mFileVersion
+					If mParseFilesWithUnknownVersion Then
+						strMessage &= "; attempting to parse since ParseFilesWithUnknownVersion = True"
+					Else
+						mAbortProcessing = True
+						strMessage &= "; aborting read"
+					End If
+					LogErrors("ValidateMZXmlFileVersion", strMessage)
+				End If
+			End If
+		Catch ex As Exception
+			LogErrors("ValidateMZXmlFileVersion", ex.Message)
+			mFileVersion = String.Empty
+		End Try
 
     End Sub
 
