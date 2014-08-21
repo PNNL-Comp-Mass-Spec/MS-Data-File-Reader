@@ -66,7 +66,6 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
 
 	Protected mParentElementStack As Collections.Stack
 
-	Protected mBase64Decoder As clsBase64EncodeDecode
 #End Region
 
 #Region "Processing Options and Interface Functions"
@@ -348,9 +347,6 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
 			mParentElementStack.Clear()
 		End If
 
-		If mBase64Decoder Is Nothing Then
-			mBase64Decoder = New clsBase64EncodeDecode
-		End If
 	End Sub
 
 	Public Overrides Function OpenFile(ByVal strInputFilePath As String) As Boolean
