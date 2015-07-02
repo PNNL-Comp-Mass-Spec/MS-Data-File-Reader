@@ -7,8 +7,8 @@ Option Strict On
 ' Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
 ' Program started March 24, 2006
 '
-' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://panomics.pnnl.gov/ or http://www.sysbio.org/resources/staff/
+' E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com
+' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/ or http://panomics.pnnl.gov/
 ' -------------------------------------------------------------------------------
 '
 ' Last modified April 3, 2014
