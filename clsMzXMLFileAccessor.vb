@@ -1,5 +1,6 @@
 Option Strict On
 
+Imports System.Runtime.InteropServices
 ' This class can be used to open a .mzXML file and index the location
 ' of all of the spectra present.  This does not cache the mass spectra data in
 ' memory, and therefore uses little memory, but once the indexing is complete, 
@@ -459,7 +460,7 @@ Public Class clsMzXMLFileAccessor
 
 	End Function
 
-	Protected Overrides Function GetSpectrumByIndexWork(ByVal intSpectrumIndex As Integer, ByRef objCurrentSpectrumInfo As clsSpectrumInfo, ByVal blnHeaderInfoOnly As Boolean) As Boolean
+	Protected Overrides Function GetSpectrumByIndexWork(ByVal intSpectrumIndex As Integer, <Out()> ByRef objCurrentSpectrumInfo As clsSpectrumInfo, ByVal blnHeaderInfoOnly As Boolean) As Boolean
 
 		Const DEBUG_MODE As Boolean = False
 		Dim srOutfile As IO.StreamWriter

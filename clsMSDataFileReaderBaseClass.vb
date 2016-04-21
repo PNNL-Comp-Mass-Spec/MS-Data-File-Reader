@@ -1,5 +1,6 @@
 Option Strict On
 
+Imports System.Runtime.InteropServices
 ' This is the base class for the various MS data file readres
 '
 ' -------------------------------------------------------------------------------
@@ -261,7 +262,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
 
     End Function
 
-    Public Shared Function DetermineFileType(ByVal strFileNameOrPath As String, ByRef eFileType As dftDataFileTypeConstants) As Boolean
+    Public Shared Function DetermineFileType(ByVal strFileNameOrPath As String, <Out()> ByRef eFileType As dftDataFileTypeConstants) As Boolean
 
         ' Returns true if the file type is known
         ' Returns false if unknown or an error
@@ -369,7 +370,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
 
 	Protected MustOverride Function GetInputFileLocation() As String
 
-	Public Overridable Function GetScanNumberList(ByRef ScanNumberList() As Integer) As Boolean
+	Public Overridable Function GetScanNumberList(<Out()> ByRef ScanNumberList() As Integer) As Boolean
 		' Return the list of cached scan numbers (aka acquisition numbers)
 
 		Dim blnSuccess As Boolean
@@ -395,7 +396,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
 
 	End Function
 
-	Public Overridable Function GetSpectrumByIndex(ByVal intSpectrumIndex As Integer, ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+	Public Overridable Function GetSpectrumByIndex(ByVal intSpectrumIndex As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
 		' Returns True if success, False if failure
 		' Only valid if we have Cached data in memory
 
@@ -417,7 +418,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
 
 	End Function
 
-	Public Overridable Function GetSpectrumByScanNumber(ByVal intScanNumber As Integer, ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+	Public Overridable Function GetSpectrumByScanNumber(ByVal intScanNumber As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
 		' Looks for the first entry in mCachedSpectra with .ScanNumber = intScanNumber
 		' Returns True if success, False if failure
 		' Only valid if we have Cached data in memory
@@ -573,7 +574,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
         RaiseEvent ProgressComplete()
     End Sub
 
-    Public MustOverride Function ReadNextSpectrum(ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+    Public MustOverride Function ReadNextSpectrum(<Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
 
     Public Overridable Function ReadAndCacheEntireFile() As Boolean
         Dim objSpectrumInfo As clsSpectrumInfo

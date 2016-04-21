@@ -13,6 +13,7 @@ Option Strict On
 '
 ' Last modified February 8, 2013
 Imports System.Collections.Generic
+Imports System.Runtime.InteropServices
 
 Public MustInherit Class clsMSTextFileReaderBaseClass
     Inherits clsMsDataFileReaderBaseClass
@@ -200,11 +201,11 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
 
 	End Sub
 
-	Public Function ExtractScanInfoFromDtaHeader(ByVal strSpectrumHeader As String, ByRef intScanNumberStart As Integer, ByRef intScanNumberEnd As Integer, ByRef intScanCount As Integer) As Boolean
+	Public Function ExtractScanInfoFromDtaHeader(ByVal strSpectrumHeader As String, <Out()> ByRef intScanNumberStart As Integer, <Out()> ByRef intScanNumberEnd As Integer, <Out()> ByRef intScanCount As Integer) As Boolean
 		Return ExtractScanInfoFromDtaHeader(strSpectrumHeader, intScanNumberStart, intScanNumberEnd, intScanCount, 0)
 	End Function
 
-	Public Function ExtractScanInfoFromDtaHeader(ByVal strSpectrumHeader As String, ByRef intScanNumberStart As Integer, ByRef intScanNumberEnd As Integer, ByRef intScanCount As Integer, ByRef intCharge As Integer) As Boolean
+	Public Function ExtractScanInfoFromDtaHeader(ByVal strSpectrumHeader As String, <Out()> ByRef intScanNumberStart As Integer, <Out()> ByRef intScanNumberEnd As Integer, <Out()> ByRef intScanCount As Integer, <Out()> ByRef intCharge As Integer) As Boolean
 		' The header should be similar to one of the following 
 		'   FileName.1234.1234.2.dta
 		'   FileName.1234.1234.2      (StartScan.EndScan.Charge)
@@ -492,7 +493,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
 
 	End Function
 
-	Public Function ParseMsMsDataList(ByVal strMSMSData() As String, ByVal intMsMsDataCount As Integer, ByRef dblMasses() As Double, ByRef sngIntensities() As Single, ByVal blnShrinkDataArrays As Boolean) As Integer
+	Public Function ParseMsMsDataList(ByVal strMSMSData() As String, ByVal intMsMsDataCount As Integer, <Out()> ByRef dblMasses() As Double, <Out()> ByRef sngIntensities() As Single, ByVal blnShrinkDataArrays As Boolean) As Integer
 		Dim lstMSMSData As List(Of String) = New List(Of String)
 
 		For intIndex As Integer = 0 To intMsMsDataCount - 1
@@ -503,7 +504,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
 
 	End Function
 
-	Public Function ParseMsMsDataList(ByVal lstMSMSData As List(Of String), ByRef dblMasses() As Double, ByRef sngIntensities() As Single, ByVal blnShrinkDataArrays As Boolean) As Integer
+	Public Function ParseMsMsDataList(ByVal lstMSMSData As List(Of String), <Out()> ByRef dblMasses() As Double, <Out()> ByRef sngIntensities() As Single, ByVal blnShrinkDataArrays As Boolean) As Integer
 		' Returns the number of data points in dblMasses() and sngIntensities()
 		' If blnShrinkDataArrays = False, then will not shrink dblMasses or sngIntensities
 

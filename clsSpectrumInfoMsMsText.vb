@@ -1,5 +1,6 @@
 Option Strict On
 
+Imports System.Runtime.InteropServices
 ' This class holds the values associated with each spectrum in an DTA or MGF file
 '
 ' -------------------------------------------------------------------------------
@@ -206,7 +207,7 @@ Public Class clsSpectrumInfoMsMsText
     ''    Return objTarget
     ''End Function
 
-    Public Overloads Sub CopyTo(ByRef objTarget As clsSpectrumInfoMsMsText)
+    Public Overloads Sub CopyTo(<Out()> ByRef objTarget As clsSpectrumInfoMsMsText)
         '' Note; in classes derived from clsSpectrumInfo, call MyBase.CopyTo() but do not call objTarget.Clear()
         ''Dim objTargetBase As clsSpectrumInfo
 

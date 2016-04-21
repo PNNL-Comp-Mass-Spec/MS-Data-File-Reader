@@ -13,6 +13,7 @@ Option Strict On
 '
 ' Last modified February 16, 2012
 Imports System.Collections.Generic
+Imports System.Runtime.InteropServices
 
 Public Class clsMGFFileReader
     Inherits clsMSTextFileReaderBaseClass
@@ -57,7 +58,7 @@ Public Class clsMGFFileReader
         MyBase.LogErrors("clsMGFFileReader." & strCallingFunction, strErrorDescription)
     End Sub
 
-    Public Overrides Function ReadNextSpectrum(ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+    Public Overrides Function ReadNextSpectrum(<Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
         ' Reads the next spectrum from a .MGF file
         ' Returns True if a spectrum is found, otherwise, returns False
 

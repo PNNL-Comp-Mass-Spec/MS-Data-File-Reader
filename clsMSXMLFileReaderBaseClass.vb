@@ -1,5 +1,6 @@
 Option Strict On
 
+Imports System.Runtime.InteropServices
 ' This is the base class for the mzXML and mzData readers
 '
 ' -------------------------------------------------------------------------------
@@ -459,7 +460,7 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
 
 	Protected MustOverride Sub ParseEndElement()
 
-	Public Overrides Function ReadNextSpectrum(ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+	Public Overrides Function ReadNextSpectrum(<Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
 		' Reads the next spectrum from an mzXML or mzData file
 		' Returns True if a spectrum is found, otherwise, returns False
 

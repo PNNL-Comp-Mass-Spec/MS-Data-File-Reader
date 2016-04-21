@@ -1,5 +1,6 @@
 Option Strict On
 
+Imports System.Runtime.InteropServices
 ' This class can be used to open an MS Data file (currently .mzXML and .mzData) and 
 ' index the location of all of the spectra present.  This does not cache the mass spectra
 ' data in memory, and therefore uses little memory, but once the indexing is complete, 
@@ -196,7 +197,7 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
 		End Try
 	End Function
 
-	Public Overrides Function GetScanNumberList(ByRef ScanNumberList() As Integer) As Boolean
+	Public Overrides Function GetScanNumberList(<Out()> ByRef ScanNumberList() As Integer) As Boolean
 		' Return the list of indexed scan numbers (aka acquisition numbers)
 
 		Dim intSpectrumIndex As Integer
@@ -231,7 +232,7 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
 
 	Public MustOverride Function GetSourceXMLHeader(ByVal intScanCountTotal As Integer, ByVal sngStartTimeMinutesAllScans As Single, ByVal sngEndTimeMinutesAllScans As Single) As String
 
-	Public Function GetSourceXMLByIndex(ByVal intSpectrumIndex As Integer, ByRef strSourceXML As String) As Boolean
+	Public Function GetSourceXMLByIndex(ByVal intSpectrumIndex As Integer, <Out()> ByRef strSourceXML As String) As Boolean
 		' Returns the XML for the given spectrum
 		' This does not include the header or footer XML for the file
 		' Only valid if we have Indexed data in memory
@@ -270,7 +271,7 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
 
 	End Function
 
-	Public Function GetSourceXMLByScanNumber(ByVal intScanNumber As Integer, ByRef strSourceXML As String) As Boolean
+	Public Function GetSourceXMLByScanNumber(ByVal intScanNumber As Integer, <Out()> ByRef strSourceXML As String) As Boolean
 		' Returns the XML for the given spectrum
 		' This does not include the header or footer XML for the file
 		' Only valid if we have Indexed data in memory
@@ -316,7 +317,7 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
 
 	End Function
 
-	Public Overrides Function GetSpectrumByIndex(ByVal intSpectrumIndex As Integer, ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+	Public Overrides Function GetSpectrumByIndex(ByVal intSpectrumIndex As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
 		' Returns True if success, False if failure
 		' Only valid if we have Cached or Indexed data in memory
 
@@ -339,13 +340,13 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
 
 	End Function
 
-	Protected MustOverride Function GetSpectrumByIndexWork(ByVal intSpectrumIndex As Integer, ByRef objSpectrumInfo As clsSpectrumInfo, ByVal blnHeaderInfoOnly As Boolean) As Boolean
+	Protected MustOverride Function GetSpectrumByIndexWork(ByVal intSpectrumIndex As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo, ByVal blnHeaderInfoOnly As Boolean) As Boolean
 
-	Public Overrides Function GetSpectrumByScanNumber(ByVal intScanNumber As Integer, ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+	Public Overrides Function GetSpectrumByScanNumber(ByVal intScanNumber As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
 		Return GetSpectrumByScanNumberWork(intScanNumber, objSpectrumInfo, False)
 	End Function
 
-	Protected Function GetSpectrumByScanNumberWork(ByVal intScanNumber As Integer, ByRef objSpectrumInfo As clsSpectrumInfo, ByVal blnHeaderInfoOnly As Boolean) As Boolean
+	Protected Function GetSpectrumByScanNumberWork(ByVal intScanNumber As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo, ByVal blnHeaderInfoOnly As Boolean) As Boolean
 		' Return the data for scan intScanNumber in mIndexedSpectrumInfo
 		' Returns True if success, False if failure
 		' Only valid if we have Cached or Indexed data in memory
@@ -393,11 +394,11 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
 
 	End Function
 
-	Public Function GetSpectrumHeaderInfoByIndex(ByVal intSpectrumIndex As Integer, ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+	Public Function GetSpectrumHeaderInfoByIndex(ByVal intSpectrumIndex As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
 		Return GetSpectrumByIndexWork(intSpectrumIndex, objSpectrumInfo, True)
 	End Function
 
-	Public Function GetSpectrumHeaderInfoByScanNumber(ByVal intScanNumber As Integer, ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+	Public Function GetSpectrumHeaderInfoByScanNumber(ByVal intScanNumber As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
 		Return GetSpectrumByScanNumberWork(intScanNumber, objSpectrumInfo, True)
 	End Function
 
@@ -545,7 +546,7 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
 
     End Function
 
-    Public Overrides Function ReadNextSpectrum(ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+    Public Overrides Function ReadNextSpectrum(<Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
         If GetSpectrumReadyStatus(False) AndAlso mLastSpectrumIndexRead < mIndexedSpectrumInfoCount Then
             mLastSpectrumIndexRead += 1
             Return GetSpectrumByIndex(mLastSpectrumIndexRead, objSpectrumInfo)

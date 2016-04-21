@@ -1,5 +1,6 @@
 Option Strict On
 
+Imports System.Runtime.InteropServices
 ' This class can be used to open a .mzData file and index the location
 ' of all of the spectra present.  This does not cache the mass spectra data in
 ' memory, and therefore uses little memory, but once the indexing is complete, 
@@ -318,7 +319,7 @@ Public Class clsMzDataFileAccessor
 
 	End Function
 
-	Protected Overrides Function GetSpectrumByIndexWork(ByVal intSpectrumIndex As Integer, ByRef objCurrentSpectrumInfo As clsSpectrumInfo, ByVal blnHeaderInfoOnly As Boolean) As Boolean
+	Protected Overrides Function GetSpectrumByIndexWork(ByVal intSpectrumIndex As Integer, <Out()> ByRef objCurrentSpectrumInfo As clsSpectrumInfo, ByVal blnHeaderInfoOnly As Boolean) As Boolean
 
 		Const DEBUG_MODE As Boolean = False
 		Dim srOutfile As IO.StreamWriter
@@ -377,11 +378,11 @@ Public Class clsMzDataFileAccessor
 
 	End Function
 
-	Public Function GetSpectrumBySpectrumID(ByVal intSpectrumID As Integer, ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+	Public Function GetSpectrumBySpectrumID(ByVal intSpectrumID As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
 		Return GetSpectrumBySpectrumIDWork(intSpectrumID, objSpectrumInfo, False)
 	End Function
 
-	Protected Function GetSpectrumBySpectrumIDWork(ByVal intSpectrumID As Integer, ByRef objSpectrumInfo As clsSpectrumInfo, ByVal blnHeaderInfoOnly As Boolean) As Boolean
+	Protected Function GetSpectrumBySpectrumIDWork(ByVal intSpectrumID As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo, ByVal blnHeaderInfoOnly As Boolean) As Boolean
 		' Returns True if success, False if failure
 		' Only valid if we have Indexed data in memory
 
@@ -428,11 +429,11 @@ Public Class clsMzDataFileAccessor
 
 	End Function
 
-	Public Function GetSpectrumHeaderInfoBySpectrumID(ByVal intSpectrumID As Integer, ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+	Public Function GetSpectrumHeaderInfoBySpectrumID(ByVal intSpectrumID As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
 		Return GetSpectrumBySpectrumIDWork(intSpectrumID, objSpectrumInfo, True)
 	End Function
 
-	Public Function GetSpectrumIDList(ByRef SpectrumIDList() As Integer) As Boolean
+	Public Function GetSpectrumIDList(<Out()> ByRef SpectrumIDList() As Integer) As Boolean
 		' Return the list of indexed spectrumID values
 
 		Dim intSpectrumIndex As Integer

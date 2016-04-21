@@ -1,5 +1,6 @@
 Option Strict On
 
+Imports System.Runtime.InteropServices
 ' This class holds the values associated with each spectrum in an mzData file
 '
 ' -------------------------------------------------------------------------------
@@ -214,7 +215,7 @@ Public Class clsSpectrumInfoMzData
         Return objTarget
     End Function
 
-    Public Overloads Sub CopyTo(ByRef objTarget As clsSpectrumInfoMzData)
+    Public Overloads Sub CopyTo(<Out()> ByRef objTarget As clsSpectrumInfoMzData)
         '' Note; in classes derived from clsSpectrumInfo, call MyBase.CopyTo() but do not call objTarget.Clear()
         ''Dim objTargetBase As clsSpectrumInfo
 

@@ -1,5 +1,6 @@
 Option Strict On
 
+Imports System.Runtime.InteropServices
 ' This class holds the values associated with each spectrum in an MS Data file
 '
 ' -------------------------------------------------------------------------------
@@ -344,7 +345,7 @@ Public Class clsSpectrumInfo
         Return objTarget
     End Function
 
-    Public Overridable Sub CopyTo(ByRef objTarget As clsSpectrumInfo)
+    Public Overridable Sub CopyTo(<Out()> ByRef objTarget As clsSpectrumInfo)
         objTarget = Me.Clone
     End Sub
 

@@ -13,6 +13,7 @@ Option Strict On
 '
 ' Last modified February 16, 2012
 Imports System.Collections.Generic
+Imports System.Runtime.InteropServices
 
 Public Class clsDtaTextFileReader
 	Inherits clsMSTextFileReaderBaseClass
@@ -64,7 +65,7 @@ Public Class clsDtaTextFileReader
 		MyBase.LogErrors("clsDtaTextFileReader." & strCallingFunction, strErrorDescription)
 	End Sub
 
-	Public Overrides Function ReadNextSpectrum(ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+	Public Overrides Function ReadNextSpectrum(<Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
 		' Reads the next spectrum from a _Dta.txt file
 		' Returns True if a spectrum is found, otherwise, returns False
 		' If blnCombineIdenticalSpectra = True, then combines spectra that only differ by their charge state
@@ -229,7 +230,7 @@ Public Class clsDtaTextFileReader
 
 	End Function
 
-	Public Function ReadSingleDtaFile(ByVal strInputFilePath As String, ByRef strMsMsDataList() As String, ByRef intMsMsDataCount As Integer, ByRef objSpectrumInfoMsMsText As clsSpectrumInfoMsMsText) As Boolean
+	Public Function ReadSingleDtaFile(ByVal strInputFilePath As String, <Out()> ByRef strMsMsDataList() As String, <Out()> ByRef intMsMsDataCount As Integer, <Out()> ByRef objSpectrumInfoMsMsText As clsSpectrumInfoMsMsText) As Boolean
 
 		' Open the .Dta file and read the spectrum
 		Dim intLastProgressUpdateLine As Integer
