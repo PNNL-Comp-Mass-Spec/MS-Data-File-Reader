@@ -1,5 +1,6 @@
 Option Strict On
 
+Imports System.Xml
 ' This class uses a SAX Parser to read an mzXML file
 
 ' -------------------------------------------------------------------------------
@@ -8,10 +9,10 @@ Option Strict On
 ' Started March 26, 2006
 '
 ' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified April 3, 2014
+' Last modified in July 2016
 
 Public Class clsMzXMLFileReader
     Inherits clsMSXMLFileReaderBaseClass
@@ -26,46 +27,46 @@ Public Class clsMzXMLFileReader
     Public Const MZXML_FILE_EXTENSION_XML As String = "_MZXML.XML"
 
     ' Note that I'm using classes to group the constants
-    Protected Class XMLSectionNames
+    Private Class XMLSectionNames
         Public Const RootName As String = "mzXML"
         Public Const msRun As String = "msRun"
     End Class
 
-    Protected Class mzXMLRootAttrbuteNames
+    Private Class mzXMLRootAttrbuteNames
         Public Const xmlns As String = "xmlns"
         Public Const xsi_schemaLocation As String = "xsi:schemaLocation"
     End Class
 
-    Protected Class HeaderSectionNames
+    Private Class HeaderSectionNames
         Public Const msInstrument As String = "msInstrument"
         Public Const dataProcessing As String = "dataProcessing"
     End Class
 
-    Protected Class ScanSectionNames
+    Private Class ScanSectionNames
         Public Const scan As String = "scan"
         Public Const precursorMz As String = "precursorMz"
         Public Const peaks As String = "peaks"
     End Class
 
-    Protected Class MSRunAttributeNames
+    Private Class MSRunAttributeNames
         Public Const scanCount As String = "scanCount"
         Public Const startTime As String = "startTime"
         Public Const endTime As String = "endTime"
     End Class
 
-    Protected Class DataProcessingAttributeNames
+    Private Class DataProcessingAttributeNames
         Public Const centroided As String = "centroided"
     End Class
 
-    Protected Class ScanAttributeNames
+    Private Class ScanAttributeNames
         Public Const num As String = "num"
-		Public Const msLevel As String = "msLevel"
-		Public Const centroided As String = "centroided"				' 0 or 1
+        Public Const msLevel As String = "msLevel"
+        Public Const centroided As String = "centroided"                ' 0 or 1
         Public Const peaksCount As String = "peaksCount"
         Public Const polarity As String = "polarity"
         Public Const scanType As String = "scanType"                    ' Options are: Full, zoom, SIM, SRM, MRM, CRM, Q1, or Q3; note that MRM and SRM and functionally equivalent; ReadW uses SRM
         Public Const filterLine As String = "filterLine"                ' Thermo-specific filter-line text; added by ReadW
-		Public Const retentionTime As String = "retentionTime"			' For example, PT1.0373S
+        Public Const retentionTime As String = "retentionTime"          ' For example, PT1.0373S
         Public Const collisionEnergy As String = "collisionEnergy"      ' Collision energy used to fragment the parent ion
         Public Const startMz As String = "startMz"                      ' Setted low m/z boundary (this is the instrumetal setting); not present in .mzXML files created with ReadW
         Public Const endMz As String = "endMz"                          ' Setted high m/z boundary (this is the instrumetal setting); not present in .mzXML files created with ReadW
@@ -73,28 +74,28 @@ Public Class clsMzXMLFileReader
         Public Const highMz As String = "highMz"                        ' Observed high m/z (this is what the actual data looks like
         Public Const basePeakMz As String = "basePeakMz"                ' m/z of the base peak (most intense peak)
         Public Const basePeakIntensity As String = "basePeakIntensity"  ' Intensity of the base peak (most intense peak)
-		Public Const totIonCurrent As String = "totIonCurrent"			' Total ion current (total intensity in the scan)
-		Public Const msInstrumentID As String = "msInstrumentID"
+        Public Const totIonCurrent As String = "totIonCurrent"          ' Total ion current (total intensity in the scan)
+        Public Const msInstrumentID As String = "msInstrumentID"
     End Class
 
-	Protected Class PrecursorAttributeNames
-		Public Const precursorScanNum As String = "precursorScanNum"		' Scan number of the precursor
-		Public Const precursorIntensity As String = "precursorIntensity"	' Intensity of the precursor ion
-		Public Const precursorCharge As String = "precursorCharge"			' Charge of the precursor, typically determined at time of acquisition by the mass spectrometer
-		Public Const activationMethod As String = "activationMethod"		' Fragmentation method, e.g. CID, ETD, or HCD
-		Public Const windowWideness As String = "windowWideness"			' Isolation window width, e.g. 2.0
-	End Class
+    Private Class PrecursorAttributeNames
+        Public Const precursorScanNum As String = "precursorScanNum"        ' Scan number of the precursor
+        Public Const precursorIntensity As String = "precursorIntensity"    ' Intensity of the precursor ion
+        Public Const precursorCharge As String = "precursorCharge"          ' Charge of the precursor, typically determined at time of acquisition by the mass spectrometer
+        Public Const activationMethod As String = "activationMethod"        ' Fragmentation method, e.g. CID, ETD, or HCD
+        Public Const windowWideness As String = "windowWideness"            ' Isolation window width, e.g. 2.0
+    End Class
 
-    Protected Class PeaksAttributeNames
+    Private Class PeaksAttributeNames
         Public Const precision As String = "precision"
         Public Const byteOrder As String = "byteOrder"
-		Public Const pairOrder As String = "pairOrder"				' For example, "m/z-int"  ; superseded by "contentType" in mzXML 3
-		Public Const compressionType As String = "compressionType"	' Allowed values are: "none" or "zlib"
-		Public Const compressedLen As String = "compressedLen"		' Integer value required when using zlib compression
-		Public Const contentType As String = "contentType"			' Allowed values are: "m/z-int", "m/z", "intensity", "S/N", "charge", "m/z ruler", "TOF"
+        Public Const pairOrder As String = "pairOrder"              ' For example, "m/z-int"  ; superseded by "contentType" in mzXML 3
+        Public Const compressionType As String = "compressionType"  ' Allowed values are: "none" or "zlib"
+        Public Const compressedLen As String = "compressedLen"      ' Integer value required when using zlib compression
+        Public Const contentType As String = "contentType"          ' Allowed values are: "m/z-int", "m/z", "intensity", "S/N", "charge", "m/z ruler", "TOF"
     End Class
 
-    Protected Enum eCurrentMZXMLDataFileSectionConstants As Integer
+    Private Enum eCurrentMZXMLDataFileSectionConstants As Integer
         UnknownFile = 0
         Start = 1
         msRun = 2
@@ -106,7 +107,7 @@ Public Class clsMzXMLFileReader
 
 #Region "Structures"
 
-    Protected Structure udtFileStatsAddnlType
+    Private Structure udtFileStatsAddnlType
         Public StartTimeMin As Single
         Public EndTimeMin As Single
 
@@ -116,12 +117,12 @@ Public Class clsMzXMLFileReader
 #End Region
 
 #Region "Classwide Variables"
-    Protected mCurrentXMLDataFileSection As eCurrentMZXMLDataFileSectionConstants
-    Protected mScanDepth As Integer       ' > 0 if we're inside a scan element
+    Private mCurrentXMLDataFileSection As eCurrentMZXMLDataFileSectionConstants
+    Private mScanDepth As Integer       ' > 0 if we're inside a scan element
 
-    Protected mCurrentSpectrum As clsSpectrumInfoMzXML
+    Private mCurrentSpectrum As clsSpectrumInfoMzXML
 
-    Protected mInputFileStatsAddnl As udtFileStatsAddnlType
+    Private mInputFileStatsAddnl As udtFileStatsAddnlType
 #End Region
 
 #Region "Processing Options and Interface Functions"
@@ -149,16 +150,14 @@ Public Class clsMzXMLFileReader
         Return mCurrentSpectrum
     End Function
 
-    Protected Overrides Sub InitializeCurrentSpectrum(ByRef objTemplateSpectrum As clsSpectrumInfo)
+    Protected Overrides Sub InitializeCurrentSpectrum(blnAutoShrinkDataLists As Boolean)
         If MyBase.ReadingAndStoringSpectra OrElse mCurrentSpectrum Is Nothing Then
-            mCurrentSpectrum = New clsSpectrumInfoMzXML
+            mCurrentSpectrum = New clsSpectrumInfoMzXML()
         Else
             mCurrentSpectrum.Clear()
         End If
 
-        If Not objTemplateSpectrum Is Nothing Then
-            mCurrentSpectrum.AutoShrinkDataLists = objTemplateSpectrum.AutoShrinkDataLists
-        End If
+        mCurrentSpectrum.AutoShrinkDataLists = blnAutoShrinkDataLists
     End Sub
 
     Protected Overrides Sub InitializeLocalVariables()
@@ -174,11 +173,11 @@ Public Class clsMzXMLFileReader
         End With
     End Sub
 
-    Protected Overrides Sub LogErrors(ByVal strCallingFunction As String, ByVal strErrorDescription As String)
+    Protected Overrides Sub LogErrors(strCallingFunction As String, strErrorDescription As String)
         MyBase.LogErrors("clsMzXMLFileReader." & strCallingFunction, strErrorDescription)
     End Sub
 
-    Public Overrides Function OpenFile(ByVal strInputFilePath As String) As Boolean
+    Public Overrides Function OpenFile(strInputFilePath As String) As Boolean
         Dim blnSuccess As Boolean
 
         Me.InitializeLocalVariables()
@@ -188,126 +187,129 @@ Public Class clsMzXMLFileReader
         Return blnSuccess
     End Function
 
-	Protected Function ParseBinaryData(ByRef strMSMSDataBase64Encoded As String, ByVal strCompressionType As String) As Boolean
-		' Parses strMSMSDataBase64Encoded and stores the data in mIntensityList() and mMZList()
+    Private Function ParseBinaryData(strMSMSDataBase64Encoded As String, strCompressionType As String) As Boolean
+        ' Parses strMSMSDataBase64Encoded and stores the data in mIntensityList() and mMZList()
 
-		Dim sngDataArray() As Single = Nothing
-		Dim dblDataArray() As Double = Nothing
+        Dim sngDataArray() As Single = Nothing
+        Dim dblDataArray() As Double = Nothing
 
-		Dim zLibCompressed As Boolean = False
+        Dim zLibCompressed = False
 
-		Dim eEndianMode As clsBase64EncodeDecode.eEndianTypeConstants = clsBase64EncodeDecode.eEndianTypeConstants.BigEndian
-		Dim intIndex As Integer
-		Dim blnSuccess As Boolean
+        Dim eEndianMode = clsBase64EncodeDecode.eEndianTypeConstants.BigEndian
+        Dim intIndex As Integer
+        Dim blnSuccess As Boolean
 
-		If mCurrentSpectrum Is Nothing Then
-			Return False
-		End If
+        If mCurrentSpectrum Is Nothing Then
+            Return False
+        End If
 
-		blnSuccess = False
-		If strMSMSDataBase64Encoded Is Nothing OrElse strMSMSDataBase64Encoded.Length = 0 Then
-			With mCurrentSpectrum
-				.DataCount = 0
-				ReDim .MZList(-1)
-				ReDim .IntensityList(-1)
-			End With
-		Else
-			Try
+        blnSuccess = False
+        If strMSMSDataBase64Encoded Is Nothing OrElse strMSMSDataBase64Encoded.Length = 0 Then
+            With mCurrentSpectrum
+                .DataCount = 0
+                ReDim .MZList(-1)
+                ReDim .IntensityList(-1)
+            End With
+        Else
+            Try
 
-				If strCompressionType = clsSpectrumInfoMzXML.CompressionTypes.zlib Then
-					zLibCompressed = True
-				Else
-					zLibCompressed = False
-				End If
+                If strCompressionType = clsSpectrumInfoMzXML.CompressionTypes.zlib Then
+                    zLibCompressed = True
+                Else
+                    zLibCompressed = False
+                End If
 
-				Select Case mCurrentSpectrum.NumericPrecisionOfData
-					Case 32
-						If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, sngDataArray, zLibCompressed, eEndianMode) Then
-							' sngDataArray now contains pairs of singles, either m/z and intensity or intensity and m/z
-							' Need to split this apart into two arrays
+                Select Case mCurrentSpectrum.NumericPrecisionOfData
+                    Case 32
+                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, sngDataArray, zLibCompressed, eEndianMode) Then
+                            ' sngDataArray now contains pairs of singles, either m/z and intensity or intensity and m/z
+                            ' Need to split this apart into two arrays
 
-							With mCurrentSpectrum
-								ReDim .MZList(CInt(sngDataArray.Length / 2) - 1)
-								ReDim .IntensityList(CInt(sngDataArray.Length / 2) - 1)
+                            With mCurrentSpectrum
+                                ReDim .MZList(CInt(sngDataArray.Length / 2) - 1)
+                                ReDim .IntensityList(CInt(sngDataArray.Length / 2) - 1)
 
-								If mCurrentSpectrum.PeaksPairOrder = clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ Then
-									For intIndex = 0 To sngDataArray.Length - 1 Step 2
-										.IntensityList(CInt(intIndex / 2)) = sngDataArray(intIndex)
-										.MZList(CInt(intIndex / 2)) = sngDataArray(intIndex + 1)
-									Next intIndex
-								Else
-									' Assume PairOrderTypes.MZandIntensity
-									For intIndex = 0 To sngDataArray.Length - 1 Step 2
-										.MZList(CInt(intIndex / 2)) = sngDataArray(intIndex)
-										.IntensityList(CInt(intIndex / 2)) = sngDataArray(intIndex + 1)
-									Next intIndex
-								End If
-							End With
+                                If mCurrentSpectrum.PeaksPairOrder = clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ Then
+                                    For intIndex = 0 To sngDataArray.Length - 1 Step 2
+                                        .IntensityList(CInt(intIndex / 2)) = sngDataArray(intIndex)
+                                        .MZList(CInt(intIndex / 2)) = sngDataArray(intIndex + 1)
+                                    Next intIndex
+                                Else
+                                    ' Assume PairOrderTypes.MZandIntensity
+                                    For intIndex = 0 To sngDataArray.Length - 1 Step 2
+                                        .MZList(CInt(intIndex / 2)) = sngDataArray(intIndex)
+                                        .IntensityList(CInt(intIndex / 2)) = sngDataArray(intIndex + 1)
+                                    Next intIndex
+                                End If
+                            End With
 
-							blnSuccess = True
-						End If
-					Case 64
-						If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, dblDataArray, zLibCompressed, eEndianMode) Then
-							' dblDataArray now contains pairs of doubles, either m/z and intensity or intensity and m/z
-							' Need to split this apart into two arrays
+                            blnSuccess = True
+                        End If
+                    Case 64
+                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, dblDataArray, zLibCompressed, eEndianMode) Then
+                            ' dblDataArray now contains pairs of doubles, either m/z and intensity or intensity and m/z
+                            ' Need to split this apart into two arrays
 
-							With mCurrentSpectrum
-								ReDim .MZList(CInt(dblDataArray.Length / 2) - 1)
-								ReDim .IntensityList(CInt(dblDataArray.Length / 2) - 1)
+                            With mCurrentSpectrum
+                                ReDim .MZList(CInt(dblDataArray.Length / 2) - 1)
+                                ReDim .IntensityList(CInt(dblDataArray.Length / 2) - 1)
 
-								If mCurrentSpectrum.PeaksPairOrder = clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ Then
-									For intIndex = 0 To dblDataArray.Length - 1 Step 2
-										.IntensityList(CInt(intIndex / 2)) = CSng(dblDataArray(intIndex))
-										.MZList(CInt(intIndex / 2)) = dblDataArray(intIndex + 1)
-									Next intIndex
-								Else
-									' Assume PairOrderTypes.MZandIntensity
-									For intIndex = 0 To dblDataArray.Length - 1 Step 2
-										.MZList(CInt(intIndex / 2)) = dblDataArray(intIndex)
-										.IntensityList(CInt(intIndex / 2)) = CSng(dblDataArray(intIndex + 1))
-									Next intIndex
-								End If
-							End With
+                                If mCurrentSpectrum.PeaksPairOrder = clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ Then
+                                    For intIndex = 0 To dblDataArray.Length - 1 Step 2
+                                        .IntensityList(CInt(intIndex / 2)) = CSng(dblDataArray(intIndex))
+                                        .MZList(CInt(intIndex / 2)) = dblDataArray(intIndex + 1)
+                                    Next intIndex
+                                Else
+                                    ' Assume PairOrderTypes.MZandIntensity
+                                    For intIndex = 0 To dblDataArray.Length - 1 Step 2
+                                        .MZList(CInt(intIndex / 2)) = dblDataArray(intIndex)
+                                        .IntensityList(CInt(intIndex / 2)) = CSng(dblDataArray(intIndex + 1))
+                                    Next intIndex
+                                End If
+                            End With
 
-							blnSuccess = True
-						End If
-					Case Else
-						' Invalid numeric precision
-				End Select
+                            blnSuccess = True
+                        End If
+                    Case Else
+                        ' Invalid numeric precision
+                End Select
 
-				If blnSuccess Then
-					With mCurrentSpectrum
-						If .MZList.Length <> .DataCount Then
-							If .DataCount = 0 AndAlso .MZList.Length > 0 AndAlso .MZList(0) = 0 AndAlso .IntensityList(0) = 0 Then
-								' Leave .PeaksCount at 0
-							Else
-								If .MZList.Length > 1 AndAlso .IntensityList.Length > 1 Then
-									' Check whether the last entry has a mass and intensity of 0
-									If .MZList(.MZList.Length - 1) = 0 AndAlso .IntensityList(.MZList.Length - 1) = 0 Then
-										' Remove the final entry
-										ReDim Preserve .MZList(.MZList.Length - 2)
-										ReDim Preserve .IntensityList(.IntensityList.Length - 2)
-									End If
-								End If
+                If blnSuccess Then
+                    With mCurrentSpectrum
+                        If .MZList.Length <> .DataCount Then
+                            If .DataCount = 0 AndAlso .MZList.Length > 0 AndAlso
+                               Math.Abs(.MZList(0) - 0) < Single.Epsilon AndAlso
+                               Math.Abs(.IntensityList(0) - 0) < Single.Epsilon Then
+                                ' Leave .PeaksCount at 0
+                            Else
+                                If .MZList.Length > 1 AndAlso .IntensityList.Length > 1 Then
+                                    ' Check whether the last entry has a mass and intensity of 0
+                                    If Math.Abs(.MZList(.MZList.Length - 1)) < Single.Epsilon AndAlso
+                                       Math.Abs(.IntensityList(.MZList.Length - 1)) < Single.Epsilon Then
+                                        ' Remove the final entry
+                                        ReDim Preserve .MZList(.MZList.Length - 2)
+                                        ReDim Preserve .IntensityList(.IntensityList.Length - 2)
+                                    End If
+                                End If
 
-								If .MZList.Length <> .DataCount Then
-									' This shouldn't normally be necessary
-									LogErrors("ParseBinaryData", "Unexpected condition: .MZList.Length <> .DataCount and .DataCount > 0")
-									.DataCount = .MZList.Length
-								End If
-							End If
-						End If
-					End With
-				End If
+                                If .MZList.Length <> .DataCount Then
+                                    ' This shouldn't normally be necessary
+                                    LogErrors("ParseBinaryData", "Unexpected condition: .MZList.Length <> .DataCount and .DataCount > 0")
+                                    .DataCount = .MZList.Length
+                                End If
+                            End If
+                        End If
+                    End With
+                End If
 
-			Catch ex As Exception
-				LogErrors("ParseBinaryData", ex.Message)
-			End Try
-		End If
+            Catch ex As Exception
+                LogErrors("ParseBinaryData", ex.Message)
+            End Try
+        End If
 
-		Return blnSuccess
+        Return blnSuccess
 
-	End Function
+    End Function
 
     Protected Overrides Sub ParseElementContent()
 
@@ -333,7 +335,7 @@ Public Class clsMzXMLFileReader
                         End Try
                     Case ScanSectionNames.peaks
                         If Not mSkipBinaryData Then
-							blnSuccess = ParseBinaryData(XMLTextReaderGetInnerText(), mCurrentSpectrum.CompressionType)
+                            blnSuccess = ParseBinaryData(XMLTextReaderGetInnerText(), mCurrentSpectrum.CompressionType)
                         Else
                             blnSuccess = True
                         End If
@@ -353,7 +355,7 @@ Public Class clsMzXMLFileReader
         Try
             ' If we just moved out of a scan element, then finalize the current scan
             If mXMLReader.Name = ScanSectionNames.scan Then
-                If mCurrentSpectrum.SpectrumStatus <> clsSpectrumInfo.eSpectrumStatusConstants.Initialized And _
+                If mCurrentSpectrum.SpectrumStatus <> clsSpectrumInfo.eSpectrumStatusConstants.Initialized And
                    mCurrentSpectrum.SpectrumStatus <> clsSpectrumInfo.eSpectrumStatusConstants.Validated Then
                     mCurrentSpectrum.Validate()
                     mSpectrumFound = True
@@ -380,7 +382,7 @@ Public Class clsMzXMLFileReader
     Protected Overrides Sub ParseStartElement()
         Dim strValue As String
         Dim blnAttributeMissing As Boolean
-		Dim intInstrumentID As Integer
+        Dim intInstrumentID As Integer
 
         If mAbortProcessing Then Exit Sub
         If mCurrentSpectrum Is Nothing Then Exit Sub
@@ -422,17 +424,17 @@ Public Class clsMzXMLFileReader
                             .ScanCount = 1
                             .ScanNumberEnd = .ScanNumber
 
-							.MSLevel = GetAttribValue(ScanAttributeNames.msLevel, 1)
+                            .MSLevel = GetAttribValue(ScanAttributeNames.msLevel, 1)
 
-							If GetAttribValue(ScanAttributeNames.centroided, 0) = 0 Then
-								.Centroided = False
-							Else
-								.Centroided = True
-							End If
+                            If GetAttribValue(ScanAttributeNames.centroided, 0) = 0 Then
+                                .Centroided = False
+                            Else
+                                .Centroided = True
+                            End If
 
-							intInstrumentID = GetAttribValue(ScanAttributeNames.msInstrumentID, 1)
+                            intInstrumentID = GetAttribValue(ScanAttributeNames.msInstrumentID, 1)
 
-							.DataCount = GetAttribValue(ScanAttributeNames.peaksCount, 0)
+                            .DataCount = GetAttribValue(ScanAttributeNames.peaksCount, 0)
                             .Polarity = GetAttribValue(ScanAttributeNames.polarity, "+")
                             .RetentionTimeMin = GetAttribTimeValueMinutes(ScanAttributeNames.retentionTime)
 
@@ -459,38 +461,38 @@ Public Class clsMzXMLFileReader
 
             Case ScanSectionNames.precursorMz
                 If mXMLReader.HasAttributes Then
-					mCurrentSpectrum.ParentIonIntensity = GetAttribValue(PrecursorAttributeNames.precursorIntensity, CSng(0))
+                    mCurrentSpectrum.ParentIonIntensity = GetAttribValue(PrecursorAttributeNames.precursorIntensity, CSng(0))
 
-					mCurrentSpectrum.ActivationMethod = GetAttribValue(PrecursorAttributeNames.activationMethod, String.Empty)
-					mCurrentSpectrum.ParentIonCharge = GetAttribValue(PrecursorAttributeNames.precursorCharge, 0)
-					mCurrentSpectrum.PrecursorScanNum = GetAttribValue(PrecursorAttributeNames.precursorScanNum, 0)
-					mCurrentSpectrum.IsolationWindow = GetAttribValue(PrecursorAttributeNames.windowWideness, CSng(0))
+                    mCurrentSpectrum.ActivationMethod = GetAttribValue(PrecursorAttributeNames.activationMethod, String.Empty)
+                    mCurrentSpectrum.ParentIonCharge = GetAttribValue(PrecursorAttributeNames.precursorCharge, 0)
+                    mCurrentSpectrum.PrecursorScanNum = GetAttribValue(PrecursorAttributeNames.precursorScanNum, 0)
+                    mCurrentSpectrum.IsolationWindow = GetAttribValue(PrecursorAttributeNames.windowWideness, CSng(0))
 
                 End If
 
             Case ScanSectionNames.peaks
                 If mXMLReader.HasAttributes Then
-					With mCurrentSpectrum
-						' mzXML 3.x files will have a contentType attribute
-						' Earlier versions will have a pairOrder attribute
+                    With mCurrentSpectrum
+                        ' mzXML 3.x files will have a contentType attribute
+                        ' Earlier versions will have a pairOrder attribute
 
-						.PeaksPairOrder = GetAttribValue(PeaksAttributeNames.contentType, String.Empty)
+                        .PeaksPairOrder = GetAttribValue(PeaksAttributeNames.contentType, String.Empty)
 
-						If Not String.IsNullOrEmpty(.PeaksPairOrder) Then
-							' mzXML v3.x
-							.CompressionType = GetAttribValue(PeaksAttributeNames.compressionType, clsSpectrumInfoMzXML.CompressionTypes.none)
-							.CompressedLen = GetAttribValue(PeaksAttributeNames.compressedLen, 0)
-						Else
-							' mzXML v1.x or v2.x
-							.PeaksPairOrder = GetAttribValue(PeaksAttributeNames.pairOrder, clsSpectrumInfoMzXML.PairOrderTypes.MZandIntensity)
-							.CompressionType = clsSpectrumInfoMzXML.CompressionTypes.none
-							.CompressedLen = 0
-						End If
+                        If Not String.IsNullOrEmpty(.PeaksPairOrder) Then
+                            ' mzXML v3.x
+                            .CompressionType = GetAttribValue(PeaksAttributeNames.compressionType, clsSpectrumInfoMzXML.CompressionTypes.none)
+                            .CompressedLen = GetAttribValue(PeaksAttributeNames.compressedLen, 0)
+                        Else
+                            ' mzXML v1.x or v2.x
+                            .PeaksPairOrder = GetAttribValue(PeaksAttributeNames.pairOrder, clsSpectrumInfoMzXML.PairOrderTypes.MZandIntensity)
+                            .CompressionType = clsSpectrumInfoMzXML.CompressionTypes.none
+                            .CompressedLen = 0
+                        End If
 
-						.NumericPrecisionOfData = GetAttribValue(PeaksAttributeNames.precision, 32)
-						.PeaksByteOrder = GetAttribValue(PeaksAttributeNames.byteOrder, clsSpectrumInfoMzXML.ByteOrderTypes.network)
+                        .NumericPrecisionOfData = GetAttribValue(PeaksAttributeNames.precision, 32)
+                        .PeaksByteOrder = GetAttribValue(PeaksAttributeNames.byteOrder, clsSpectrumInfoMzXML.ByteOrderTypes.network)
 
-					End With
+                    End With
                 End If
 
             Case XMLSectionNames.RootName
@@ -546,49 +548,76 @@ Public Class clsMzXMLFileReader
 
         MyBase.mSkippedStartElementAdvance = False
     End Sub
+    
+    ''' <summary>
+    ''' Updates the current XMLReader object with a new reader positioned at the XML for a new mass spectrum
+    ''' </summary>
+    ''' <param name="newReader"></param>
+    ''' <returns></returns>
+    ''' <remarks></remarks>
+    Public Function SetXMLReaderForSpectrum(newReader As XmlReader) As Boolean
 
-    Protected Sub ValidateMZXmlFileVersion(ByVal strFileVersion As String)
+        Try
+            mInputFilePath = "TextStream"
+
+            mXMLReader = newReader
+
+            mErrorMessage = String.Empty
+
+            InitializeLocalVariables()
+
+            Return True
+
+        Catch ex As Exception
+            mErrorMessage = "Error updating mXMLReader"
+            Return False
+        End Try
+
+    End Function
+
+    Private Sub ValidateMZXmlFileVersion(strFileVersion As String)
         ' This sub should be called from ParseStartElement
 
-		Dim objFileVersionRegEx As Text.RegularExpressions.Regex
-		Dim objMatch As Text.RegularExpressions.Match
-		Dim strMessage As String
+        Dim objFileVersionRegEx As Text.RegularExpressions.Regex
+        Dim objMatch As Text.RegularExpressions.Match
+        Dim strMessage As String
 
-		Try
-			mFileVersion = String.Empty
+        Try
+            mFileVersion = String.Empty
 
-			' Currently, the supported versions are mzXML_2.x and mzXML_3.x
-			objFileVersionRegEx = New Text.RegularExpressions.Regex("mzXML_[^\s""/]+", Text.RegularExpressions.RegexOptions.IgnoreCase)
+            ' Currently, the supported versions are mzXML_2.x and mzXML_3.x
+            objFileVersionRegEx = New Text.RegularExpressions.Regex("mzXML_[^\s""/]+", Text.RegularExpressions.RegexOptions.IgnoreCase)
 
-			' Validate the mzXML file version
-			If Not strFileVersion Is Nothing AndAlso strFileVersion.Length > 0 Then
-				' Parse out the version number
-				objMatch = objFileVersionRegEx.Match(strFileVersion)
-				If objMatch.Success AndAlso Not objMatch.Value Is Nothing Then
-					' Record the version
-					mFileVersion = objMatch.Value
-				End If
-			End If
+            ' Validate the mzXML file version
+            If Not strFileVersion Is Nothing AndAlso strFileVersion.Length > 0 Then
+                ' Parse out the version number
+                objMatch = objFileVersionRegEx.Match(strFileVersion)
+                If objMatch.Success AndAlso Not objMatch.Value Is Nothing Then
+                    ' Record the version
+                    mFileVersion = objMatch.Value
+                End If
+            End If
 
-			If mFileVersion.Length > 0 Then
-				If Not (mFileVersion.ToLower.IndexOf("mzxml_2") >= 0 OrElse mFileVersion.ToLower.IndexOf("mzxml_3") >= 0) Then
-					' strFileVersion contains mzXML_ but not mxXML_2 or mxXML_3
-					' Thus, assume unknown version
-					' Log error and abort if mParseFilesWithUnknownVersion = False
-					strMessage = "Unknown mzXML file version: " & mFileVersion
-					If mParseFilesWithUnknownVersion Then
-						strMessage &= "; attempting to parse since ParseFilesWithUnknownVersion = True"
-					Else
-						mAbortProcessing = True
-						strMessage &= "; aborting read"
-					End If
-					LogErrors("ValidateMZXmlFileVersion", strMessage)
-				End If
-			End If
-		Catch ex As Exception
-			LogErrors("ValidateMZXmlFileVersion", ex.Message)
-			mFileVersion = String.Empty
-		End Try
+            If mFileVersion.Length > 0 Then
+                If Not (mFileVersion.ToLower.IndexOf("mzxml_2", StringComparison.Ordinal) >= 0 OrElse
+                        mFileVersion.ToLower.IndexOf("mzxml_3", StringComparison.Ordinal) >= 0) Then
+                    ' strFileVersion contains mzXML_ but not mxXML_2 or mxXML_3
+                    ' Thus, assume unknown version
+                    ' Log error and abort if mParseFilesWithUnknownVersion = False
+                    strMessage = "Unknown mzXML file version: " & mFileVersion
+                    If mParseFilesWithUnknownVersion Then
+                        strMessage &= "; attempting to parse since ParseFilesWithUnknownVersion = True"
+                    Else
+                        mAbortProcessing = True
+                        strMessage &= "; aborting read"
+                    End If
+                    LogErrors("ValidateMZXmlFileVersion", strMessage)
+                End If
+            End If
+        Catch ex As Exception
+            LogErrors("ValidateMZXmlFileVersion", ex.Message)
+            mFileVersion = String.Empty
+        End Try
 
     End Sub
 
