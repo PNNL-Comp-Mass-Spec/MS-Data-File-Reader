@@ -9,7 +9,7 @@ Imports System.Runtime.InteropServices
 ' Started March 23, 2006
 '
 ' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
 ' Last modified September 17, 2010
@@ -78,37 +78,37 @@ Public Class clsSpectrumInfo
         Get
             Return mSpectrumID
         End Get
-        Set(ByVal Value As Integer)
+        Set(Value As Integer)
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mSpectrumID = Value
         End Set
-	End Property
+    End Property
 
     Public Property ScanNumber() As Integer
         Get
             Return mScanNumber
         End Get
-        Set(ByVal Value As Integer)
+        Set(Value As Integer)
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mScanNumber = Value
         End Set
-	End Property
+    End Property
 
     Public Property ScanCount() As Integer
         Get
             Return mScanCount
         End Get
-        Set(ByVal Value As Integer)
+        Set(Value As Integer)
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mScanCount = Value
         End Set
-	End Property
+    End Property
 
     Public Property ScanNumberEnd() As Integer
         Get
             Return mScanNumberEnd
         End Get
-        Set(ByVal Value As Integer)
+        Set(Value As Integer)
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mScanNumberEnd = Value
         End Set
@@ -118,17 +118,17 @@ Public Class clsSpectrumInfo
         Get
             Return mSpectrumType
         End Get
-        Set(ByVal Value As String)
+        Set(Value As String)
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mSpectrumType = Value
         End Set
-	End Property
+    End Property
 
     Public Property SpectrumCombinationMethod() As String
         Get
             Return mSpectrumCombinationMethod
         End Get
-        Set(ByVal Value As String)
+        Set(Value As String)
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mSpectrumCombinationMethod = Value
         End Set
@@ -138,36 +138,36 @@ Public Class clsSpectrumInfo
         Get
             Return mMSLevel
         End Get
-        Set(ByVal Value As Integer)
+        Set(Value As Integer)
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mMSLevel = Value
         End Set
-	End Property
+    End Property
 
-	Public Property Centroided() As Boolean
-		Get
-			Return mCentroided
-		End Get
-		Set(value As Boolean)
-			mCentroided = value
-		End Set
-	End Property
+    Public Property Centroided() As Boolean
+        Get
+            Return mCentroided
+        End Get
+        Set(value As Boolean)
+            mCentroided = value
+        End Set
+    End Property
 
     Public Property Polarity() As String
         Get
             Return mPolarity
         End Get
-        Set(ByVal Value As String)
+        Set(Value As String)
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mPolarity = Value
         End Set
-	End Property
+    End Property
 
     Public Property RetentionTimeMin() As Single
         Get
             Return mRetentionTimeMin
         End Get
-        Set(ByVal Value As Single)
+        Set(Value As Single)
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mRetentionTimeMin = Value
         End Set
@@ -177,17 +177,17 @@ Public Class clsSpectrumInfo
         Get
             Return mmzRangeStart
         End Get
-        Set(ByVal Value As Single)
+        Set(Value As Single)
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mmzRangeStart = Value
         End Set
-	End Property
+    End Property
 
     Public Property mzRangeEnd() As Single
         Get
             Return mmzRangeEnd
         End Get
-        Set(ByVal Value As Single)
+        Set(Value As Single)
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mmzRangeEnd = Value
         End Set
@@ -197,7 +197,7 @@ Public Class clsSpectrumInfo
         Get
             Return mBasePeakMZ
         End Get
-        Set(ByVal Value As Double)
+        Set(Value As Double)
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mBasePeakMZ = Value
         End Set
@@ -207,7 +207,7 @@ Public Class clsSpectrumInfo
         Get
             Return mBasePeakIntensity
         End Get
-        Set(ByVal Value As Single)
+        Set(Value As Single)
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mBasePeakIntensity = Value
         End Set
@@ -217,7 +217,7 @@ Public Class clsSpectrumInfo
         Get
             Return mTotalIonCurrent
         End Get
-        Set(ByVal Value As Double)
+        Set(Value As Double)
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mTotalIonCurrent = Value
         End Set
@@ -227,7 +227,7 @@ Public Class clsSpectrumInfo
         Get
             Return mParentIonMZ
         End Get
-        Set(ByVal Value As Double)
+        Set(Value As Double)
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mParentIonMZ = Value
         End Set
@@ -237,7 +237,7 @@ Public Class clsSpectrumInfo
         Get
             Return mParentIonIntensity
         End Get
-        Set(ByVal Value As Single)
+        Set(Value As Single)
             mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mParentIonIntensity = Value
         End Set
@@ -255,7 +255,7 @@ Public Class clsSpectrumInfo
         Get
             Return mAutoShrinkDataLists
         End Get
-        Set(ByVal Value As Boolean)
+        Set(Value As Boolean)
             mAutoShrinkDataLists = Value
         End Set
     End Property
@@ -277,8 +277,8 @@ Public Class clsSpectrumInfo
         mSpectrumType = SpectrumTypeNames.discrete
         mSpectrumCombinationMethod = String.Empty
 
-		mMSLevel = 1
-		mCentroided = False
+        mMSLevel = 1
+        mCentroided = False
         mPolarity = "Positive"
         mRetentionTimeMin = 0
 
@@ -309,18 +309,16 @@ Public Class clsSpectrumInfo
         mErrorMessage = String.Empty
     End Sub
 
-	Protected Function CloneMe() As Object Implements ICloneable.Clone
-		' Use the strongly typed Clone module to do the cloning
-		Return Clone()
-	End Function
+    Protected Function CloneMe() As Object Implements ICloneable.Clone
+        ' Use the strongly typed Clone module to do the cloning
+        Return Clone()
+    End Function
 
     Public Function Clone() As clsSpectrumInfo
         ' Note: Clone() functions in the derived SpectrumInfo classes Shadow this function and duplicate its code
 
-        Dim objTarget As clsSpectrumInfo
-
         ' First create a shallow copy of this object
-        objTarget = CType(Me.MemberwiseClone, clsSpectrumInfo)
+        Dim objTarget = CType(Me.MemberwiseClone, clsSpectrumInfo)
 
         ' Next, manually copy the array objects and any other objects
         ' Note: Since Clone() functions in the derived classes Shadow this function, 
@@ -346,7 +344,7 @@ Public Class clsSpectrumInfo
     End Function
 
     Public Overridable Sub CopyTo(<Out()> ByRef objTarget As clsSpectrumInfo)
-        objTarget = Me.Clone
+        objTarget = Me.Clone()
     End Sub
 
     Public Sub UpdateMZRange()
@@ -404,7 +402,7 @@ Public Class clsSpectrumInfo
 
     End Sub
 
-    Public Function LookupIonIntensityByMZ(ByVal dblMZToFind As Double, ByVal sngIntensityIfNotFound As Single, Optional ByVal sngMatchTolerance As Single = 0.05) As Single
+    Public Function LookupIonIntensityByMZ(dblMZToFind As Double, sngIntensityIfNotFound As Single, Optional ByVal sngMatchTolerance As Single = 0.05) As Single
         ' Looks for dblMZToFind in this spectrum's data
         ' If found, returns the intensity
         ' If not found, returns an intensity of sngIntensityIfNotFound
@@ -445,7 +443,7 @@ Public Class clsSpectrumInfo
 
     End Function
 
-    Public Overridable Sub Validate(ByVal blnComputeBasePeakAndTIC As Boolean, ByVal blnUpdateMZRange As Boolean)
+    Public Overridable Sub Validate(blnComputeBasePeakAndTIC As Boolean, blnUpdateMZRange As Boolean)
         If blnComputeBasePeakAndTIC Then
             Me.ComputeBasePeakAndTIC()
         End If

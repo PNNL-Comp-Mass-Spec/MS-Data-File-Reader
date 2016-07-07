@@ -9,7 +9,7 @@ Imports System.Runtime.InteropServices
 ' Started April 1, 2006
 '
 ' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
 ' Last modified September 17, 2010
@@ -100,220 +100,195 @@ Public Class clsSpectrumInfoMzXML
 		Get
 			Return mCollisionEnergy
 		End Get
-		Set(ByVal Value As Single)
-			MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
-			mCollisionEnergy = Value
-		End Set
-	End Property
+        Set(Value As Single)
+            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            mCollisionEnergy = Value
+        End Set
+    End Property
 
-	Public Property FilterLine() As String
-		Get
-			Return mFilterLine
-		End Get
-		Set(ByVal value As String)
-			MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
-			mFilterLine = value
-		End Set
-	End Property
+    Public Property FilterLine() As String
+        Get
+            Return mFilterLine
+        End Get
+        Set(value As String)
+            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            mFilterLine = value
+        End Set
+    End Property
 
-	Public Property NumericPrecisionOfData() As Integer
-		Get
-			Return mNumericPrecisionOfData
-		End Get
-		Set(ByVal Value As Integer)
-			MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
-			mNumericPrecisionOfData = Value
-		End Set
-	End Property
+    Public Property NumericPrecisionOfData() As Integer
+        Get
+            Return mNumericPrecisionOfData
+        End Get
+        Set(Value As Integer)
+            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            mNumericPrecisionOfData = Value
+        End Set
+    End Property
 
-	Public Property PeaksByteOrder() As String
-		Get
-			Return mPeaksByteOrder
-		End Get
-		Set(ByVal Value As String)
-			MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
-			mPeaksByteOrder = Value
-		End Set
-	End Property
+    Public Property PeaksByteOrder() As String
+        Get
+            Return mPeaksByteOrder
+        End Get
+        Set(Value As String)
+            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            mPeaksByteOrder = Value
+        End Set
+    End Property
 
-	Public Property PeaksPairOrder() As String
-		Get
-			Return mPeaksPairOrder
-		End Get
-		Set(ByVal Value As String)
-			MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
-			mPeaksPairOrder = Value
-		End Set
-	End Property
+    Public Property PeaksPairOrder() As String
+        Get
+            Return mPeaksPairOrder
+        End Get
+        Set(Value As String)
+            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            mPeaksPairOrder = Value
+        End Set
+    End Property
 
-	Public Property CompressionType() As String
-		Get
-			Return mCompressionType
-		End Get
-		Set(value As String)
-			mCompressionType = value
-		End Set
-	End Property
+    Public Property CompressionType() As String
+        Get
+            Return mCompressionType
+        End Get
+        Set(value As String)
+            mCompressionType = value
+        End Set
+    End Property
 
-	Public Property CompressedLen() As Integer
-		Get
-			Return mCompressedLen
-		End Get
-		Set(value As Integer)
-			mCompressedLen = value
-		End Set
-	End Property
+    Public Property CompressedLen() As Integer
+        Get
+            Return mCompressedLen
+        End Get
+        Set(value As Integer)
+            mCompressedLen = value
+        End Set
+    End Property
 
-	Public Property EndMZ() As Single
-		Get
-			Return mEndMZ
-		End Get
-		Set(ByVal value As Single)
-			MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
-			mEndMZ = value
-		End Set
-	End Property
+    Public Property EndMZ() As Single
+        Get
+            Return mEndMZ
+        End Get
+        Set(value As Single)
+            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            mEndMZ = value
+        End Set
+    End Property
 
-	Public Property IsolationWindow() As Single
-		Get
-			Return mIsolationWindow
-		End Get
-		Set(ByVal Value As Single)
-			mIsolationWindow = Value
-		End Set
-	End Property
+    Public Property IsolationWindow() As Single
+        Get
+            Return mIsolationWindow
+        End Get
+        Set(Value As Single)
+            mIsolationWindow = Value
+        End Set
+    End Property
 
-	Public Property ParentIonCharge() As Integer
-		Get
-			Return mParentIonCharge
-		End Get
-		Set(ByVal Value As Integer)
-			mParentIonCharge = Value
-		End Set
-	End Property
+    Public Property ParentIonCharge() As Integer
+        Get
+            Return mParentIonCharge
+        End Get
+        Set(Value As Integer)
+            mParentIonCharge = Value
+        End Set
+    End Property
 
-	Public Property PrecursorScanNum() As Integer
-		Get
-			Return mPrecursorScanNum
-		End Get
-		Set(ByVal Value As Integer)
-			mPrecursorScanNum = Value
-		End Set
-	End Property
+    Public Property PrecursorScanNum() As Integer
+        Get
+            Return mPrecursorScanNum
+        End Get
+        Set(Value As Integer)
+            mPrecursorScanNum = Value
+        End Set
+    End Property
 
-	Public Property StartMZ() As Single
-		Get
-			Return mStartMZ
-		End Get
-		Set(ByVal value As Single)
-			MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
-			mStartMZ = value
-		End Set
-	End Property
+    Public Property StartMZ() As Single
+        Get
+            Return mStartMZ
+        End Get
+        Set(value As Single)
+            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            mStartMZ = value
+        End Set
+    End Property
 
-	Public Property ScanType() As String
-		Get
-			Return mScanType
-		End Get
-		Set(ByVal value As String)
-			mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-			mScanType = value
-		End Set
-	End Property
+    Public Property ScanType() As String
+        Get
+            Return mScanType
+        End Get
+        Set(value As String)
+            mSpectrumStatus = eSpectrumStatusConstants.DataDefined
+            mScanType = value
+        End Set
+    End Property
 #End Region
 
-	Public Overrides Sub Clear()
-		MyBase.Clear()
+    Public Overrides Sub Clear()
+        MyBase.Clear()
 
-		mCollisionEnergy = 0
+        mCollisionEnergy = 0
 
-		mScanType = ScanTypeNames.Full
-		mFilterLine = String.Empty
-		mStartMZ = 0
-		mEndMZ = 0
+        mScanType = ScanTypeNames.Full
+        mFilterLine = String.Empty
+        mStartMZ = 0
+        mEndMZ = 0
 
-		mNumericPrecisionOfData = 32			' Assume 32-bit for now
-		mPeaksByteOrder = ByteOrderTypes.network
-		mPeaksPairOrder = PairOrderTypes.MZandIntensity
+        mNumericPrecisionOfData = 32            ' Assume 32-bit for now
+        mPeaksByteOrder = ByteOrderTypes.network
+        mPeaksPairOrder = PairOrderTypes.MZandIntensity
 
-		mCompressionType = CompressionTypes.none
-		mCompressedLen = 0
+        mCompressionType = CompressionTypes.none
+        mCompressedLen = 0
 
-		mParentIonCharge = 0
-		mActivationMethod = String.Empty
+        mParentIonCharge = 0
+        mActivationMethod = String.Empty
 
-		mIsolationWindow = 0
-		mPrecursorScanNum = 0
+        mIsolationWindow = 0
+        mPrecursorScanNum = 0
 
-	End Sub
+    End Sub
 
-	Public Shadows Function Clone() As clsSpectrumInfoMzXML
-		Dim objTarget As clsSpectrumInfoMzXML
+    Public Shadows Function Clone() As clsSpectrumInfoMzXML
 
-		objTarget = New clsSpectrumInfoMzXML
+        ' First create a shallow copy of this object
+        Dim objTarget = CType(Me.MemberwiseClone, clsSpectrumInfoMzXML)
 
-		' First create a shallow copy of this object
-		objTarget = CType(Me.MemberwiseClone, clsSpectrumInfoMzXML)
+        ' Next, manually copy the array objects and any other objects
+        With objTarget
+            ' Duplicate code from the base class
+            If Me.MZList Is Nothing Then
+                .MZList = Nothing
+            Else
+                ReDim .MZList(Me.MZList.Length - 1)
+                Me.MZList.CopyTo(.MZList, 0)
+            End If
 
-		' Next, manually copy the array objects and any other objects
-		With objTarget
-			' Duplicate code from the base class
-			If Me.MZList Is Nothing Then
-				.MZList = Nothing
-			Else
-				ReDim .MZList(Me.MZList.Length - 1)
-				Me.MZList.CopyTo(.MZList, 0)
-			End If
+            If Me.IntensityList Is Nothing Then
+                .IntensityList = Nothing
+            Else
+                ReDim .IntensityList(Me.IntensityList.Length - 1)
+                Me.IntensityList.CopyTo(.IntensityList, 0)
+            End If
+        End With
 
-			If Me.IntensityList Is Nothing Then
-				.IntensityList = Nothing
-			Else
-				ReDim .IntensityList(Me.IntensityList.Length - 1)
-				Me.IntensityList.CopyTo(.IntensityList, 0)
-			End If
-		End With
+        Return objTarget
+    End Function
 
-		Return objTarget
-	End Function
+    Public Overloads Sub CopyTo(<Out()> ByRef objTarget As clsSpectrumInfoMzXML)
+        objTarget = Me.Clone()
+    End Sub
 
-	Public Overloads Sub CopyTo(<Out()> ByRef objTarget As clsSpectrumInfoMzXML)
-		'' Note; in classes derived from clsSpectrumInfo, call MyBase.CopyTo() but do not call objTarget.Clear()
-		''Dim objTargetBase As clsSpectrumInfo
+    Public Overloads Sub Validate()
+        Me.Validate(False, False)
+    End Sub
 
+    Public Overloads Overrides Sub Validate(blnComputeBasePeakAndTIC As Boolean, blnUpdateMZRange As Boolean)
+        MyBase.Validate(blnComputeBasePeakAndTIC, blnUpdateMZRange)
 
-		''If objTarget Is Nothing Then
-		''    objTarget = New clsSpectrumInfoMzXML
-		''Else
-		''    objTarget.Clear()
-		''End If
+        If SpectrumID = 0 And ScanNumber <> 0 Then
+            SpectrumID = ScanNumber
+        End If
 
-		''objTargetBase = objTarget
-		''MyBase.CopyTo(objTargetBase)
-
-		'' Perform a deep copy of this class's members to objTarget
-		''With objTarget
-		''    .mCollisionEnergy = Me.mCollisionEnergy
-
-		''    .mNumericPrecisionOfData = Me.mNumericPrecisionOfData
-		''    .mPeaksByteOrder = Me.mPeaksByteOrder
-		''    .mPeaksPairOrder = Me.mPeaksPairOrder
-		''End With
-
-		objTarget = Me.Clone
-	End Sub
-
-	Public Overloads Sub Validate()
-		Me.Validate(False, False)
-	End Sub
-
-	Public Overloads Overrides Sub Validate(ByVal blnComputeBasePeakAndTIC As Boolean, ByVal blnUpdateMZRange As Boolean)
-		MyBase.Validate(blnComputeBasePeakAndTIC, blnUpdateMZRange)
-
-		If SpectrumID = 0 And ScanNumber <> 0 Then
-			SpectrumID = ScanNumber
-		End If
-
-		MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.Validated
-	End Sub
+        MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.Validated
+    End Sub
 
 End Class

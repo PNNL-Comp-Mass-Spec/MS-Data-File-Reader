@@ -9,7 +9,7 @@ Imports System.Runtime.InteropServices
 ' Started March 24, 2006
 '
 ' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
 ' Last modified April 4, 2006
@@ -54,7 +54,7 @@ Public Class clsSpectrumInfoMzData
         Get
             Return mCollisionEnergy
         End Get
-        Set(ByVal Value As Single)
+        Set(Value As Single)
             MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
             mCollisionEnergy = Value
         End Set
@@ -63,7 +63,7 @@ Public Class clsSpectrumInfoMzData
         Get
             Return mCollisionEnergyUnits
         End Get
-        Set(ByVal Value As String)
+        Set(Value As String)
             MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
             mCollisionEnergyUnits = Value
         End Set
@@ -72,7 +72,7 @@ Public Class clsSpectrumInfoMzData
         Get
             Return mCollisionMethod
         End Get
-        Set(ByVal Value As String)
+        Set(Value As String)
             MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
             mCollisionMethod = Value
         End Set
@@ -82,7 +82,7 @@ Public Class clsSpectrumInfoMzData
         Get
             Return mParentIonCharge
         End Get
-        Set(ByVal Value As Integer)
+        Set(Value As Integer)
             MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
             mParentIonCharge = Value
         End Set
@@ -92,7 +92,7 @@ Public Class clsSpectrumInfoMzData
         Get
             Return mParentIonSpectrumMSLevel
         End Get
-        Set(ByVal Value As Integer)
+        Set(Value As Integer)
             mParentIonSpectrumMSLevel = Value
         End Set
     End Property
@@ -100,7 +100,7 @@ Public Class clsSpectrumInfoMzData
         Get
             Return mParentIonSpectrumID
         End Get
-        Set(ByVal Value As Integer)
+        Set(Value As Integer)
             mParentIonSpectrumID = Value
         End Set
     End Property
@@ -109,7 +109,7 @@ Public Class clsSpectrumInfoMzData
         Get
             Return mScanMode
         End Get
-        Set(ByVal Value As String)
+        Set(Value As String)
             MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
             mScanMode = Value
         End Set
@@ -119,7 +119,7 @@ Public Class clsSpectrumInfoMzData
         Get
             Return mNumericPrecisionOfDataMZ
         End Get
-        Set(ByVal Value As Integer)
+        Set(Value As Integer)
             MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
             mNumericPrecisionOfDataMZ = Value
         End Set
@@ -128,7 +128,7 @@ Public Class clsSpectrumInfoMzData
         Get
             Return mPeaksEndianModeMZ
         End Get
-        Set(ByVal Value As String)
+        Set(Value As String)
             MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
             mPeaksEndianModeMZ = Value
         End Set
@@ -138,7 +138,7 @@ Public Class clsSpectrumInfoMzData
         Get
             Return mNumericPrecisionOfDataIntensity
         End Get
-        Set(ByVal Value As Integer)
+        Set(Value As Integer)
             MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
             mNumericPrecisionOfDataIntensity = Value
         End Set
@@ -147,7 +147,7 @@ Public Class clsSpectrumInfoMzData
         Get
             Return mPeaksEndianModeIntensity
         End Get
-        Set(ByVal Value As String)
+        Set(Value As String)
             MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
             mPeaksEndianModeIntensity = Value
         End Set
@@ -174,7 +174,7 @@ Public Class clsSpectrumInfoMzData
 
     End Sub
 
-    Public Function GetEndianModeValue(ByVal strEndianModeText As String) As clsBase64EncodeDecode.eEndianTypeConstants
+    Public Function GetEndianModeValue(strEndianModeText As String) As clsBase64EncodeDecode.eEndianTypeConstants
         Select Case strEndianModeText
             Case EndianModes.bigEndian
                 Return clsBase64EncodeDecode.eEndianTypeConstants.BigEndian
@@ -187,12 +187,9 @@ Public Class clsSpectrumInfoMzData
     End Function
 
     Public Shadows Function Clone() As clsSpectrumInfoMzData
-        Dim objTarget As clsSpectrumInfoMzData
-
-        objTarget = New clsSpectrumInfoMzData
 
         ' First create a shallow copy of this object
-        objTarget = CType(Me.MemberwiseClone, clsSpectrumInfoMzData)
+        Dim objTarget = CType(Me.MemberwiseClone, clsSpectrumInfoMzData)
 
         ' Next, manually copy the array objects and any other objects
         With objTarget
@@ -216,44 +213,14 @@ Public Class clsSpectrumInfoMzData
     End Function
 
     Public Overloads Sub CopyTo(<Out()> ByRef objTarget As clsSpectrumInfoMzData)
-        '' Note; in classes derived from clsSpectrumInfo, call MyBase.CopyTo() but do not call objTarget.Clear()
-        ''Dim objTargetBase As clsSpectrumInfo
-
-        ''If objTarget Is Nothing Then
-        ''    objTarget = New clsSpectrumInfoMzData
-        ''Else
-        ''    objTarget.Clear()
-        ''End If
-
-        ''objTargetBase = objTarget
-        ''MyBase.CopyTo(objTargetBase)
-
-        '' Perform a deep copy of this class's members to objTarget
-        ''With objTarget
-        ''    .mCollisionEnergy = Me.mCollisionEnergy
-        ''    .mCollisionEnergyUnits = Me.mCollisionEnergyUnits
-        ''    .mCollisionMethod = Me.mCollisionMethod
-
-        ''    .mScanMode = Me.mScanMode
-        ''    .mNumericPrecisionOfDataMZ = Me.mNumericPrecisionOfDataMZ
-        ''    .mPeaksEndianModeMZ = Me.mPeaksEndianModeMZ
-
-        ''    .mParentIonCharge = Me.mParentIonCharge
-        ''    .mParentIonSpectrumMSLevel = Me.mParentIonSpectrumMSLevel
-        ''    .mParentIonSpectrumID = Me.mParentIonSpectrumID
-
-        ''    .mNumericPrecisionOfDataIntensity = Me.mNumericPrecisionOfDataIntensity
-        ''    .mPeaksEndianModeIntensity = Me.mPeaksEndianModeIntensity
-        ''End With
-
-        objTarget = Me.Clone
+        objTarget = Me.Clone()
     End Sub
 
     Public Overloads Sub Validate()
         Me.Validate(True, False)
     End Sub
 
-    Public Overloads Overrides Sub Validate(ByVal blnComputeBasePeakAndTIC As Boolean, ByVal blnUpdateMZRange As Boolean)
+    Public Overloads Overrides Sub Validate(blnComputeBasePeakAndTIC As Boolean, blnUpdateMZRange As Boolean)
         MyBase.Validate(blnComputeBasePeakAndTIC, blnUpdateMZRange)
 
         If ScanNumber = 0 And SpectrumID <> 0 Then

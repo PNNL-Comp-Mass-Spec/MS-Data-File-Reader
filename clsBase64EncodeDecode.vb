@@ -22,7 +22,7 @@ Public Class clsBase64EncodeDecode
         BigEndian = 1
     End Enum
 
-    Private Shared Function B64encode(ByVal bytArray() As Byte, Optional ByVal removeTrailingPaddingChars As Boolean = False) As String
+    Private Shared Function B64encode(bytArray() As Byte, Optional ByVal removeTrailingPaddingChars As Boolean = False) As String
         If removeTrailingPaddingChars Then
             Return Convert.ToBase64String(bytArray).TrimEnd("="c)
         Else
@@ -30,7 +30,7 @@ Public Class clsBase64EncodeDecode
         End If
     End Function
 
-    Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, <Out()> ByRef dataArray() As Byte) As Boolean
+    Public Shared Function DecodeNumericArray(strBase64EncodedText As String, <Out()> ByRef dataArray() As Byte) As Boolean
         ' Extracts an array of Bytes from a base-64 encoded string
 
         dataArray = Convert.FromBase64String(strBase64EncodedText)
@@ -39,10 +39,10 @@ Public Class clsBase64EncodeDecode
 
     End Function
 
-    Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, <Out()> ByRef dataArray() As Int16, ByVal zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
+    Public Shared Function DecodeNumericArray(strBase64EncodedText As String, <Out()> ByRef dataArray() As Int16, zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
         ' Extracts an array of 16-bit integers from a base-64 encoded string
 
-        Const DATA_TYPE_PRECISION_BYTES As Int32 = 2
+        Const DATA_TYPE_PRECISION_BYTES = 2
         Dim bytArray() As Byte
         Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As Byte
 
@@ -87,10 +87,10 @@ Public Class clsBase64EncodeDecode
 
     End Function
 
-    Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, <Out()> ByRef dataArray() As Int32, ByVal zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
+    Public Shared Function DecodeNumericArray(strBase64EncodedText As String, <Out()> ByRef dataArray() As Int32, zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
         ' Extracts an array of 32-bit integers from a base-64 encoded string
 
-        Const DATA_TYPE_PRECISION_BYTES As Int32 = 4
+        Const DATA_TYPE_PRECISION_BYTES = 4
         Dim bytArray() As Byte
         Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As Byte
 
@@ -137,10 +137,10 @@ Public Class clsBase64EncodeDecode
 
     End Function
 
-    Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, <Out()> ByRef dataArray() As Single, ByVal zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
+    Public Shared Function DecodeNumericArray(strBase64EncodedText As String, <Out()> ByRef dataArray() As Single, zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
         ' Extracts an array of Singles from a base-64 encoded string
 
-        Const DATA_TYPE_PRECISION_BYTES As Int32 = 4
+        Const DATA_TYPE_PRECISION_BYTES = 4
         Dim bytArray() As Byte
         Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As Byte
 
@@ -187,10 +187,10 @@ Public Class clsBase64EncodeDecode
 
     End Function
 
-    Public Shared Function DecodeNumericArray(ByVal strBase64EncodedText As String, <Out()> ByRef dataArray() As Double, ByVal zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
+    Public Shared Function DecodeNumericArray(strBase64EncodedText As String, <Out()> ByRef dataArray() As Double, zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
         ' Extracts an array of Doubles from a base-64 encoded string
 
-        Const DATA_TYPE_PRECISION_BYTES As Int32 = 8
+        Const DATA_TYPE_PRECISION_BYTES = 8
         Dim bytArray() As Byte
         Dim bytArrayOneValue(DATA_TYPE_PRECISION_BYTES - 1) As Byte
 
@@ -241,19 +241,19 @@ Public Class clsBase64EncodeDecode
 
     End Function
 
-    Protected Shared Function DecompressZLib(ByVal strBase64EncodedText As String) As Byte()
+    Protected Shared Function DecompressZLib(strBase64EncodedText As String) As Byte()
 
         Dim msCompressed As IO.MemoryStream
         msCompressed = New IO.MemoryStream(Convert.FromBase64String(strBase64EncodedText))
 
-        Dim msInflated As IO.MemoryStream = New IO.MemoryStream(strBase64EncodedText.Length * 2)
+        Dim msInflated = New IO.MemoryStream(strBase64EncodedText.Length * 2)
 
         ' We must skip the first two bytes
         ' See http://george.chiramattel.com/blog/2007/09/deflatestream-block-length-does-not-match.html
         msCompressed.ReadByte()
         msCompressed.ReadByte()
 
-        Using inflater As IO.Compression.DeflateStream = New IO.Compression.DeflateStream(msCompressed, IO.Compression.CompressionMode.Decompress)
+        Using inflater = New IO.Compression.DeflateStream(msCompressed, IO.Compression.CompressionMode.Decompress)
 
             Dim bytBuffer() As Byte
             Dim intBytesRead As Integer
@@ -270,7 +270,7 @@ Public Class clsBase64EncodeDecode
         End Using
 
         Dim bytArray() As Byte
-        Dim intTotalBytesDecompressed As Integer = CInt(msInflated.Length)
+        Dim intTotalBytesDecompressed = CInt(msInflated.Length)
 
         If intTotalBytesDecompressed > 0 Then
             ReDim bytArray(intTotalBytesDecompressed - 1)
@@ -284,7 +284,7 @@ Public Class clsBase64EncodeDecode
     End Function
 
     Public Shared Function EncodeNumericArray(
-      ByVal dataArray() As Byte,
+      dataArray() As Byte,
       <Out()> ByRef intPrecisionBitsReturn As Int32,
       <Out()> ByRef strDataTypeNameReturn As String,
       Optional ByVal removeTrailingPaddingChars As Boolean = False) As String
@@ -292,8 +292,8 @@ Public Class clsBase64EncodeDecode
         ' Converts an array of Bytes to a base-64 encoded string
         ' In addition, returns the bits of precision and datatype name for the given data type
 
-        Const DATA_TYPE_PRECISION_BYTES As Int32 = 1
-        Const DATA_TYPE_NAME As String = "byte"
+        Const DATA_TYPE_PRECISION_BYTES = 1
+        Const DATA_TYPE_NAME = "byte"
 
         intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8
         strDataTypeNameReturn = DATA_TYPE_NAME
@@ -307,7 +307,7 @@ Public Class clsBase64EncodeDecode
     End Function
 
     Public Shared Function EncodeNumericArray(
-      ByVal dataArray() As Int16,
+      dataArray() As Int16,
       <Out()> ByRef intPrecisionBitsReturn As Int32,
       <Out()> ByRef strDataTypeNameReturn As String,
       Optional ByVal removeTrailingPaddingChars As Boolean = False,
@@ -316,8 +316,8 @@ Public Class clsBase64EncodeDecode
         ' Converts an array of 16-bit integers to a base-64 encoded string
         ' In addition, returns the bits of precision and datatype name for the given data type
 
-        Const DATA_TYPE_PRECISION_BYTES As Int32 = 2
-        Const DATA_TYPE_NAME As String = "int"
+        Const DATA_TYPE_PRECISION_BYTES = 2
+        Const DATA_TYPE_NAME = "int"
 
         Dim bytArray() As Byte
         Dim bytNewBytes(DATA_TYPE_PRECISION_BYTES - 1) As Byte
@@ -359,7 +359,7 @@ Public Class clsBase64EncodeDecode
     End Function
 
     Public Shared Function EncodeNumericArray(
-      ByVal dataArray() As Int32,
+      dataArray() As Int32,
       <Out()> ByRef intPrecisionBitsReturn As Int32,
       <Out()> ByRef strDataTypeNameReturn As String,
       Optional ByVal removeTrailingPaddingChars As Boolean = False,
@@ -368,8 +368,8 @@ Public Class clsBase64EncodeDecode
         ' Converts an array of 32-bit integers to a base-64 encoded string
         ' In addition, returns the bits of precision and datatype name for the given data type
 
-        Const DATA_TYPE_PRECISION_BYTES As Int32 = 4
-        Const DATA_TYPE_NAME As String = "int"
+        Const DATA_TYPE_PRECISION_BYTES = 4
+        Const DATA_TYPE_NAME = "int"
 
         Dim bytArray() As Byte
         Dim bytNewBytes(DATA_TYPE_PRECISION_BYTES - 1) As Byte
@@ -413,7 +413,7 @@ Public Class clsBase64EncodeDecode
     End Function
 
     Public Shared Function EncodeNumericArray(
-      ByVal dataArray() As Single,
+      dataArray() As Single,
       <Out()> ByRef intPrecisionBitsReturn As Int32,
       <Out()> ByRef strDataTypeNameReturn As String,
       Optional ByVal removeTrailingPaddingChars As Boolean = False,
@@ -422,8 +422,8 @@ Public Class clsBase64EncodeDecode
         ' Converts an array of singles to a base-64 encoded string
         ' In addition, returns the bits of precision and datatype name for the given data type
 
-        Const DATA_TYPE_PRECISION_BYTES As Int32 = 4
-        Const DATA_TYPE_NAME As String = "float"
+        Const DATA_TYPE_PRECISION_BYTES = 4
+        Const DATA_TYPE_NAME = "float"
 
         Dim bytArray() As Byte
         Dim bytNewBytes(DATA_TYPE_PRECISION_BYTES - 1) As Byte
@@ -467,7 +467,7 @@ Public Class clsBase64EncodeDecode
     End Function
 
     Public Shared Function EncodeNumericArray(
-      ByVal dataArray() As Double,
+      dataArray() As Double,
       <Out()> ByRef intPrecisionBitsReturn As Int32,
       <Out()> ByRef strDataTypeNameReturn As String,
       Optional ByVal removeTrailingPaddingChars As Boolean = False,
@@ -476,8 +476,8 @@ Public Class clsBase64EncodeDecode
         ' Converts an array of doubles to a base-64 encoded string
         ' In addition, returns the bits of precision and datatype name for the given data type
 
-        Const DATA_TYPE_PRECISION_BYTES As Int32 = 8
-        Const DATA_TYPE_NAME As String = "float"
+        Const DATA_TYPE_PRECISION_BYTES = 8
+        Const DATA_TYPE_NAME = "float"
 
         Dim bytArray() As Byte
         Dim bytNewBytes(DATA_TYPE_PRECISION_BYTES - 1) As Byte

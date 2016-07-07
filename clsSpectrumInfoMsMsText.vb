@@ -9,7 +9,7 @@ Imports System.Runtime.InteropServices
 ' Started March 24, 2006
 '
 ' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
 ' Last modified September 17, 2010
@@ -41,7 +41,7 @@ Public Class clsSpectrumInfoMsMsText
         Get
             Return mSpectrumTitleWithCommentChars
         End Get
-        Set(ByVal Value As String)
+        Set(Value As String)
             MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
             mSpectrumTitleWithCommentChars = Value
         End Set
@@ -51,7 +51,7 @@ Public Class clsSpectrumInfoMsMsText
         Get
             Return mSpectrumTitle
         End Get
-        Set(ByVal Value As String)
+        Set(Value As String)
             MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
             mSpectrumTitle = Value
         End Set
@@ -61,7 +61,7 @@ Public Class clsSpectrumInfoMsMsText
         Get
             Return mParentIonLineText
         End Get
-        Set(ByVal Value As String)
+        Set(Value As String)
             MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
             mParentIonLineText = Value
         End Set
@@ -71,7 +71,7 @@ Public Class clsSpectrumInfoMsMsText
         Get
             Return mParentIonMH
         End Get
-        Set(ByVal Value As Double)
+        Set(Value As Double)
             MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
             mParentIonMH = Value
         End Set
@@ -81,7 +81,7 @@ Public Class clsSpectrumInfoMsMsText
         Get
             Return mChargeIs2And3Plus
         End Get
-        Set(ByVal Value As Boolean)
+        Set(Value As Boolean)
             mChargeIs2And3Plus = Value
         End Set
     End Property
@@ -102,7 +102,7 @@ Public Class clsSpectrumInfoMsMsText
 
     End Sub
 
-    Public Sub AddOrUpdateChargeList(ByVal intNewCharge As Integer, ByVal blnAddToExistingChargeList As Boolean)
+    Public Sub AddOrUpdateChargeList(intNewCharge As Integer, blnAddToExistingChargeList As Boolean)
         ' If blnAddToExistingChargeList is True, then adds intNewCharge to ParentIonCharges()
         ' Otherwise, clears ParentIonCharges and sets ParentIonCharges(0) to intNewCharge
 
@@ -241,7 +241,7 @@ Public Class clsSpectrumInfoMsMsText
         objTarget = Me.Clone
     End Sub
 
-    Public Overrides Sub Validate(ByVal blnComputeBasePeakAndTIC As Boolean, ByVal blnUpdateMZRange As Boolean)
+    Public Overrides Sub Validate(blnComputeBasePeakAndTIC As Boolean, blnUpdateMZRange As Boolean)
         MyBase.Validate(blnComputeBasePeakAndTIC, blnUpdateMZRange)
 
         If ParentIonMZ <> 0 And ParentIonMH = 0 Then
