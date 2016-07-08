@@ -95,8 +95,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="ProgressFormNET">
-      <Name>ProgressFormNET</Name>
-      <HintPath>bin\ProgressFormNET.dll</HintPath>
+      <HintPath>Lib\ProgressFormNET.dll</HintPath>
     </Reference>
     <Reference Include="System">
       <Name>System</Name>
