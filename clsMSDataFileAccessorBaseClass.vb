@@ -4,6 +4,7 @@ Imports System.IO
 Imports System.Runtime.InteropServices
 Imports System.Text
 Imports System.Text.RegularExpressions
+
 ' This class can be used to open an MS Data file (currently .mzXML and .mzData) and 
 ' index the location of all of the spectra present.  This does not cache the mass spectra
 ' data in memory, and therefore uses little memory, but once the indexing is complete, 

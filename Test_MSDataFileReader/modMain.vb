@@ -10,7 +10,6 @@ Option Strict On
 ' E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com
 ' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/ or http://panomics.pnnl.gov/
 ' -------------------------------------------------------------------------------
-'
 
 Imports System.IO
 Imports System.Reflection
@@ -29,23 +28,23 @@ Module modMain
             Dim maxScansToAccess As Integer
 
             If True Then
-                maxScansToAccess = 500
+                maxScansToAccess = 5000
             End If
 
-            'TestDTATextReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Indexed, maxScansToAccess)
-            'TestDTATextReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached, maxScansToAccess)
-            'TestDTATextReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential, maxScansToAccess)
+            TestDTATextReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Indexed, maxScansToAccess)
+            TestDTATextReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached, maxScansToAccess)
+            TestDTATextReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential, maxScansToAccess)
 
-            'TestMGFReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached, maxScansToAccess)
-            'TestMGFReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential, maxScansToAccess)
+            TestMGFReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached, maxScansToAccess)
+            TestMGFReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential, maxScansToAccess)
 
-            'TestMZXmlReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached, maxScansToAccess)
-            'TestMZXmlReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential, maxScansToAccess)
+            TestMZXmlReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached, maxScansToAccess)
+            TestMZXmlReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential, maxScansToAccess)
             TestMZXmlReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Indexed, maxScansToAccess)
 
-            'TestMZDataReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached, maxScansToAccess)
-            'TestMZDataReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential, maxScansToAccess)
-            'TestMZDataReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Indexed, maxScansToAccess)
+            TestMZDataReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Cached, maxScansToAccess)
+            TestMZDataReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential, maxScansToAccess)
+            TestMZDataReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Indexed, maxScansToAccess)
 
             'TestBinaryTextReader("SampleData_QC_Standards_Excerpt.mzXML")
             'TestBinaryTextReader("Unicode_SampleData_myo_excerpt_1.05cv.mzdata")

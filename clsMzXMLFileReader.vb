@@ -13,7 +13,6 @@ Imports System.Xml
 ' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
 ' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
-'
 
 Public Class clsMzXMLFileReader
     Inherits clsMSXMLFileReaderBaseClass

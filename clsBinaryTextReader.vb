@@ -2,6 +2,7 @@ Option Strict On
 
 Imports System.IO
 Imports System.Text
+
 ' This class can be used to open a Text file and read each of the lines from the file,
 '  where a line of text ends with CRLF or simply LF
 ' In addition, the byte offset at the start and end of the line is also returned

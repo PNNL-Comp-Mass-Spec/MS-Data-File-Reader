@@ -5,6 +5,7 @@ Imports System.Runtime.InteropServices
 Imports System.Text
 Imports System.Text.RegularExpressions
 Imports System.Xml
+
 ' This class can be used to open a .mzXML file and index the location
 ' of all of the spectra present.  This does not cache the mass spectra data in
 ' memory, and therefore uses little memory, but once the indexing is complete, 
@@ -32,7 +33,6 @@ Imports System.Xml
 ' WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
 ' SOFTWARE.  This notice including this sentence must appear on any copies of
 ' this computer software.
-'
 
 Public Class clsMzXMLFileAccessor
     Inherits clsMSDataFileAccessorBaseClass
@@ -422,12 +422,11 @@ Public Class clsMzXMLFileAccessor
             If mXmlFileHeader Is Nothing Then mXmlFileHeader = String.Empty
             strHeaderText = String.Copy(mXmlFileHeader)
 
-            strStartTimeSOAP =
-                clsMSXMLFileReaderBaseClass.ConvertTimeFromTimespanToXmlDuration(
-                    New TimeSpan(CLng(sngStartTimeMinutesAllScans * TimeSpan.TicksPerMinute)), True)
-            strEndTimeSOAP =
-                clsMSXMLFileReaderBaseClass.ConvertTimeFromTimespanToXmlDuration(
-                    New TimeSpan(CLng(sngEndTimeMinutesAllScans * TimeSpan.TicksPerMinute)), True)
+            strStartTimeSOAP = clsMSXMLFileReaderBaseClass.ConvertTimeFromTimespanToXmlDuration(
+                New TimeSpan(CLng(sngStartTimeMinutesAllScans * TimeSpan.TicksPerMinute)), True)
+
+            strEndTimeSOAP = clsMSXMLFileReaderBaseClass.ConvertTimeFromTimespanToXmlDuration(
+                New TimeSpan(CLng(sngEndTimeMinutesAllScans * TimeSpan.TicksPerMinute)), True)
 
             If strHeaderText.Length = 0 Then
                 strHeaderText = "<?xml version=""1.0"" encoding=""ISO-8859-1""?>" & ControlChars.NewLine &
@@ -464,7 +463,6 @@ Public Class clsMzXMLFileAccessor
                                     "endTime=""" & strEndTimeSOAP & """" &
                                     strHeaderText.Substring(objMatch.Index + objMatch.Value.Length)
                 End If
-
 
             End If
 
@@ -519,7 +517,7 @@ Public Class clsMzXMLFileAccessor
 
                     If Not String.IsNullOrWhiteSpace(mXmlFileReader.FileVersion) Then
                         mFileVersion = mXmlFileReader.FileVersion
-                    ElseIf String.IsNullOrWhiteSpace(mFileVersion) And Not String.IsNullOrWhiteSpace(mXmlFileHeader) Then
+                    ElseIf String.IsNullOrWhiteSpace(mFileVersion) AndAlso Not String.IsNullOrWhiteSpace(mXmlFileHeader) Then
                         If Not clsMzXMLFileReader.ExtractMzXmlFileVersion(mXmlFileHeader, mFileVersion) Then
                             LogErrors("ValidateMZXmlFileVersion",
                                       "Unknown mzXML file version; expected text not found in mXmlFileHeader")
@@ -735,8 +733,6 @@ Public Class clsMzXMLFileAccessor
                             End If
                         Loop
 
-                        ' ToDo: Delete this call since it changes the scan count from a big number to 1 in the header; this is no longer needed
-                        UpdateXmlFileHeaderScanCount(mXmlFileHeader)
                     Else
                         ' Index not loaded (or not valid)
 

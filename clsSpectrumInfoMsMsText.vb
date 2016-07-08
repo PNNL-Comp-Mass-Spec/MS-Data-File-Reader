@@ -11,7 +11,6 @@ Imports System.Runtime.InteropServices
 ' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
 ' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
-'
 
 <Serializable()>
 Public Class clsSpectrumInfoMsMsText

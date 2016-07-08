@@ -2,6 +2,7 @@ Option Strict On
 
 Imports System.Runtime.InteropServices
 Imports System.Xml
+
 ' This class uses a SAX Parser to read an mzData file
 '
 ' -------------------------------------------------------------------------------

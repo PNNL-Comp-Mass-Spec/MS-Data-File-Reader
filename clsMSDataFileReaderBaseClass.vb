@@ -2,7 +2,7 @@ Option Strict On
 
 Imports System.IO
 Imports System.Runtime.InteropServices
-Imports System.Runtime.Serialization.Formatters
+
 ' This is the base class for the various MS data file readres
 '
 ' -------------------------------------------------------------------------------
