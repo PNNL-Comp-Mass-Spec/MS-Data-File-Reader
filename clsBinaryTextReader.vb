@@ -39,10 +39,8 @@ Imports System.Text
 ' SOFTWARE.  This notice including this sentence must appear on any copies of
 ' this computer software.
 '
-' Last modified April 29, 2006
 
 Public Class clsBinaryTextReader
-
     Public Sub New()
         ' Note: This property will also update mLineTerminator1Code and mLineTerminator2Code
         Me.FileSystemMode = FileSystemModeConstants.Windows
@@ -79,12 +77,15 @@ Public Class clsBinaryTextReader
         Forward = 0
         Reverse = 1
     End Enum
+
 #End Region
 
 #Region "Structures"
+
 #End Region
 
 #Region "Classwide Variables"
+
     Protected mInputFilePath As String
 
     Protected mInputFileEncoding As InputFileEncodingConstants = InputFileEncodingConstants.Ascii
@@ -120,19 +121,23 @@ Public Class clsBinaryTextReader
     Protected mCurrentLineTextSaved As String
 
     Protected mCurrentLineTerminator As String
+
 #End Region
 
 #Region "Processing Options and Interface Functions"
+
     Public ReadOnly Property ByteBufferFileOffsetStart() As Long
         Get
             Return mByteBufferFileOffsetStart
         End Get
     End Property
+
     Public ReadOnly Property ByteOrderMarkLength() As Byte
         Get
             Return mByteOrderMarkLength
         End Get
     End Property
+
     Public ReadOnly Property CharSize() As Byte
         Get
             Return mCharSize
@@ -148,6 +153,7 @@ Public Class clsBinaryTextReader
             End If
         End Get
     End Property
+
     Public ReadOnly Property CurrentLineLength() As Integer
         Get
             If mCurrentLineText Is Nothing Then
@@ -157,21 +163,25 @@ Public Class clsBinaryTextReader
             End If
         End Get
     End Property
+
     Public ReadOnly Property CurrentLineByteOffsetStart() As Long
         Get
             Return mCurrentLineByteOffsetStart
         End Get
     End Property
+
     Public ReadOnly Property CurrentLineByteOffsetEnd() As Long
         Get
             Return mCurrentLineByteOffsetEnd
         End Get
     End Property
+
     Public ReadOnly Property CurrentLineByteOffsetEndWithTerminator() As Long
         Get
             Return mCurrentLineByteOffsetEndWithTerminator
         End Get
     End Property
+
     Public ReadOnly Property CurrentLineTerminator() As String
         Get
             If mCurrentLineTerminator Is Nothing Then
@@ -210,7 +220,8 @@ Public Class clsBinaryTextReader
             mFileSystemMode = Value
             Select Case mFileSystemMode
                 Case FileSystemModeConstants.Windows, FileSystemModeConstants.Unix
-                    mLineTerminator1Code = LINE_TERMINATOR_CODE_CR      ' Normally present for Windows; normally not present for Unix
+                    ' Normally present for Windows; normally not present for Unix
+                    mLineTerminator1Code = LINE_TERMINATOR_CODE_CR
                     mLineTerminator2Code = LINE_TERMINATOR_CODE_LF
                 Case FileSystemModeConstants.Macintosh
                     mLineTerminator1Code = 0
@@ -239,6 +250,7 @@ Public Class clsBinaryTextReader
             SetInputFileEncoding(Value)
         End Set
     End Property
+
 #End Region
 
     Public Function ByteAtBOF(lngBytePosition As Long) As Boolean
@@ -256,7 +268,6 @@ Public Class clsBinaryTextReader
         Else
             Return False
         End If
-
     End Function
 
     Public Sub Close()
@@ -321,8 +332,8 @@ Public Class clsBinaryTextReader
             End If
 
             If Not LastCallingFunction Is Nothing Then
-                If LastCallingFunction = strCallingFunction AndAlso _
-                LastErrorMessage = strErrorDescription Then
+                If LastCallingFunction = strCallingFunction AndAlso
+                   LastErrorMessage = strErrorDescription Then
                     If DateTime.UtcNow.Subtract(LastSaveTime).TotalSeconds < 0.5 Then
                         ' Duplicate message, less than 500 milliseconds since the last save
                         ' Do not update the log file
@@ -339,8 +350,8 @@ Public Class clsBinaryTextReader
             Using swErrorLog = New StreamWriter(New FileStream(strLogFilePath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
 
                 swErrorLog.WriteLine(DateTime.Now & ControlChars.Tab &
-                                  strCallingFunction & ControlChars.Tab &
-                                  mErrorMessage)
+                                     strCallingFunction & ControlChars.Tab &
+                                     mErrorMessage)
 
             End Using
 
@@ -422,9 +433,10 @@ Public Class clsBinaryTextReader
 
         Catch ex As Exception
             If mInputFilePath Is Nothing Then mInputFilePath = String.Empty
-            LogErrors("MoveToByteOffset", "Error moving to byte offset " & lngByteOffset.ToString & " in file " & mInputFilePath & "; " & ex.Message)
+            LogErrors("MoveToByteOffset",
+                      "Error moving to byte offset " & lngByteOffset.ToString & " in file " & mInputFilePath & "; " &
+                      ex.Message)
         End Try
-
     End Sub
 
     Public Sub MoveToBeginning()
@@ -518,7 +530,6 @@ Public Class clsBinaryTextReader
             If mInputFilePath Is Nothing Then mInputFilePath = String.Empty
             LogErrors("MoveToBeginning", "Error moving to beginning of file " & mInputFilePath & "; " & ex.Message)
         End Try
-
     End Sub
 
     Public Sub MoveToEnd()
@@ -667,8 +678,8 @@ Public Class clsBinaryTextReader
                     intIndexMinimum = mCharSize - 1                     ' This is only used when searching backward
                     intIndexMaximum = mByteBufferCount - mCharSize      ' This is only used when searching forward
 
-                    If eDirection = ReadDirectionConstants.Reverse AndAlso _
-                       mLineTerminator1Code <> 0 AndAlso _
+                    If eDirection = ReadDirectionConstants.Reverse AndAlso
+                       mLineTerminator1Code <> 0 AndAlso
                        mByteBufferFileOffsetStart > 0 Then
                         ' We're looking for a two-character line terminator (though the 
                         '  presence of mLineTerminator1Code is not required)
@@ -682,7 +693,7 @@ Public Class clsBinaryTextReader
                     intTerminatorCheckCountValueZero = 0
                     blnStartIndexShifted = False
 
-                    If (eDirection = ReadDirectionConstants.Reverse AndAlso intIndex >= intIndexMinimum) OrElse _
+                    If (eDirection = ReadDirectionConstants.Reverse AndAlso intIndex >= intIndexMinimum) OrElse
                        (eDirection = ReadDirectionConstants.Forward AndAlso intIndex <= intIndexMaximum) Then
                         Do
                             Select Case mInputFileEncoding
@@ -694,7 +705,8 @@ Public Class clsBinaryTextReader
                                     End If
                                 Case InputFileEncodingConstants.UnicodeNormal
                                     ' Look for the LF symbol followed by a byte with value 0 in mByteBuffer
-                                    If mByteBuffer(intIndex) = mLineTerminator2Code AndAlso mByteBuffer(intIndex + 1) = 0 Then
+                                    If mByteBuffer(intIndex) = mLineTerminator2Code AndAlso
+                                       mByteBuffer(intIndex + 1) = 0 Then
                                         blnTerminatorFound = True
                                         Exit Do
                                     ElseIf mByteBuffer(intIndex) = 0 Then
@@ -704,7 +716,8 @@ Public Class clsBinaryTextReader
 
                                 Case InputFileEncodingConstants.UnicodeBigEndian
                                     ' Unicode (Big Endian) encoding; Assure mCharSize = 2
-                                    If mByteBuffer(intIndex) = 0 AndAlso mByteBuffer(intIndex + 1) = mLineTerminator2Code Then
+                                    If mByteBuffer(intIndex) = 0 AndAlso
+                                       mByteBuffer(intIndex + 1) = mLineTerminator2Code Then
                                         blnTerminatorFound = True
                                         Exit Do
                                     ElseIf mByteBuffer(intIndex + 1) = 0 Then
@@ -738,8 +751,8 @@ Public Class clsBinaryTextReader
                             dblValueZeroFraction = 0
                         End If
 
-                        If mCharSize > 1 AndAlso _
-                           intStartIndexShiftCount < mCharSize - 1 AndAlso _
+                        If mCharSize > 1 AndAlso
+                           intStartIndexShiftCount < mCharSize - 1 AndAlso
                            dblValueZeroFraction >= 0.95 Then
 
                             ' mByteBufferNextLineStartIndex is most likely off by 1
@@ -802,11 +815,13 @@ Public Class clsBinaryTextReader
                         Select Case mInputFileEncoding
                             Case InputFileEncodingConstants.Ascii, InputFileEncodingConstants.UTF8
                                 ' Ascii encoding
-                                If mLineTerminator1Code <> 0 AndAlso _
-                                   intMatchingTextIndexEnd - mCharSize >= 0 AndAlso _
+                                If mLineTerminator1Code <> 0 AndAlso
+                                   intMatchingTextIndexEnd - mCharSize >= 0 AndAlso
                                    mByteBuffer(intMatchingTextIndexEnd - mCharSize) = mLineTerminator1Code Then
                                     intLineTerminatorLength = 2
-                                    mCurrentLineTerminator = Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd - mCharSize)) & Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd))
+                                    mCurrentLineTerminator =
+                                        Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd - mCharSize)) &
+                                        Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd))
                                 ElseIf mByteBuffer(intMatchingTextIndexEnd) = mLineTerminator2Code Then
                                     intLineTerminatorLength = 1
                                     mCurrentLineTerminator = Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd))
@@ -816,30 +831,37 @@ Public Class clsBinaryTextReader
                                     mCurrentLineTerminator = String.Empty
                                 End If
 
-                                intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart - mCharSize * (intLineTerminatorLength - 1)
+                                intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart -
+                                                 mCharSize * (intLineTerminatorLength - 1)
                                 If intBytesToRead <= 0 Then
                                     ' Blank line
                                     mCurrentLineText = String.Empty
                                 Else
                                     If mInputFileEncoding = InputFileEncodingConstants.UTF8 Then
                                         ' Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
-                                        mCurrentLineText = Convert.ToString(Encoding.UTF8.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead))
+                                        mCurrentLineText = Convert.ToString(Encoding.UTF8.GetChars(mByteBuffer,
+                                                                                                   intMatchingTextIndexStart,
+                                                                                                   intBytesToRead))
                                     Else
                                         ' Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
-                                        mCurrentLineText = Convert.ToString(Encoding.ASCII.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead))
+                                        mCurrentLineText = Convert.ToString(Encoding.ASCII.GetChars(mByteBuffer,
+                                                                                                    intMatchingTextIndexStart,
+                                                                                                    intBytesToRead))
                                     End If
                                 End If
 
                             Case InputFileEncodingConstants.UnicodeNormal
                                 ' Unicode (Little Endian) encoding
-                                If mLineTerminator1Code <> 0 AndAlso _
-                                   intMatchingTextIndexEnd - mCharSize >= 0 AndAlso _
-                                   mByteBuffer(intMatchingTextIndexEnd - mCharSize) = mLineTerminator1Code AndAlso _
+                                If mLineTerminator1Code <> 0 AndAlso
+                                   intMatchingTextIndexEnd - mCharSize >= 0 AndAlso
+                                   mByteBuffer(intMatchingTextIndexEnd - mCharSize) = mLineTerminator1Code AndAlso
                                    mByteBuffer(intMatchingTextIndexEnd - mCharSize + 1) = 0 Then
                                     intLineTerminatorLength = 2
-                                    mCurrentLineTerminator = Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd - mCharSize)) & Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd))
-                                ElseIf mByteBuffer(intMatchingTextIndexEnd) = mLineTerminator2Code AndAlso _
-                                       intMatchingTextIndexEnd + 1 < mByteBufferCount AndAlso _
+                                    mCurrentLineTerminator =
+                                        Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd - mCharSize)) &
+                                        Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd))
+                                ElseIf mByteBuffer(intMatchingTextIndexEnd) = mLineTerminator2Code AndAlso
+                                       intMatchingTextIndexEnd + 1 < mByteBufferCount AndAlso
                                        mByteBuffer(intMatchingTextIndexEnd + 1) = 0 Then
                                     intLineTerminatorLength = 1
                                     mCurrentLineTerminator = Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd))
@@ -850,24 +872,29 @@ Public Class clsBinaryTextReader
                                 End If
 
                                 ' Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
-                                intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart - mCharSize * (intLineTerminatorLength - 1)
+                                intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart -
+                                                 mCharSize * (intLineTerminatorLength - 1)
                                 If intBytesToRead <= 0 Then
                                     ' Blank line
                                     mCurrentLineText = String.Empty
                                 Else
-                                    mCurrentLineText = Convert.ToString(Encoding.Unicode.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead))
+                                    mCurrentLineText = Convert.ToString(Encoding.Unicode.GetChars(mByteBuffer,
+                                                                                                  intMatchingTextIndexStart,
+                                                                                                  intBytesToRead))
                                 End If
 
                             Case InputFileEncodingConstants.UnicodeBigEndian
                                 ' Unicode (Big Endian) encoding
-                                If mLineTerminator1Code <> 0 AndAlso _
-                                   intMatchingTextIndexEnd - mCharSize >= 0 AndAlso _
-                                   mByteBuffer(intMatchingTextIndexEnd - mCharSize) = 0 AndAlso _
+                                If mLineTerminator1Code <> 0 AndAlso
+                                   intMatchingTextIndexEnd - mCharSize >= 0 AndAlso
+                                   mByteBuffer(intMatchingTextIndexEnd - mCharSize) = 0 AndAlso
                                    mByteBuffer(intMatchingTextIndexEnd - mCharSize + 1) = mLineTerminator1Code Then
                                     intLineTerminatorLength = 2
-                                    mCurrentLineTerminator = Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd - mCharSize + 1)) & Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd + 1))
-                                ElseIf mByteBuffer(intMatchingTextIndexEnd) = 0 AndAlso _
-                                       intMatchingTextIndexEnd + 1 < mByteBufferCount AndAlso _
+                                    mCurrentLineTerminator =
+                                        Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd - mCharSize + 1)) &
+                                        Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd + 1))
+                                ElseIf mByteBuffer(intMatchingTextIndexEnd) = 0 AndAlso
+                                       intMatchingTextIndexEnd + 1 < mByteBufferCount AndAlso
                                        mByteBuffer(intMatchingTextIndexEnd + 1) = mLineTerminator2Code Then
                                     intLineTerminatorLength = 1
                                     mCurrentLineTerminator = Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd + 1))
@@ -878,12 +905,15 @@ Public Class clsBinaryTextReader
                                 End If
 
                                 ' Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
-                                intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart - mCharSize * (intLineTerminatorLength - 1)
+                                intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart -
+                                                 mCharSize * (intLineTerminatorLength - 1)
                                 If intBytesToRead <= 0 Then
                                     ' Blank line
                                     mCurrentLineText = String.Empty
                                 Else
-                                    mCurrentLineText = Convert.ToString(Encoding.BigEndianUnicode.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead))
+                                    mCurrentLineText = Convert.ToString(Encoding.BigEndianUnicode.GetChars(mByteBuffer,
+                                                                                                           intMatchingTextIndexStart,
+                                                                                                           intBytesToRead))
                                 End If
 
                             Case Else
@@ -900,7 +930,8 @@ Public Class clsBinaryTextReader
                         mCurrentLineByteOffsetStart = mByteBufferFileOffsetStart + intMatchingTextIndexStart
                         mCurrentLineByteOffsetEndWithTerminator = mByteBufferFileOffsetStart + intMatchingTextIndexEnd
 
-                        mCurrentLineByteOffsetEnd = mByteBufferFileOffsetStart + intMatchingTextIndexEnd - intLineTerminatorLength * mCharSize
+                        mCurrentLineByteOffsetEnd = mByteBufferFileOffsetStart + intMatchingTextIndexEnd -
+                                                    intLineTerminatorLength * mCharSize
                         If mCurrentLineByteOffsetEnd < mCurrentLineByteOffsetStart Then
                             ' Zero-length line
                             mCurrentLineByteOffsetEnd = mCurrentLineByteOffsetStart
@@ -971,7 +1002,8 @@ Public Class clsBinaryTextReader
                                 End If
                             End If
 
-                            intBytesRead = mBinaryReader.Read(mByteBuffer, intSearchIndexStartOffset, mByteBuffer.Length - intSearchIndexStartOffset)
+                            intBytesRead = mBinaryReader.Read(mByteBuffer, intSearchIndexStartOffset,
+                                                              mByteBuffer.Length - intSearchIndexStartOffset)
                             If intBytesRead = 0 Then
                                 ' No data could be read; exit the loop
                                 Exit Do
@@ -985,7 +1017,8 @@ Public Class clsBinaryTextReader
                                 Exit Do
                             End If
 
-                            If mByteBufferCount >= mByteBuffer.Length And mByteBufferNextLineStartIndex >= mByteBuffer.Length Then
+                            If mByteBufferCount >= mByteBuffer.Length And
+                               mByteBufferNextLineStartIndex >= mByteBuffer.Length Then
                                 ' The byte buffer is full and mByteBufferNextLineStartIndex is past the end of the buffer
                                 ' Need to double its size, shift the data from the first half to the second half, and
                                 '  populate the first half
@@ -1066,5 +1099,4 @@ Public Class clsBinaryTextReader
                 mCharSize = 1
         End Select
     End Sub
-
 End Class

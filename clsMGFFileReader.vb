@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified February 16, 2012
+
 Imports System.Collections.Generic
 Imports System.IO
 Imports System.Runtime.InteropServices
@@ -35,6 +35,7 @@ Public Class clsMGFFileReader
     Protected Const LINE_START_PEPMASS As String = "PEPMASS="
     Protected Const LINE_START_CHARGE As String = "CHARGE="
     Protected Const LINE_START_TITLE As String = "TITLE="
+
 #End Region
 
 #Region "Classwide Variables"
@@ -285,7 +286,8 @@ Public Class clsMGFFileReader
                                                     ' We didn't find a scan number in a ### MSMS: comment line
                                                     ' Attempt to extract out the scan numbers from the Title
                                                     With mCurrentSpectrum
-                                                        MyBase.ExtractScanInfoFromDtaHeader(strLineIn, .ScanNumber, .ScanNumberEnd, .ScanCount)
+                                                        MyBase.ExtractScanInfoFromDtaHeader(strLineIn, .ScanNumber,
+                                                                                            .ScanNumberEnd, .ScanCount)
                                                     End With
                                                 End If
                                             ElseIf strLineIn.ToUpper.StartsWith(LINE_START_END_IONS) Then
@@ -352,7 +354,9 @@ Public Class clsMGFFileReader
                                     Else
                                         With mCurrentSpectrum
                                             Try
-                                                .DataCount = MyBase.ParseMsMsDataList(mCurrentMsMsDataList, .MZList, .IntensityList, .AutoShrinkDataLists)
+                                                .DataCount = MyBase.ParseMsMsDataList(mCurrentMsMsDataList, .MZList,
+                                                                                      .IntensityList,
+                                                                                      .AutoShrinkDataLists)
 
                                                 .Validate(blnComputeBasePeakAndTIC:=True, blnUpdateMZRange:=True)
 
@@ -378,7 +382,8 @@ Public Class clsMGFFileReader
                         Dim objStreamReader = TryCast(mFileReader, StreamReader)
 
                         If Not objStreamReader Is Nothing Then
-                            MyBase.UpdateProgress((objStreamReader.BaseStream.Position / objStreamReader.BaseStream.Length * 100.0))
+                            MyBase.UpdateProgress(
+                                (objStreamReader.BaseStream.Position / objStreamReader.BaseStream.Length * 100.0))
                         ElseIf mInFileStreamLength > 0 Then
                             MyBase.UpdateProgress(mTotalBytesRead / mInFileStreamLength * 100.0)
                         End If
@@ -398,7 +403,5 @@ Public Class clsMGFFileReader
         End Try
 
         Return blnSpectrumFound
-
     End Function
-
 End Class

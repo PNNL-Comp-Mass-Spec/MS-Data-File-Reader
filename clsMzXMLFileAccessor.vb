@@ -51,6 +51,7 @@ Public Class clsMzXMLFileAccessor
     End Sub
 
 #Region "Constants and Enums"
+
     Private Const MSRUN_START_ELEMENT As String = "<msRun"
     Private Const MSRUN_END_ELEMENT As String = "</msRun>"
 
@@ -72,9 +73,11 @@ Public Class clsMzXMLFileAccessor
 
     Private Const OFFSET_ELEMENT_NAME As String = "offset"
     Private Const OFFSET_ATTRIBUTE_ID As String = "id"
+
 #End Region
 
 #Region "Classwide Variables"
+
     Private mXmlFileReader As clsMzXMLFileReader
 
     Private mCurrentSpectrumInfo As clsSpectrumInfoMzXML
@@ -93,9 +96,11 @@ Public Class clsMzXMLFileAccessor
     Private mScanNumberRegEx As Regex
 
     Private mXMLReaderSettings As XmlReaderSettings
+
 #End Region
 
 #Region "Processing Options and Interface Functions"
+
     Public Property IgnoreEmbeddedIndex() As Boolean
         Get
             Return mIgnoreEmbeddedIndex
@@ -116,6 +121,7 @@ Public Class clsMzXMLFileAccessor
             End If
         End Set
     End Property
+
 #End Region
 
     Protected Overrides Function AdvanceFileReaders(eElementMatchMode As emmElementMatchModeConstants) As Boolean
@@ -145,14 +151,16 @@ Public Class clsMzXMLFileAccessor
                 If mInFileCurrentCharIndex + 1 < mInFileCurrentLineText.Length Then
 
                     If blnAppendingText Then
-                        strInFileCurrentLineSubstring &= ControlChars.NewLine & mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1)
+                        strInFileCurrentLineSubstring &= ControlChars.NewLine &
+                                                         mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1)
                     Else
                         strInFileCurrentLineSubstring = mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1)
                     End If
 
                     If mAddNewLinesToHeader Then
                         ' We haven't yet found the first scan; look for "<scan"
-                        intCharIndex = mInFileCurrentLineText.IndexOf(SCAN_START_ELEMENT, mInFileCurrentCharIndex + 1, StringComparison.Ordinal)
+                        intCharIndex = mInFileCurrentLineText.IndexOf(SCAN_START_ELEMENT, mInFileCurrentCharIndex + 1,
+                                                                      StringComparison.Ordinal)
 
                         If intCharIndex >= 0 Then
                             ' Only add a portion of mInFileCurrentLineText to mXmlFileHeader
@@ -197,7 +205,8 @@ Public Class clsMzXMLFileAccessor
                             objMatch = mPeaksEndElementRegEx.Match(strInFileCurrentLineSubstring)
                         Case Else
                             ' Unknown mode
-                            LogErrors("AdvanceFileReaders", "Unknown mode for eElementMatchMode: " & eElementMatchMode.ToString)
+                            LogErrors("AdvanceFileReaders",
+                                      "Unknown mode for eElementMatchMode: " & eElementMatchMode.ToString)
                             Return False
                     End Select
 
@@ -236,7 +245,8 @@ Public Class clsMzXMLFileAccessor
                             intCharIndex += objMatch.Value.Length - 1
                             If intCharIndex >= mInFileCurrentLineText.Length Then
                                 ' This shouldn't happen
-                                LogErrors("AdvanceFileReaders", "Unexpected condition: intCharIndex >= mInFileCurrentLineText.Length")
+                                LogErrors("AdvanceFileReaders",
+                                          "Unexpected condition: intCharIndex >= mInFileCurrentLineText.Length")
                                 intCharIndex = mInFileCurrentLineText.Length - 1
                             End If
                         End If
@@ -269,7 +279,6 @@ Public Class clsMzXMLFileAccessor
         End Try
 
         Return blnMatchFound
-
     End Function
 
     Private Function ExtractIndexOffsetFromTextStream(strTextStream As String) As Long
@@ -341,11 +350,11 @@ Public Class clsMzXMLFileAccessor
         End Try
 
         Return lngIndexOffset
-
     End Function
 
     <Obsolete("No longer used")>
-    Protected Overrides Function ExtractTextBetweenOffsets(strFilePath As String, lngStartByteOffset As Long, lngEndByteOffset As Long) As String
+    Protected Overrides Function ExtractTextBetweenOffsets(strFilePath As String, lngStartByteOffset As Long,
+                                                           lngEndByteOffset As Long) As String
         Dim strExtractedText As String
 
         Dim intMatchIndex As Integer
@@ -365,8 +374,9 @@ Public Class clsMzXMLFileAccessor
                 intMatchIndex = strExtractedText.IndexOf(SCAN_END_ELEMENT, intMatchIndex, StringComparison.Ordinal)
                 If intMatchIndex >= 0 Then
                     ' Replace all but the first occurrence of </scan> with ""
-                    strExtractedText = strExtractedText.Substring(0, intMatchIndex + 1) & _
-                                       strExtractedText.Substring(intMatchIndex + 1).Replace(SCAN_END_ELEMENT, String.Empty)
+                    strExtractedText = strExtractedText.Substring(0, intMatchIndex + 1) &
+                                       strExtractedText.Substring(intMatchIndex + 1).Replace(SCAN_END_ELEMENT,
+                                                                                             String.Empty)
                 Else
                     blnAddScanEndElement = True
                 End If
@@ -396,7 +406,8 @@ Public Class clsMzXMLFileAccessor
     End Function
 
     <Obsolete("No longer used")>
-    Public Overrides Function GetSourceXMLHeader(intScanCountTotal As Integer, sngStartTimeMinutesAllScans As Single, sngEndTimeMinutesAllScans As Single) As String
+    Public Overrides Function GetSourceXMLHeader(intScanCountTotal As Integer, sngStartTimeMinutesAllScans As Single,
+                                                 sngEndTimeMinutesAllScans As Single) As String
         Dim strHeaderText As String
         Dim intAsciiValue As Integer
 
@@ -411,19 +422,24 @@ Public Class clsMzXMLFileAccessor
             If mXmlFileHeader Is Nothing Then mXmlFileHeader = String.Empty
             strHeaderText = String.Copy(mXmlFileHeader)
 
-            strStartTimeSOAP = clsMSXMLFileReaderBaseClass.ConvertTimeFromTimespanToXmlDuration(New TimeSpan(CLng(sngStartTimeMinutesAllScans * TimeSpan.TicksPerMinute)), True)
-            strEndTimeSOAP = clsMSXMLFileReaderBaseClass.ConvertTimeFromTimespanToXmlDuration(New TimeSpan(CLng(sngEndTimeMinutesAllScans * TimeSpan.TicksPerMinute)), True)
+            strStartTimeSOAP =
+                clsMSXMLFileReaderBaseClass.ConvertTimeFromTimespanToXmlDuration(
+                    New TimeSpan(CLng(sngStartTimeMinutesAllScans * TimeSpan.TicksPerMinute)), True)
+            strEndTimeSOAP =
+                clsMSXMLFileReaderBaseClass.ConvertTimeFromTimespanToXmlDuration(
+                    New TimeSpan(CLng(sngEndTimeMinutesAllScans * TimeSpan.TicksPerMinute)), True)
 
             If strHeaderText.Length = 0 Then
-                strHeaderText = "<?xml version=""1.0"" encoding=""ISO-8859-1""?>" & ControlChars.NewLine & _
-                    MZXML_START_ELEMENT & _
-                    " xmlns=""http://sashimi.sourceforge.net/schema_revision/mzXML_2.0""" & _
-                    " xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""" & _
-                    " xsi:schemaLocation=""http://sashimi.sourceforge.net/schema_revision/mzXML_2.0" & _
-                    " http://sashimi.sourceforge.net/schema_revision/mzXML_2.0/mzXML_idx_2.0.xsd"">" & ControlChars.NewLine & _
-                    MSRUN_START_ELEMENT & " scanCount=""" & intScanCountTotal.ToString & """" & _
-                    " startTime = """ & strStartTimeSOAP & """" & _
-                    " endTime = """ & strEndTimeSOAP & """>" & ControlChars.NewLine
+                strHeaderText = "<?xml version=""1.0"" encoding=""ISO-8859-1""?>" & ControlChars.NewLine &
+                                MZXML_START_ELEMENT &
+                                " xmlns=""http://sashimi.sourceforge.net/schema_revision/mzXML_2.0""" &
+                                " xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance""" &
+                                " xsi:schemaLocation=""http://sashimi.sourceforge.net/schema_revision/mzXML_2.0" &
+                                " http://sashimi.sourceforge.net/schema_revision/mzXML_2.0/mzXML_idx_2.0.xsd"">" &
+                                ControlChars.NewLine &
+                                MSRUN_START_ELEMENT & " scanCount=""" & intScanCountTotal.ToString & """" &
+                                " startTime = """ & strStartTimeSOAP & """" &
+                                " endTime = """ & strEndTimeSOAP & """>" & ControlChars.NewLine
             Else
                 ' Replace ScanCount, StartTime, and EndTime values with intScanCountTotal, sngStartTimeMinutesAllScans, and sngEndTimeMinutesAllScans
 
@@ -435,8 +451,8 @@ Public Class clsMzXMLFileAccessor
                 objMatch = reStartTime.Match(strHeaderText)
                 If objMatch.Success Then
                     ' Replace the start time with strStartTimeSOAP
-                    strHeaderText = strHeaderText.Substring(0, objMatch.Index) & _
-                                    "startTime=""" & strStartTimeSOAP & """" & _
+                    strHeaderText = strHeaderText.Substring(0, objMatch.Index) &
+                                    "startTime=""" & strStartTimeSOAP & """" &
                                     strHeaderText.Substring(objMatch.Index + objMatch.Value.Length)
                 End If
 
@@ -444,8 +460,8 @@ Public Class clsMzXMLFileAccessor
                 objMatch = reEndTime.Match(strHeaderText)
                 If objMatch.Success Then
                     ' Replace the start time with strEndTimeSOAP
-                    strHeaderText = strHeaderText.Substring(0, objMatch.Index) & _
-                                    "endTime=""" & strEndTimeSOAP & """" & _
+                    strHeaderText = strHeaderText.Substring(0, objMatch.Index) &
+                                    "endTime=""" & strEndTimeSOAP & """" &
                                     strHeaderText.Substring(objMatch.Index + objMatch.Value.Length)
                 End If
 
@@ -464,13 +480,12 @@ Public Class clsMzXMLFileAccessor
 
 
         Return strHeaderText
-
     End Function
 
     Protected Overrides Function GetSpectrumByIndexWork(
-      intSpectrumIndex As Integer,
-      <Out()> ByRef objCurrentSpectrumInfo As clsSpectrumInfo,
-      blnHeaderInfoOnly As Boolean) As Boolean
+                                                        intSpectrumIndex As Integer,
+                                                        <Out()> ByRef objCurrentSpectrumInfo As clsSpectrumInfo,
+                                                        blnHeaderInfoOnly As Boolean) As Boolean
 
         Dim blnSuccess As Boolean
         objCurrentSpectrumInfo = Nothing
@@ -506,7 +521,8 @@ Public Class clsMzXMLFileAccessor
                         mFileVersion = mXmlFileReader.FileVersion
                     ElseIf String.IsNullOrWhiteSpace(mFileVersion) And Not String.IsNullOrWhiteSpace(mXmlFileHeader) Then
                         If Not clsMzXMLFileReader.ExtractMzXmlFileVersion(mXmlFileHeader, mFileVersion) Then
-                            LogErrors("ValidateMZXmlFileVersion", "Unknown mzXML file version; expected text not found in mXmlFileHeader")
+                            LogErrors("ValidateMZXmlFileVersion",
+                                      "Unknown mzXML file version; expected text not found in mXmlFileHeader")
                         End If
                     End If
 
@@ -519,7 +535,6 @@ Public Class clsMzXMLFileAccessor
         End Try
 
         Return blnSuccess
-
     End Function
 
     Protected Overrides Sub InitializeLocalVariables()
@@ -590,15 +605,20 @@ Public Class clsMzXMLFileAccessor
                     ' Parse out the number between <indexOffset> and </indexOffset> 
                     ' (normally on the same line, though this code can handle white space between the tags)
 
-                    lngByteOffsetSaved = mBinaryTextReader.CurrentLineByteOffsetStart + intCharIndex * mBinaryTextReader.CharSize
+                    lngByteOffsetSaved = mBinaryTextReader.CurrentLineByteOffsetStart +
+                                         intCharIndex * mBinaryTextReader.CharSize
 
-                    intCharIndexEnd = strCurrentLine.IndexOf(INDEX_OFFSET_END_ELEMENT, intCharIndex + INDEX_OFFSET_START_ELEMENT.Length, StringComparison.Ordinal)
+                    intCharIndexEnd = strCurrentLine.IndexOf(INDEX_OFFSET_END_ELEMENT,
+                                                             intCharIndex + INDEX_OFFSET_START_ELEMENT.Length,
+                                                             StringComparison.Ordinal)
                     If intCharIndexEnd <= 0 Then
                         ' Need to read the next few lines to find </indexOffset>
                         mBinaryTextReader.MoveToByteOffset(mBinaryTextReader.CurrentLineByteOffsetEndWithTerminator + 1)
                         Do While mBinaryTextReader.ReadLine(clsBinaryTextReader.ReadDirectionConstants.Forward)
                             strCurrentLine &= " " & mBinaryTextReader.CurrentLine
-                            intCharIndexEnd = strCurrentLine.IndexOf(INDEX_OFFSET_END_ELEMENT, intCharIndex + INDEX_OFFSET_START_ELEMENT.Length, StringComparison.Ordinal)
+                            intCharIndexEnd = strCurrentLine.IndexOf(INDEX_OFFSET_END_ELEMENT,
+                                                                     intCharIndex + INDEX_OFFSET_START_ELEMENT.Length,
+                                                                     StringComparison.Ordinal)
                             If intCharIndexEnd > 0 Then
                                 Exit Do
                             End If
@@ -668,12 +688,18 @@ Public Class clsMzXMLFileAccessor
 
                         If mIndexedSpectrumInfoCount > 0 Then
                             ' Set up the default error message
-                            mErrorMessage = "Index embedded in the input file (" & Path.GetFileName(mInputFilePath) & ") is corrupt: first byte offset (" & mIndexedSpectrumInfo(0).ByteOffsetStart.ToString & ") does not point to a " & SCAN_START_ELEMENT & " element"
+                            mErrorMessage = "Index embedded in the input file (" & Path.GetFileName(mInputFilePath) &
+                                            ") is corrupt: first byte offset (" &
+                                            mIndexedSpectrumInfo(0).ByteOffsetStart.ToString & ") does not point to a " &
+                                            SCAN_START_ELEMENT & " element"
 
-                            strExtractedText = MyBase.ExtractTextBetweenOffsets(mInputFilePath, mIndexedSpectrumInfo(0).ByteOffsetStart, mIndexedSpectrumInfo(0).ByteOffsetEnd)
+                            strExtractedText = MyBase.ExtractTextBetweenOffsets(mInputFilePath,
+                                                                                mIndexedSpectrumInfo(0).ByteOffsetStart,
+                                                                                mIndexedSpectrumInfo(0).ByteOffsetEnd)
                             If Not strExtractedText Is Nothing AndAlso strExtractedText.Length > 0 Then
                                 ' Make sure the first text in strExtractedText is <scan
-                                intStartElementIndex = strExtractedText.IndexOf(SCAN_START_ELEMENT, StringComparison.Ordinal)
+                                intStartElementIndex = strExtractedText.IndexOf(SCAN_START_ELEMENT,
+                                                                                StringComparison.Ordinal)
 
                                 If intStartElementIndex >= 0 Then
                                     intFirstBracketIndex = strExtractedText.IndexOf("<"c)
@@ -735,7 +761,6 @@ Public Class clsMzXMLFileAccessor
         End Try
 
         Return blnIndexLoaded
-
     End Function
 
     Protected Overrides Sub LogErrors(strCallingFunction As String, strErrorDescription As String)
@@ -765,8 +790,8 @@ Public Class clsMzXMLFileAccessor
 
                 Dim blnReadSuccessful = True
                 Do While blnReadSuccessful AndAlso
-                    (objXMLReader.ReadState = ReadState.Initial Or
-                    objXMLReader.ReadState = ReadState.Interactive)
+                         (objXMLReader.ReadState = ReadState.Initial Or
+                          objXMLReader.ReadState = ReadState.Interactive)
 
                     blnReadSuccessful = objXMLReader.Read()
 
@@ -826,7 +851,8 @@ Public Class clsMzXMLFileAccessor
 
                                         If lngPreviousScanByteOffsetStart >= 0 AndAlso intCurrentScanNumber >= 0 Then
                                             ' Store the previous scan info
-                                            StoreIndexEntry(intPreviousScanNumber, lngPreviousScanByteOffsetStart, lngCurrentScanByteOffsetStart - 1)
+                                            StoreIndexEntry(intPreviousScanNumber, lngPreviousScanByteOffsetStart,
+                                                            lngCurrentScanByteOffsetStart - 1)
                                         End If
                                     Catch ex As Exception
                                         ' Index is corrupted (or of an unknown format); do not continue parsing
@@ -847,7 +873,6 @@ Public Class clsMzXMLFileAccessor
         End Try
 
         Return blnIndexLoaded
-
     End Function
 
     Public Overrides Function ReadAndCacheEntireFile() As Boolean
@@ -895,7 +920,6 @@ Public Class clsMzXMLFileAccessor
         End Try
 
         Return blnSuccess
-
     End Function
 
     Private Function ReadMZXmlFile() As Boolean
@@ -928,15 +952,18 @@ Public Class clsMzXMLFileAccessor
                         lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart
                         LogErrors("ReadMZXmlFile", "Unexpected condition: mInFileCurrentCharIndex < 0")
                     Else
-                        lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex * mCharSize
+                        lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart +
+                                                            mInFileCurrentCharIndex * mCharSize
                     End If
 
                     blnSpectrumFound = AdvanceFileReaders(emmElementMatchModeConstants.EndElement)
                     If blnSpectrumFound Then
                         If mCharSize > 1 Then
-                            lngCurrentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex * mCharSize + (mCharSize - 1)
+                            lngCurrentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart +
+                                                              mInFileCurrentCharIndex * mCharSize + (mCharSize - 1)
                         Else
-                            lngCurrentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex
+                            lngCurrentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart +
+                                                              mInFileCurrentCharIndex
                         End If
                     End If
                 End If
@@ -944,15 +971,18 @@ Public Class clsMzXMLFileAccessor
                 If blnSpectrumFound Then
                     ' Make sure mAddNewLinesToHeader is now false
                     If mAddNewLinesToHeader Then
-                        LogErrors("ReadMZXmlFile", "Unexpected condition: mAddNewLinesToHeader was True; changing to False")
+                        LogErrors("ReadMZXmlFile",
+                                  "Unexpected condition: mAddNewLinesToHeader was True; changing to False")
                         mAddNewLinesToHeader = False
                     End If
 
-                    StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, lngCurrentSpectrumByteOffsetStart, lngCurrentSpectrumByteOffsetEnd)
+                    StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, lngCurrentSpectrumByteOffsetStart,
+                                    lngCurrentSpectrumByteOffsetEnd)
 
                     ' Update the progress
                     If mBinaryTextReader.FileLengthBytes > 0 Then
-                        UpdateProgress(mBinaryTextReader.CurrentLineByteOffsetEnd / CDbl(mBinaryTextReader.FileLengthBytes) * 100)
+                        UpdateProgress(
+                            mBinaryTextReader.CurrentLineByteOffsetEnd / CDbl(mBinaryTextReader.FileLengthBytes) * 100)
                     End If
 
                     If mAbortProcessing Then
@@ -970,7 +1000,6 @@ Public Class clsMzXMLFileAccessor
         End Try
 
         Return blnSuccess
-
     End Function
 
     Private Sub StoreFinalIndexEntry(intScanNumber As Integer, lngByteOffsetStart As Long)
@@ -986,14 +1015,14 @@ Public Class clsMzXMLFileAccessor
         Do While mBinaryTextReader.ReadLine(clsBinaryTextReader.ReadDirectionConstants.Forward)
             strCurrentLine = mBinaryTextReader.CurrentLine
 
-            intMatchIndex = strCurrentLine.IndexOf(PEAKS_END_ELEMENT)
+            intMatchIndex = strCurrentLine.IndexOf(PEAKS_END_ELEMENT, StringComparison.Ordinal)
             If intMatchIndex >= 0 Then
-                lngByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + (intMatchIndex + PEAKS_END_ELEMENT.Length) * mBinaryTextReader.CharSize - 1
+                lngByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart +
+                                   (intMatchIndex + PEAKS_END_ELEMENT.Length) * mBinaryTextReader.CharSize - 1
                 StoreIndexEntry(intScanNumber, lngByteOffsetStart, lngByteOffsetEnd)
                 Exit Do
             End If
         Loop
-
     End Sub
 
     Private Sub UpdateXmlFileHeaderScanCount(ByRef strHeaderText As String)
@@ -1012,8 +1041,8 @@ Public Class clsMzXMLFileAccessor
                 ' Replace the scan count value with intScanCountTotal
                 If objMatch.Groups.Count > 1 Then
                     Try
-                        strHeaderText = strHeaderText.Substring(0, objMatch.Groups(1).Index) & _
-                                        intScanCountTotal.ToString & _
+                        strHeaderText = strHeaderText.Substring(0, objMatch.Groups(1).Index) &
+                                        intScanCountTotal.ToString &
                                         strHeaderText.Substring(objMatch.Groups(1).Index + objMatch.Groups(1).Length)
 
                     Catch ex As Exception
@@ -1022,5 +1051,4 @@ Public Class clsMzXMLFileAccessor
             End If
         End If
     End Sub
-
 End Class

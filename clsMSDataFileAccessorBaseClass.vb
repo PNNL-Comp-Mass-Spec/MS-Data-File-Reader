@@ -32,7 +32,6 @@ Imports System.Text.RegularExpressions
 ' SOFTWARE.  This notice including this sentence must appear on any copies of
 ' this computer software.
 '
-' Last modified May 23, 2006
 
 Public MustInherit Class clsMSDataFileAccessorBaseClass
     Inherits clsMSDataFileReaderBaseClass
@@ -49,28 +48,36 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
         Catch ex As Exception
             ' Ignore errors here
         End Try
-
     End Sub
 
 #Region "Constants and Enums"
+
     Protected Const INITIAL_SCAN_RESERVE_COUNT As Integer = 1000
 
     Protected Enum emmElementMatchModeConstants
         StartElement = 0
         EndElement = 1
     End Enum
+
 #End Region
 
 #Region "Structures"
+
     Protected Structure udtIndexedSpectrumInfoType
         Public ScanNumber As Integer
         Public SpectrumID As Integer        ' Only used by mzData files
         Public ByteOffsetStart As Long
         Public ByteOffsetEnd As Long
+
+        Public Overrides Function ToString() As String
+            Return "Scan " & ScanNumber & ", bytes " & ByteOffsetStart & " to " & ByteOffsetEnd
+        End Function
     End Structure
+
 #End Region
 
 #Region "Classwide Variables"
+
     Protected mInputFileEncoding As clsBinaryTextReader.InputFileEncodingConstants
     Protected mCharSize As Byte
     Protected mIndexingComplete As Boolean
@@ -90,9 +97,11 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
     ' These variables are used when mDataReaderMode = Indexed
     Protected mIndexedSpectrumInfoCount As Integer
     Protected mIndexedSpectrumInfo() As udtIndexedSpectrumInfoType
+
 #End Region
 
 #Region "Processing Options and Interface Functions"
+
     Public Overrides ReadOnly Property CachedSpectrumCount() As Integer
         Get
             If mDataReaderMode = drmDataReaderModeConstants.Cached Then
@@ -102,6 +111,7 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
             End If
         End Get
     End Property
+
 #End Region
 
     Protected MustOverride Function AdvanceFileReaders(eElementMatchMode As emmElementMatchModeConstants) As Boolean
@@ -120,7 +130,6 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
 
         mInputFilePath = String.Empty
         mReadingAndStoringSpectra = False
-
     End Sub
 
     ''' <summary>
@@ -131,7 +140,8 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
     ''' <param name="lngEndByteOffset"></param>
     ''' <returns></returns>
     ''' <remarks></remarks>
-    Protected Overridable Function ExtractTextBetweenOffsets(strFilePath As String, lngStartByteOffset As Long, lngEndByteOffset As Long) As String
+    Protected Overridable Function ExtractTextBetweenOffsets(strFilePath As String, lngStartByteOffset As Long,
+                                                             lngEndByteOffset As Long) As String
 
         Dim bytData() As Byte
         Dim intBytesToRead As Integer
@@ -168,7 +178,6 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
 
         ' If we get here, then no match was found, so return an empty string
         Return String.Empty
-
     End Function
 
     ''' <summary>
@@ -186,20 +195,22 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
     ''' <remarks>Note that sngStartTimeMinutesAllScans and sngEndTimeMinutesAllScans are really only appropriate for mzXML files</remarks>
     <Obsolete("Superseded by wrapping mBinaryReader with an XmlTextReader; see GetSpectrumByIndexWork")>
     Protected Function ExtractTextFromFile(
-      strFilePath As String,
-      lngStartByteOffset As Long,
-      lngEndByteOffset As Long,
-      <Out()> ByRef strExtractedText As String,
-      intScanCountTotal As Integer,
-      sngStartTimeMinutesAllScans As Single,
-      sngEndTimeMinutesAllScans As Single) As Boolean
+                                           strFilePath As String,
+                                           lngStartByteOffset As Long,
+                                           lngEndByteOffset As Long,
+                                           <Out()> ByRef strExtractedText As String,
+                                           intScanCountTotal As Integer,
+                                           sngStartTimeMinutesAllScans As Single,
+                                           sngEndTimeMinutesAllScans As Single) As Boolean
 
         Dim blnSuccess As Boolean
 
         Try
-            strExtractedText = GetSourceXMLHeader(intScanCountTotal, sngStartTimeMinutesAllScans, sngEndTimeMinutesAllScans) & ControlChars.NewLine &
-                               ExtractTextBetweenOffsets(strFilePath, lngStartByteOffset, lngEndByteOffset) & ControlChars.NewLine &
-                               GetSourceXMLFooter()
+            strExtractedText =
+                GetSourceXMLHeader(intScanCountTotal, sngStartTimeMinutesAllScans, sngEndTimeMinutesAllScans) &
+                ControlChars.NewLine &
+                ExtractTextBetweenOffsets(strFilePath, lngStartByteOffset, lngEndByteOffset) & ControlChars.NewLine &
+                GetSourceXMLFooter()
 
             blnSuccess = True
         Catch ex As Exception
@@ -208,7 +219,6 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
         End Try
 
         Return blnSuccess
-
     End Function
 
     Protected Overrides Function GetInputFileLocation() As String
@@ -216,7 +226,8 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
             If mBinaryTextReader Is Nothing Then
                 Return String.Empty
             Else
-                Return "Line " & mBinaryTextReader.LineNumber & ", Byte Offset " & mBinaryTextReader.CurrentLineByteOffsetStart
+                Return "Line " & mBinaryTextReader.LineNumber &
+                       ", Byte Offset " & mBinaryTextReader.CurrentLineByteOffsetStart
             End If
         Catch ex As Exception
             ' Ignore errors here
@@ -255,12 +266,12 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
         End Try
 
         Return blnSuccess
-
     End Function
 
     Public MustOverride Function GetSourceXMLFooter() As String
 
-    Public MustOverride Function GetSourceXMLHeader(intScanCountTotal As Integer, sngStartTimeMinutesAllScans As Single, sngEndTimeMinutesAllScans As Single) As String
+    Public MustOverride Function GetSourceXMLHeader(intScanCountTotal As Integer, sngStartTimeMinutesAllScans As Single,
+                                                    sngEndTimeMinutesAllScans As Single) As String
 
     Public Function GetSourceXMLByIndex(intSpectrumIndex As Integer, <Out()> ByRef strSourceXML As String) As Boolean
         ' Returns the XML for the given spectrum
@@ -281,7 +292,9 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
 
                     ElseIf intSpectrumIndex >= 0 And intSpectrumIndex < mIndexedSpectrumInfoCount Then
                         ' Move the binary file reader to .ByteOffsetStart and populate strXMLText with the text for the given spectrum
-                        strSourceXML = ExtractTextBetweenOffsets(mInputFilePath, mIndexedSpectrumInfo(intSpectrumIndex).ByteOffsetStart, mIndexedSpectrumInfo(intSpectrumIndex).ByteOffsetEnd)
+                        strSourceXML = ExtractTextBetweenOffsets(mInputFilePath,
+                                                                 mIndexedSpectrumInfo(intSpectrumIndex).ByteOffsetStart,
+                                                                 mIndexedSpectrumInfo(intSpectrumIndex).ByteOffsetEnd)
                         If String.IsNullOrWhiteSpace(strSourceXML) Then
                             blnSuccess = False
                         Else
@@ -300,7 +313,6 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
         End Try
 
         Return blnSuccess
-
     End Function
 
     Public Function GetSourceXMLByScanNumber(intScanNumber As Integer, <Out()> ByRef strSourceXML As String) As Boolean
@@ -344,10 +356,10 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
         End Try
 
         Return blnSuccess
-
     End Function
 
-    Public Overrides Function GetSpectrumByIndex(intSpectrumIndex As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+    Public Overrides Function GetSpectrumByIndex(intSpectrumIndex As Integer,
+                                                 <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
         ' Returns True if success, False if failure
         ' Only valid if we have Cached or Indexed data in memory
 
@@ -369,16 +381,22 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
         End Try
 
         Return blnSuccess
-
     End Function
 
-    Protected MustOverride Function GetSpectrumByIndexWork(intSpectrumIndex As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo, blnHeaderInfoOnly As Boolean) As Boolean
+    Protected MustOverride Function GetSpectrumByIndexWork(intSpectrumIndex As Integer,
+                                                           <Out()> ByRef objSpectrumInfo As clsSpectrumInfo,
+                                                           blnHeaderInfoOnly As Boolean) As Boolean
 
-    Public Overrides Function GetSpectrumByScanNumber(intScanNumber As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+    Public Overrides Function GetSpectrumByScanNumber(intScanNumber As Integer,
+                                                      <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
         Return GetSpectrumByScanNumberWork(intScanNumber, objSpectrumInfo, False)
     End Function
 
-    Protected Function GetSpectrumByScanNumberWork(intScanNumber As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo, blnHeaderInfoOnly As Boolean) As Boolean
+    Protected Function GetSpectrumByScanNumberWork(
+      intScanNumber As Integer,
+      <Out()> ByRef objSpectrumInfo As clsSpectrumInfo,
+      blnHeaderInfoOnly As Boolean) As Boolean
+
         ' Return the data for scan intScanNumber in mIndexedSpectrumInfo
         ' Returns True if success, False if failure
         ' Only valid if we have Cached or Indexed data in memory
@@ -421,14 +439,15 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
         End Try
 
         Return blnSuccess
-
     End Function
 
-    Public Function GetSpectrumHeaderInfoByIndex(intSpectrumIndex As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+    Public Function GetSpectrumHeaderInfoByIndex(intSpectrumIndex As Integer,
+                                                 <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
         Return GetSpectrumByIndexWork(intSpectrumIndex, objSpectrumInfo, True)
     End Function
 
-    Public Function GetSpectrumHeaderInfoByScanNumber(intScanNumber As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+    Public Function GetSpectrumHeaderInfoByScanNumber(intScanNumber As Integer,
+                                                      <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
         Return GetSpectrumByScanNumberWork(intScanNumber, objSpectrumInfo, True)
     End Function
 
@@ -449,7 +468,6 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
         End If
 
         Return blnReady
-
     End Function
 
     Protected Sub InitializeFileTrackingVariables()
@@ -481,12 +499,11 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
         mInputFileEncoding = clsBinaryTextReader.InputFileEncodingConstants.Ascii
         mCharSize = 1
         mIndexingComplete = False
-
     End Sub
 
     Protected Function InitializeRegEx(strPattern As String) As Regex
-        Return New Regex(strPattern, RegexOptions.Compiled Or _
-                                                                    RegexOptions.IgnoreCase)
+        Return New Regex(strPattern, RegexOptions.Compiled Or
+                                     RegexOptions.IgnoreCase)
     End Function
 
     ' This function should be defined to look for an existing byte offset index and, if found,
@@ -517,13 +534,13 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
             mBinaryTextReader = New clsBinaryTextReader
 
             blnSuccess = False
-            If mBinaryTextReader.OpenFile(mInputFilePath, FileShare.Read) Then
+            If mBinaryTextReader.OpenFile(mInputFilePath, FileShare.ReadWrite) Then
                 mInputFileEncoding = mBinaryTextReader.InputFileEncoding
                 mCharSize = mBinaryTextReader.CharSize
                 blnSuccess = True
 
                 ' Initialize the binary reader (which is used to extract individual spectra from the XML file)
-                mBinaryReader = New FileStream(mInputFilePath, FileMode.Open, FileAccess.Read, FileShare.Read)
+                mBinaryReader = New FileStream(mInputFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite)
 
                 ' Look for a byte offset index, present either inside the .XML file (e.g. .mzXML)
                 '  or in a separate file (future capability)
@@ -532,8 +549,8 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
                     mIndexingComplete = True
                 End If
 
-                If mBinaryTextReader.ByteBufferFileOffsetStart > 0 OrElse _
-                       mBinaryTextReader.CurrentLineByteOffsetStart > mBinaryTextReader.ByteOrderMarkLength Then
+                If mBinaryTextReader.ByteBufferFileOffsetStart > 0 OrElse
+                   mBinaryTextReader.CurrentLineByteOffsetStart > mBinaryTextReader.ByteOrderMarkLength Then
                     mBinaryTextReader.MoveToBeginning()
                 End If
 
@@ -546,7 +563,6 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
         End Try
 
         Return blnSuccess
-
     End Function
 
     ''' <summary>
@@ -573,7 +589,6 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
         End If
 
         Return blnSuccess
-
     End Function
 
     Public Overrides Function ReadNextSpectrum(<Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
@@ -609,7 +624,5 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
 
         ' Increment mIndexedSpectrumInfoCount
         mIndexedSpectrumInfoCount += 1
-
     End Sub
-
 End Class

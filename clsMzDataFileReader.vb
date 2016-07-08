@@ -13,7 +13,6 @@ Imports System.Xml
 ' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified September 17, 2010
 
 Public Class clsMzDataFileReader
     Inherits clsMSXMLFileReaderBaseClass
@@ -66,6 +65,7 @@ Public Class clsMzDataFileReader
         Public Const accessionNumber As String = "accessionNumber"
         Public Const xmlns_xsi As String = "xmlns:xsi"
     End Class
+
     Private Class SpectrumListAttributeNames
         Public Const count As String = "count"
     End Class
@@ -100,13 +100,13 @@ Public Class clsMzDataFileReader
         Public Const ScanMode As String = "ScanMode"
         Public Const Polarity As String = "Polarity"
         Public Const TimeInMinutes As String = "TimeInMinutes"
-
     End Class
 
     Private Class PrecursorAttributeNames
         Public Const msLevel As String = "msLevel"
         Public Const spectrumRef As String = "spectrumRef"
     End Class
+
     Private Class PrecursorIonSelectionCVParamNames
         Public Const MassToChargeRatio As String = "MassToChargeRatio"
         Public Const ChargeState As String = "ChargeState"
@@ -144,6 +144,7 @@ Public Class clsMzDataFileReader
         SpectrumDataArrayMZ = 14
         SpectrumDataArrayIntensity = 15
     End Enum
+
 #End Region
 
 #Region "Structures"
@@ -158,6 +159,7 @@ Public Class clsMzDataFileReader
 #End Region
 
 #Region "Classwide Variables"
+
     Private mCurrentXMLDataFileSection As eCurrentMZDataFileSectionConstants
 
     Private mCurrentSpectrum As clsSpectrumInfoMzData
@@ -166,6 +168,7 @@ Public Class clsMzDataFileReader
     Private mMostRecentSurveyScanSpectra As Queue
 
     Private mInputFileStatsAddnl As udtFileStatsAddnlType
+
 #End Region
 
 #Region "Processing Options and Interface Functions"
@@ -187,11 +190,13 @@ Public Class clsMzDataFileReader
             Return mInputFileStatsAddnl.IsDeisotoped
         End Get
     End Property
+
     Public ReadOnly Property HasChargeDeconvolution() As Boolean
         Get
             Return mInputFileStatsAddnl.HasChargeDeconvolution
         End Get
     End Property
+
 #End Region
 
     Private Function FindIonIntensityInRecentSpectra(intSpectrumIDToFind As Integer, dblMZToFind As Double) As Single
@@ -212,7 +217,6 @@ Public Class clsMzDataFileReader
         End If
 
         Return sngIntensityMatch
-
     End Function
 
     Protected Overrides Function GetCurrentSpectrum() As clsSpectrumInfo
@@ -235,7 +239,6 @@ Public Class clsMzDataFileReader
         strValue = String.Empty
 
         Return False
-
     End Function
 
     Protected Overrides Sub InitializeCurrentSpectrum(blnAutoShrinkDataLists As Boolean)
@@ -292,7 +295,9 @@ Public Class clsMzDataFileReader
         Return blnSuccess
     End Function
 
-    Private Function ParseBinaryData(strMSMSDataBase64Encoded As String, ByRef sngValues() As Single, NumericPrecisionOfData As Integer, PeaksEndianMode As String, blnUpdatePeaksCountIfInconsistent As Boolean) As Boolean
+    Private Function ParseBinaryData(strMSMSDataBase64Encoded As String, ByRef sngValues() As Single,
+                                     NumericPrecisionOfData As Integer, PeaksEndianMode As String,
+                                     blnUpdatePeaksCountIfInconsistent As Boolean) As Boolean
         ' Parses strMSMSDataBase64Encoded and stores the data in sngValues
 
         Dim sngDataArray() As Single = Nothing
@@ -336,11 +341,13 @@ Public Class clsMzDataFileReader
                 If blnSuccess Then
                     With mCurrentSpectrum
                         If sngValues.Length <> .DataCount Then
-                            If .DataCount = 0 AndAlso sngValues.Length > 0 AndAlso Math.Abs(sngValues(0)) < Single.Epsilon Then
+                            If .DataCount = 0 AndAlso sngValues.Length > 0 AndAlso
+                                Math.Abs(sngValues(0)) < Single.Epsilon Then
                                 ' Leave .PeaksCount at 0
                             ElseIf blnUpdatePeaksCountIfInconsistent Then
                                 ' This shouldn't normally be necessary
-                                LogErrors("ParseBinaryData (Single Precision)", "Unexpected condition: sngValues.Length <> .DataCount and .DataCount > 0")
+                                LogErrors("ParseBinaryData (Single Precision)",
+                                          "Unexpected condition: sngValues.Length <> .DataCount and .DataCount > 0")
                                 .DataCount = sngValues.Length
                             End If
                         End If
@@ -353,10 +360,11 @@ Public Class clsMzDataFileReader
         End If
 
         Return blnSuccess
-
     End Function
 
-    Private Function ParseBinaryData(strMSMSDataBase64Encoded As String, ByRef dblValues() As Double, NumericPrecisionOfData As Integer, PeaksEndianMode As String, blnUpdatePeaksCountIfInconsistent As Boolean) As Boolean
+    Private Function ParseBinaryData(strMSMSDataBase64Encoded As String, ByRef dblValues() As Double,
+                                     NumericPrecisionOfData As Integer, PeaksEndianMode As String,
+                                     blnUpdatePeaksCountIfInconsistent As Boolean) As Boolean
         ' Parses strMSMSDataBase64Encoded and stores the data in dblValues
 
         Dim sngDataArray() As Single = Nothing
@@ -376,14 +384,16 @@ Public Class clsMzDataFileReader
 
                 Select Case NumericPrecisionOfData
                     Case 32
-                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, sngDataArray, zLibCompressed, eEndianMode) Then
+                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, sngDataArray,
+                                                                     zLibCompressed, eEndianMode) Then
                             ReDim dblValues(sngDataArray.Length - 1)
                             sngDataArray.CopyTo(dblValues, 0)
 
                             blnSuccess = True
                         End If
                     Case 64
-                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, dblDataArray, zLibCompressed, eEndianMode) Then
+                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, dblDataArray,
+                                                                     zLibCompressed, eEndianMode) Then
                             ReDim dblValues(dblDataArray.Length - 1)
                             dblDataArray.CopyTo(dblValues, 0)
 
@@ -396,11 +406,13 @@ Public Class clsMzDataFileReader
                 If blnSuccess Then
                     With mCurrentSpectrum
                         If dblValues.Length <> .DataCount Then
-                            If .DataCount = 0 AndAlso dblValues.Length > 0 AndAlso Math.Abs(dblValues(0)) < Single.Epsilon Then
+                            If .DataCount = 0 AndAlso dblValues.Length > 0 AndAlso
+                                Math.Abs(dblValues(0)) < Single.Epsilon Then
                                 ' Leave .PeaksCount at 0
                             ElseIf blnUpdatePeaksCountIfInconsistent Then
                                 ' This shouldn't normally be necessary
-                                LogErrors("ParseBinaryData (Double Precision)", "Unexpected condition: sngValues.Length <> .DataCount and .DataCount > 0")
+                                LogErrors("ParseBinaryData (Double Precision)",
+                                          "Unexpected condition: sngValues.Length <> .DataCount and .DataCount > 0")
                                 .DataCount = dblValues.Length
                             End If
                         End If
@@ -413,7 +425,6 @@ Public Class clsMzDataFileReader
         End If
 
         Return blnSuccess
-
     End Function
 
     Protected Overrides Sub ParseElementContent()
@@ -433,7 +444,8 @@ Public Class clsMzDataFileReader
                     Case eCurrentMZDataFileSectionConstants.SpectrumDataArrayMZ
                         If Not mSkipBinaryData Then
                             With mCurrentSpectrum
-                                blnSuccess = ParseBinaryData(XMLTextReaderGetInnerText(), .MZList, .NumericPrecisionOfDataMZ, .PeaksEndianModeMZ, True)
+                                blnSuccess = ParseBinaryData(XMLTextReaderGetInnerText(), .MZList,
+                                                             .NumericPrecisionOfDataMZ, .PeaksEndianModeMZ, True)
                                 If Not blnSuccess Then
                                     .DataCount = 0
                                 End If
@@ -445,7 +457,9 @@ Public Class clsMzDataFileReader
                     Case eCurrentMZDataFileSectionConstants.SpectrumDataArrayIntensity
                         If Not mSkipBinaryData Then
                             With mCurrentSpectrum
-                                blnSuccess = ParseBinaryData(XMLTextReaderGetInnerText(), .IntensityList, .NumericPrecisionOfDataIntensity, .PeaksEndianModeIntensity, False)
+                                blnSuccess = ParseBinaryData(XMLTextReaderGetInnerText(), .IntensityList,
+                                                             .NumericPrecisionOfDataIntensity, .PeaksEndianModeIntensity,
+                                                             False)
                                 ' Note: Not calling .ComputeBasePeakAndTIC() here since it will be called when the spectrum is Validated
                             End With
                         Else
@@ -456,7 +470,6 @@ Public Class clsMzDataFileReader
         Catch ex As Exception
             LogErrors("ParseElementContent", ex.Message)
         End Try
-
     End Sub
 
     Protected Overrides Sub ParseEndElement()
@@ -478,7 +491,6 @@ Public Class clsMzDataFileReader
         Catch ex As Exception
             LogErrors("ParseEndElement", ex.Message)
         End Try
-
     End Sub
 
     Protected Overrides Sub ParseStartElement()
@@ -535,7 +547,8 @@ Public Class clsMzDataFileReader
                                 Case PrecursorIonSelectionCVParamNames.MassToChargeRatio
                                     mCurrentSpectrum.ParentIonMZ = CDblSafe(strValue, 0)
                                     With mCurrentSpectrum
-                                        .ParentIonIntensity = FindIonIntensityInRecentSpectra(.ParentIonSpectrumID, .ParentIonMZ)
+                                        .ParentIonIntensity = FindIonIntensityInRecentSpectra(.ParentIonSpectrumID,
+                                                                                              .ParentIonMZ)
                                     End With
                                 Case PrecursorIonSelectionCVParamNames.ChargeState
                                     mCurrentSpectrum.ParentIonCharge = CIntSafe(strValue, 0)
@@ -577,7 +590,8 @@ Public Class clsMzDataFileReader
                         If mCurrentSpectrum.SpectrumID = Int32.MinValue Then
                             mCurrentSpectrum.SpectrumID = 0
 
-                            mErrorMessage = "Unable to read the ""id"" attribute for the current spectrum since it is missing"
+                            mErrorMessage =
+                                "Unable to read the ""id"" attribute for the current spectrum since it is missing"
                         End If
 
                     End If
@@ -589,8 +603,10 @@ Public Class clsMzDataFileReader
             Case ScanSectionNames.acqSpecification
                 If GetParentElement() = ScanSectionNames.spectrumSettings Then
                     With mCurrentSpectrum
-                        .SpectrumType = GetAttribValue(AcqSpecificationAttributeNames.spectrumType, clsSpectrumInfo.SpectrumTypeNames.discrete)
-                        .SpectrumCombinationMethod = GetAttribValue(AcqSpecificationAttributeNames.methodOfCombination, String.Empty)
+                        .SpectrumType = GetAttribValue(AcqSpecificationAttributeNames.spectrumType,
+                                                       clsSpectrumInfo.SpectrumTypeNames.discrete)
+                        .SpectrumCombinationMethod = GetAttribValue(AcqSpecificationAttributeNames.methodOfCombination,
+                                                                    String.Empty)
                         .ScanCount = GetAttribValue(AcqSpecificationAttributeNames.count, 1)
                     End With
 
@@ -612,7 +628,8 @@ Public Class clsMzDataFileReader
                     mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumInstrument
 
                     mCurrentSpectrum.MSLevel = GetAttribValue(SpectrumInstrumentAttributeNames.msLevel, 1)
-                    mCurrentSpectrum.mzRangeStart = GetAttribValue(SpectrumInstrumentAttributeNames.mzRangeStart, CSng(0))
+                    mCurrentSpectrum.mzRangeStart = GetAttribValue(SpectrumInstrumentAttributeNames.mzRangeStart,
+                                                                   CSng(0))
                     mCurrentSpectrum.mzRangeEnd = GetAttribValue(SpectrumInstrumentAttributeNames.mzRangeStop, CSng(0))
                 End If
 
@@ -652,14 +669,16 @@ Public Class clsMzDataFileReader
                     Case eCurrentMZDataFileSectionConstants.SpectrumDataArrayMZ
                         With mCurrentSpectrum
                             .NumericPrecisionOfDataMZ = GetAttribValue(BinaryDataAttributeNames.precision, 32)
-                            .PeaksEndianModeMZ = GetAttribValue(BinaryDataAttributeNames.endian, clsSpectrumInfoMzData.EndianModes.littleEndian)
+                            .PeaksEndianModeMZ = GetAttribValue(BinaryDataAttributeNames.endian,
+                                                                clsSpectrumInfoMzData.EndianModes.littleEndian)
                             .DataCount = GetAttribValue(BinaryDataAttributeNames.length, 0)
                         End With
 
                     Case eCurrentMZDataFileSectionConstants.SpectrumDataArrayIntensity
                         With mCurrentSpectrum
                             .NumericPrecisionOfDataIntensity = GetAttribValue(BinaryDataAttributeNames.precision, 32)
-                            .PeaksEndianModeIntensity = GetAttribValue(BinaryDataAttributeNames.endian, clsSpectrumInfoMzData.EndianModes.littleEndian)
+                            .PeaksEndianModeIntensity = GetAttribValue(BinaryDataAttributeNames.endian,
+                                                                       clsSpectrumInfoMzData.EndianModes.littleEndian)
                             ' Only update .DataCount if it is currently 0
                             If .DataCount = 0 Then
                                 .DataCount = GetAttribValue(BinaryDataAttributeNames.length, 0)
@@ -725,7 +744,6 @@ Public Class clsMzDataFileReader
             mErrorMessage = "Error updating mXMLReader"
             Return False
         End Try
-
     End Function
 
     Private Sub ValidateMZDataFileVersion(strFileVersion As String)
@@ -739,7 +757,8 @@ Public Class clsMzDataFileReader
             mFileVersion = String.Empty
 
             ' Currently, the only version supported is 1.x (typically 1.05)
-            objFileVersionRegEx = New Text.RegularExpressions.Regex("1\.[0-9]+", Text.RegularExpressions.RegexOptions.IgnoreCase)
+            objFileVersionRegEx = New Text.RegularExpressions.Regex("1\.[0-9]+",
+                                                                    Text.RegularExpressions.RegexOptions.IgnoreCase)
 
             ' Validate the mzData file version
             If Not strFileVersion Is Nothing AndAlso strFileVersion.Length > 0 Then
@@ -763,7 +782,5 @@ Public Class clsMzDataFileReader
             LogErrors("ValidateMZDataFileVersion", ex.Message)
             mFileVersion = String.Empty
         End Try
-
     End Sub
-
 End Class

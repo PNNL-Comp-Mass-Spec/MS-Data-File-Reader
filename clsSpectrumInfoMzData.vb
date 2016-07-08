@@ -12,9 +12,8 @@ Imports System.Runtime.InteropServices
 ' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified April 4, 2006
 
-<Serializable()> _
+<Serializable()>
 Public Class clsSpectrumInfoMzData
     Inherits clsSpectrumInfo
 
@@ -23,13 +22,16 @@ Public Class clsSpectrumInfoMzData
     End Sub
 
 #Region "Constants and Enums"
+
     Public Class EndianModes
         Public Const littleEndian As String = "little"
         Public Const bigEndian As String = "big"
     End Class
+
 #End Region
 
 #Region "Spectrum Variables"
+
     Protected mCollisionEnergy As Single
     Protected mCollisionEnergyUnits As String
     Protected mCollisionMethod As String
@@ -39,41 +41,52 @@ Public Class clsSpectrumInfoMzData
     Protected mParentIonSpectrumMSLevel As Integer
     Protected mParentIonSpectrumID As Integer
 
-    Protected mNumericPrecisionOfDataMZ As Integer          ' Typically 32 or 64
-    Protected mPeaksEndianModeMZ As String                  ' See class EndianModes for values; typically EndianModes.littleEndian
+    ' Typically 32 or 64
+    Protected mNumericPrecisionOfDataMZ As Integer
 
-    Protected mNumericPrecisionOfDataIntensity As Integer   ' Typically 32 or 64
-    Protected mPeaksEndianModeIntensity As String           ' See class EndianModes for values; typically EndianModes.littleEndian
+    ' See class EndianModes for values; typically EndianModes.littleEndian
+    Protected mPeaksEndianModeMZ As String
+
+    ' Typically 32 or 64
+    Protected mNumericPrecisionOfDataIntensity As Integer
+
+    ' See class EndianModes for values; typically EndianModes.littleEndian
+    Protected mPeaksEndianModeIntensity As String
+
 #End Region
 
 #Region "Classwide Variables"
+
 #End Region
 
 #Region "Spectrum Variable Interface Functions"
+
     Public Property CollisionEnergy() As Single
         Get
             Return mCollisionEnergy
         End Get
         Set(Value As Single)
-            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mCollisionEnergy = Value
         End Set
     End Property
+
     Public Property CollisionEnergyUnits() As String
         Get
             Return mCollisionEnergyUnits
         End Get
         Set(Value As String)
-            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mCollisionEnergyUnits = Value
         End Set
     End Property
+
     Public Property CollisionMethod() As String
         Get
             Return mCollisionMethod
         End Get
         Set(Value As String)
-            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mCollisionMethod = Value
         End Set
     End Property
@@ -83,7 +96,7 @@ Public Class clsSpectrumInfoMzData
             Return mParentIonCharge
         End Get
         Set(Value As Integer)
-            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mParentIonCharge = Value
         End Set
     End Property
@@ -96,6 +109,7 @@ Public Class clsSpectrumInfoMzData
             mParentIonSpectrumMSLevel = Value
         End Set
     End Property
+
     Public Property ParentIonSpectrumID() As Integer
         Get
             Return mParentIonSpectrumID
@@ -110,7 +124,7 @@ Public Class clsSpectrumInfoMzData
             Return mScanMode
         End Get
         Set(Value As String)
-            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mScanMode = Value
         End Set
     End Property
@@ -120,16 +134,17 @@ Public Class clsSpectrumInfoMzData
             Return mNumericPrecisionOfDataMZ
         End Get
         Set(Value As Integer)
-            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mNumericPrecisionOfDataMZ = Value
         End Set
     End Property
+
     Public Property PeaksEndianModeMZ() As String
         Get
             Return mPeaksEndianModeMZ
         End Get
         Set(Value As String)
-            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mPeaksEndianModeMZ = Value
         End Set
     End Property
@@ -139,19 +154,21 @@ Public Class clsSpectrumInfoMzData
             Return mNumericPrecisionOfDataIntensity
         End Get
         Set(Value As Integer)
-            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mNumericPrecisionOfDataIntensity = Value
         End Set
     End Property
+
     Public Property PeaksEndianModeIntensity() As String
         Get
             Return mPeaksEndianModeIntensity
         End Get
         Set(Value As String)
-            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mPeaksEndianModeIntensity = Value
         End Set
     End Property
+
 #End Region
 
     Public Overrides Sub Clear()
@@ -171,7 +188,6 @@ Public Class clsSpectrumInfoMzData
 
         mNumericPrecisionOfDataIntensity = 32            ' Assume 32-bit for now
         mPeaksEndianModeIntensity = EndianModes.littleEndian
-
     End Sub
 
     Public Function GetEndianModeValue(strEndianModeText As String) As clsBase64EncodeDecode.eEndianTypeConstants
@@ -229,7 +245,6 @@ Public Class clsSpectrumInfoMzData
             ScanCount = 1
         End If
 
-        MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.Validated
+        MyBase.mSpectrumStatus = eSpectrumStatusConstants.Validated
     End Sub
-
 End Class

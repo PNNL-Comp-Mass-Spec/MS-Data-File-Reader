@@ -12,8 +12,8 @@ Imports System.Runtime.InteropServices
 ' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified September 17, 2010
-<Serializable()> _
+
+<Serializable()>
 Public Class clsSpectrumInfo
     Implements ICloneable
 
@@ -23,6 +23,7 @@ Public Class clsSpectrumInfo
     End Sub
 
 #Region "Constants and Enums"
+
     Public Class SpectrumTypeNames
         Public Const discrete As String = "discrete"
         Public Const continuous As String = "continuous"
@@ -33,19 +34,21 @@ Public Class clsSpectrumInfo
         DataDefined = 1                     ' This is set when any of the values are set via a property
         Validated = 2                       ' This is set when .Validate() is called
     End Enum
+
 #End Region
 
 #Region "Spectrum Variables"
+
     Protected mSpectrumID As Integer                ' Spectrum ID number; often the same as ScanNumber
     Protected mScanNumber As Integer                ' First scan number if ScanCount is > 1
     Protected mScanCount As Integer                 ' Number of spectra combined together to get the given spectrum
     Protected mScanNumberEnd As Integer             ' Last scan if more than one scan was combined to make this spectrum
 
-	Protected mSpectrumType As String				' See Class SpectrumTypeNames for typical names (discrete or continuous)
+    Protected mSpectrumType As String               ' See Class SpectrumTypeNames for typical names (discrete or continuous)
     Protected mSpectrumCombinationMethod As String
 
-	Protected mMSLevel As Integer					' 1 for MS, 2 for MS/MS, 3 for MS^3, etc.
-	Protected mCentroided As Boolean				' True if the data is centroided (supported by mzXML v3.x)
+    Protected mMSLevel As Integer                   ' 1 for MS, 2 for MS/MS, 3 for MS^3, etc.
+    Protected mCentroided As Boolean                ' True if the data is centroided (supported by mzXML v3.x)
     Protected mPolarity As String
     Protected mRetentionTimeMin As Single
 
@@ -58,9 +61,12 @@ Public Class clsSpectrumInfo
     Protected mParentIonMZ As Double
     Protected mParentIonIntensity As Single
 
-    Public DataCount As Integer                 ' Number of m/z and intensity pairs in this spectrum; see note concerning mAutoShrinkDataLists below
+    ' Number of m/z and intensity pairs in this spectrum; see note concerning mAutoShrinkDataLists below
+    Public DataCount As Integer
+
     Public MZList() As Double
     Public IntensityList() As Single
+
 #End Region
 
 #Region "Classwide Variables"
@@ -71,9 +77,11 @@ Public Class clsSpectrumInfo
     Protected mErrorMessage As String
 
     Protected mSpectrumStatus As eSpectrumStatusConstants
+
 #End Region
 
 #Region "Spectrum Variable Interface Functions"
+
     Public Property SpectrumID() As Integer
         Get
             Return mSpectrumID
@@ -248,9 +256,11 @@ Public Class clsSpectrumInfo
             Return mSpectrumStatus
         End Get
     End Property
+
 #End Region
 
 #Region "Processing Options"
+
     Public Property AutoShrinkDataLists() As Boolean
         Get
             Return mAutoShrinkDataLists
@@ -266,6 +276,7 @@ Public Class clsSpectrumInfo
             Return mErrorMessage
         End Get
     End Property
+
 #End Region
 
     Public Overridable Sub Clear()
@@ -362,7 +373,6 @@ Public Class clsSpectrumInfo
             mzRangeStart = sngMzRangeStart
             mzRangeEnd = sngMzRangeEnd
         End Try
-
     End Sub
 
     Public Sub ComputeBasePeakAndTIC()
@@ -399,10 +409,10 @@ Public Class clsSpectrumInfo
             BasePeakMZ = dblBasePeakMZ
             BasePeakIntensity = sngBasePeakIntensity
         End Try
-
     End Sub
 
-    Public Function LookupIonIntensityByMZ(dblMZToFind As Double, sngIntensityIfNotFound As Single, Optional ByVal sngMatchTolerance As Single = 0.05) As Single
+    Public Function LookupIonIntensityByMZ(dblMZToFind As Double, sngIntensityIfNotFound As Single,
+                                           Optional sngMatchTolerance As Single = 0.05) As Single
         ' Looks for dblMZToFind in this spectrum's data
         ' If found, returns the intensity
         ' If not found, returns an intensity of sngIntensityIfNotFound
@@ -440,7 +450,6 @@ Public Class clsSpectrumInfo
         End Try
 
         Return sngIntensityMatch
-
     End Function
 
     Public Overridable Sub Validate(blnComputeBasePeakAndTIC As Boolean, blnUpdateMZRange As Boolean)
@@ -466,5 +475,4 @@ Public Class clsSpectrumInfo
             End If
         End If
     End Sub
-
 End Class

@@ -32,7 +32,6 @@ Imports System.Xml
 ' SOFTWARE.  This notice including this sentence must appear on any copies of
 ' this computer software.
 '
-' Last modified September 17, 2010
 
 Public Class clsMzDataFileAccessor
     Inherits clsMSDataFileAccessorBaseClass
@@ -51,6 +50,7 @@ Public Class clsMzDataFileAccessor
     End Sub
 
 #Region "Constants and Enums"
+
     Private Const SPECTRUM_LIST_START_ELEMENT As String = "<spectrumList"
     Private Const SPECTRUM_LIST_END_ELEMENT As String = "</spectrumList>"
 
@@ -59,9 +59,11 @@ Public Class clsMzDataFileAccessor
 
     Private Const MZDATA_START_ELEMENT As String = "<mzData"
     Private Const MZDATA_END_ELEMENT As String = "</mzData>"
+
 #End Region
 
 #Region "Classwide Variables"
+
     Private mXmlFileReader As clsMzDataFileReader
 
     Private mCurrentSpectrumInfo As clsSpectrumInfoMzData
@@ -84,19 +86,23 @@ Public Class clsMzDataFileAccessor
     Private mIndexedSpectraSpectrumIDToIndex As Hashtable
 
     Private mXMLReaderSettings As XmlReaderSettings
+
 #End Region
 
 #Region "Processing Options and Interface Functions"
+
     Public ReadOnly Property CachedSpectraSpectrumIDMinimum() As Integer
         Get
             Return mInputFileStatsSpectrumIDMinimum
         End Get
     End Property
+
     Public ReadOnly Property CachedSpectraSpectrumIDMaximum() As Integer
         Get
             Return mInputFileStatsSpectrumIDMaximum
         End Get
     End Property
+
     Public Overrides Property ParseFilesWithUnknownVersion() As Boolean
         Get
             Return MyBase.ParseFilesWithUnknownVersion
@@ -108,6 +114,7 @@ Public Class clsMzDataFileAccessor
             End If
         End Set
     End Property
+
 #End Region
 
     Protected Overrides Function AdvanceFileReaders(eElementMatchMode As emmElementMatchModeConstants) As Boolean
@@ -146,14 +153,17 @@ Public Class clsMzDataFileAccessor
                 If mInFileCurrentCharIndex + 1 < mInFileCurrentLineText.Length Then
 
                     If blnAppendingText Then
-                        strInFileCurrentLineSubstring &= ControlChars.NewLine & mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1)
+                        strInFileCurrentLineSubstring &= ControlChars.NewLine &
+                                                         mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1)
                     Else
                         strInFileCurrentLineSubstring = mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1)
                     End If
 
                     If mAddNewLinesToHeader Then
                         ' We haven't yet found the first scan; look for "<spectrumList"
-                        intCharIndex = mInFileCurrentLineText.IndexOf(SPECTRUM_LIST_START_ELEMENT, mInFileCurrentCharIndex + 1, StringComparison.Ordinal)
+                        intCharIndex = mInFileCurrentLineText.IndexOf(SPECTRUM_LIST_START_ELEMENT,
+                                                                      mInFileCurrentCharIndex + 1,
+                                                                      StringComparison.Ordinal)
 
                         If intCharIndex >= 0 Then
                             ' Only add a portion of mInFileCurrentLineText to mXmlFileHeader
@@ -223,7 +233,8 @@ Public Class clsMzDataFileAccessor
                             objMatch = mSpectrumEndElementRegEx.Match(strInFileCurrentLineSubstring)
                         Case Else
                             ' Unknown mode
-                            LogErrors("AdvanceFileReaders", "Unknown mode for eElementMatchMode: " & eElementMatchMode.ToString)
+                            LogErrors("AdvanceFileReaders",
+                                      "Unknown mode for eElementMatchMode: " & eElementMatchMode.ToString)
                             Return False
                     End Select
 
@@ -262,7 +273,8 @@ Public Class clsMzDataFileAccessor
                             intCharIndex += objMatch.Value.Length - 1
                             If intCharIndex >= mInFileCurrentLineText.Length Then
                                 ' This shouldn't happen
-                                LogErrors("AdvanceFileReaders", "Unexpected condition: intCharIndex >= mInFileCurrentLineText.Length")
+                                LogErrors("AdvanceFileReaders",
+                                          "Unexpected condition: intCharIndex >= mInFileCurrentLineText.Length")
                                 intCharIndex = mInFileCurrentLineText.Length - 1
                             End If
                         End If
@@ -295,7 +307,6 @@ Public Class clsMzDataFileAccessor
         End Try
 
         Return blnMatchFound
-
     End Function
 
     <Obsolete("No longer used")>
@@ -304,7 +315,8 @@ Public Class clsMzDataFileAccessor
     End Function
 
     <Obsolete("No longer used")>
-    Public Overrides Function GetSourceXMLHeader(intScanCountTotal As Integer, sngStartTimeMinutesAllScans As Single, sngEndTimeMinutesAllScans As Single) As String
+    Public Overrides Function GetSourceXMLHeader(intScanCountTotal As Integer, sngStartTimeMinutesAllScans As Single,
+                                                 sngEndTimeMinutesAllScans As Single) As String
         Dim strHeaderText As String
         Dim intAsciiValue As Integer
 
@@ -312,9 +324,9 @@ Public Class clsMzDataFileAccessor
         strHeaderText = String.Copy(mXmlFileHeader)
 
         If strHeaderText.Length = 0 Then
-            strHeaderText = "<?xml version=""1.0"" encoding=""UTF-8""?>" & ControlChars.NewLine & _
-                 MZDATA_START_ELEMENT & " version=""1.05"" accessionNumber=""psi-ms:100""" & _
-                 " xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"">" & ControlChars.NewLine
+            strHeaderText = "<?xml version=""1.0"" encoding=""UTF-8""?>" & ControlChars.NewLine &
+                            MZDATA_START_ELEMENT & " version=""1.05"" accessionNumber=""psi-ms:100""" &
+                            " xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"">" & ControlChars.NewLine
         End If
 
         intAsciiValue = Convert.ToInt32(strHeaderText.Chars(strHeaderText.Length - 1))
@@ -323,13 +335,12 @@ Public Class clsMzDataFileAccessor
         End If
 
         Return strHeaderText & " " & SPECTRUM_LIST_START_ELEMENT & " count=""" & intScanCountTotal & """>"
-
     End Function
 
     Protected Overrides Function GetSpectrumByIndexWork(
-      intSpectrumIndex As Integer,
-      <Out()> ByRef objCurrentSpectrumInfo As clsSpectrumInfo,
-      blnHeaderInfoOnly As Boolean) As Boolean
+                                                        intSpectrumIndex As Integer,
+                                                        <Out()> ByRef objCurrentSpectrumInfo As clsSpectrumInfo,
+                                                        blnHeaderInfoOnly As Boolean) As Boolean
 
         Dim blnSuccess As Boolean
         objCurrentSpectrumInfo = Nothing
@@ -374,14 +385,17 @@ Public Class clsMzDataFileAccessor
         End Try
 
         Return blnSuccess
-
     End Function
 
     Public Function GetSpectrumBySpectrumID(intSpectrumID As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
         Return GetSpectrumBySpectrumIDWork(intSpectrumID, objSpectrumInfo, False)
     End Function
 
-    Private Function GetSpectrumBySpectrumIDWork(intSpectrumID As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo, blnHeaderInfoOnly As Boolean) As Boolean
+    Private Function GetSpectrumBySpectrumIDWork(
+      intSpectrumID As Integer,
+      <Out()> ByRef objSpectrumInfo As clsSpectrumInfo,
+      blnHeaderInfoOnly As Boolean) As Boolean
+
         ' Returns True if success, False if failure
         ' Only valid if we have Indexed data in memory
 
@@ -394,7 +408,8 @@ Public Class clsMzDataFileAccessor
             blnSuccess = False
             mErrorMessage = String.Empty
             If mDataReaderMode = drmDataReaderModeConstants.Cached Then
-                mErrorMessage = "Cannot obtain spectrum by spectrum ID when data is cached in memory; only valid when the data is indexed"
+                mErrorMessage =
+                    "Cannot obtain spectrum by spectrum ID when data is cached in memory; only valid when the data is indexed"
             ElseIf mDataReaderMode = drmDataReaderModeConstants.Indexed Then
                 If GetSpectrumReadyStatus(True) Then
                     If mIndexedSpectraSpectrumIDToIndex Is Nothing OrElse mIndexedSpectraSpectrumIDToIndex.Count = 0 Then
@@ -425,10 +440,11 @@ Public Class clsMzDataFileAccessor
         End Try
 
         Return blnSuccess
-
     End Function
 
-    Public Function GetSpectrumHeaderInfoBySpectrumID(intSpectrumID As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+    Public Function GetSpectrumHeaderInfoBySpectrumID(
+      intSpectrumID As Integer,
+      <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
         Return GetSpectrumBySpectrumIDWork(intSpectrumID, objSpectrumInfo, True)
     End Function
 
@@ -464,7 +480,6 @@ Public Class clsMzDataFileAccessor
         End Try
 
         Return blnSuccess
-
     End Function
 
     Protected Overrides Sub InitializeLocalVariables()
@@ -481,7 +496,6 @@ Public Class clsMzDataFileAccessor
         Else
             mIndexedSpectraSpectrumIDToIndex.Clear()
         End If
-
     End Sub
 
     Private Sub InitializeObjectVariables()
@@ -559,7 +573,6 @@ Public Class clsMzDataFileAccessor
         End Try
 
         Return blnSuccess
-
     End Function
 
     Private Function ReadMZDataFile() As Boolean
@@ -592,15 +605,18 @@ Public Class clsMzDataFileAccessor
                         lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart
                         LogErrors("ReadMZDataFile", "Unexpected condition: mInFileCurrentCharIndex < 0")
                     Else
-                        lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex * mCharSize
+                        lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart +
+                                                            mInFileCurrentCharIndex * mCharSize
                     End If
 
                     blnSpectrumFound = AdvanceFileReaders(emmElementMatchModeConstants.EndElement)
                     If blnSpectrumFound Then
                         If mCharSize > 1 Then
-                            lngCurrentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex * mCharSize + (mCharSize - 1)
+                            lngCurrentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart +
+                                                              mInFileCurrentCharIndex * mCharSize + (mCharSize - 1)
                         Else
-                            lngCurrentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex
+                            lngCurrentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart +
+                                                              mInFileCurrentCharIndex
                         End If
                     End If
                 End If
@@ -608,11 +624,13 @@ Public Class clsMzDataFileAccessor
                 If blnSpectrumFound Then
                     ' Make sure mAddNewLinesToHeader is now false
                     If mAddNewLinesToHeader Then
-                        LogErrors("ReadMZDataFile", "Unexpected condition: mAddNewLinesToHeader was True; changing to False")
+                        LogErrors("ReadMZDataFile",
+                                  "Unexpected condition: mAddNewLinesToHeader was True; changing to False")
                         mAddNewLinesToHeader = False
                     End If
 
-                    StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, lngCurrentSpectrumByteOffsetStart, lngCurrentSpectrumByteOffsetEnd)
+                    StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, lngCurrentSpectrumByteOffsetStart,
+                                    lngCurrentSpectrumByteOffsetEnd)
 
                     ' Note that StoreIndexEntry will have incremented mIndexedSpectrumInfoCount
                     With mIndexedSpectrumInfo(mIndexedSpectrumInfoCount - 1)
@@ -627,7 +645,8 @@ Public Class clsMzDataFileAccessor
 
                     ' Update the progress
                     If mBinaryTextReader.FileLengthBytes > 0 Then
-                        UpdateProgress(mBinaryTextReader.CurrentLineByteOffsetEnd / CDbl(mBinaryTextReader.FileLengthBytes) * 100)
+                        UpdateProgress(
+                            mBinaryTextReader.CurrentLineByteOffsetEnd / CDbl(mBinaryTextReader.FileLengthBytes) * 100)
                     End If
 
                     If mAbortProcessing Then
@@ -645,7 +664,6 @@ Public Class clsMzDataFileAccessor
         End Try
 
         Return blnSuccess
-
     End Function
 
     Private Overloads Sub UpdateFileStats(intScanCount As Integer, intScanNumber As Integer, intSpectrumID As Integer)
@@ -663,5 +681,4 @@ Public Class clsMzDataFileAccessor
             End If
         End If
     End Sub
-
 End Class

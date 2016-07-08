@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified February 8, 2013
+
 Imports System.Collections.Generic
 Imports System.Runtime.InteropServices
 Imports System.Text.RegularExpressions
@@ -32,18 +32,23 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
             End If
         Catch ex As Exception
         End Try
-
     End Sub
 
 #Region "Constants and Enums"
+
 #End Region
 
 #Region "Structures"
+
 #End Region
 
 #Region "Classwide Variables"
-    Protected mThresholdIonPctForSingleCharge As Single       ' Number between 0 and 100; if the percentage of ions greater than the parent ion m/z is less than this number, then the charge is definitely 1+
-    Protected mThresholdIonPctForDoubleCharge As Single       ' Number between 0 and 100; if the percentage of ions greater than the parent ion m/z is greater than this number, then the charge is definitely 2+ or higher
+
+    ' Number between 0 and 100; if the percentage of ions greater than the parent ion m/z is less than this number, then the charge is definitely 1+
+    Protected mThresholdIonPctForSingleCharge As Single
+
+    ' Number between 0 and 100; if the percentage of ions greater than the parent ion m/z is greater than this number, then the charge is definitely 2+ or higher
+    Protected mThresholdIonPctForDoubleCharge As Single
 
     Protected mFileReader As IO.TextReader
     Protected mCommentLineStartChar As Char = "="c
@@ -57,13 +62,16 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
 
     Protected mCurrentMsMsDataList As List(Of String)
 
-    Protected mReadTextDataOnly As Boolean  ' When true, then reads the data and populates mCurrentMsMsDataList but does not populate mCurrentSpectrum.MZList() or mCurrentSpectrum.IntensityList()
+    ' When true, read the data and populate mCurrentMsMsDataList but do not populate mCurrentSpectrum.MZList() or mCurrentSpectrum.IntensityList()
+    Protected mReadTextDataOnly As Boolean
 
     Protected mTotalBytesRead As Long
     Protected mInFileStreamLength As Long
+
 #End Region
 
 #Region "Processing Options and Interface Functions"
+
     Public Property CommentLineStartChar() As Char
         Get
             Return mCommentLineStartChar
@@ -78,6 +86,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
             Return mCurrentSpectrum
         End Get
     End Property
+
     Public Property ReadTextDataOnly() As Boolean
         Get
             Return mReadTextDataOnly
@@ -109,9 +118,17 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
 
 #End Region
 
-    Protected Function CleanupComment(strCommentIn As String, strCommentChar As Char, blnRemoveQuoteMarks As Boolean) As String
-        ' This function will remove any instance of strCommentChar from the beginning and end of strCommentIn
-        ' If blnRemoveQuoteMarks is True, then also looks for double quotation marks at the beginning and end
+    ''' <summary>
+    ''' Remove any instance of strCommentChar from the beginning and end of strCommentIn
+    ''' </summary>
+    ''' <param name="strCommentIn"></param>
+    ''' <param name="strCommentChar"></param>
+    ''' <param name="blnRemoveQuoteMarks">When True, also look for double quotation marks at the beginning and end</param>
+    ''' <returns></returns>
+    Protected Function CleanupComment(
+      strCommentIn As String,
+      strCommentChar As Char,
+      blnRemoveQuoteMarks As Boolean) As String
 
         ' Extract out the comment
         If strCommentIn Is Nothing Then
@@ -129,10 +146,10 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         End If
 
         Return strCommentIn
-
     End Function
 
-    Protected Sub AddNewRecentFileText(strNewText As String, Optional ByVal blnNewSpectrum As Boolean = False, Optional ByVal blnAddCrLfIfNeeded As Boolean = True)
+    Protected Sub AddNewRecentFileText(strNewText As String, Optional blnNewSpectrum As Boolean = False,
+                                       Optional blnAddCrLfIfNeeded As Boolean = True)
 
         If blnNewSpectrum Then
             mSecondMostRecentSpectrumFileText = mMostRecentSpectrumFileText.ToString
@@ -146,7 +163,6 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         End If
 
         mMostRecentSpectrumFileText.Append(strNewText)
-
     End Sub
 
     Public Overrides Sub CloseFile()
@@ -159,26 +175,25 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
             mInputFilePath = String.Empty
         Catch ex As Exception
         End Try
-
     End Sub
 
     Protected Sub ComputePercentageDataAboveThreshold(
-      objSpectrumInfo As clsSpectrumInfoMsMsText,
-      <Out()> ByRef sngPctByCount As Single,
-      <Out()> ByRef sngPctByIntensity As Single)
+                                                      objSpectrumInfo As clsSpectrumInfoMsMsText,
+                                                      <Out()> ByRef sngPctByCount As Single,
+                                                      <Out()> ByRef sngPctByIntensity As Single)
 
         With objSpectrumInfo
-            ComputePercentageDataAboveThreshold(.DataCount, .MZList, .IntensityList, .ParentIonMZ, _
-                     sngPctByCount, sngPctByIntensity)
+            ComputePercentageDataAboveThreshold(.DataCount, .MZList, .IntensityList, .ParentIonMZ,
+                                                sngPctByCount, sngPctByIntensity)
         End With
     End Sub
 
-    Protected Sub ComputePercentageDataAboveThreshold(intDataCount As Integer, _
-                  dblMZList() As Double,
-                  sngIntensityList() As Single,
-                  dblThresholdMZ As Double,
-                  <Out()> ByRef sngPctByCount As Single,
-                  <Out()> ByRef sngPctByIntensity As Single)
+    Protected Sub ComputePercentageDataAboveThreshold(intDataCount As Integer,
+                                                      dblMZList() As Double,
+                                                      sngIntensityList() As Single,
+                                                      dblThresholdMZ As Double,
+                                                      <Out()> ByRef sngPctByCount As Single,
+                                                      <Out()> ByRef sngPctByIntensity As Single)
 
         Dim intIndex As Integer
 
@@ -201,10 +216,13 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
             sngPctByCount = intCountAboveThreshold / CSng(intDataCount) * 100.0!
             sngPctByIntensity = CSng(dblIntensitySumAboveThreshold / dblTotalIntensitySum * 100.0)
         End If
-
     End Sub
 
-    Public Function ExtractScanInfoFromDtaHeader(strSpectrumHeader As String, <Out()> ByRef intScanNumberStart As Integer, <Out()> ByRef intScanNumberEnd As Integer, <Out()> ByRef intScanCount As Integer) As Boolean
+    Public Function ExtractScanInfoFromDtaHeader(
+      strSpectrumHeader As String,
+      <Out()> ByRef intScanNumberStart As Integer,
+      <Out()> ByRef intScanNumberEnd As Integer,
+      <Out()> ByRef intScanCount As Integer) As Boolean
         Return ExtractScanInfoFromDtaHeader(strSpectrumHeader, intScanNumberStart, intScanNumberEnd, intScanCount, 0)
     End Function
 
@@ -270,7 +288,6 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         End Try
 
         Return blnScanNumberFound
-
     End Function
 
     Protected Overrides Function GetInputFileLocation() As String
@@ -306,8 +323,8 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
     End Function
 
     Public Sub GuesstimateCharge(objSpectrumInfo As clsSpectrumInfoMsMsText,
-          Optional blnAddToExistingChargeList As Boolean = False,
-          Optional blnForceChargeAddnFor2and3Plus As Boolean = False)
+                                 Optional blnAddToExistingChargeList As Boolean = False,
+                                 Optional blnForceChargeAddnFor2and3Plus As Boolean = False)
 
         ' Guesstimate the parent ion charge based on its m/z and the ions in the fragmentation spectrum
         '
@@ -378,12 +395,12 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
                 ' Find percentage of data with m/z values greater than the Parent Ion m/z
                 ' Compute this number using both raw data point counts and sum of intensity values
                 ComputePercentageDataAboveThreshold(objSpectrumInfo, sngPctByCount, sngPctByIntensity)
-                If sngPctByCount < mThresholdIonPctForSingleCharge And _
+                If sngPctByCount < mThresholdIonPctForSingleCharge And
                    sngPctByIntensity < mThresholdIonPctForSingleCharge Then
                     ' Both percentages are less than the threshold for definitively single charge
                     objSpectrumInfo.AddOrUpdateChargeList(1, blnAddToExistingChargeList)
                 Else
-                    If sngPctByCount >= mThresholdIonPctForDoubleCharge And _
+                    If sngPctByCount >= mThresholdIonPctForDoubleCharge And
                        sngPctByIntensity >= mThresholdIonPctForDoubleCharge Then
                         ' Both percentages are above the threshold for definitively double charge (or higher)
                         intChargeStart = 2
@@ -408,7 +425,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
                             ' If so, do not alter the charge list
 
                             If objSpectrumInfo.ParentIonChargeCount = 1 Then
-                                If objSpectrumInfo.ParentIonCharges(0) = 2 OrElse _
+                                If objSpectrumInfo.ParentIonCharges(0) = 2 OrElse
                                    objSpectrumInfo.ParentIonCharges(0) = 3 Then
                                     ' The following will guarantee that the For intChargeIndex loop doesn't run
                                     intChargeStart = 0
@@ -428,7 +445,6 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
                 End If
             End If
         End If
-
     End Sub
 
     Protected Overrides Sub InitializeLocalVariables()
@@ -459,7 +475,8 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
             blnSuccess = OpenFileInit(strInputFilePath)
             If Not blnSuccess Then Return False
 
-            objStreamReader = New IO.StreamReader(New IO.FileStream(strInputFilePath, IO.FileMode.Open, IO.FileAccess.Read, IO.FileShare.ReadWrite))
+            objStreamReader = New IO.StreamReader(New IO.FileStream(strInputFilePath, IO.FileMode.Open,
+                                                                    IO.FileAccess.Read, IO.FileShare.ReadWrite))
             mInFileStreamLength = objStreamReader.BaseStream.Length
             mFileReader = objStreamReader
 
@@ -475,7 +492,6 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         End Try
 
         Return blnSuccess
-
     End Function
 
     Public Overrides Function OpenTextStream(strTextStream As String) As Boolean
@@ -503,10 +519,14 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         End Try
 
         Return blnSuccess
-
     End Function
 
-    Public Function ParseMsMsDataList(strMSMSData() As String, intMsMsDataCount As Integer, <Out()> ByRef dblMasses() As Double, <Out()> ByRef sngIntensities() As Single, blnShrinkDataArrays As Boolean) As Integer
+    Public Function ParseMsMsDataList(
+      strMSMSData() As String, intMsMsDataCount As Integer,
+      <Out()> ByRef dblMasses() As Double,
+      <Out()> ByRef sngIntensities() As Single,
+      blnShrinkDataArrays As Boolean) As Integer
+
         Dim lstMSMSData = New List(Of String)
 
         For intIndex = 0 To intMsMsDataCount - 1
@@ -514,7 +534,6 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         Next
 
         Return ParseMsMsDataList(lstMSMSData, dblMasses, sngIntensities, blnShrinkDataArrays)
-
     End Function
 
     Public Function ParseMsMsDataList(
@@ -570,7 +589,6 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         End If
 
         Return intDataCount
-
     End Function
 
     Protected Sub UpdateStreamReaderProgress()
@@ -582,5 +600,4 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
             MyBase.UpdateProgress(mTotalBytesRead / mInFileStreamLength * 100.0)
         End If
     End Sub
-
 End Class

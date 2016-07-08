@@ -12,17 +12,16 @@ Option Strict On
 ' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified March 23, 2015
+
 Imports System.Runtime.InteropServices
 
 Public Class clsBase64EncodeDecode
-
     Public Enum eEndianTypeConstants As Integer
         LittleEndian = 0
         BigEndian = 1
     End Enum
 
-    Private Shared Function B64encode(bytArray() As Byte, Optional ByVal removeTrailingPaddingChars As Boolean = False) As String
+    Private Shared Function B64encode(bytArray() As Byte, Optional removeTrailingPaddingChars As Boolean = False) As String
         If removeTrailingPaddingChars Then
             Return Convert.ToBase64String(bytArray).TrimEnd("="c)
         Else
@@ -30,17 +29,34 @@ Public Class clsBase64EncodeDecode
         End If
     End Function
 
-    Public Shared Function DecodeNumericArray(strBase64EncodedText As String, <Out()> ByRef dataArray() As Byte) As Boolean
-        ' Extracts an array of Bytes from a base-64 encoded string
+    ''' <summary>
+    ''' Extracts an array of Bytes from a base-64 encoded string
+    ''' </summary>
+    ''' <param name="strBase64EncodedText"></param>
+    ''' <param name="dataArray"></param>
+    ''' <returns></returns>
+    Public Shared Function DecodeNumericArray(
+      strBase64EncodedText As String,
+      <Out()> ByRef dataArray() As Byte) As Boolean
 
         dataArray = Convert.FromBase64String(strBase64EncodedText)
 
         Return True
-
     End Function
 
-    Public Shared Function DecodeNumericArray(strBase64EncodedText As String, <Out()> ByRef dataArray() As Int16, zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
-        ' Extracts an array of 16-bit integers from a base-64 encoded string
+    ''' <summary>
+    ''' Extracts an array of 16-bit integers from a base-64 encoded string
+    ''' </summary>
+    ''' <param name="strBase64EncodedText"></param>
+    ''' <param name="dataArray"></param>
+    ''' <param name="zLibCompressed"></param>
+    ''' <param name="eEndianMode"></param>
+    ''' <returns></returns>
+    Public Shared Function DecodeNumericArray(
+      strBase64EncodedText As String,
+      <Out()> ByRef dataArray() As Int16,
+      zLibCompressed As Boolean,
+      Optional eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
 
         Const DATA_TYPE_PRECISION_BYTES = 2
         Dim bytArray() As Byte
@@ -84,11 +100,21 @@ Public Class clsBase64EncodeDecode
         Next intIndex
 
         Return True
-
     End Function
 
-    Public Shared Function DecodeNumericArray(strBase64EncodedText As String, <Out()> ByRef dataArray() As Int32, zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
-        ' Extracts an array of 32-bit integers from a base-64 encoded string
+    ''' <summary>
+    ''' Extracts an array of 32-bit integers from a base-64 encoded string
+    ''' </summary>
+    ''' <param name="strBase64EncodedText"></param>
+    ''' <param name="dataArray"></param>
+    ''' <param name="zLibCompressed"></param>
+    ''' <param name="eEndianMode"></param>
+    ''' <returns></returns>
+    Public Shared Function DecodeNumericArray(
+      strBase64EncodedText As String,
+      <Out()> ByRef dataArray() As Int32,
+      zLibCompressed As Boolean,
+      Optional eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
 
         Const DATA_TYPE_PRECISION_BYTES = 4
         Dim bytArray() As Byte
@@ -134,11 +160,21 @@ Public Class clsBase64EncodeDecode
         Next intIndex
 
         Return True
-
     End Function
 
-    Public Shared Function DecodeNumericArray(strBase64EncodedText As String, <Out()> ByRef dataArray() As Single, zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
-        ' Extracts an array of Singles from a base-64 encoded string
+    ''' <summary>
+    ''' Extracts an array of Singles from a base-64 encoded string
+    ''' </summary>
+    ''' <param name="strBase64EncodedText"></param>
+    ''' <param name="dataArray"></param>
+    ''' <param name="zLibCompressed"></param>
+    ''' <param name="eEndianMode"></param>
+    ''' <returns></returns>
+    Public Shared Function DecodeNumericArray(
+      strBase64EncodedText As String,
+      <Out()> ByRef dataArray() As Single,
+      zLibCompressed As Boolean,
+      Optional eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
 
         Const DATA_TYPE_PRECISION_BYTES = 4
         Dim bytArray() As Byte
@@ -184,11 +220,21 @@ Public Class clsBase64EncodeDecode
         Next intIndex
 
         Return True
-
     End Function
 
-    Public Shared Function DecodeNumericArray(strBase64EncodedText As String, <Out()> ByRef dataArray() As Double, zLibCompressed As Boolean, Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
-        ' Extracts an array of Doubles from a base-64 encoded string
+    ''' <summary>
+    ''' Extracts an array of Doubles from a base-64 encoded string
+    ''' </summary>
+    ''' <param name="strBase64EncodedText"></param>
+    ''' <param name="dataArray"></param>
+    ''' <param name="zLibCompressed"></param>
+    ''' <param name="eEndianMode"></param>
+    ''' <returns></returns>
+    Public Shared Function DecodeNumericArray(
+      strBase64EncodedText As String,
+      <Out()> ByRef dataArray() As Double,
+      zLibCompressed As Boolean,
+      Optional eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As Boolean
 
         Const DATA_TYPE_PRECISION_BYTES = 8
         Dim bytArray() As Byte
@@ -238,7 +284,6 @@ Public Class clsBase64EncodeDecode
         Next intIndex
 
         Return True
-
     End Function
 
     Protected Shared Function DecompressZLib(strBase64EncodedText As String) As Byte()
@@ -280,17 +325,21 @@ Public Class clsBase64EncodeDecode
         End If
 
         Return bytArray
-
     End Function
 
+    ''' <summary>
+    ''' Converts an array of Bytes to a base-64 encoded string
+    ''' </summary>
+    ''' <param name="dataArray"></param>
+    ''' <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
+    ''' <param name="strDataTypeNameReturn">Output: Datatype name</param>
+    ''' <param name="removeTrailingPaddingChars"></param>
+    ''' <returns>Base-64 encoded string</returns>
     Public Shared Function EncodeNumericArray(
       dataArray() As Byte,
       <Out()> ByRef intPrecisionBitsReturn As Int32,
       <Out()> ByRef strDataTypeNameReturn As String,
-      Optional ByVal removeTrailingPaddingChars As Boolean = False) As String
-
-        ' Converts an array of Bytes to a base-64 encoded string
-        ' In addition, returns the bits of precision and datatype name for the given data type
+      Optional removeTrailingPaddingChars As Boolean = False) As String
 
         Const DATA_TYPE_PRECISION_BYTES = 1
         Const DATA_TYPE_NAME = "byte"
@@ -303,17 +352,25 @@ Public Class clsBase64EncodeDecode
         Else
             Return B64encode(dataArray, removeTrailingPaddingChars)
         End If
-
     End Function
 
+    ''' <summary>
+    ''' Converts an array of 16-bit integers to a base-64 encoded string
+    ''' </summary>
+    ''' <param name="dataArray"></param>
+    ''' <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
+    ''' <param name="strDataTypeNameReturn">Output: Datatype name</param>
+    ''' <param name="removeTrailingPaddingChars"></param>
+    ''' <param name="eEndianMode"></param>
+    ''' <returns>Base-64 encoded string</returns>
     Public Shared Function EncodeNumericArray(
       dataArray() As Int16,
       <Out()> ByRef intPrecisionBitsReturn As Int32,
       <Out()> ByRef strDataTypeNameReturn As String,
-      Optional ByVal removeTrailingPaddingChars As Boolean = False,
-      Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As String
+      Optional removeTrailingPaddingChars As Boolean = False,
+      Optional eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As String
 
-        ' Converts an array of 16-bit integers to a base-64 encoded string
+        ' 
         ' In addition, returns the bits of precision and datatype name for the given data type
 
         Const DATA_TYPE_PRECISION_BYTES = 2
@@ -355,18 +412,23 @@ Public Class clsBase64EncodeDecode
 
             Return B64encode(bytArray, removeTrailingPaddingChars)
         End If
-
     End Function
 
+    ''' <summary>
+    ''' Converts an array of 32-bit integers to a base-64 encoded string
+    ''' </summary>
+    ''' <param name="dataArray"></param>
+    ''' <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
+    ''' <param name="strDataTypeNameReturn">Output: Datatype name</param>
+    ''' <param name="removeTrailingPaddingChars"></param>
+    ''' <param name="eEndianMode"></param>
+    ''' <returns>Base-64 encoded string</returns>
     Public Shared Function EncodeNumericArray(
       dataArray() As Int32,
       <Out()> ByRef intPrecisionBitsReturn As Int32,
       <Out()> ByRef strDataTypeNameReturn As String,
-      Optional ByVal removeTrailingPaddingChars As Boolean = False,
-      Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As String
-
-        ' Converts an array of 32-bit integers to a base-64 encoded string
-        ' In addition, returns the bits of precision and datatype name for the given data type
+      Optional removeTrailingPaddingChars As Boolean = False,
+      Optional eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As String
 
         Const DATA_TYPE_PRECISION_BYTES = 4
         Const DATA_TYPE_NAME = "int"
@@ -409,18 +471,23 @@ Public Class clsBase64EncodeDecode
 
             Return B64encode(bytArray, removeTrailingPaddingChars)
         End If
-
     End Function
 
+    ''' <summary>
+    ''' Converts an array of singles (floats) to a base-64 encoded string
+    ''' </summary>
+    ''' <param name="dataArray"></param>
+    ''' <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
+    ''' <param name="strDataTypeNameReturn">Output: Datatype name</param>
+    ''' <param name="removeTrailingPaddingChars"></param>
+    ''' <param name="eEndianMode"></param>
+    ''' <returns>Base-64 encoded string</returns>
     Public Shared Function EncodeNumericArray(
       dataArray() As Single,
       <Out()> ByRef intPrecisionBitsReturn As Int32,
       <Out()> ByRef strDataTypeNameReturn As String,
-      Optional ByVal removeTrailingPaddingChars As Boolean = False,
-      Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As String
-
-        ' Converts an array of singles to a base-64 encoded string
-        ' In addition, returns the bits of precision and datatype name for the given data type
+      Optional removeTrailingPaddingChars As Boolean = False,
+      Optional eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As String
 
         Const DATA_TYPE_PRECISION_BYTES = 4
         Const DATA_TYPE_NAME = "float"
@@ -463,18 +530,23 @@ Public Class clsBase64EncodeDecode
 
             Return B64encode(bytArray, removeTrailingPaddingChars)
         End If
-
     End Function
 
+    ''' <summary>
+    ''' Converts an array of doubles to a base-64 encoded string
+    ''' </summary>
+    ''' <param name="dataArray"></param>
+    ''' <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
+    ''' <param name="strDataTypeNameReturn">Output: Datatype name</param>
+    ''' <param name="removeTrailingPaddingChars"></param>
+    ''' <param name="eEndianMode"></param>
+    ''' <returns>Base-64 encoded string</returns>
     Public Shared Function EncodeNumericArray(
       dataArray() As Double,
       <Out()> ByRef intPrecisionBitsReturn As Int32,
       <Out()> ByRef strDataTypeNameReturn As String,
-      Optional ByVal removeTrailingPaddingChars As Boolean = False,
-      Optional ByVal eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As String
-
-        ' Converts an array of doubles to a base-64 encoded string
-        ' In addition, returns the bits of precision and datatype name for the given data type
+      Optional removeTrailingPaddingChars As Boolean = False,
+      Optional eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As String
 
         Const DATA_TYPE_PRECISION_BYTES = 8
         Const DATA_TYPE_NAME = "float"
@@ -521,7 +593,5 @@ Public Class clsBase64EncodeDecode
 
             Return B64encode(bytArray, removeTrailingPaddingChars)
         End If
-
     End Function
-
 End Class

@@ -16,7 +16,6 @@ Imports System.Xml
 ' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified in July 2016
 
 Public MustInherit Class clsMSXMLFileReaderBaseClass
     Inherits clsMSDataFileReaderBaseClass
@@ -48,13 +47,16 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
 #End Region
 
 #Region "Structures"
+
     Private Structure udtElementInfoType
         Public Name As String
         Public Depth As Integer
     End Structure
+
 #End Region
 
 #Region "Classwide Variables"
+
     Protected mDataFileOrTextStream As TextReader
     Protected mXMLReader As XmlReader
 
@@ -67,13 +69,15 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
     Protected mSkipNextReaderAdvance As Boolean
     Protected mSkippedStartElementAdvance As Boolean
 
-    Protected mCurrentElement As String           ' Last element name handed off from reader; set to "" when an End Element is encountered
+    ' Last element name handed off from reader; set to "" when an End Element is encountered
+    Protected mCurrentElement As String
 
     Protected mParentElementStack As Stack
 
 #End Region
 
 #Region "Processing Options and Interface Functions"
+
     Public ReadOnly Property SAXParserLineNumber() As Integer
         Get
             If mXMLReader Is Nothing Then
@@ -106,6 +110,7 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
             mSkipBinaryData = Value
         End Set
     End Property
+
 #End Region
 
     Public Overrides Sub CloseFile()
@@ -117,7 +122,11 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
         mInputFilePath = String.Empty
     End Sub
 
-    Public Shared Function ConvertTimeFromTimespanToXmlDuration(dtTimeSpan As TimeSpan, blnTrimLeadingZeroValues As Boolean, Optional ByVal bytSecondsValueDigitsAfterDecimal As Byte = 3) As String
+    Public Shared Function ConvertTimeFromTimespanToXmlDuration(
+      dtTimeSpan As TimeSpan,
+      blnTrimLeadingZeroValues As Boolean,
+      Optional bytSecondsValueDigitsAfterDecimal As Byte = 3) As String
+
         ' XML duration value is typically of the form "PT249.559S" or "PT4M9.559S"
         '  where the S indicates seconds and M indicates minutes
         ' Thus, "PT249.559S" means 249.559 seconds while
@@ -171,7 +180,9 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
                             With objMatch.Groups(1)
                                 If IsNumber(.Captures(0).Value) Then
                                     dblSeconds = CDbl(.Captures(0).Value)
-                                    strXMLDuration = strXMLDuration.Substring(0, .Index) & Math.Round(dblSeconds, bytSecondsValueDigitsAfterDecimal).ToString & "S"
+                                    strXMLDuration = strXMLDuration.Substring(0, .Index) &
+                                                     Math.Round(dblSeconds, bytSecondsValueDigitsAfterDecimal).ToString &
+                                                     "S"
                                 End If
                             End With
                         End If
@@ -196,7 +207,8 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
                     End If
 
                     If intCharIndex > 0 Then
-                        strXMLDuration = strXMLDuration.Substring(0, intDateIndex + 1) & strXMLDuration.Substring(intCharIndex + 2)
+                        strXMLDuration = strXMLDuration.Substring(0, intDateIndex + 1) &
+                                         strXMLDuration.Substring(intCharIndex + 2)
 
                         intTimeIndex = strXMLDuration.IndexOf("T"c)
                         intCharIndex = strXMLDuration.IndexOf("T0H", intTimeIndex, StringComparison.Ordinal)
@@ -209,7 +221,8 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
                         End If
 
                         If intCharIndex > 0 Then
-                            strXMLDuration = strXMLDuration.Substring(0, intTimeIndex + 1) & strXMLDuration.Substring(intCharIndex + 2)
+                            strXMLDuration = strXMLDuration.Substring(0, intTimeIndex + 1) &
+                                             strXMLDuration.Substring(intCharIndex + 2)
                         End If
                     End If
                 End If
@@ -227,7 +240,6 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
         End If
 
         Return strXMLDuration
-
     End Function
 
     Public Shared Function ConvertTimeFromXmlDurationToTimespan(strTime As String, dtDefaultTimeSpan As TimeSpan) As TimeSpan
@@ -250,7 +262,6 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
         End Try
 
         Return dtTimeSpan
-
     End Function
 
     Protected Function GetAttribTimeValueMinutes(strAttributeName As String) As Single
@@ -313,7 +324,7 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
 
     Protected MustOverride Function GetCurrentSpectrum() As clsSpectrumInfo
 
-    Protected Function GetParentElement(Optional ByVal intElementDepth As Integer = 0) As String
+    Protected Function GetParentElement(Optional intElementDepth As Integer = 0) As String
         ' Returns the element name one level up from intDepth
         ' If intDepth = 0, then returns the element name one level up from the last entry in mParentElementStack
 
@@ -325,7 +336,8 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
 
         If intElementDepth >= 2 And intElementDepth <= mParentElementStack.Count Then
             Try
-                udtElementInfo = CType(mParentElementStack.ToArray(mParentElementStack.Count - intElementDepth + 1), udtElementInfoType)
+                udtElementInfo = CType(mParentElementStack.ToArray(mParentElementStack.Count - intElementDepth + 1),
+                                       udtElementInfoType)
                 Return udtElementInfo.Name
             Catch ex As Exception
                 Return String.Empty
@@ -357,7 +369,6 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
         Else
             mParentElementStack.Clear()
         End If
-
     End Sub
 
     Public Overrides Function OpenFile(strInputFilePath As String) As Boolean
@@ -438,7 +449,6 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
             udtElementInfo = CType(mParentElementStack.Pop(), udtElementInfoType)
             Return udtElementInfo.Name
         End If
-
     End Function
 
     Protected Sub ParentElementStackAdd(objXMLReader As XmlReader)
@@ -463,7 +473,6 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
             .Depth = objXMLReader.Depth
         End With
         mParentElementStack.Push(udtElementInfo)
-
     End Sub
 
     Protected MustOverride Sub ParseStartElement()
@@ -502,13 +511,13 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
                         End If
                     End If
                 End If
-               
+
                 blnReadSuccessful = True
                 Do While Not mSpectrumFound AndAlso
-                   blnReadSuccessful AndAlso
-                   Not mAbortProcessing AndAlso
-                  (mXMLReader.ReadState = ReadState.Initial Or
-                   mXMLReader.ReadState = ReadState.Interactive)
+                         blnReadSuccessful AndAlso
+                         Not mAbortProcessing AndAlso
+                         (mXMLReader.ReadState = ReadState.Initial Or
+                          mXMLReader.ReadState = ReadState.Interactive)
 
                     mSpectrumFound = False
 
@@ -554,7 +563,6 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
         End Try
 
         Return mSpectrumFound
-
     End Function
 
     Protected Function XMLTextReaderGetInnerText() As String
@@ -585,5 +593,4 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
             ' Ignore Errors Here
         End Try
     End Sub
-
 End Class

@@ -12,9 +12,8 @@ Imports System.Runtime.InteropServices
 ' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified September 17, 2010
 
-<Serializable()> _
+<Serializable()>
 Public Class clsSpectrumInfoMsMsText
     Inherits clsSpectrumInfo
 
@@ -25,24 +24,31 @@ Public Class clsSpectrumInfoMsMsText
     Public Const MAX_CHARGE_COUNT As Integer = 5
 
 #Region "Spectrum Variables"
+
     Protected mSpectrumTitleWithCommentChars As String
     Protected mSpectrumTitle As String
     Protected mParentIonLineText As String
-    Protected mParentIonMH As Double                ' DTA files include this value, but not the MZ value
+
+    ' DTA files include this value, but not the MZ value
+    Protected mParentIonMH As Double
 
     Public ParentIonChargeCount As Integer
-    Public ParentIonCharges() As Integer            ' 0 if unknown, otherwise typically 1, 2, or 3; Max index is MAX_CHARGE_COUNT-1
+
+    ' 0 if unknown, otherwise typically 1, 2, or 3; Max index is MAX_CHARGE_COUNT-1
+    Public ParentIonCharges() As Integer
 
     Protected mChargeIs2And3Plus As Boolean
+
 #End Region
 
 #Region "Spectrum Variable Interface Functions"
+
     Public Property SpectrumTitleWithCommentChars() As String
         Get
             Return mSpectrumTitleWithCommentChars
         End Get
         Set(Value As String)
-            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mSpectrumTitleWithCommentChars = Value
         End Set
     End Property
@@ -52,7 +58,7 @@ Public Class clsSpectrumInfoMsMsText
             Return mSpectrumTitle
         End Get
         Set(Value As String)
-            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mSpectrumTitle = Value
         End Set
     End Property
@@ -62,7 +68,7 @@ Public Class clsSpectrumInfoMsMsText
             Return mParentIonLineText
         End Get
         Set(Value As String)
-            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mParentIonLineText = Value
         End Set
     End Property
@@ -72,7 +78,7 @@ Public Class clsSpectrumInfoMsMsText
             Return mParentIonMH
         End Get
         Set(Value As Double)
-            MyBase.mSpectrumStatus = clsSpectrumInfo.eSpectrumStatusConstants.DataDefined
+            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
             mParentIonMH = Value
         End Set
     End Property
@@ -85,6 +91,7 @@ Public Class clsSpectrumInfoMsMsText
             mChargeIs2And3Plus = Value
         End Set
     End Property
+
 #End Region
 
     Public Overrides Sub Clear()
@@ -99,7 +106,6 @@ Public Class clsSpectrumInfoMsMsText
         ReDim ParentIonCharges(MAX_CHARGE_COUNT - 1)
 
         mChargeIs2And3Plus = False
-
     End Sub
 
     Public Sub AddOrUpdateChargeList(intNewCharge As Integer, blnAddToExistingChargeList As Boolean)
@@ -150,12 +156,9 @@ Public Class clsSpectrumInfoMsMsText
     End Sub
 
     Public Shadows Function Clone() As clsSpectrumInfoMsMsText
-        Dim objTarget As clsSpectrumInfoMsMsText
-
-        objTarget = New clsSpectrumInfoMsMsText
 
         ' First create a shallow copy of this object
-        objTarget = CType(Me.MemberwiseClone, clsSpectrumInfoMsMsText)
+        Dim objTarget = CType(Me.MemberwiseClone, clsSpectrumInfoMsMsText)
 
         ' Next, manually copy the array objects and any other objects
         With objTarget
@@ -244,15 +247,18 @@ Public Class clsSpectrumInfoMsMsText
     Public Overrides Sub Validate(blnComputeBasePeakAndTIC As Boolean, blnUpdateMZRange As Boolean)
         MyBase.Validate(blnComputeBasePeakAndTIC, blnUpdateMZRange)
 
-        If ParentIonMZ <> 0 And ParentIonMH = 0 Then
+        If Math.Abs(ParentIonMZ) > Single.Epsilon And Math.Abs(ParentIonMH) < Single.Epsilon Then
             If ParentIonChargeCount > 0 Then
-                ParentIonMH = clsMSDataFileReaderBaseClass.ConvoluteMass(ParentIonMZ, ParentIonCharges(0), 1, clsMSDataFileReaderBaseClass.CHARGE_CARRIER_MASS_MONOISO)
+                ParentIonMH = clsMSDataFileReaderBaseClass.ConvoluteMass(ParentIonMZ, ParentIonCharges(0), 1,
+                                                                         clsMSDataFileReaderBaseClass.
+                                                                            CHARGE_CARRIER_MASS_MONOISO)
             End If
-        ElseIf ParentIonMZ = 0 And ParentIonMH <> 0 Then
+        ElseIf Math.Abs(ParentIonMZ) < Single.Epsilon And Math.Abs(ParentIonMH) > Single.Epsilon Then
             If ParentIonChargeCount > 0 Then
-                ParentIonMZ = clsMSDataFileReaderBaseClass.ConvoluteMass(ParentIonMH, 1, ParentIonCharges(0), clsMSDataFileReaderBaseClass.CHARGE_CARRIER_MASS_MONOISO)
+                ParentIonMZ = clsMSDataFileReaderBaseClass.ConvoluteMass(ParentIonMH, 1, ParentIonCharges(0),
+                                                                         clsMSDataFileReaderBaseClass.
+                                                                            CHARGE_CARRIER_MASS_MONOISO)
             End If
         End If
-
     End Sub
 End Class

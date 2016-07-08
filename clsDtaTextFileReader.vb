@@ -11,7 +11,7 @@ Option Strict On
 ' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified February 16, 2012
+
 Imports System.Collections.Generic
 Imports System.IO
 Imports System.Runtime.InteropServices
@@ -33,18 +33,22 @@ Public Class clsDtaTextFileReader
     Public Const DTA_TEXT_FILE_EXTENSION As String = "_DTA.TXT"
 
     Protected Const COMMENT_LINE_START_CHAR As Char = "="c        ' The comment character is an Equals sign
+
 #End Region
 
 #Region "Classwide Variables"
+
     Protected mCombineIdenticalSpectra As Boolean
 
     ' mHeaderSaved is used to store the previous header title; it is needed when the next
     '  header was read for comparison with the current scan, but it didn't match, and thus
     '  wasn't used for grouping
     Protected mHeaderSaved As String
+
 #End Region
 
 #Region "Processing Options and Interface Functions"
+
     Public Property CombineIdenticalSpectra() As Boolean
         Get
             Return mCombineIdenticalSpectra
@@ -53,6 +57,7 @@ Public Class clsDtaTextFileReader
             mCombineIdenticalSpectra = Value
         End Set
     End Property
+
 #End Region
 
     Protected Overrides Sub InitializeLocalVariables()
@@ -135,7 +140,9 @@ Public Class clsDtaTextFileReader
                             MyBase.AddNewRecentFileText(strLineIn)
 
                             ' Parse the parent ion info and read the MsMs Data
-                            blnSpectrumFound = ReadSingleSpectrum(mFileReader, strLineIn, mCurrentMsMsDataList, mCurrentSpectrum, mInFileLineNumber, intLastProgressUpdateLine, strMostRecentLineIn)
+                            blnSpectrumFound = ReadSingleSpectrum(mFileReader, strLineIn, mCurrentMsMsDataList,
+                                                                  mCurrentSpectrum, mInFileLineNumber,
+                                                                  intLastProgressUpdateLine, strMostRecentLineIn)
 
                             If blnSpectrumFound Then
                                 If MyBase.mReadTextDataOnly Then
@@ -144,7 +151,8 @@ Public Class clsDtaTextFileReader
                                 Else
                                     With mCurrentSpectrum
                                         Try
-                                            .DataCount = MyBase.ParseMsMsDataList(mCurrentMsMsDataList, .MZList, .IntensityList, .AutoShrinkDataLists)
+                                            .DataCount = MyBase.ParseMsMsDataList(mCurrentMsMsDataList, .MZList,
+                                                                                  .IntensityList, .AutoShrinkDataLists)
 
                                             .Validate(blnComputeBasePeakAndTIC:=True, blnUpdateMZRange:=True)
 
@@ -156,7 +164,9 @@ Public Class clsDtaTextFileReader
                                 End If
                             End If
 
-                            If blnSpectrumFound And mCombineIdenticalSpectra And mCurrentSpectrum.ParentIonCharges(0) = 2 Then
+                            If blnSpectrumFound AndAlso
+                               mCombineIdenticalSpectra AndAlso
+                               mCurrentSpectrum.ParentIonCharges(0) = 2 Then
                                 ' See if the next spectrum is the identical data, but the charge is 3 (this is a common situation with .dta files prepared by Lcq_Dta)
 
                                 strLineIn = String.Copy(strMostRecentLineIn)
@@ -172,7 +182,10 @@ Public Class clsDtaTextFileReader
                                     strCompareTitle = MyBase.CleanupComment(mHeaderSaved, mCommentLineStartChar, True)
 
                                     If strCompareTitle.ToLower.EndsWith("3.dta") Then
-                                        If mCurrentSpectrum.SpectrumTitle.Substring(0, mCurrentSpectrum.SpectrumTitle.Length - 5) = strCompareTitle.Substring(0, strCompareTitle.Length - 5) Then
+                                        If String.Equals(mCurrentSpectrum.SpectrumTitle.Substring(0, mCurrentSpectrum.SpectrumTitle.Length - 5),
+                                                         strCompareTitle.Substring(0, strCompareTitle.Length - 5),
+                                                         StringComparison.InvariantCultureIgnoreCase) Then
+
                                             ' Yes, the spectra match
 
                                             With mCurrentSpectrum
@@ -229,7 +242,6 @@ Public Class clsDtaTextFileReader
         End Try
 
         Return blnSpectrumFound
-
     End Function
 
     Public Function ReadSingleDtaFile(
@@ -265,7 +277,9 @@ Public Class clsDtaTextFileReader
                     If Not strLineIn Is Nothing Then mTotalBytesRead += strLineIn.Length + 2
                     If Not String.IsNullOrWhiteSpace(strLineIn) Then
                         If Char.IsDigit(strLineIn.Trim(), 0) Then
-                            blnSpectrumFound = ReadSingleSpectrum(fileReader, strLineIn, lstMsMsDataList, objSpectrumInfoMsMsText, mInFileLineNumber, intLastProgressUpdateLine)
+                            blnSpectrumFound = ReadSingleSpectrum(fileReader, strLineIn, lstMsMsDataList,
+                                                                  objSpectrumInfoMsMsText, mInFileLineNumber,
+                                                                  intLastProgressUpdateLine)
                             Exit Do
                         End If
                     End If
@@ -280,7 +294,8 @@ Public Class clsDtaTextFileReader
                 If blnSpectrumFound Then
                     ' Try to determine the scan numbers by parsing strInputFilePath
                     With objSpectrumInfoMsMsText
-                        MyBase.ExtractScanInfoFromDtaHeader(Path.GetFileName(strInputFilePath), .ScanNumber, .ScanNumberEnd, .ScanCount)
+                        MyBase.ExtractScanInfoFromDtaHeader(Path.GetFileName(strInputFilePath), .ScanNumber,
+                                                            .ScanNumberEnd, .ScanCount)
                     End With
 
                     ReDim strMsMsDataList(lstMsMsDataList.Count - 1)
@@ -303,7 +318,6 @@ Public Class clsDtaTextFileReader
         End Try
 
         Return blnSpectrumFound
-
     End Function
 
     Private Function ReadSingleSpectrum(
@@ -399,7 +413,5 @@ Public Class clsDtaTextFileReader
         End If
 
         Return blnSpectrumFound
-
     End Function
-
 End Class

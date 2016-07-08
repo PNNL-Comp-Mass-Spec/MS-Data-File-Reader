@@ -2,6 +2,7 @@ Option Strict On
 
 Imports System.IO
 Imports System.Runtime.InteropServices
+Imports System.Runtime.Serialization.Formatters
 ' This is the base class for the various MS data file readres
 '
 ' -------------------------------------------------------------------------------
@@ -13,23 +14,27 @@ Imports System.Runtime.InteropServices
 ' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified February 8, 2013
 
 Public MustInherit Class clsMSDataFileReaderBaseClass
-
     Public Event ProgressReset()
-    Public Event ProgressChanged(taskDescription As String, percentComplete As Single)     ' PercentComplete ranges from 0 to 100, but can contain decimal percentage values
+    Public Event ProgressChanged(taskDescription As String, percentComplete As Single)
+
+    ' PercentComplete ranges from 0 to 100, but can contain decimal percentage values
     Public Event ProgressComplete()
 
     Protected mProgressStepDescription As String
-    Protected mProgressPercentComplete As Single        ' Ranges from 0 to 100, but can contain decimal percentage values
+
+    ' Ranges from 0 to 100, but can contain decimal percentage values
+    Protected mProgressPercentComplete As Single
+
 
     Public Sub New()
         InitializeLocalVariables()
     End Sub
 
 #Region "Constants and Enums"
-    Public Const PROGRAM_DATE As String = "May 19, 2006"
+
+    Public Const PROGRAM_DATE As String = "July 8, 2016"
 
     Public Const CHARGE_CARRIER_MASS_AVG As Double = 1.00739
     Public Const CHARGE_CARRIER_MASS_MONOISO As Double = 1.00727649
@@ -50,11 +55,14 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
         DtaText = 2
         MGF = 3
     End Enum
+
 #End Region
 
 #Region "Structures"
+
     Protected Structure udtFileStatsType
-        Public ScanCount As Integer                   ' Actual scan count if mDataReaderMode = Cached or mDataReaderMode = Indexed, or scan count as reported by the XML file if mDataReaderMode = Sequential
+        ' Actual scan count if mDataReaderMode = Cached or mDataReaderMode = Indexed, or scan count as reported by the XML file if mDataReaderMode = Sequential 
+        Public ScanCount As Integer
         Public ScanNumberMinimum As Integer
         Public ScanNumberMaximum As Integer
     End Structure
@@ -62,6 +70,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
 #End Region
 
 #Region "Classwide Variables"
+
     Protected mChargeCarrierMass As Double
     Protected mErrorMessage As String
     Protected mFileVersion As String
@@ -99,7 +108,6 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
     ''' Setting mAutoShrinkDataLists to False helps reduce slow, increased memory usage due to inefficient garbage collection
     ''' (this is not much of an issue in 2016, and thus this parameter defaults to True)
     ''' </remarks>
-    ''' 
     Public Property AutoShrinkDataLists() As Boolean
         Get
             Return mAutoShrinkDataLists
@@ -118,11 +126,13 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
             End If
         End Get
     End Property
+
     Public ReadOnly Property CachedSpectraScanNumberMinimum() As Integer
         Get
             Return mInputFileStats.ScanNumberMinimum
         End Get
     End Property
+
     Public ReadOnly Property CachedSpectraScanNumberMaximum() As Integer
         Get
             Return mInputFileStats.ScanNumberMaximum
@@ -193,52 +203,61 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
             Return mInputFileStats.ScanCount
         End Get
     End Property
+
 #End Region
 
     Public Sub AbortProcessingNow()
         mAbortProcessing = True
     End Sub
 
-    Protected Function CBoolSafe(strValue As String, DefaultValue As Boolean) As Boolean
+    Protected Function CBoolSafe(strValue As String, defaultValue As Boolean) As Boolean
         Try
             If String.IsNullOrWhiteSpace(strValue) Then
-                Return DefaultValue
-            ElseIf IsNumber(strValue) Then
-                If Math.Abs(Single.Parse(strValue)) < Single.Epsilon Then
+                Return defaultValue
+            End If
+
+            Dim dblValue As Double
+            If Double.TryParse(strValue, dblValue) Then
+                If Math.Abs(dblValue) < Single.Epsilon Then
                     Return False
                 Else
                     Return True
                 End If
-            ElseIf strValue.ToLower = Boolean.FalseString.ToLower OrElse strValue.ToLower = Boolean.TrueString.ToLower Then
-                Return Boolean.Parse(strValue)
-            Else
-                Return DefaultValue
             End If
+
+            Dim blnValue As Boolean
+            If Boolean.TryParse(strValue, blnValue) Then
+                Return blnValue
+            End If
+
+            Return defaultValue
+
         Catch ex As Exception
-            Return DefaultValue
+            Return defaultValue
         End Try
     End Function
 
-    Protected Function CDblSafe(strValue As String, DefaultValue As Double) As Double
+    Protected Function CDblSafe(strValue As String, defaultValue As Double) As Double
         Try
             Return Double.Parse(strValue)
         Catch ex As Exception
-            Return DefaultValue
-        End Try
-    End Function
-    Protected Function CIntSafe(strValue As String, DefaultValue As Integer) As Integer
-        Try
-            Return Integer.Parse(strValue)
-        Catch ex As Exception
-            Return DefaultValue
+            Return defaultValue
         End Try
     End Function
 
-    Protected Function CSngSafe(strValue As String, DefaultValue As Single) As Single
+    Protected Function CIntSafe(strValue As String, defaultValue As Integer) As Integer
+        Try
+            Return Integer.Parse(strValue)
+        Catch ex As Exception
+            Return defaultValue
+        End Try
+    End Function
+
+    Protected Function CSngSafe(strValue As String, defaultValue As Single) As Single
         Try
             Return Single.Parse(strValue)
         Catch ex As Exception
-            Return DefaultValue
+            Return defaultValue
         End Try
     End Function
 
@@ -248,9 +267,20 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
         Return ConvoluteMass(dblMassMZ, intCurrentCharge, intDesiredCharge, mChargeCarrierMass)
     End Function
 
-    Public Shared Function ConvoluteMass(dblMassMZ As Double, intCurrentCharge As Integer, intDesiredCharge As Integer, dblChargeCarrierMass As Double) As Double
-        ' Converts dblMassMZ to the MZ that would appear at the given intDesiredCharge
-        ' To return the neutral mass, set intDesiredCharge to 0
+    ''' <summary>
+    ''' Converts dblMassMZ to the MZ that would appear at the given intDesiredCharge
+    ''' </summary>
+    ''' <param name="dblMassMZ"></param>
+    ''' <param name="intCurrentCharge"></param>
+    ''' <param name="intDesiredCharge"></param>
+    ''' <param name="dblChargeCarrierMass"></param>
+    ''' <returns></returns>
+    ''' <remarks>To return the neutral mass, set intDesiredCharge to 0</remarks>
+    Public Shared Function ConvoluteMass(
+      dblMassMZ As Double,
+      intCurrentCharge As Integer,
+      intDesiredCharge As Integer,
+      dblChargeCarrierMass As Double) As Double
 
         Dim dblNewMZ As Double
 
@@ -284,10 +314,11 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
         End If
 
         Return dblNewMZ
-
     End Function
 
-    Public Shared Function DetermineFileType(strFileNameOrPath As String, <Out()> ByRef eFileType As dftDataFileTypeConstants) As Boolean
+    Public Shared Function DetermineFileType(
+      strFileNameOrPath As String,
+      <Out()> ByRef eFileType As dftDataFileTypeConstants) As Boolean
 
         ' Returns true if the file type is known
         ' Returns false if unknown or an error
@@ -341,7 +372,6 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
         End Try
 
         Return blnKnownType
-
     End Function
 
     Public Shared Function GetFileReaderBasedOnFileType(strFileNameOrPath As String) As clsMSDataFileReaderBaseClass
@@ -391,7 +421,6 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
         End If
 
         Return objFileAccessor
-
     End Function
 
     Protected MustOverride Function GetInputFileLocation() As String
@@ -420,10 +449,10 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
         End Try
 
         Return blnSuccess
-
     End Function
 
-    Public Overridable Function GetSpectrumByIndex(intSpectrumIndex As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+    Public Overridable Function GetSpectrumByIndex(intSpectrumIndex As Integer,
+                                                   <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
         ' Returns True if success, False if failure
         ' Only valid if we have Cached data in memory
 
@@ -444,10 +473,10 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
         End If
 
         Return blnSuccess
-
     End Function
 
-    Public Overridable Function GetSpectrumByScanNumber(intScanNumber As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
+    Public Overridable Function GetSpectrumByScanNumber(intScanNumber As Integer,
+                                                        <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
         ' Looks for the first entry in mCachedSpectra with .ScanNumber = intScanNumber
         ' Returns True if success, False if failure
         ' Only valid if we have Cached data in memory
@@ -486,7 +515,6 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
         End Try
 
         Return blnSuccess
-
     End Function
 
     Protected Overridable Sub InitializeLocalVariables()
@@ -558,9 +586,9 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
             Using swErrorLog = New StreamWriter(New FileStream(strLogFilePath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
 
                 swErrorLog.WriteLine(DateTime.Now & ControlChars.Tab &
-                                      strCallingFunction & ControlChars.Tab &
-                                      mErrorMessage & ControlChars.Tab &
-                                      GetInputFileLocation())
+                                     strCallingFunction & ControlChars.Tab &
+                                     mErrorMessage & ControlChars.Tab &
+                                     GetInputFileLocation())
             End Using
 
         Catch ex As Exception
@@ -662,7 +690,6 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
         End Try
 
         Return blnSuccess
-
     End Function
 
     Protected Sub ResetProgress()
@@ -695,6 +722,10 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
         End With
     End Sub
 
+    Public Sub UpdateProgressDescription(strProgressStepDescription As String)
+        mProgressStepDescription = strProgressStepDescription
+    End Sub
+
     Protected Sub UpdateProgress(strProgressStepDescription As String)
         UpdateProgress(strProgressStepDescription, mProgressPercentComplete)
     End Sub
@@ -708,7 +739,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
     End Sub
 
     Protected Sub UpdateProgress(strProgressStepDescription As String, sngPercentComplete As Single)
-        mProgressStepDescription = String.Copy(strProgressStepDescription)
+        mProgressStepDescription = strProgressStepDescription
         If sngPercentComplete < 0 Then
             sngPercentComplete = 0
         ElseIf sngPercentComplete > 100 Then
@@ -718,5 +749,4 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
 
         RaiseEvent ProgressChanged(Me.ProgressStepDescription, Me.ProgressPercentComplete)
     End Sub
-
 End Class
