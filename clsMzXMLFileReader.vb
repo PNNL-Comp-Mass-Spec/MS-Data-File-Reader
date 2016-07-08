@@ -1,6 +1,8 @@
 Option Strict On
 
+Imports System.Runtime.InteropServices
 Imports System.Xml
+
 ' This class uses a SAX Parser to read an mzXML file
 
 ' -------------------------------------------------------------------------------
@@ -12,7 +14,6 @@ Imports System.Xml
 ' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
 ' -------------------------------------------------------------------------------
 '
-' Last modified in July 2016
 
 Public Class clsMzXMLFileReader
     Inherits clsMSXMLFileReaderBaseClass
@@ -575,32 +576,49 @@ Public Class clsMzXMLFileReader
 
     End Function
 
-    Private Sub ValidateMZXmlFileVersion(strFileVersion As String)
+    Public Shared Function ExtractMzXmlFileVersion(xmlWithFileVersion As String, <Out()> ByRef xmlFileVersion As String) As Boolean
+
+        ' Currently, the supported versions are mzXML_2.x and mzXML_3.x
+        Dim objFileVersionRegEx = New Text.RegularExpressions.Regex("mzXML_[^\s""/]+", Text.RegularExpressions.RegexOptions.IgnoreCase)
+
+        ' Validate the mzXML file version
+        If Not String.IsNullOrWhiteSpace(xmlWithFileVersion) Then
+            ' Parse out the version number
+            Dim objMatch = objFileVersionRegEx.Match(xmlWithFileVersion)
+            If objMatch.Success AndAlso Not objMatch.Value Is Nothing Then
+                ' Record the version
+                xmlFileVersion = objMatch.Value
+                Return True
+            End If
+        End If
+
+        xmlFileVersion = String.Empty
+        Return False
+    End Function
+
+    Private Sub ValidateMZXmlFileVersion(xmlWithFileVersion As String)
         ' This sub should be called from ParseStartElement
 
-        Dim objFileVersionRegEx As Text.RegularExpressions.Regex
-        Dim objMatch As Text.RegularExpressions.Match
         Dim strMessage As String
 
         Try
             mFileVersion = String.Empty
 
-            ' Currently, the supported versions are mzXML_2.x and mzXML_3.x
-            objFileVersionRegEx = New Text.RegularExpressions.Regex("mzXML_[^\s""/]+", Text.RegularExpressions.RegexOptions.IgnoreCase)
-
-            ' Validate the mzXML file version
-            If Not strFileVersion Is Nothing AndAlso strFileVersion.Length > 0 Then
-                ' Parse out the version number
-                objMatch = objFileVersionRegEx.Match(strFileVersion)
-                If objMatch.Success AndAlso Not objMatch.Value Is Nothing Then
-                    ' Record the version
-                    mFileVersion = objMatch.Value
+            If Not ExtractMzXmlFileVersion(xmlWithFileVersion, mFileVersion) Then
+                strMessage = "Unknown mzXML file version; expected text not found in xmlWithFileVersion"
+                If mParseFilesWithUnknownVersion Then
+                    strMessage &= "; attempting to parse since ParseFilesWithUnknownVersion = True"
+                Else
+                    mAbortProcessing = True
+                    strMessage &= "; aborting read"
                 End If
+                LogErrors("ValidateMZXmlFileVersion", strMessage)
+                Return
             End If
 
             If mFileVersion.Length > 0 Then
-                If Not (mFileVersion.ToLower.IndexOf("mzxml_2", StringComparison.Ordinal) >= 0 OrElse
-                        mFileVersion.ToLower.IndexOf("mzxml_3", StringComparison.Ordinal) >= 0) Then
+                If Not (mFileVersion.IndexOf("mzxml_2", StringComparison.InvariantCultureIgnoreCase) >= 0 OrElse
+                        mFileVersion.IndexOf("mzxml_3", StringComparison.InvariantCultureIgnoreCase) >= 0) Then
                     ' strFileVersion contains mzXML_ but not mxXML_2 or mxXML_3
                     ' Thus, assume unknown version
                     ' Log error and abort if mParseFilesWithUnknownVersion = False

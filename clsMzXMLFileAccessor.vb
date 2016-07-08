@@ -33,7 +33,6 @@ Imports System.Xml
 ' SOFTWARE.  This notice including this sentence must appear on any copies of
 ' this computer software.
 '
-' Last modified September 17, 2010
 
 Public Class clsMzXMLFileAccessor
     Inherits clsMSDataFileAccessorBaseClass
@@ -120,7 +119,7 @@ Public Class clsMzXMLFileAccessor
 #End Region
 
     Protected Overrides Function AdvanceFileReaders(eElementMatchMode As emmElementMatchModeConstants) As Boolean
-        ' Uses the BinaryTextReader to look for strTextToFind
+        ' Uses the BinaryTextReader to look for the given element type (as specified by eElementMatchMode)
 
         Dim blnMatchFound As Boolean
         Dim blnAppendingText As Boolean
@@ -355,7 +354,7 @@ Public Class clsMzXMLFileAccessor
 
         strExtractedText = MyBase.ExtractTextBetweenOffsets(strFilePath, lngStartByteOffset, lngEndByteOffset)
 
-        If Not strExtractedText Is Nothing AndAlso strExtractedText.Length > 0 Then
+        If Not String.IsNullOrWhiteSpace(strExtractedText) Then
 
             blnAddScanEndElement = False
 
@@ -435,7 +434,7 @@ Public Class clsMzXMLFileAccessor
 
                 objMatch = reStartTime.Match(strHeaderText)
                 If objMatch.Success Then
-                    ' Replace the start time with 
+                    ' Replace the start time with strStartTimeSOAP
                     strHeaderText = strHeaderText.Substring(0, objMatch.Index) & _
                                     "startTime=""" & strStartTimeSOAP & """" & _
                                     strHeaderText.Substring(objMatch.Index + objMatch.Value.Length)
@@ -444,7 +443,7 @@ Public Class clsMzXMLFileAccessor
 
                 objMatch = reEndTime.Match(strHeaderText)
                 If objMatch.Success Then
-                    ' Replace the start time with 
+                    ' Replace the start time with strEndTimeSOAP
                     strHeaderText = strHeaderText.Substring(0, objMatch.Index) & _
                                     "endTime=""" & strEndTimeSOAP & """" & _
                                     strHeaderText.Substring(objMatch.Index + objMatch.Value.Length)
@@ -505,6 +504,10 @@ Public Class clsMzXMLFileAccessor
 
                     If Not String.IsNullOrWhiteSpace(mXmlFileReader.FileVersion) Then
                         mFileVersion = mXmlFileReader.FileVersion
+                    ElseIf String.IsNullOrWhiteSpace(mFileVersion) And Not String.IsNullOrWhiteSpace(mXmlFileHeader) Then
+                        If Not clsMzXMLFileReader.ExtractMzXmlFileVersion(mXmlFileHeader, mFileVersion) Then
+                            LogErrors("ValidateMZXmlFileVersion", "Unknown mzXML file version; expected text not found in mXmlFileHeader")
+                        End If
                     End If
 
                 Else
@@ -706,6 +709,7 @@ Public Class clsMzXMLFileAccessor
                             End If
                         Loop
 
+                        ' ToDo: Delete this call since it changes the scan count from a big number to 1 in the header; this is no longer needed
                         UpdateXmlFileHeaderScanCount(mXmlFileHeader)
                     Else
                         ' Index not loaded (or not valid)
@@ -998,7 +1002,7 @@ Public Class clsMzXMLFileAccessor
 
     Private Sub UpdateXmlFileHeaderScanCount(ByRef strHeaderText As String, intScanCountTotal As Integer)
         ' Examine strHeaderText to look for the number after the scanCount attribute of msRun
-        '  Replace the number with intScanCountTotal
+        ' Replace the number with intScanCountTotal
 
         Dim objMatch As Match
 
