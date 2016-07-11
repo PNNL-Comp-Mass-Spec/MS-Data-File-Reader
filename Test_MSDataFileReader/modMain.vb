@@ -27,7 +27,7 @@ Module modMain
             mProgressForm = New frmProgress()
             Dim maxScansToAccess As Integer
 
-            If True Then
+            If False Then
                 maxScansToAccess = 5000
             End If
 
@@ -46,9 +46,9 @@ Module modMain
             TestMZDataReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential, maxScansToAccess)
             TestMZDataReader(clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Indexed, maxScansToAccess)
 
-            'TestBinaryTextReader("SampleData_QC_Standards_Excerpt.mzXML")
-            'TestBinaryTextReader("Unicode_SampleData_myo_excerpt_1.05cv.mzdata")
-            'TestBinaryTextReader("Combined_BigEndian.mzXml")
+            TestBinaryTextReader("SampleData_QC_Standards_Excerpt.mzXML")
+            TestBinaryTextReader("Unicode_SampleData_myo_excerpt_1.05cv.mzdata")
+            TestBinaryTextReader("Combined_BigEndian.mzXml")
 
         Catch ex As Exception
             Console.WriteLine("Error: " & ex.Message)
@@ -124,6 +124,11 @@ Module modMain
         Catch ex As Exception
 
         End Try
+    End Sub
+
+    Private Sub ShowResult(resultsWriter As TextWriter, Optional message As String = "")
+        resultsWriter.WriteLine(message)
+        Console.WriteLine(message)
     End Sub
 
     Private Sub TestBinaryTextReader(strInputFilePath As String)
@@ -281,8 +286,36 @@ Module modMain
     End Sub
 
     Private Sub TestReader(
-      strInputFilePath As String, objMSFileReader As clsMSDataFileReaderBaseClass,
+     strInputFilePath As String,
+     objMSFileReader As clsMSDataFileReaderBaseClass,
+     eDataReaderMode As clsMSDataFileReaderBaseClass.drmDataReaderModeConstants,
+     Optional maxScansToAccess As Integer = 0)
+
+        Dim fiInputFile = New FileInfo(strInputFilePath)
+        Dim diOutputFolder = New DirectoryInfo(Path.Combine(fiInputFile.Directory.FullName, eDataReaderMode.ToString()))
+        If Not diOutputFolder.Exists() Then
+            diOutputFolder.Create()
+        End If
+
+        Dim outputFilePath = Path.Combine(diOutputFolder.FullName, Path.GetFileNameWithoutExtension(fiInputFile.Name))
+        
+        If maxScansToAccess > 0 Then
+            outputFilePath &= "_" & maxScansToAccess & "scans_results.txt"
+        Else
+            outputFilePath &= "_results.txt"
+        End If
+
+        Using resultsWriter = New StreamWriter(New FileStream(outputFilePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
+            TestReader(strInputFilePath, objMSFileReader, eDataReaderMode, resultsWriter, maxScansToAccess)
+        End Using
+        
+    End Sub
+
+    Private Sub TestReader(
+      strInputFilePath As String,
+      objMSFileReader As clsMSDataFileReaderBaseClass,
       eDataReaderMode As clsMSDataFileReaderBaseClass.drmDataReaderModeConstants,
+      resultsWriter As StreamWriter,
       Optional maxScansToAccess As Integer = 0)
 
         Const USE_TEXTSTREAM_READER = False
@@ -300,8 +333,8 @@ Module modMain
         mProgressForm.Show()
         Application.DoEvents()
 
-        Console.WriteLine()
-        Console.WriteLine("Reading " & strInputFilePath & "; " &
+        ShowResult(resultsWriter)
+        ShowResult(resultsWriter, "Reading " & strInputFilePath & "; " &
                           "Reader = " & objMSFileReader.GetType.ToString & ", " &
                           "DataReaderMode = " & eDataReaderMode.ToString)
 
@@ -328,31 +361,38 @@ Module modMain
                                  "Reader = " & objMSFileReader.GetType.ToString & ControlChars.Tab &
                                  "DataReaderMode = " & eDataReaderMode.ToString)
 
-                Console.WriteLine("Scan Count: " & objMSFileReader.ScanCount.ToString)
+                ShowResult(resultsWriter, "Scan Count: " & objMSFileReader.ScanCount.ToString)
 
                 strMessage = "Calling GetSpectrumByIndex; SpectrumCount = " &
                              objMSFileReader.CachedSpectrumCount.ToString
-                Console.WriteLine(strMessage)
+                ShowResult(resultsWriter, strMessage)
                 mProgressForm.InitializeProgressForm(strMessage, 0, 100)
                 objMSFileReader.UpdateProgressDescription(strMessage)
 
                 dtStartTime = DateTime.UtcNow
 
                 ' Read all of the spectra using .GetSpectrumByIndex()
-                ' Show 25 of them
+                
                 Dim modValue As Integer
-                If maxScansToAccess > 0 AndAlso maxScansToAccess < objMSFileReader.CachedSpectrumCount Then
-                    modValue = CInt(maxScansToAccess / 25)
-                Else
-                    modValue = CInt(objMSFileReader.CachedSpectrumCount / 25)
-                End If
+                Dim increaseModValueOverTime As Boolean
+                Dim spectraShown = 0
 
-                If modValue < 1 Then modValue = 1
+                ' Show every 100th spectrum for the first 20 spectra
+                ' Then show every 200th for the next 20, etc.
+                modValue = 100
+                increaseModValueOverTime = True
 
                 For intIndex = 0 To objMSFileReader.CachedSpectrumCount - 1
                     If objMSFileReader.GetSpectrumByIndex(intIndex, objSpectrumInfo) Then
                         If intIndex Mod modValue = 0 Then
-                            TestReaderShowSpectrumInfo(objSpectrumInfo)
+                            TestReaderShowSpectrumInfo(resultsWriter, objSpectrumInfo)
+
+                            If increaseModValueOverTime Then
+                                spectraShown += 1
+                                If spectraShown Mod 20 = 0 Then
+                                    modValue *= 2
+                                End If
+                            End If
                         End If
                     End If
 
@@ -365,7 +405,9 @@ Module modMain
                     If maxScansToAccess > 0 AndAlso intIndex >= maxScansToAccess Then
                         Exit For
                     End If
+                    
                 Next intIndex
+
                 dtEndTime = DateTime.UtcNow
                 LogFileReadEvent(strInputFilePath, "Calling GetSpectrumByIndex", dtEndTime.Subtract(dtStartTime),
                                  "SpectrumCount = " & objMSFileReader.CachedSpectrumCount.ToString)
@@ -373,7 +415,8 @@ Module modMain
                 strMessage = "Calling GetSpectrumByScanNumber; Minimum = " &
                              objMSFileReader.CachedSpectraScanNumberMinimum.ToString & "; Maximum = " &
                              objMSFileReader.CachedSpectraScanNumberMaximum.ToString
-                Console.WriteLine(strMessage)
+                ShowResult(resultsWriter, strMessage)
+
                 If objMSFileReader.CachedSpectraScanNumberMaximum() - objMSFileReader.CachedSpectraScanNumberMinimum() > 0 Then
 
                     ' Call .GetSpectrumByScanNumber() for 20 spectra in the file
@@ -390,7 +433,7 @@ Module modMain
 
                     For intIndex = objMSFileReader.CachedSpectraScanNumberMinimum To objMSFileReader.CachedSpectraScanNumberMaximum Step stepSize
                         If objMSFileReader.GetSpectrumByScanNumber(intIndex, objSpectrumInfo) Then
-                            TestReaderShowSpectrumInfo(objSpectrumInfo)
+                            TestReaderShowSpectrumInfo(resultsWriter, objSpectrumInfo)
                         End If
 
                         If maxScansToAccess > 0 AndAlso intIndex >= maxScansToAccess Then
@@ -402,7 +445,7 @@ Module modMain
                 If objMSFileReader.GetScanNumberList(intScanNumberList) Then
                     strMessage = "Calling GetSpectrumByScanNumber using ScanNumberList; SpectrumCount = " &
                                  intScanNumberList.Length
-                    Console.WriteLine(strMessage)
+                    ShowResult(resultsWriter, strMessage)
                     mProgressForm.InitializeProgressForm(strMessage, 0, 100)
                     objMSFileReader.UpdateProgressDescription(strMessage)
 
@@ -421,7 +464,7 @@ Module modMain
                     For intIndex = 0 To intScanNumberList.Length - 1
                         If objMSFileReader.GetSpectrumByScanNumber(intScanNumberList(intIndex), objSpectrumInfo) Then
                             If intIndex Mod modValue = 0 Then
-                                TestReaderShowSpectrumInfo(objSpectrumInfo)
+                                TestReaderShowSpectrumInfo(resultsWriter, objSpectrumInfo)
                             End If
                         End If
 
@@ -453,7 +496,7 @@ Module modMain
                         Dim blnSuccess = objMSDataFileAccessor.GetSpectrumHeaderInfoByIndex(0, objSpectrumInfo)
 
                         strText = objMSDataFileAccessor.GetSourceXMLHeader(5, 3.002234, 20.34234324)
-                        Console.WriteLine(strText)
+                        ShowResult(resultsWriter, strText)
 
                         strText = objMSDataFileAccessor.GetSourceXMLFooter()
 
@@ -461,7 +504,7 @@ Module modMain
                             blnSuccess = objMSDataFileAccessor.GetSourceXMLByIndex(intIndex, strText)
 
                             If intIndex <= 1 Then
-                                Console.WriteLine(strText)
+                                ShowResult(resultsWriter, strText)
                             End If
 
                             If maxScansToAccess > 0 AndAlso intIndex >= maxScansToAccess Then
@@ -484,17 +527,21 @@ Module modMain
                 Dim spectraShown = 0
 
                 strMessage = "Calling ReadNextSpectrum (no caching)"
-                Console.WriteLine(strMessage)
+                ShowResult(resultsWriter, strMessage)
 
                 dtStartTime = DateTime.UtcNow
                 intIndex = 0
                 Do While objMSFileReader.ReadNextSpectrum(objSpectrumInfo)
                     If intIndex = 0 Then
-                        Console.WriteLine("Scan Count: " & objMSFileReader.ScanCount.ToString)
+                        ShowResult(resultsWriter, "Scan Count: " & objMSFileReader.ScanCount.ToString())
+                        If eDataReaderMode = clsMSDataFileReaderBaseClass.drmDataReaderModeConstants.Sequential AndAlso
+                           objMSFileReader.ScanCount = 1 Then
+                            ShowResult(resultsWriter, "Note that sequential readers for _dta.txt and .mgf files will report 1 here because we don't know, at this time, the number of spectra")
+                        End If
                     End If
 
                     If intIndex Mod modValue = 0 Then
-                        TestReaderShowSpectrumInfo(objSpectrumInfo)
+                        TestReaderShowSpectrumInfo(resultsWriter, objSpectrumInfo)
                         spectraShown += 1
                         If spectraShown Mod 20 = 0 Then
                             modValue *= 2
@@ -502,7 +549,13 @@ Module modMain
                     End If
 
                     intIndex += 1
+
+                    If maxScansToAccess > 0 AndAlso intIndex >= maxScansToAccess Then
+                        Exit do
+                    End If
                 Loop
+                ShowResult(resultsWriter, "Scan Count (final): " & objMSFileReader.ScanCount.ToString())
+
                 dtEndTime = DateTime.UtcNow
                 LogFileReadEvent(strInputFilePath, strMessage, dtEndTime.Subtract(dtStartTime),
                                  "SpectrumCount = " & intIndex)
@@ -512,33 +565,33 @@ Module modMain
         objMSFileReader.CloseFile()
     End Sub
 
-    Private Sub TestReaderShowSpectrumInfo(objSpectrumInfo As clsSpectrumInfo)
+    Private Sub TestReaderShowSpectrumInfo(resultsWriter As StreamWriter, objSpectrumInfo As clsSpectrumInfo)
         Dim blnShowDetails = False
 
         With objSpectrumInfo
-            Console.WriteLine("Scan {0}, MS{1}, {2} data points", .ScanNumber, .MSLevel, .DataCount)
+            ShowResult(resultsWriter, String.Format("Scan {0}, MS{1}, {2} data points", .ScanNumber, .MSLevel, .DataCount))
 
             For intIndex = 0 To .DataCount - 1
                 If .MZList(intIndex) <= 0 OrElse .IntensityList(intIndex) < 0 Then
-                    Console.WriteLine(
+                    ShowResult(resultsWriter,
                         "Possibly invalid point: m/z " & .MZList(intIndex).ToString("0.0000") & "   " &
                         .IntensityList(intIndex).ToString("0.0"))
                     If Not blnShowDetails Then
                         blnShowDetails = True
                     End If
                 ElseIf intIndex <= 10 OrElse blnShowDetails Then
-                    Console.WriteLine(
+                    ShowResult(resultsWriter,
                         "    m/z " & .MZList(intIndex).ToString("0.0000") & "   " &
                         .IntensityList(intIndex).ToString("0.0"))
                 End If
 
                 If intIndex > 0 AndAlso blnShowDetails AndAlso intIndex Mod 50 = 0 Then
-                    Console.WriteLine("...")
+                    ShowResult(resultsWriter, "...")
                 End If
             Next
 
         End With
-        Console.WriteLine()
+        ShowResult(resultsWriter)
     End Sub
 
     Private Sub mMSFileReader_ProgressChanged(taskDescription As String, percentComplete As Single) Handles mMSFileReader.ProgressChanged

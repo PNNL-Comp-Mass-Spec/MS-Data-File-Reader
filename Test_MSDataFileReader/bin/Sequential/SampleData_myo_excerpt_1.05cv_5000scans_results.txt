@@ -1,0 +1,44 @@
+
+Reading SampleData_myo_excerpt_1.05cv.mzdata; Reader = MSDataFileReader.clsMzDataFileReader, DataReaderMode = Sequential
+Calling ReadNextSpectrum (no caching)
+Scan Count: 220
+Scan 1, MS1, 346 data points
+    m/z 300.1496   150937.0
+    m/z 303.9982   239404.0
+    m/z 304.6000   2.0
+    m/z 305.8745   538398.0
+    m/z 306.6691   54414.0
+    m/z 307.7093   68609.0
+    m/z 309.5743   34993.0
+    m/z 310.8154   209164.0
+    m/z 311.7254   47971.0
+    m/z 312.8723   95150.0
+    m/z 313.9564   168139.0
+
+Scan 101, MS1, 2000 data points
+    m/z 658.0050   0.0
+    m/z 658.0100   0.0
+    m/z 658.0150   0.0
+    m/z 658.0200   0.0
+    m/z 658.0250   0.0
+    m/z 658.0300   0.0
+    m/z 658.0350   0.0
+    m/z 658.0400   0.0
+    m/z 658.0450   0.0
+    m/z 658.0500   0.0
+    m/z 658.0550   0.0
+
+Scan 201, MS2, 132 data points
+    m/z 217.3452   13679.0
+    m/z 234.1797   10849.0
+    m/z 242.7383   19972.0
+    m/z 248.2455   5738.0
+    m/z 249.0957   9384.0
+    m/z 267.0532   11004.0
+    m/z 268.1345   9767.0
+    m/z 269.4680   2855.0
+    m/z 284.2427   10238.0
+    m/z 286.2330   4121.0
+    m/z 293.1964   2822.0
+
+Scan Count (final): 220

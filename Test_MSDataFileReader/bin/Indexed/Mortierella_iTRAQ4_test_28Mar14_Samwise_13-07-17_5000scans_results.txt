@@ -1,0 +1,955 @@
+
+Reading Mortierella_iTRAQ4_test_28Mar14_Samwise_13-07-17.mzxml; Reader = MSDataFileReader.clsMzXMLFileAccessor, DataReaderMode = Indexed
+Scan Count: 112626
+Calling GetSpectrumByIndex; SpectrumCount = 112626
+Scan 1, MS1, 26 data points
+    m/z 322.7656   441.1
+    m/z 328.2290   412.8
+    m/z 373.7918   485.9
+    m/z 387.4888   434.0
+    m/z 402.9497   462.6
+    m/z 422.9014   445.4
+    m/z 445.0181   434.1
+    m/z 457.1984   474.8
+    m/z 486.1212   894.9
+    m/z 487.9224   510.0
+    m/z 488.1203   709.1
+
+Scan 101, MS1, 250 data points
+    m/z 304.2498   44425.6
+    m/z 310.1947   39839.0
+    m/z 311.3326   28788.2
+    m/z 312.2104   255248.6
+    m/z 313.1451   57938.6
+    m/z 313.1775   29011.8
+    m/z 313.2138   30667.7
+    m/z 313.2755   36358.0
+    m/z 313.3118   92112.0
+    m/z 314.1682   26202.6
+    m/z 314.1950   56841.8
+
+Scan 201, MS1, 250 data points
+    m/z 300.2984   19799.0
+    m/z 301.0599   20017.7
+    m/z 301.2738   29540.0
+    m/z 304.2489   43400.8
+    m/z 305.2481   19983.4
+    m/z 307.1911   18347.2
+    m/z 307.2638   16909.4
+    m/z 309.2279   29829.2
+    m/z 309.3157   16446.4
+    m/z 311.2950   19267.9
+    m/z 311.3314   28621.4
+
+Scan 301, MS1, 250 data points
+    m/z 300.2985   10414.3
+    m/z 301.2745   13922.8
+    m/z 303.2682   11812.8
+    m/z 304.2487   45029.1
+    m/z 307.2640   13486.5
+    m/z 309.2277   28468.3
+    m/z 309.3154   11601.5
+    m/z 311.2945   14185.5
+    m/z 311.3311   14327.5
+    m/z 313.1438   99589.4
+    m/z 313.2376   11962.0
+
+Scan 401, MS1, 250 data points
+    m/z 300.0619   35611.1
+    m/z 301.0585   50232.3
+    m/z 301.2742   26160.7
+    m/z 304.2485   27063.1
+    m/z 307.1909   12810.2
+    m/z 307.2634   30036.6
+    m/z 309.2270   24472.3
+    m/z 309.2794   36267.3
+    m/z 311.1346   23964.4
+    m/z 311.2953   28017.2
+    m/z 311.3312   37410.2
+
+Scan 501, MS1, 250 data points
+    m/z 303.2324   9961.6
+    m/z 304.2486   61730.7
+    m/z 305.2480   12345.6
+    m/z 307.2636   13571.9
+    m/z 309.2275   46500.4
+    m/z 309.3155   16127.8
+    m/z 311.1357   11273.1
+    m/z 311.2946   40401.2
+    m/z 311.3310   50795.5
+    m/z 312.2982   11084.2
+    m/z 312.3346   14694.3
+
+Scan 601, MS1, 250 data points
+    m/z 303.1153   22297.8
+    m/z 304.2487   43673.1
+    m/z 308.2342   25957.0
+    m/z 309.2275   23675.8
+    m/z 311.3313   21227.0
+    m/z 312.2090   21775.9
+    m/z 313.1437   58277.5
+    m/z 313.2744   23251.4
+    m/z 313.3105   79842.1
+    m/z 315.1153   23193.2
+    m/z 316.1725   41975.1
+
+Scan 701, MS2, 49 data points
+    m/z 102.1283   7320.5
+    m/z 106.1460   918.0
+    m/z 117.1151   949.5
+    m/z 124.8089   873.4
+    m/z 148.5774   950.5
+    m/z 149.0243   3533.5
+    m/z 159.4852   946.5
+    m/z 164.7805   803.5
+    m/z 173.0218   872.0
+    m/z 187.8957   892.1
+    m/z 189.1366   6219.8
+
+Scan 801, MS1, 250 data points
+    m/z 300.2986   19558.8
+    m/z 301.2743   9557.6
+    m/z 303.1147   9092.0
+    m/z 303.2323   9017.8
+    m/z 304.2490   44310.6
+    m/z 307.2638   10437.3
+    m/z 309.2793   20201.1
+    m/z 311.1348   9451.5
+    m/z 311.2952   18379.7
+    m/z 311.3311   9496.6
+    m/z 312.2092   20988.9
+
+Scan 901, MS2, 82 data points
+    m/z 100.0804   7648.8
+    m/z 101.0244   1234.5
+    m/z 101.0851   1644.2
+    m/z 101.0882   26987.5
+    m/z 102.1054   1138.5
+    m/z 102.1236   6615.7
+    m/z 102.1252   12160.4
+    m/z 102.1289   204128.1
+    m/z 102.1538   815.5
+    m/z 103.0766   4864.9
+    m/z 103.1322   4707.7
+
+Scan 1001, MS1, 250 data points
+    m/z 304.2492   31917.7
+    m/z 308.2549   71996.9
+    m/z 309.2277   19285.1
+    m/z 309.2586   25480.3
+    m/z 310.1375   19652.9
+    m/z 310.1939   20152.8
+    m/z 311.2952   19674.0
+    m/z 312.1522   18705.3
+    m/z 312.2096   85805.4
+    m/z 313.1442   51477.9
+    m/z 313.3112   50116.2
+
+Scan 1101, MS1, 250 data points
+    m/z 304.2491   32041.3
+    m/z 306.7043   22981.2
+    m/z 309.2279   19762.8
+    m/z 310.1936   31418.3
+    m/z 311.2951   21903.0
+    m/z 311.3317   21885.9
+    m/z 312.2094   106466.4
+    m/z 313.1441   63808.8
+    m/z 313.1766   42967.9
+    m/z 313.2123   31216.4
+    m/z 313.3107   68845.0
+
+Scan 1201, MS1, 250 data points
+    m/z 300.0614   19542.2
+    m/z 301.0588   29025.7
+    m/z 304.2484   55900.0
+    m/z 305.2481   18163.4
+    m/z 307.2634   33239.1
+    m/z 309.2272   28758.2
+    m/z 311.2946   37542.6
+    m/z 311.3311   38376.9
+    m/z 312.2088   9541.7
+    m/z 313.1436   75510.4
+    m/z 313.2739   27531.2
+
+Scan 1301, MS1, 250 data points
+    m/z 303.6815   34769.7
+    m/z 304.1720   97670.4
+    m/z 304.1788   85953.4
+    m/z 304.2497   48455.9
+    m/z 305.0530   106390.4
+    m/z 305.1494   81363.5
+    m/z 305.1734   41209.6
+    m/z 305.1812   47898.5
+    m/z 306.1792   4234215.0
+    m/z 306.2188   40203.6
+    m/z 307.1304   37834.6
+
+Scan 1401, MS2, 36 data points
+    m/z 102.0156   166964.9
+    m/z 102.0194   146041.6
+    m/z 102.0468   111660.4
+    m/z 102.1014   472036.0
+    m/z 102.1173   2974892.0
+    m/z 102.1236   5283606.0
+    m/z 102.1251   8034767.0
+    m/z 102.1283   185407800.0
+    m/z 102.1543   331728.3
+    m/z 102.2093   106863.8
+    m/z 102.2225   23839.8
+
+Scan 1501, MS2, 63 data points
+    m/z 101.0888   1051.7
+    m/z 102.0962   1081.1
+    m/z 102.1286   1226.9
+    m/z 114.1116   4361.3
+    m/z 115.1085   1889.0
+    m/z 116.1120   1752.4
+    m/z 117.1154   3962.4
+    m/z 127.1238   2290.0
+    m/z 142.1229   1252.4
+    m/z 142.7376   968.1
+    m/z 147.0666   1263.9
+
+Scan 1601, MS2, 147 data points
+    m/z 100.0763   41758.8
+    m/z 101.0239   8333.7
+    m/z 101.0887   1281.6
+    m/z 101.1081   1884.1
+    m/z 102.0965   1515.4
+    m/z 102.1288   7264.1
+    m/z 105.0340   11134.1
+    m/z 106.0190   1274.6
+    m/z 106.0377   981.6
+    m/z 108.0818   1564.8
+    m/z 110.0722   1013.0
+
+Scan 1701, MS1, 250 data points
+    m/z 303.1400   34500.3
+    m/z 303.2149   35037.3
+    m/z 304.1624   52641.0
+    m/z 304.1723   261339.2
+    m/z 304.1788   235062.2
+    m/z 304.2495   39966.7
+    m/z 305.1493   110286.6
+    m/z 305.1753   78765.7
+    m/z 305.1815   81693.6
+    m/z 306.1185   110930.5
+    m/z 306.1799   14303260.0
+
+Scan 1801, MS1, 250 data points
+    m/z 303.1328   19457.3
+    m/z 304.1630   52409.5
+    m/z 304.1720   235183.2
+    m/z 304.1789   184364.0
+    m/z 304.2490   46049.4
+    m/z 305.1490   61782.3
+    m/z 305.1754   93373.8
+    m/z 305.1819   71616.6
+    m/z 306.1226   59959.6
+    m/z 306.1797   11484840.0
+    m/z 306.2419   28498.9
+
+Scan 1901, MS1, 250 data points
+    m/z 302.1486   43304.1
+    m/z 304.1652   180683.4
+    m/z 304.1740   309266.4
+    m/z 304.1801   254831.0
+    m/z 305.0547   25724.8
+    m/z 305.1509   93053.5
+    m/z 305.1769   87676.9
+    m/z 305.1828   141478.0
+    m/z 306.0403   26674.1
+    m/z 306.1234   188728.7
+    m/z 306.1810   19838690.0
+
+Scan 2001, MS1, 250 data points
+    m/z 303.1763   68674.6
+    m/z 304.1647   398580.4
+    m/z 304.1734   694933.4
+    m/z 304.1797   653554.1
+    m/z 305.1170   62017.3
+    m/z 305.1508   141551.9
+    m/z 305.1768   238165.6
+    m/z 305.1829   330142.9
+    m/z 306.1182   239145.4
+    m/z 306.1279   162806.5
+    m/z 306.1807   46772320.0
+
+Scan 2201, MS1, 250 data points
+    m/z 304.1618   45076.2
+    m/z 304.1717   51707.9
+    m/z 304.1782   39927.3
+    m/z 304.2490   39938.4
+    m/z 305.1808   16826.1
+    m/z 306.1780   1895461.0
+    m/z 307.1806   145736.8
+    m/z 308.1201   16199.4
+    m/z 308.1254   11351.3
+    m/z 308.1809   27024.3
+    m/z 309.2272   18816.4
+
+Scan 2401, MS2, 192 data points
+    m/z 100.0004   827.8
+    m/z 100.0400   3438.7
+    m/z 100.0766   901.5
+    m/z 100.0803   5802.1
+    m/z 100.0954   1841.0
+    m/z 101.0240   12723.0
+    m/z 101.0602   5530.5
+    m/z 101.0882   130689.8
+    m/z 101.1079   4568.6
+    m/z 102.0273   1037.6
+    m/z 102.0915   1452.5
+
+Scan 2601, MS1, 250 data points
+    m/z 302.1472   139295.8
+    m/z 304.1650   895898.9
+    m/z 304.1733   888052.9
+    m/z 304.1795   872913.3
+    m/z 305.1774   304674.7
+    m/z 305.1820   470272.5
+    m/z 306.1168   200769.3
+    m/z 306.1253   247499.3
+    m/z 306.1801   62076490.0
+    m/z 306.2392   361367.3
+    m/z 306.7561   88804.4
+
+Scan 2801, MS1, 250 data points
+    m/z 302.1504   317945.8
+    m/z 303.1783   79459.6
+    m/z 304.1679   993159.9
+    m/z 304.1741   730500.1
+    m/z 304.1793   604617.3
+    m/z 304.2794   104001.0
+    m/z 305.1826   819066.6
+    m/z 306.0385   74746.7
+    m/z 306.1819   77313020.0
+    m/z 306.3201   89152.7
+    m/z 307.1829   9186291.0
+
+Scan 3001, MS2, 48 data points
+    m/z 100.0897   810.0
+    m/z 101.0245   4123.5
+    m/z 101.0604   6747.2
+    m/z 101.0886   1429.6
+    m/z 101.0972   1256.6
+    m/z 102.1284   11483.0
+    m/z 104.1121   1504.1
+    m/z 104.5980   678.8
+    m/z 106.0235   911.9
+    m/z 106.0297   1125.8
+    m/z 111.0447   10032.5
+
+Scan 3201, MS2, 144 data points
+    m/z 100.0401   1718.3
+    m/z 100.0803   6191.0
+    m/z 101.0239   7432.2
+    m/z 101.0882   6014.3
+    m/z 101.1080   5889.5
+    m/z 102.0958   2136.7
+    m/z 102.1284   13489.0
+    m/z 103.0762   1543.3
+    m/z 103.1035   1302.4
+    m/z 103.1314   1572.4
+    m/z 104.1117   5017.9
+
+Scan 3401, MS2, 113 data points
+    m/z 100.0402   941.5
+    m/z 100.0960   1323.1
+    m/z 101.0241   6079.5
+    m/z 101.1080   8824.8
+    m/z 101.7785   760.9
+    m/z 102.0963   919.2
+    m/z 102.1288   3807.4
+    m/z 104.1118   1295.5
+    m/z 105.7711   775.5
+    m/z 109.1021   1332.1
+    m/z 109.4043   990.7
+
+Scan 3601, MS2, 79 data points
+    m/z 100.0402   3949.5
+    m/z 100.0808   2622.1
+    m/z 101.0245   9687.7
+    m/z 101.0603   77262.5
+    m/z 101.0886   1873.8
+    m/z 101.1083   2452.3
+    m/z 102.1055   1615.7
+    m/z 102.1285   5456.7
+    m/z 111.0446   111957.6
+    m/z 112.0958   2062.5
+    m/z 113.1084   2327.8
+
+Scan 3801, MS2, 40 data points
+    m/z 101.0799   10380.8
+    m/z 101.5145   8048.5
+    m/z 106.2659   8255.7
+    m/z 109.1857   8891.7
+    m/z 110.0217   33085.8
+    m/z 114.1110   12509.3
+    m/z 115.0990   13615.9
+    m/z 116.0797   13746.3
+    m/z 117.1150   220561.8
+    m/z 141.3104   8829.9
+    m/z 145.1097   294175.4
+
+Scan 4001, MS2, 43 data points
+    m/z 100.0398   1018.4
+    m/z 101.0238   12044.1
+    m/z 101.0271   947.5
+    m/z 101.1079   17965.0
+    m/z 102.1049   5083.5
+    m/z 102.1281   3156.1
+    m/z 111.0916   1094.0
+    m/z 112.0762   4668.1
+    m/z 114.1112   2250.8
+    m/z 126.0552   1552.7
+    m/z 127.1233   1540.0
+
+Scan 4201, MS1, 250 data points
+    m/z 304.1635   60104.8
+    m/z 305.1358   35613.8
+    m/z 305.9380   35309.2
+    m/z 306.1810   1469263.0
+    m/z 307.0007   55630.2
+    m/z 307.1827   66685.2
+    m/z 307.1876   43899.8
+    m/z 307.2241   38003.5
+    m/z 307.9537   66188.2
+    m/z 308.1401   48023.4
+    m/z 308.2565   228167.4
+
+Scan 4401, MS2, 90 data points
+    m/z 100.0405   938.8
+    m/z 100.0960   902.2
+    m/z 101.0244   3484.0
+    m/z 101.0605   1227.6
+    m/z 101.0887   1087.8
+    m/z 101.0931   874.6
+    m/z 101.1080   5803.4
+    m/z 102.0278   3961.4
+    m/z 102.1054   732.0
+    m/z 102.1286   1694.4
+    m/z 104.1121   1160.5
+
+Scan 4601, MS2, 184 data points
+    m/z 100.0402   3489.4
+    m/z 100.0956   7036.6
+    m/z 101.0244   4101.6
+    m/z 101.0887   3801.1
+    m/z 101.0931   10418.6
+    m/z 101.1053   1353.7
+    m/z 101.1078   7278.0
+    m/z 102.0928   767.2
+    m/z 102.0964   1749.3
+    m/z 102.1051   839.7
+    m/z 104.0537   945.4
+
+Scan 4801, MS2, 179 data points
+    m/z 100.0399   1323.0
+    m/z 100.0803   1297.1
+    m/z 100.0893   2124.5
+    m/z 100.0956   1504.5
+    m/z 101.0239   2296.0
+    m/z 101.0926   1538.7
+    m/z 101.1080   8053.1
+    m/z 102.0963   1701.2
+    m/z 102.1050   1193.7
+    m/z 103.4760   1244.9
+    m/z 104.1116   1748.8
+
+Scan 5001, MS2, 234 data points
+    m/z 100.0769   842.2
+    m/z 100.0807   1715.0
+    m/z 100.0853   1508.5
+    m/z 100.0960   2149.9
+    m/z 101.0244   2039.7
+    m/z 101.0720   1748.3
+    m/z 101.0889   4321.0
+    m/z 101.0931   4176.7
+    m/z 101.1080   16124.6
+    m/z 102.0560   1559.4
+    m/z 102.0922   985.9
+
+Calling GetSpectrumByScanNumber; Minimum = 1; Maximum = 112626
+Scan 1, MS1, 26 data points
+    m/z 322.7656   441.1
+    m/z 328.2290   412.8
+    m/z 373.7918   485.9
+    m/z 387.4888   434.0
+    m/z 402.9497   462.6
+    m/z 422.9014   445.4
+    m/z 445.0181   434.1
+    m/z 457.1984   474.8
+    m/z 486.1212   894.9
+    m/z 487.9224   510.0
+    m/z 488.1203   709.1
+
+Scan 5632, MS2, 246 data points
+    m/z 100.0403   1955.1
+    m/z 100.0809   7725.1
+    m/z 100.0851   1006.0
+    m/z 100.0878   1926.4
+    m/z 100.0961   5555.5
+    m/z 101.0244   4438.8
+    m/z 101.0718   1457.6
+    m/z 101.0801   1080.9
+    m/z 101.0838   1093.6
+    m/z 101.0855   881.5
+    m/z 101.0884   8379.7
+
+Calling GetSpectrumByScanNumber using ScanNumberList; SpectrumCount = 112626
+Scan 1, MS1, 26 data points
+    m/z 322.7656   441.1
+    m/z 328.2290   412.8
+    m/z 373.7918   485.9
+    m/z 387.4888   434.0
+    m/z 402.9497   462.6
+    m/z 422.9014   445.4
+    m/z 445.0181   434.1
+    m/z 457.1984   474.8
+    m/z 486.1212   894.9
+    m/z 487.9224   510.0
+    m/z 488.1203   709.1
+
+Scan 168, MS2, 59 data points
+    m/z 100.0810   898.5
+    m/z 100.0898   5395.1
+    m/z 100.6408   833.4
+    m/z 101.0607   747.0
+    m/z 101.0882   6208.5
+    m/z 101.1079   10021.3
+    m/z 102.0961   9230.1
+    m/z 102.1050   8453.2
+    m/z 102.1283   7760.5
+    m/z 103.1090   891.0
+    m/z 104.1117   24511.9
+
+Scan 335, MS1, 250 data points
+    m/z 300.0620   19415.8
+    m/z 301.2166   10125.3
+    m/z 301.2742   11471.1
+    m/z 304.2488   42825.6
+    m/z 305.2484   11022.0
+    m/z 307.2635   25210.5
+    m/z 309.2278   31129.8
+    m/z 309.3158   19753.8
+    m/z 311.2948   21078.0
+    m/z 311.3310   22621.7
+    m/z 313.1436   59541.0
+
+Scan 502, MS2, 44 data points
+    m/z 100.0851   2353.6
+    m/z 101.0882   30634.9
+    m/z 101.1083   3126.9
+    m/z 102.0918   8227.8
+    m/z 102.1284   20582.9
+    m/z 103.1570   2442.6
+    m/z 104.0564   3113.2
+    m/z 106.3380   3168.5
+    m/z 114.1074   8994.0
+    m/z 114.1112   245037.0
+    m/z 115.1083   217777.5
+
+Scan 669, MS1, 250 data points
+    m/z 300.0612   10611.6
+    m/z 300.2980   17463.0
+    m/z 301.0590   19599.5
+    m/z 301.2744   11425.0
+    m/z 303.2321   21797.1
+    m/z 304.2488   45048.5
+    m/z 307.1906   10578.8
+    m/z 309.2274   26767.1
+    m/z 309.2791   19989.1
+    m/z 309.3156   21573.6
+    m/z 311.1347   10406.2
+
+Scan 836, MS2, 85 data points
+    m/z 100.0803   6034.7
+    m/z 100.0959   906.0
+    m/z 101.0882   11053.2
+    m/z 102.0965   1077.7
+    m/z 102.1289   3719.1
+    m/z 103.1320   952.2
+    m/z 106.1881   1275.5
+    m/z 108.0854   779.4
+    m/z 111.5688   741.6
+    m/z 114.0963   1006.8
+    m/z 114.1111   16534.4
+
+Scan 1003, MS1, 250 data points
+    m/z 301.2740   19371.0
+    m/z 303.2318   14543.4
+    m/z 304.2484   62141.8
+    m/z 305.2478   20027.9
+    m/z 307.1907   22776.1
+    m/z 307.2633   16765.5
+    m/z 309.2275   25742.2
+    m/z 309.3156   16364.7
+    m/z 311.2946   25057.8
+    m/z 311.3309   23642.6
+    m/z 312.2088   24157.7
+
+Scan 1170, MS1, 250 data points
+    m/z 300.0613   14158.4
+    m/z 301.2740   19643.9
+    m/z 303.2683   13987.3
+    m/z 304.2483   33571.2
+    m/z 305.2482   24541.8
+    m/z 307.1902   20980.8
+    m/z 309.2278   31079.6
+    m/z 309.2790   15168.2
+    m/z 311.2585   12877.7
+    m/z 311.2947   22435.6
+    m/z 311.3311   34459.8
+
+Scan 1337, MS1, 250 data points
+    m/z 304.1720   82537.3
+    m/z 304.1791   55147.7
+    m/z 304.2495   49059.5
+    m/z 305.0532   26745.5
+    m/z 305.1494   31177.3
+    m/z 305.1740   27920.9
+    m/z 305.1818   26826.1
+    m/z 306.1799   4618013.0
+    m/z 306.2390   23876.6
+    m/z 307.1817   250012.3
+    m/z 307.2231   23845.0
+
+Scan 1504, MS2, 51 data points
+    m/z 102.1286   1486.5
+    m/z 113.0928   1399.7
+    m/z 114.1118   4621.4
+    m/z 115.1086   1983.5
+    m/z 116.1119   1280.2
+    m/z 117.1155   4069.9
+    m/z 118.0669   1065.5
+    m/z 124.0737   1013.0
+    m/z 125.3095   904.2
+    m/z 128.0408   900.9
+    m/z 130.6716   855.4
+
+Scan 1671, MS1, 250 data points
+    m/z 303.1405   27135.8
+    m/z 304.1634   34753.6
+    m/z 304.1729   161068.5
+    m/z 304.1794   148616.0
+    m/z 304.2499   54316.9
+    m/z 305.0536   25088.5
+    m/z 305.1499   83081.1
+    m/z 305.1757   44154.1
+    m/z 305.1820   66097.5
+    m/z 306.1242   67324.6
+    m/z 306.1802   9228179.0
+
+Scan 1838, MS1, 250 data points
+    m/z 304.1634   26161.7
+    m/z 304.1718   98468.5
+    m/z 304.1785   85050.0
+    m/z 304.2492   40261.5
+    m/z 305.1486   52762.0
+    m/z 305.1751   41589.2
+    m/z 305.1816   27816.2
+    m/z 306.1787   4488345.0
+    m/z 307.1812   292925.9
+    m/z 307.1960   11878.1
+    m/z 308.1206   29113.2
+
+Scan 2005, MS2, 26 data points
+    m/z 101.0887   5699.3
+    m/z 106.0487   3664.6
+    m/z 111.1174   60310.3
+    m/z 112.1211   8348.8
+    m/z 114.5501   3995.4
+    m/z 122.8836   4213.2
+    m/z 123.0448   5252.0
+    m/z 139.8133   4181.5
+    m/z 161.1043   23973.9
+    m/z 161.1096   19719.7
+    m/z 163.1209   28295.9
+
+Scan 2172, MS2, 73 data points
+    m/z 100.0806   1042.2
+    m/z 101.0887   1205.3
+    m/z 102.1286   1100.2
+    m/z 106.0707   912.1
+    m/z 106.1087   974.5
+    m/z 112.0961   4535.0
+    m/z 113.0932   1779.7
+    m/z 114.0967   1272.3
+    m/z 114.1113   8182.3
+    m/z 115.0999   2079.0
+    m/z 115.1089   4901.3
+
+Scan 2339, MS1, 250 data points
+    m/z 302.1482   67011.7
+    m/z 304.1661   383549.3
+    m/z 304.1741   389744.2
+    m/z 304.1802   346329.9
+    m/z 304.9865   31596.1
+    m/z 305.1782   150879.7
+    m/z 305.1835   159541.5
+    m/z 305.5061   58985.1
+    m/z 306.0447   26774.5
+    m/z 306.1254   122323.1
+    m/z 306.1817   28815280.0
+
+Scan 2506, MS2, 127 data points
+    m/z 100.0399   23429.5
+    m/z 100.0777   4553.4
+    m/z 100.0804   59473.1
+    m/z 100.0848   211918.6
+    m/z 100.0885   72447.4
+    m/z 100.0956   26718.0
+    m/z 101.0238   48133.5
+    m/z 101.0882   3466048.0
+    m/z 101.1078   210950.8
+    m/z 102.0915   171792.7
+    m/z 102.0959   69800.0
+
+Scan 2673, MS2, 56 data points
+    m/z 100.0405   960.4
+    m/z 101.0243   1428.0
+    m/z 101.0886   804.4
+    m/z 101.1084   3974.8
+    m/z 102.0964   1742.2
+    m/z 102.1055   3827.2
+    m/z 102.1284   29893.1
+    m/z 103.1322   1069.0
+    m/z 103.9778   834.2
+    m/z 104.1119   2308.1
+    m/z 107.7982   782.4
+
+Scan 2840, MS1, 250 data points
+    m/z 302.1463   331459.4
+    m/z 303.1757   124843.5
+    m/z 304.1641   2025285.0
+    m/z 304.1725   1332790.0
+    m/z 304.1789   1435358.0
+    m/z 304.2776   93840.7
+    m/z 305.1665   91953.9
+    m/z 305.1763   419888.0
+    m/z 305.1814   732860.6
+    m/z 306.0432   84841.5
+    m/z 306.1165   650153.6
+
+Scan 3007, MS2, 250 data points
+    m/z 100.0399   9915.4
+    m/z 100.0763   14040.2
+    m/z 100.0802   8362.3
+    m/z 100.0847   26006.4
+    m/z 100.0883   4792.4
+    m/z 100.0911   5099.8
+    m/z 100.0956   2124.9
+    m/z 100.1128   1414.4
+    m/z 101.0240   42069.0
+    m/z 101.0882   107092.2
+    m/z 101.1080   15467.3
+
+Scan 3174, MS2, 136 data points
+    m/z 100.0898   2157.1
+    m/z 101.0242   1832.6
+    m/z 101.0891   1761.8
+    m/z 101.0931   6982.6
+    m/z 101.1053   986.7
+    m/z 101.1084   5404.0
+    m/z 102.0960   11878.0
+    m/z 102.1054   1604.1
+    m/z 103.0993   7787.5
+    m/z 104.1116   16908.8
+    m/z 110.0218   939.1
+
+Scan 3341, MS1, 250 data points
+    m/z 302.1474   182177.8
+    m/z 304.1634   790082.2
+    m/z 304.1723   387005.2
+    m/z 304.1791   599829.3
+    m/z 305.1355   142371.0
+    m/z 305.1755   116017.4
+    m/z 305.1815   240551.6
+    m/z 306.1235   376452.5
+    m/z 306.1800   35190740.0
+    m/z 306.2310   128807.3
+    m/z 306.2419   212239.6
+
+Scan 3508, MS1, 250 data points
+    m/z 302.1474   207045.7
+    m/z 304.1250   113931.4
+    m/z 304.1635   1004458.0
+    m/z 304.1723   360645.0
+    m/z 304.1792   396060.5
+    m/z 305.1813   227087.6
+    m/z 306.1801   27412830.0
+    m/z 307.1820   1385410.0
+    m/z 307.1956   167798.2
+    m/z 308.1390   188990.5
+    m/z 308.1821   168306.1
+
+Scan 3675, MS2, 184 data points
+    m/z 100.0803   4753.8
+    m/z 101.0238   23173.0
+    m/z 101.0795   5211.5
+    m/z 101.0836   3945.9
+    m/z 101.0881   7318.1
+    m/z 101.0925   969.4
+    m/z 101.1079   8509.3
+    m/z 102.0272   4663.3
+    m/z 102.0960   18986.9
+    m/z 102.1049   6050.3
+    m/z 102.1283   9899.3
+
+Scan 3842, MS1, 250 data points
+    m/z 302.1468   134507.8
+    m/z 304.1642   699842.8
+    m/z 304.1727   204178.3
+    m/z 304.1797   282869.1
+    m/z 305.1358   104640.6
+    m/z 305.1818   135425.5
+    m/z 306.1805   16419880.0
+    m/z 307.1826   893811.1
+    m/z 307.9529   77717.4
+    m/z 308.1395   139511.2
+    m/z 308.1828   97153.8
+
+Scan 4009, MS1, 250 data points
+    m/z 302.1477   80142.0
+    m/z 304.1650   391613.4
+    m/z 304.1733   112784.4
+    m/z 304.1800   180548.4
+    m/z 305.1366   73505.0
+    m/z 305.1747   53784.6
+    m/z 305.1828   71226.6
+    m/z 305.6970   52279.4
+    m/z 306.1201   95212.3
+    m/z 306.1809   11990340.0
+    m/z 306.2364   92570.0
+
+Scan 4176, MS1, 250 data points
+    m/z 304.1646   94142.8
+    m/z 304.1815   34286.9
+    m/z 305.1364   47488.2
+    m/z 306.1814   2532048.0
+    m/z 307.0009   42351.0
+    m/z 307.1831   113875.8
+    m/z 307.9538   62074.2
+    m/z 308.1402   62539.9
+    m/z 308.2567   239804.1
+    m/z 308.9020   51009.0
+    m/z 309.2610   64936.7
+
+Scan 4343, MS1, 250 data points
+    m/z 304.1624   33694.1
+    m/z 304.2507   45281.1
+    m/z 304.7251   31997.3
+    m/z 304.7340   34425.2
+    m/z 305.0539   43026.2
+    m/z 305.7329   29318.3
+    m/z 306.1808   391820.9
+    m/z 307.1830   28457.6
+    m/z 307.2245   41068.2
+    m/z 308.9023   34401.7
+    m/z 310.1954   63985.1
+
+Scan 4510, MS1, 250 data points
+    m/z 304.2517   72074.3
+    m/z 305.0552   82321.9
+    m/z 306.1818   733017.3
+    m/z 307.1839   43435.5
+    m/z 307.2256   42600.8
+    m/z 307.7122   49624.3
+    m/z 308.9034   48718.5
+    m/z 309.2184   81122.3
+    m/z 310.1968   55256.4
+    m/z 311.1509   301925.1
+    m/z 312.1543   80506.5
+
+Scan 4677, MS2, 209 data points
+    m/z 100.0807   1203.6
+    m/z 100.0896   1025.8
+    m/z 100.0960   3885.6
+    m/z 100.1003   1542.3
+    m/z 100.1132   5125.2
+    m/z 101.0242   2517.7
+    m/z 101.0720   9307.0
+    m/z 101.0882   6277.9
+    m/z 101.0927   5858.0
+    m/z 101.1079   14303.6
+    m/z 102.0964   1142.7
+
+Scan 4844, MS1, 250 data points
+    m/z 300.7063   344811.7
+    m/z 303.1584   191969.6
+    m/z 303.6881   282332.0
+    m/z 304.1631   163635.0
+    m/z 305.1657   170343.1
+    m/z 306.1801   1495051.0
+    m/z 307.7162   305686.4
+    m/z 309.1340   258790.0
+    m/z 311.1497   3774613.0
+    m/z 312.1531   1006376.0
+    m/z 312.2107   322993.0
+
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<mzXML xmlns="http://sashimi.sourceforge.net/schema_revision/mzXML_3.2"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://sashimi.sourceforge.net/schema_revision/mzXML_3.2 http://sashimi.sourceforge.net/schema_revision/mzXML_3.2/mzXML_idx_3.2.xsd">
+  <msRun scanCount="5" startTime="PT3M0.134S" endTime="PT20M20.541S">
+    <parentFile fileName="file:///E:\DMS_WorkDir/Mortierella_iTRAQ4_test_28Mar14_Samwise_13-07-17.raw"
+                fileType="RAWData"
+                fileSha1="6141f8447e3109263fab36ed73e6625869f2b0b2"/>
+    <msInstrument msInstrumentID="1">
+      <msManufacturer category="msManufacturer" value="Thermo Scientific"/>
+      <msModel category="msModel" value="Q Exactive"/>
+      <msIonisation category="msIonisation" value="nanoelectrospray"/>
+      <msMassAnalyzer category="msMassAnalyzer" value="quadrupole"/>
+      <msDetector category="msDetector" value="inductive detector"/>
+      <software type="acquisition" name="Xcalibur" version="2.2-164600/2.2.1.1646"/>
+    </msInstrument>
+    <dataProcessing centroided="1">
+      <software type="conversion" name="ProteoWizard software" version="3.0.5274"/>
+      <processingOperation name="Conversion to mzML"/>
+      <software type="processing" name="ProteoWizard software" version="3.0.5274"/>
+      <comment>Thermo/Xcalibur peak picking</comment>
+      <software type="processing" name="ProteoWizard software" version="3.0.5274"/>
+      <comment>most intense count (excluding ties at the threshold): 250</comment>
+    </dataProcessing>
+    
+<scan num="1"
+          scanType="Full"
+          centroided="1"
+          msLevel="1"
+          peaksCount="26"
+          polarity="+"
+          retentionTime="PT0.177594S"
+          lowMz="322.765594482422"
+          highMz="1756.496215820313"
+          basePeakMz="486.1212395"
+          basePeakIntensity="894.89459"
+          totIonCurrent="14386.108">
+      <peaks compressionType="none"
+             compressedLen="0"
+             precision="32"
+             byteOrder="network"
+             contentType="m/z-int">Q6Fh/0PcikJDpB1QQ85slkO65VtD8vjFQ8G+kEPY+0hDyXmQQ+dSbkPTc2BD3q35Q96CUkPZDYhD5JllQ+1jXkPzD4VEX7lBQ/P2EEP/BaND9A9lRDFJO0QI81BD/hh0RA1K5EP9OlFEFF+gQ+6XgkQbtpZEGW1MRCFePUQWuQJEJXejRAlIrERHoR1EA0HnRFXxkUP/2cpEX3VcRASnMkRxDCREFRJGRHFMrUQTsLJEeDFJRAy7ykSM6rxEUVo5RI2LTEQV8X1E24/hRCdO+w==</peaks>
+    </scan>
+    
+
+<scan num="2"
+          scanType="Full"
+          centroided="1"
+          msLevel="1"
+          peaksCount="250"
+          polarity="+"
+          retentionTime="PT0.603602S"
+          lowMz="300.06201171875"
+          highMz="1912.026123046875"
+          basePeakMz="371.1019434"
+          basePeakIntensity="9.81117e06"
+          totIonCurrent="6.5967496e07">
+      <peaks compressionType="none"
+             compressedLen="0"
+             precision="32"
+             byteOrder="network"
+             contentType="m/z-int">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</peaks>
+    </scan>
+    
+
