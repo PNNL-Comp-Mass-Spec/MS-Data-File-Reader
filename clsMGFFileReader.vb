@@ -26,21 +26,24 @@ Public Class clsMGFFileReader
     ' Note: The extension must be in all caps
     Public Const MGF_FILE_EXTENSION As String = ".MGF"
 
-    Protected Const COMMENT_LINE_START_CHAR As Char = "#"c        ' The comment character is an Equals sign
-    Protected Const LINE_START_BEGIN_IONS As String = "BEGIN IONS"
-    Protected Const LINE_START_END_IONS As String = "END IONS"
+    Private Const COMMENT_LINE_START_CHAR As Char = "#"c        ' The comment character is an Equals sign
+    Private Const LINE_START_BEGIN_IONS As String = "BEGIN IONS"
+    Private Const LINE_START_END_IONS As String = "END IONS"
 
-    Protected Const LINE_START_MSMS As String = "MSMS:"
-    Protected Const LINE_START_PEPMASS As String = "PEPMASS="
-    Protected Const LINE_START_CHARGE As String = "CHARGE="
-    Protected Const LINE_START_TITLE As String = "TITLE="
+    Private Const LINE_START_MSMS As String = "MSMS:"
+    Private Const LINE_START_PEPMASS As String = "PEPMASS="
+    Private Const LINE_START_CHARGE As String = "CHARGE="
+    Private Const LINE_START_TITLE As String = "TITLE="
+
+    Private Const LINE_START_RT As String = "RTINSECONDS="
+    Private Const LINE_START_SCANS As String = "SCANS="
 
 #End Region
 
 #Region "Classwide Variables"
     ' mScanNumberStartSaved is used to create fake scan numbers when reading .MGF files that do not have
     '  scan numbers defined using   ###MSMS: #1234   or   TITLE=Filename.1234.1234.2.dta  or  TITLE=Filename.1234.1234.2
-    Protected mScanNumberStartSaved As Integer
+    Private mScanNumberStartSaved As Integer
 
 #End Region
 
@@ -55,16 +58,66 @@ Public Class clsMGFFileReader
         MyBase.LogErrors("clsMGFFileReader." & strCallingFunction, strErrorDescription)
     End Sub
 
+    ''' <summary>
+    ''' Parse out a scan number or scan number range from strData
+    ''' </summary>
+    ''' <param name="strData">Single integer or two integers separated by a dash</param>
+    ''' <param name="spectrumInfo"></param>
+    ''' <returns></returns>
+    Private Function ExtractScanRange(strData As String, spectrumInfo As clsSpectrumInfo) As Boolean
+
+        Dim scanNumberFound = False
+
+        Dim charIndex = strData.IndexOf("-"c)
+        If charIndex > 0 Then
+            ' strData contains a dash, and thus a range of scans
+            Dim strRemaining = strData.Substring(charIndex + 1).Trim()
+            strData = strData.Substring(0, charIndex).Trim()
+
+            If IsNumber(strData) Then
+                spectrumInfo.ScanNumber = CInt(strData)
+                If IsNumber(strRemaining) Then
+                    If spectrumInfo.ScanNumberEnd = 0 Then
+                        spectrumInfo.ScanNumberEnd = CInt(strRemaining)
+                    End If
+                Else
+                    spectrumInfo.ScanNumberEnd = spectrumInfo.ScanNumber
+                End If
+                scanNumberFound = True
+            End If
+        Else
+            If IsNumber(strData) Then
+                spectrumInfo.ScanNumber = CInt(strData)
+                If spectrumInfo.ScanNumberEnd = 0 Then
+                    spectrumInfo.ScanNumberEnd = spectrumInfo.ScanNumber
+                End If
+                scanNumberFound = True
+            End If
+        End If
+
+
+        If scanNumberFound Then
+            mCurrentSpectrum.SpectrumID = mCurrentSpectrum.ScanNumber
+            If spectrumInfo.ScanNumber = spectrumInfo.ScanNumberEnd OrElse spectrumInfo.ScanNumber > spectrumInfo.ScanNumberEnd Then
+                mCurrentSpectrum.ScanCount = 1
+            Else
+                mCurrentSpectrum.ScanCount = spectrumInfo.ScanNumberEnd - spectrumInfo.ScanNumber + 1
+            End If
+        End If
+
+        Return False
+    End Function
+
     Public Overrides Function ReadNextSpectrum(<Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
         ' Reads the next spectrum from a .MGF file
         ' Returns True if a spectrum is found, otherwise, returns False
 
-        Dim strLineIn As String, strRemaining As String, strTemp As String
+        Dim strLineIn As String, strTemp As String
         Dim strSplitLine() As String
         Dim strSepChars = New Char() {" "c, ControlChars.Tab}
 
         Dim intIndex As Integer
-        Dim intCharIndex As Integer
+        Dim charIndex As Integer
         Dim intLastProgressUpdateLine As Integer
 
         Dim blnScanNumberFound As Boolean
@@ -104,58 +157,58 @@ Public Class clsMGFFileReader
                 End With
 
                 intLastProgressUpdateLine = mInFileLineNumber
-                Do While Not blnSpectrumFound And mFileReader.Peek() > -1 And Not mAbortProcessing
+                Do While Not blnSpectrumFound AndAlso mFileReader.Peek() > -1 AndAlso Not mAbortProcessing
 
                     strLineIn = mFileReader.ReadLine
                     If Not strLineIn Is Nothing Then mTotalBytesRead += strLineIn.Length + 2
                     mInFileLineNumber += 1
 
-                    If Not strLineIn Is Nothing AndAlso strLineIn.Trim.Length > 0 Then
+                    If Not strLineIn Is Nothing AndAlso strLineIn.Trim().Length > 0 Then
                         MyBase.AddNewRecentFileText(strLineIn)
-                        strLineIn = strLineIn.Trim
+                        strLineIn = strLineIn.Trim()
 
                         ' See if strLineIn starts with the comment line start character (a pound sign, #)
                         If strLineIn.StartsWith(mCommentLineStartChar) Then
                             ' Remove any comment characters at the start of strLineIn
-                            strLineIn = strLineIn.TrimStart(mCommentLineStartChar).Trim
+                            strLineIn = strLineIn.TrimStart(mCommentLineStartChar).Trim()
 
                             ' Look for LINE_START_MSMS in strLineIn
                             ' This will be present in MGF files created using Agilent's DataAnalysis software
                             If strLineIn.ToUpper.StartsWith(LINE_START_MSMS) Then
-                                strLineIn = strLineIn.Substring(LINE_START_MSMS.Length).Trim
+                                strLineIn = strLineIn.Substring(LINE_START_MSMS.Length).Trim()
 
                                 ' Initialize these values
                                 mCurrentSpectrum.ScanNumberEnd = 0
                                 mCurrentSpectrum.ScanCount = 1
 
                                 ' Remove the # sign in front of the scan number
-                                strLineIn = strLineIn.TrimStart("#"c).Trim
+                                strLineIn = strLineIn.TrimStart("#"c).Trim()
 
                                 ' Look for the / sign and remove any text following it
                                 ' For example, 
                                 '   ###MS: 4458/4486/
                                 '   ###MSMS: 4459/4488/
                                 ' The / sign is used to indicate that several MS/MS scans were combined to make the given spectrum; we'll just keep the first one
-                                intCharIndex = strLineIn.IndexOf("/"c)
-                                If intCharIndex > 0 Then
-                                    If intCharIndex < strLineIn.Length - 1 Then
-                                        strTemp = strLineIn.Substring(intCharIndex + 1).Trim
+                                charIndex = strLineIn.IndexOf("/"c)
+                                If charIndex > 0 Then
+                                    If charIndex < strLineIn.Length - 1 Then
+                                        strTemp = strLineIn.Substring(charIndex + 1).Trim()
                                     Else
                                         strTemp = String.Empty
                                     End If
 
-                                    strLineIn = strLineIn.Substring(0, intCharIndex).Trim
+                                    strLineIn = strLineIn.Substring(0, charIndex).Trim()
                                     mCurrentSpectrum.ScanCount = 1
 
                                     If strTemp.Length > 0 Then
                                         Do
-                                            intCharIndex = strTemp.IndexOf("/"c)
-                                            If intCharIndex > 0 Then
+                                            charIndex = strTemp.IndexOf("/"c)
+                                            If charIndex > 0 Then
                                                 mCurrentSpectrum.ScanCount += 1
-                                                If intCharIndex < strTemp.Length - 1 Then
-                                                    strTemp = strTemp.Substring(intCharIndex + 1).Trim
+                                                If charIndex < strTemp.Length - 1 Then
+                                                    strTemp = strTemp.Substring(charIndex + 1).Trim()
                                                 Else
-                                                    strTemp = strTemp.Substring(0, intCharIndex).Trim
+                                                    strTemp = strTemp.Substring(0, charIndex).Trim()
                                                     Exit Do
                                                 End If
                                             Else
@@ -169,36 +222,8 @@ Public Class clsMGFFileReader
                                     End If
                                 End If
 
-                                intCharIndex = strLineIn.IndexOf("-"c)
-                                If intCharIndex > 0 Then
-                                    ' strLineIn contains a dash, and thus a range of scans
-                                    strRemaining = strLineIn.Substring(intCharIndex + 1).Trim
-                                    strLineIn = strLineIn.Substring(0, intCharIndex).Trim
+                                blnScanNumberFound = ExtractScanRange(strLineIn, mCurrentSpectrum)
 
-                                    If IsNumber(strLineIn) Then
-                                        mCurrentSpectrum.ScanNumber = CInt(strLineIn)
-                                        If IsNumber(strRemaining) Then
-                                            If mCurrentSpectrum.ScanNumberEnd = 0 Then
-                                                mCurrentSpectrum.ScanNumberEnd = CInt(strRemaining)
-                                            End If
-                                        Else
-                                            mCurrentSpectrum.ScanNumberEnd = mCurrentSpectrum.ScanNumber
-                                        End If
-                                        blnScanNumberFound = True
-                                    End If
-                                Else
-                                    If IsNumber(strLineIn) Then
-                                        mCurrentSpectrum.ScanNumber = CInt(strLineIn)
-                                        If mCurrentSpectrum.ScanNumberEnd = 0 Then
-                                            mCurrentSpectrum.ScanNumberEnd = mCurrentSpectrum.ScanNumber
-                                        End If
-                                        blnScanNumberFound = True
-                                    End If
-                                End If
-
-                                If blnScanNumberFound Then
-                                    mCurrentSpectrum.SpectrumID = mCurrentSpectrum.ScanNumber
-                                End If
                             End If
                         Else
                             ' Line does not start with a comment character
@@ -225,14 +250,14 @@ Public Class clsMGFFileReader
                                         mTotalBytesRead += strLineIn.Length + 2
                                         MyBase.AddNewRecentFileText(strLineIn)
 
-                                        If strLineIn.Trim.Length > 0 Then
-                                            strLineIn = strLineIn.Trim
+                                        If strLineIn.Trim().Length > 0 Then
+                                            strLineIn = strLineIn.Trim()
                                             If strLineIn.ToUpper.StartsWith(LINE_START_PEPMASS) Then
                                                 ' This line defines the peptide mass as an m/z value
                                                 ' It may simply contain the m/z value, or it may also contain an intensity value
                                                 ' The two values will be separated by a space or a tab
                                                 ' We do not save the intensity value since it cannot be included in a .Dta file
-                                                strLineIn = strLineIn.Substring(LINE_START_PEPMASS.Length).Trim
+                                                strLineIn = strLineIn.Substring(LINE_START_PEPMASS.Length).Trim()
                                                 strSplitLine = strLineIn.Split(strSepChars)
                                                 If strSplitLine.Length > 0 AndAlso IsNumber(strSplitLine(0)) Then
                                                     mCurrentSpectrum.ParentIonMZ = CDbl(strSplitLine(0))
@@ -247,7 +272,7 @@ Public Class clsMGFFileReader
                                                 ' It may simply contain a single charge, like 1+ or 2+
                                                 ' It may also contain two charges, as in 2+ and 3+
                                                 ' Not all spectra in the MGF file will have a CHARGE= entry
-                                                strLineIn = strLineIn.Substring(LINE_START_CHARGE.Length).Trim
+                                                strLineIn = strLineIn.Substring(LINE_START_CHARGE.Length).Trim()
 
                                                 ' Remove any + signs in the line
                                                 strLineIn = strLineIn.Replace("+", String.Empty)
@@ -257,10 +282,10 @@ Public Class clsMGFFileReader
                                                     For intIndex = 0 To strSplitLine.Length - 1
                                                         ' Step through the split line and add any numbers to the charge list
                                                         ' Typically, strSplitLine(1) will contain "and"
-                                                        If IsNumber(strSplitLine(intIndex).Trim) Then
+                                                        If IsNumber(strSplitLine(intIndex).Trim()) Then
                                                             With mCurrentSpectrum
                                                                 If .ParentIonChargeCount < clsSpectrumInfoMsMsText.MAX_CHARGE_COUNT Then
-                                                                    .ParentIonCharges(.ParentIonChargeCount) = CInt(strSplitLine(intIndex).Trim)
+                                                                    .ParentIonCharges(.ParentIonChargeCount) = CInt(strSplitLine(intIndex).Trim())
                                                                     .ParentIonChargeCount += 1
                                                                 End If
                                                             End With
@@ -278,7 +303,7 @@ Public Class clsMGFFileReader
                                             ElseIf strLineIn.ToUpper.StartsWith(LINE_START_TITLE) Then
                                                 mCurrentSpectrum.SpectrumTitle = String.Copy(strLineIn)
 
-                                                strLineIn = strLineIn.Substring(LINE_START_TITLE.Length).Trim
+                                                strLineIn = strLineIn.Substring(LINE_START_TITLE.Length).Trim()
                                                 mCurrentSpectrum.SpectrumTitleWithCommentChars = String.Copy(strLineIn)
 
                                                 If Not blnScanNumberFound Then
@@ -292,6 +317,20 @@ Public Class clsMGFFileReader
                                             ElseIf strLineIn.ToUpper.StartsWith(LINE_START_END_IONS) Then
                                                 ' Empty ion list
                                                 Exit Do
+                                            ElseIf strLineIn.ToUpper.StartsWith(LINE_START_RT) Then
+
+                                                strLineIn = strLineIn.Substring(LINE_START_RT.Length).Trim()
+
+                                                Dim rtSeconds As Double
+                                                If Double.TryParse(strLineIn, rtSeconds) Then
+                                                    mCurrentSpectrum.RetentionTimeMin = CSng(rtSeconds / 60.0)
+                                                End If
+
+                                            ElseIf strLineIn.ToUpper.StartsWith(LINE_START_SCANS) Then
+
+                                                strLineIn = strLineIn.Substring(LINE_START_SCANS.Length).Trim()
+                                                blnScanNumberFound = ExtractScanRange(strLineIn, mCurrentSpectrum)
+
                                             ElseIf Char.IsNumber(strLineIn, 0) Then
                                                 ' Found the start of the ion list
                                                 ' Add to the MsMs data list
@@ -309,7 +348,7 @@ Public Class clsMGFFileReader
                                 If blnParentIonFound AndAlso mCurrentMsMsDataList.Count > 0 Then
                                     ' We have determined the parent ion
 
-                                    ' Note: MGF files have Parent Ion MZ defined butnot Parent Ion MH
+                                    ' Note: MGF files have Parent Ion MZ defined but not Parent Ion MH
                                     ' Thus, compute .ParentIonMH using .ParentIonMZ
                                     With mCurrentSpectrum
                                         If .ParentIonChargeCount >= 1 Then
@@ -330,12 +369,12 @@ Public Class clsMGFFileReader
                                             mTotalBytesRead += strLineIn.Length + 2
                                             MyBase.AddNewRecentFileText(strLineIn)
 
-                                            If strLineIn.Trim.Length > 0 Then
-                                                If strLineIn.Trim.ToUpper.StartsWith(LINE_START_END_IONS) Then
+                                            If strLineIn.Trim().Length > 0 Then
+                                                If strLineIn.Trim().ToUpper.StartsWith(LINE_START_END_IONS) Then
                                                     Exit Do
                                                 Else
                                                     ' Add to MS/MS data sting list
-                                                    mCurrentMsMsDataList.Add(strLineIn.Trim)
+                                                    mCurrentMsMsDataList.Add(strLineIn.Trim())
                                                 End If
                                             End If
                                         End If
@@ -403,4 +442,5 @@ Public Class clsMGFFileReader
 
         Return blnSpectrumFound
     End Function
+
 End Class

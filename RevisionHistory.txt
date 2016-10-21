@@ -1,5 +1,8 @@
 MSDataFileReader Change Log
 
+Version 1.3.6137; October 20, 2016
+	- Add support for the SCANS and RTINSECONDS tags in MGF files
+
 Version 1.3.6033; July 8, 2016
 	- Initialize method parameters marked as <Out()>
 	- Speed increase by extracting and parsing XML by wrapping mBinaryReader with an XmlTextReader
