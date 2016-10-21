@@ -31,18 +31,18 @@ Public Class clsDtaTextFileReader
     ' Note: The extension must be in all caps
     Public Const DTA_TEXT_FILE_EXTENSION As String = "_DTA.TXT"
 
-    Protected Const COMMENT_LINE_START_CHAR As Char = "="c        ' The comment character is an Equals sign
+    Private Const COMMENT_LINE_START_CHAR As Char = "="c        ' The comment character is an Equals sign
 
 #End Region
 
 #Region "Classwide Variables"
 
-    Protected mCombineIdenticalSpectra As Boolean
+    Private mCombineIdenticalSpectra As Boolean
 
     ' mHeaderSaved is used to store the previous header title; it is needed when the next
     '  header was read for comparison with the current scan, but it didn't match, and thus
     '  wasn't used for grouping
-    Protected mHeaderSaved As String
+    Private mHeaderSaved As String
 
 #End Region
 
@@ -99,7 +99,7 @@ Public Class clsDtaTextFileReader
                 MyBase.AddNewRecentFileText(String.Empty, True, False)
 
                 intLastProgressUpdateLine = mInFileLineNumber
-                Do While Not blnSpectrumFound And mFileReader.Peek() > -1 And Not mAbortProcessing
+                Do While Not blnSpectrumFound AndAlso mFileReader.Peek() > -1 AndAlso Not mAbortProcessing
 
                     If mHeaderSaved.Length > 0 Then
                         strLineIn = String.Copy(mHeaderSaved)
@@ -361,7 +361,7 @@ Public Class clsDtaTextFileReader
                         .ParentIonChargeCount = 1
                         .ParentIonCharges(0) = intCharge
 
-                        ' Note: Dta files have Parent Ion MH defined by not Parent Ion m/z
+                        ' Note: Dta files have Parent Ion MH defined but not Parent Ion m/z
                         ' Thus, compute .ParentIonMZ using .ParentIonMH
                         If .ParentIonCharges(0) <= 1 Then
                             .ParentIonMZ = .ParentIonMH

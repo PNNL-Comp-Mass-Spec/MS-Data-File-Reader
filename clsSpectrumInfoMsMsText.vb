@@ -24,19 +24,19 @@ Public Class clsSpectrumInfoMsMsText
 
 #Region "Spectrum Variables"
 
-    Protected mSpectrumTitleWithCommentChars As String
-    Protected mSpectrumTitle As String
-    Protected mParentIonLineText As String
+    Private mSpectrumTitleWithCommentChars As String
+    Private mSpectrumTitle As String
+    Private mParentIonLineText As String
 
     ' DTA files include this value, but not the MZ value
-    Protected mParentIonMH As Double
+    Private mParentIonMH As Double
 
     Public ParentIonChargeCount As Integer
 
     ' 0 if unknown, otherwise typically 1, 2, or 3; Max index is MAX_CHARGE_COUNT-1
     Public ParentIonCharges() As Integer
 
-    Protected mChargeIs2And3Plus As Boolean
+    Private mChargeIs2And3Plus As Boolean
 
 #End Region
 

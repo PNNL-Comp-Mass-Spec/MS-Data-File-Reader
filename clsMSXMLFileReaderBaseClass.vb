@@ -583,7 +583,7 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
         Return strValue
     End Function
 
-    Protected Sub XMLTextReaderSkipWhitespace()
+    Private Sub XMLTextReaderSkipWhitespace()
         Try
             If mXMLReader.NodeType = XmlNodeType.Whitespace Then
                 ' Whitspace; read the next node

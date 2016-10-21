@@ -38,27 +38,27 @@ Public Class clsSpectrumInfo
 
 #Region "Spectrum Variables"
 
-    Protected mSpectrumID As Integer                ' Spectrum ID number; often the same as ScanNumber
-    Protected mScanNumber As Integer                ' First scan number if ScanCount is > 1
-    Protected mScanCount As Integer                 ' Number of spectra combined together to get the given spectrum
-    Protected mScanNumberEnd As Integer             ' Last scan if more than one scan was combined to make this spectrum
+    Private mSpectrumID As Integer                ' Spectrum ID number; often the same as ScanNumber
+    Private mScanNumber As Integer                ' First scan number if ScanCount is > 1
+    Private mScanCount As Integer                 ' Number of spectra combined together to get the given spectrum
+    Private mScanNumberEnd As Integer             ' Last scan if more than one scan was combined to make this spectrum
 
-    Protected mSpectrumType As String               ' See Class SpectrumTypeNames for typical names (discrete or continuous)
-    Protected mSpectrumCombinationMethod As String
+    Private mSpectrumType As String               ' See Class SpectrumTypeNames for typical names (discrete or continuous)
+    Private mSpectrumCombinationMethod As String
 
-    Protected mMSLevel As Integer                   ' 1 for MS, 2 for MS/MS, 3 for MS^3, etc.
-    Protected mCentroided As Boolean                ' True if the data is centroided (supported by mzXML v3.x)
-    Protected mPolarity As String
-    Protected mRetentionTimeMin As Single
+    Private mMSLevel As Integer                   ' 1 for MS, 2 for MS/MS, 3 for MS^3, etc.
+    Private mCentroided As Boolean                ' True if the data is centroided (supported by mzXML v3.x)
+    Private mPolarity As String
+    Private mRetentionTimeMin As Single
 
-    Protected mmzRangeStart As Single
-    Protected mmzRangeEnd As Single
-    Protected mBasePeakMZ As Double
-    Protected mBasePeakIntensity As Single
+    Private mmzRangeStart As Single
+    Private mmzRangeEnd As Single
+    Private mBasePeakMZ As Double
+    Private mBasePeakIntensity As Single
 
-    Protected mTotalIonCurrent As Double
-    Protected mParentIonMZ As Double
-    Protected mParentIonIntensity As Single
+    Private mTotalIonCurrent As Double
+    Private mParentIonMZ As Double
+    Private mParentIonIntensity As Single
 
     ' Number of m/z and intensity pairs in this spectrum; see note concerning mAutoShrinkDataLists below
     Public DataCount As Integer
@@ -72,7 +72,7 @@ Public Class clsSpectrumInfo
     ' When mAutoShrinkDataLists is True, then MZList().Length and IntensityList().Length will equal DataCount; 
     ' When mAutoShrinkDataLists is False, then the memory will not be freed when DataCount shrinks or .Clear() is called
     ' Setting mAutoShrinkDataLists to False helps reduce slow, increased memory usage due to inefficient garbage collection
-    Protected mAutoShrinkDataLists As Boolean
+    Private mAutoShrinkDataLists As Boolean
     Protected mErrorMessage As String
 
     Protected mSpectrumStatus As eSpectrumStatusConstants
@@ -319,7 +319,7 @@ Public Class clsSpectrumInfo
         mErrorMessage = String.Empty
     End Sub
 
-    Protected Function CloneMe() As Object Implements ICloneable.Clone
+    Private Function CloneMe() As Object Implements ICloneable.Clone
         ' Use the strongly typed Clone module to do the cloning
         Return Clone()
     End Function

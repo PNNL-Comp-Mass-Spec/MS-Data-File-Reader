@@ -56,10 +56,10 @@ Public Class clsBinaryTextReader
 
 #Region "Constants and Enums"
     ' In order to support Unicode files, it is important that the buffer length always be a power of 2
-    Protected Const INITIAL_BUFFER_LENGTH As Integer = 10000
+    Private Const INITIAL_BUFFER_LENGTH As Integer = 10000
 
-    Protected Const LINE_TERMINATOR_CODE_LF As Byte = 10
-    Protected Const LINE_TERMINATOR_CODE_CR As Byte = 13
+    Private Const LINE_TERMINATOR_CODE_LF As Byte = 10
+    Private Const LINE_TERMINATOR_CODE_CR As Byte = 13
 
     Public Enum FileSystemModeConstants
         Windows = 0
@@ -87,41 +87,41 @@ Public Class clsBinaryTextReader
 
 #Region "Classwide Variables"
 
-    Protected mInputFilePath As String
+    Private mInputFilePath As String
 
-    Protected mInputFileEncoding As InputFileEncodingConstants = InputFileEncodingConstants.Ascii
-    Protected mCharSize As Byte = 1
-    Protected mByteOrderMarkLength As Byte
+    Private mInputFileEncoding As InputFileEncodingConstants = InputFileEncodingConstants.Ascii
+    Private mCharSize As Byte = 1
+    Private mByteOrderMarkLength As Byte
 
     ' Note: Use Me.FileSystemMode to set this variable so that mLineTerminator1Code and mLineTerminator2Code also get updated
-    Protected mFileSystemMode As FileSystemModeConstants
-    Protected mLineTerminator1Code As Byte
-    Protected mLineTerminator2Code As Byte
+    Private mFileSystemMode As FileSystemModeConstants
+    Private mLineTerminator1Code As Byte
+    Private mLineTerminator2Code As Byte
 
-    Protected mErrorMessage As String
+    Private mErrorMessage As String
 
-    Protected mBinaryReader As FileStream
-    Protected mLineNumber As Integer
+    Private mBinaryReader As FileStream
+    Private mLineNumber As Integer
 
-    Protected mByteBufferCount As Integer
-    Protected mByteBuffer() As Byte
+    Private mByteBufferCount As Integer
+    Private mByteBuffer() As Byte
 
     ' Note: The first byte in the file is Byte 0
-    Protected mByteBufferFileOffsetStart As Long
+    Private mByteBufferFileOffsetStart As Long
 
     ' This variable defines the index in mByteBuffer() at which the next line starts
-    Protected mByteBufferNextLineStartIndex As Integer
+    Private mByteBufferNextLineStartIndex As Integer
 
-    Protected mCurrentLineText As String
-    Protected mCurrentLineByteOffsetStart As Long
-    Protected mCurrentLineByteOffsetEnd As Long
-    Protected mCurrentLineByteOffsetEndWithTerminator As Long
+    Private mCurrentLineText As String
+    Private mCurrentLineByteOffsetStart As Long
+    Private mCurrentLineByteOffsetEnd As Long
+    Private mCurrentLineByteOffsetEndWithTerminator As Long
 
-    Protected mReadLineDirectionSaved As ReadDirectionConstants
-    Protected mCurrentLineByteOffsetStartSaved As Long
-    Protected mCurrentLineTextSaved As String
+    Private mReadLineDirectionSaved As ReadDirectionConstants
+    Private mCurrentLineByteOffsetStartSaved As Long
+    Private mCurrentLineTextSaved As String
 
-    Protected mCurrentLineTerminator As String
+    Private mCurrentLineTerminator As String
 
 #End Region
 
@@ -286,7 +286,7 @@ Public Class clsBinaryTextReader
         mByteBufferNextLineStartIndex = 0
     End Sub
 
-    Protected Sub InitializeCurrentLine()
+    Private Sub InitializeCurrentLine()
         mCurrentLineText = String.Empty
         mCurrentLineByteOffsetStart = 0
         mCurrentLineByteOffsetEnd = 0
@@ -294,7 +294,7 @@ Public Class clsBinaryTextReader
         mCurrentLineTerminator = String.Empty
     End Sub
 
-    Protected Sub InitializeLocalVariables()
+    Private Sub InitializeLocalVariables()
         ' Note: Do Not update mFileSystemMode, mLineTerminator1Code, mLineTerminator2Code, or mInputFileEncoding in this sub
 
         mInputFilePath = String.Empty
@@ -319,7 +319,7 @@ Public Class clsBinaryTextReader
         InitializeCurrentLine()
     End Sub
 
-    Protected Sub LogErrors(strCallingFunction As String, strErrorDescription As String)
+    Private Sub LogErrors(strCallingFunction As String, strErrorDescription As String)
 
         Static LastCallingFunction As String
         Static LastErrorMessage As String
@@ -1086,7 +1086,7 @@ Public Class clsBinaryTextReader
         Return blnMatchFound
     End Function
 
-    Protected Sub SetInputFileEncoding(EncodingMode As InputFileEncodingConstants)
+    Private Sub SetInputFileEncoding(EncodingMode As InputFileEncodingConstants)
         mInputFileEncoding = EncodingMode
         Select Case mInputFileEncoding
             Case InputFileEncodingConstants.Ascii, InputFileEncodingConstants.UTF8

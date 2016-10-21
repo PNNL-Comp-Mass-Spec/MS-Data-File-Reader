@@ -177,7 +177,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         End Try
     End Sub
 
-    Protected Sub ComputePercentageDataAboveThreshold(
+    Private Sub ComputePercentageDataAboveThreshold(
                                                       objSpectrumInfo As clsSpectrumInfoMsMsText,
                                                       <Out()> ByRef sngPctByCount As Single,
                                                       <Out()> ByRef sngPctByIntensity As Single)
