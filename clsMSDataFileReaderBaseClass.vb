@@ -3,7 +3,7 @@ Option Strict On
 Imports System.IO
 Imports System.Runtime.InteropServices
 
-' This is the base class for the various MS data file readres
+' This is the base class for the various MS data file readers
 '
 ' -------------------------------------------------------------------------------
 ' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
