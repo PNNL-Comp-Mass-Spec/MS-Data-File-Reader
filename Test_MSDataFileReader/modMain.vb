@@ -242,7 +242,7 @@ Module modMain
         'TestMZXmlReader("Gsulf326_LTQFT_run2_23Aug05_Andro_0705-06.mzXML", eDataReaderMode, maxScansToAccess)
         'TestMZXmlReader("Unicode_Gsulf326_LTQFT.mzxml", eDataReaderMod, maxScansToShowe)
         'TestMZXmlReader("Ding-UG-G-IMAC-Label-60.mzXML", eDataReaderMode, maxScansToAccess)
-        TestMZXmlReader("Mortierella_iTRAQ4_test_28Mar14_Samwise_13-07-17.mzxml", eDataReaderMode, maxScansToAccess)
+        TestMZXmlReader("Mortierella_iTRAQ4_test_28Mar14_Samwise_13-07-17_excerpt.mzXML", eDataReaderMode, maxScansToAccess)
     End Sub
 
     Private Sub TestMZXmlReader(
