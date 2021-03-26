@@ -1,0 +1,44 @@
+
+Reading Mortierella_iTRAQ4_test_28Mar14_Samwise_13-07-17_excerpt.mzXML; Reader = MSDataFileReader.clsMzXMLFileReader, DataReaderMode = Sequential
+Calling ReadNextSpectrum (no caching)
+Scan Count: 251
+Scan 17000, MS2, 683 data points
+    m/z 100.0762   5714.7
+    m/z 100.0848   44742.7
+    m/z 100.0876   153220.1
+    m/z 101.0716   79159.5
+    m/z 101.0883   47962.0
+    m/z 101.0927   13474.7
+    m/z 101.1081   14576.5
+    m/z 102.0556   62271.6
+    m/z 102.1049   22013.4
+    m/z 103.0548   11407.5
+    m/z 104.0536   24377.9
+
+Scan 17100, MS2, 671 data points
+    m/z 100.0849   12321.9
+    m/z 100.0877   5810.3
+    m/z 100.5973   1478.4
+    m/z 101.0716   20309.1
+    m/z 101.0882   12069.2
+    m/z 101.0926   1497.2
+    m/z 101.1080   2289.7
+    m/z 102.0556   9168.2
+    m/z 102.1051   3743.8
+    m/z 103.0549   1883.5
+    m/z 104.0534   12827.0
+
+Scan 17200, MS2, 551 data points
+    m/z 100.0849   73636.8
+    m/z 101.0715   264132.5
+    m/z 101.0881   79813.1
+    m/z 101.0926   22872.9
+    m/z 102.0557   112931.2
+    m/z 102.0749   15493.8
+    m/z 102.0915   21346.9
+    m/z 104.0535   1062959.0
+    m/z 104.9370   13278.5
+    m/z 106.2743   80445.4
+    m/z 106.3822   13762.7
+
+Scan Count (final): 251
