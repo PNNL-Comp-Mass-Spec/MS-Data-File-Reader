@@ -433,7 +433,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
 
         Try
             blnSuccess = False
-            If mDataReaderMode = drmDataReaderModeConstants.Cached And Not mCachedSpectra Is Nothing Then
+            If mDataReaderMode = drmDataReaderModeConstants.Cached And mCachedSpectra IsNot Nothing Then
                 ReDim ScanNumberList(mCachedSpectrumCount - 1)
 
                 For intSpectrumIndex = 0 To ScanNumberList.Length - 1
@@ -460,7 +460,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
 
         blnSuccess = False
         If mDataReaderMode = drmDataReaderModeConstants.Cached AndAlso mCachedSpectrumCount > 0 Then
-            If intSpectrumIndex >= 0 And intSpectrumIndex < mCachedSpectrumCount And Not mCachedSpectra Is Nothing Then
+            If intSpectrumIndex >= 0 And intSpectrumIndex < mCachedSpectrumCount And mCachedSpectra IsNot Nothing Then
                 objSpectrumInfo = mCachedSpectra(intSpectrumIndex)
                 blnSuccess = True
             Else
@@ -498,7 +498,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
                     Next intSpectrumIndex
                 Else
                     Dim objIndex = mCachedSpectraScanToIndex(intScanNumber)
-                    If Not objIndex Is Nothing Then
+                    If objIndex IsNot Nothing Then
                         objSpectrumInfo = mCachedSpectra(CType(objIndex, Integer))
                         blnSuccess = True
                     End If
@@ -567,7 +567,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
                 mErrorMessage = "Unknown error"
             End If
 
-            If Not LastCallingFunction Is Nothing Then
+            If LastCallingFunction IsNot Nothing Then
                 If LastCallingFunction = strCallingFunction AndAlso
                    LastErrorMessage = strErrorDescription Then
                     If DateTime.UtcNow.Subtract(LastSaveTime).TotalSeconds < 0.5 Then
@@ -649,7 +649,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
                     ReDim Preserve mCachedSpectra(mCachedSpectra.Length * 2 - 1)
                 End If
 
-                If Not objSpectrumInfo Is Nothing Then
+                If objSpectrumInfo IsNot Nothing Then
                     mCachedSpectra(mCachedSpectrumCount) = objSpectrumInfo
 
                     If Not mCachedSpectraScanToIndex.Contains(objSpectrumInfo.ScanNumber) Then

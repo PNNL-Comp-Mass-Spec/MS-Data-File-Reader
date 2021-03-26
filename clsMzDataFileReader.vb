@@ -206,7 +206,7 @@ Public Class clsMzDataFileReader
         Dim objSpectrum As clsSpectrumInfoMzData
 
         sngIntensityMatch = 0
-        If Not mMostRecentSurveyScanSpectra Is Nothing Then
+        If mMostRecentSurveyScanSpectra IsNot Nothing Then
             objEnumerator = mMostRecentSurveyScanSpectra.GetEnumerator
             Do While objEnumerator.MoveNext
                 objSpectrum = CType(objEnumerator.Current, clsSpectrumInfoMzData)
@@ -245,7 +245,7 @@ Public Class clsMzDataFileReader
     Protected Overrides Sub InitializeCurrentSpectrum(blnAutoShrinkDataLists As Boolean)
         Dim objSpectrumCopy As clsSpectrumInfoMzData = Nothing
 
-        If Not mCurrentSpectrum Is Nothing Then
+        If mCurrentSpectrum IsNot Nothing Then
             If mCurrentSpectrum.MSLevel = 1 Then
                 If mMostRecentSurveyScanSpectra.Count >= MOST_RECENT_SURVEY_SCANS_TO_CACHE Then
                     mMostRecentSurveyScanSpectra.Dequeue()
@@ -762,7 +762,7 @@ Public Class clsMzDataFileReader
                                                                     Text.RegularExpressions.RegexOptions.IgnoreCase)
 
             ' Validate the mzData file version
-            If Not strFileVersion Is Nothing AndAlso strFileVersion.Length > 0 Then
+            If strFileVersion IsNot Nothing AndAlso strFileVersion.Length > 0 Then
                 mFileVersion = String.Copy(strFileVersion)
 
                 objMatch = objFileVersionRegEx.Match(strFileVersion)

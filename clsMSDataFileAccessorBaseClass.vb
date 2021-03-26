@@ -119,12 +119,12 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
 
     Public Overrides Sub CloseFile()
 
-        If Not mBinaryReader Is Nothing Then
+        If mBinaryReader IsNot Nothing Then
             mBinaryReader.Close()
             mBinaryReader = Nothing
         End If
 
-        If Not mBinaryTextReader Is Nothing Then
+        If mBinaryTextReader IsNot Nothing Then
             mBinaryTextReader.Close()
             mBinaryTextReader = Nothing
         End If
@@ -148,7 +148,7 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
         Dim intBytesToRead As Integer
 
         Try
-            If Not mBinaryReader Is Nothing AndAlso mBinaryReader.CanRead Then
+            If mBinaryReader IsNot Nothing AndAlso mBinaryReader.CanRead Then
                 mBinaryReader.Seek(lngStartByteOffset, SeekOrigin.Begin)
 
                 intBytesToRead = CInt(lngEndByteOffset - lngStartByteOffset + 1)
@@ -339,7 +339,7 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
                     Else
                         ' Look for intScanNumber in mIndexedSpectraScanToIndex
                         Dim objIndex = mIndexedSpectraScanToIndex(intScanNumber)
-                        If Not objIndex Is Nothing Then
+                        If objIndex IsNot Nothing Then
                             Dim intSpectrumIndex = CType(objIndex, Integer)
                             blnSuccess = GetSourceXMLByIndex(intSpectrumIndex, strSourceXML)
                         End If
@@ -422,7 +422,7 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
                     Else
                         ' Look for intScanNumber in mIndexedSpectraScanToIndex
                         Dim objIndex = mIndexedSpectraScanToIndex(intScanNumber)
-                        If Not objIndex Is Nothing Then
+                        If objIndex IsNot Nothing Then
                             Dim intSpectrumIndex = CType(objIndex, Integer)
                             blnSuccess = GetSpectrumByIndexWork(intSpectrumIndex, objSpectrumInfo, blnHeaderInfoOnly)
                         End If

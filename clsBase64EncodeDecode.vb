@@ -355,6 +355,7 @@ Public Class clsBase64EncodeDecode
 
     ''' <summary>
     ''' Converts an array of 16-bit integers to a base-64 encoded string
+    ''' In addition, returns the bits of precision and datatype name for the given data type
     ''' </summary>
     ''' <param name="dataArray"></param>
     ''' <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
@@ -368,9 +369,6 @@ Public Class clsBase64EncodeDecode
       <Out()> ByRef strDataTypeNameReturn As String,
       Optional removeTrailingPaddingChars As Boolean = False,
       Optional eEndianMode As eEndianTypeConstants = eEndianTypeConstants.LittleEndian) As String
-
-        ' 
-        ' In addition, returns the bits of precision and datatype name for the given data type
 
         Const DATA_TYPE_PRECISION_BYTES = 2
         Const DATA_TYPE_NAME = "int"

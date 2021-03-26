@@ -8,8 +8,8 @@ Imports System.Xml
 
 ' This class can be used to open a .mzXML file and index the location
 ' of all of the spectra present.  This does not cache the mass spectra data in
-' memory, and therefore uses little memory, but once the indexing is complete, 
-' random access to the spectra is possible.  After the indexing is complete, spectra 
+' memory, and therefore uses little memory, but once the indexing is complete,
+' random access to the spectra is possible.  After the indexing is complete, spectra
 ' can be obtained using GetSpectrumByScanNumber or GetSpectrumByIndex
 
 ' -------------------------------------------------------------------------------
@@ -45,7 +45,7 @@ Public Class clsMzXMLFileAccessor
     Protected Overrides Sub Finalize()
         MyBase.Finalize()
 
-        If Not mXmlFileReader Is Nothing Then
+        If mXmlFileReader IsNot Nothing Then
             mXmlFileReader = Nothing
         End If
     End Sub
@@ -92,7 +92,6 @@ Public Class clsMzXMLFileAccessor
     Private mScanStartElementRegEx As Regex
     Private mPeaksEndElementRegEx As Regex
 
-    Private mScanCountRegEx As Regex
     Private mScanNumberRegEx As Regex
 
     Private mXMLReaderSettings As XmlReaderSettings
@@ -116,7 +115,7 @@ Public Class clsMzXMLFileAccessor
         End Get
         Set(Value As Boolean)
             MyBase.ParseFilesWithUnknownVersion = Value
-            If Not mXmlFileReader Is Nothing Then
+            If mXmlFileReader IsNot Nothing Then
                 mXmlFileReader.ParseFilesWithUnknownVersion = Value
             End If
         End Set
@@ -493,8 +492,9 @@ Public Class clsMzXMLFileAccessor
             If GetSpectrumReadyStatus(True) Then
 
                 If mXmlFileReader Is Nothing Then
-                    mXmlFileReader = New clsMzXMLFileReader()
-                    mXmlFileReader.ParseFilesWithUnknownVersion = mParseFilesWithUnknownVersion
+                    mXmlFileReader = New clsMzXMLFileReader With {
+                        .ParseFilesWithUnknownVersion = mParseFilesWithUnknownVersion
+                    }
                 End If
 
                 If mIndexedSpectrumInfoCount = 0 Then
@@ -558,13 +558,14 @@ Public Class clsMzXMLFileAccessor
         '       It also allows for other attributes to be present between <scan and the num attribute
         mScanNumberRegEx = InitializeRegEx(SCAN_START_ELEMENT & "[^/]+num\s*=\s*""([0-9]+)""")
 
-        mXMLReaderSettings = New XmlReaderSettings()
-        mXMLReaderSettings.IgnoreWhitespace = True
+        mXMLReaderSettings = New XmlReaderSettings With {
+            .IgnoreWhitespace = True
+        }
     End Sub
 
     Protected Overrides Function LoadExistingIndex() As Boolean
         ' Use the mBinaryTextReader to jump to the end of the file and read the data line-by-line backward
-        '  looking for the <indexOffset> element or the <index 
+        '  looking for the <indexOffset> element or the <index
         ' If found, and if the index elements are successfully loaded, then returns True
         ' Otherwise, returns False
 
@@ -600,7 +601,7 @@ Public Class clsMzXMLFileAccessor
                 intCharIndex = strCurrentLine.IndexOf(INDEX_OFFSET_START_ELEMENT, StringComparison.Ordinal)
                 If intCharIndex >= 0 Then
                     ' The offset to the index has been specified
-                    ' Parse out the number between <indexOffset> and </indexOffset> 
+                    ' Parse out the number between <indexOffset> and </indexOffset>
                     ' (normally on the same line, though this code can handle white space between the tags)
 
                     lngByteOffsetSaved = mBinaryTextReader.CurrentLineByteOffsetStart +
@@ -639,7 +640,7 @@ Public Class clsMzXMLFileAccessor
                                 strCurrentLine = MZXML_START_ELEMENT & ">" & ControlChars.NewLine & strCurrentLine
                                 blnExtractTextToEOF = True
                             Else
-                                ' Corrupt index offset value; move back to byte offset 
+                                ' Corrupt index offset value; move back to byte offset
                             End If
                         End If
                     End If
@@ -662,8 +663,9 @@ Public Class clsMzXMLFileAccessor
                 End If
 
                 If blnExtractTextToEOF Then
-                    objStringBuilder = New StringBuilder
-                    objStringBuilder.Length = 0
+                    objStringBuilder = New StringBuilder With {
+                        .Length = 0
+                    }
 
                     If strCurrentLine.Length > 0 Then
                         objStringBuilder.Append(strCurrentLine & mBinaryTextReader.CurrentLineTerminator)
@@ -694,7 +696,7 @@ Public Class clsMzXMLFileAccessor
                             strExtractedText = MyBase.ExtractTextBetweenOffsets(mInputFilePath,
                                                                                 mIndexedSpectrumInfo(0).ByteOffsetStart,
                                                                                 mIndexedSpectrumInfo(0).ByteOffsetEnd)
-                            If Not strExtractedText Is Nothing AndAlso strExtractedText.Length > 0 Then
+                            If strExtractedText IsNot Nothing AndAlso strExtractedText.Length > 0 Then
                                 ' Make sure the first text in strExtractedText is <scan
                                 intStartElementIndex = strExtractedText.IndexOf(SCAN_START_ELEMENT,
                                                                                 StringComparison.Ordinal)
@@ -736,7 +738,7 @@ Public Class clsMzXMLFileAccessor
                     Else
                         ' Index not loaded (or not valid)
 
-                        If Not mErrorMessage Is Nothing AndAlso mErrorMessage.Length > 0 Then
+                        If mErrorMessage IsNot Nothing AndAlso mErrorMessage.Length > 0 Then
                             LogErrors("LoadExistingIndex", mErrorMessage)
                         End If
 
@@ -805,7 +807,7 @@ Public Class clsMzXMLFileAccessor
                                         strValue = String.Empty
                                     End Try
 
-                                    If Not strValue Is Nothing AndAlso strValue.Length > 0 Then
+                                    If strValue IsNot Nothing AndAlso strValue.Length > 0 Then
                                         If strValue = "scan" Then
                                             blnParseIndexValues = True
                                         Else
@@ -1031,7 +1033,7 @@ Public Class clsMzXMLFileAccessor
 
         Dim objMatch As Match
 
-        If Not strHeaderText Is Nothing AndAlso strHeaderText.Length > 0 Then
+        If strHeaderText IsNot Nothing AndAlso strHeaderText.Length > 0 Then
             objMatch = mMSRunRegEx.Match(strHeaderText)
             If objMatch.Success Then
                 ' Replace the scan count value with intScanCountTotal

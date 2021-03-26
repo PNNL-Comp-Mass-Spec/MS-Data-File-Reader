@@ -273,7 +273,7 @@ Public Class clsBinaryTextReader
 
     Public Sub Close()
         Try
-            If Not mBinaryReader Is Nothing Then
+            If mBinaryReader IsNot Nothing Then
                 mBinaryReader.Close()
             End If
         Catch ex As Exception
@@ -326,13 +326,13 @@ Public Class clsBinaryTextReader
         Static LastSaveTime As DateTime
 
         Try
-            If Not strErrorDescription Is Nothing Then
+            If strErrorDescription IsNot Nothing Then
                 mErrorMessage = String.Copy(strErrorDescription)
             Else
                 mErrorMessage = "Unknown error"
             End If
 
-            If Not LastCallingFunction Is Nothing Then
+            If LastCallingFunction IsNot Nothing Then
                 If LastCallingFunction = strCallingFunction AndAlso
                    LastErrorMessage = strErrorDescription Then
                     If DateTime.UtcNow.Subtract(LastSaveTime).TotalSeconds < 0.5 Then
@@ -365,7 +365,7 @@ Public Class clsBinaryTextReader
         Dim intBytesRead As Integer
 
         Try
-            If Not mBinaryReader Is Nothing AndAlso mBinaryReader.CanRead Then
+            If mBinaryReader IsNot Nothing AndAlso mBinaryReader.CanRead Then
                 If lngByteOffset < 0 Then
                     lngByteOffset = 0
                 ElseIf lngByteOffset > mBinaryReader.Length Then
@@ -535,7 +535,7 @@ Public Class clsBinaryTextReader
 
     Public Sub MoveToEnd()
         Try
-            If Not mBinaryReader Is Nothing AndAlso mBinaryReader.CanRead Then
+            If mBinaryReader IsNot Nothing AndAlso mBinaryReader.CanRead Then
                 MoveToByteOffset(mBinaryReader.Length)
             End If
         Catch ex As Exception
@@ -639,7 +639,7 @@ Public Class clsBinaryTextReader
 
             InitializeCurrentLine()
 
-            If Not mBinaryReader Is Nothing AndAlso mBinaryReader.CanRead Then
+            If mBinaryReader IsNot Nothing AndAlso mBinaryReader.CanRead Then
                 Select Case mInputFileEncoding
                     Case InputFileEncodingConstants.Ascii, InputFileEncodingConstants.UTF8
                         ' Ascii or UTF-8 encoding; Assure mCharSize = 1
@@ -954,7 +954,7 @@ Public Class clsBinaryTextReader
                         If eDirection <> mReadLineDirectionSaved AndAlso
                            mCurrentLineByteOffsetStartSaved >= 0 AndAlso
                            mCurrentLineByteOffsetStart = mCurrentLineByteOffsetStartSaved AndAlso
-                           Not mCurrentLineTextSaved Is Nothing AndAlso
+                           mCurrentLineTextSaved IsNot Nothing AndAlso
                            mCurrentLineText = mCurrentLineTextSaved Then
 
                             ' Recursively call this function to read the next line

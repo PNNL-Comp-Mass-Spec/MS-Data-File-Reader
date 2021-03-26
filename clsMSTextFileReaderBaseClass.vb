@@ -27,7 +27,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         MyBase.Finalize()
 
         Try
-            If Not mFileReader Is Nothing Then
+            If mFileReader IsNot Nothing Then
                 mFileReader.Close()
             End If
         Catch ex As Exception
@@ -167,7 +167,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
 
     Public Overrides Sub CloseFile()
         Try
-            If Not mFileReader Is Nothing Then
+            If mFileReader IsNot Nothing Then
                 mFileReader.Close()
             End If
 
@@ -233,7 +233,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
       <Out()> ByRef intScanCount As Integer,
       <Out()> ByRef intCharge As Integer) As Boolean
 
-        ' The header should be similar to one of the following 
+        ' The header should be similar to one of the following
         '   FileName.1234.1234.2.dta
         '   FileName.1234.1234.2      (StartScan.EndScan.Charge)
         '   FileName.1234.1234.       (Proteowizard uses this format to indicate unknown charge)
@@ -252,7 +252,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
 
         Try
             blnScanNumberFound = False
-            If Not strSpectrumHeader Is Nothing Then
+            If strSpectrumHeader IsNot Nothing Then
                 strSpectrumHeader = strSpectrumHeader.Trim()
                 If strSpectrumHeader.ToLower.EndsWith(".dta") Then
                     ' Remove the trailing .dta
@@ -332,13 +332,13 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         '  1) If all frag peaks have m/z values less than the parent ion m/z, then definitely assume a
         '       1+ parent ion
         '
-        '  2) If less than mThresholdIonPctForSingleCharge percent of the data's m/z values are greater 
+        '  2) If less than mThresholdIonPctForSingleCharge percent of the data's m/z values are greater
         '       than the parent ion, then definitely assume 1+ parent ion
-        '     When determining percentage, use both # of data points and the sum of the ion intensities. 
+        '     When determining percentage, use both # of data points and the sum of the ion intensities.
         '     Both values must be less than mThresholdIonPctForSingleCharge percent to declare 1+
         '
-        '  3) If mThresholdIonPctForSingleCharge percent to mThresholdIonPctForDoubleCharge percent 
-        '       of the data's m/z values are greater than the parent ion, then declare 1+, 2+, 3+ ... 
+        '  3) If mThresholdIonPctForSingleCharge percent to mThresholdIonPctForDoubleCharge percent
+        '       of the data's m/z values are greater than the parent ion, then declare 1+, 2+, 3+ ...
         '       up to the charge that gives a deconvoluted parent ion that matches the above test (#2)
         '     At a minimum, include 2+ and 3+
         '     Allow up to 5+
@@ -352,8 +352,8 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         '
         '  4) Otherwise, if both test 2 and test 3 fail, then assume 2+, 3+, ... up to the charge that
         '       gives a deconvoluted parent ion that matches the above test (#2)
-        '     The same tests as outlined in step 3 will be performed to determine the maximum charge 
-        '       to assign  
+        '     The same tests as outlined in step 3 will be performed to determine the maximum charge
+        '       to assign
 
         ' Example, for parent ion at 700 m/z and following data, decide 1+, 2+, 3+ since percent above 700 m/z is 21%
         ' m/z		Intensity
@@ -455,8 +455,9 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
         mThresholdIonPctForSingleCharge = 10    ' Percentage
         mThresholdIonPctForDoubleCharge = 25    ' Percentage
 
-        mMostRecentSpectrumFileText = New Text.StringBuilder
-        mMostRecentSpectrumFileText.Length = 0
+        mMostRecentSpectrumFileText = New Text.StringBuilder With {
+            .Length = 0
+        }
 
         mSecondMostRecentSpectrumFileText = String.Empty
 
@@ -551,7 +552,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
 
         Dim strSepChars = New Char() {" "c, ControlChars.Tab}
 
-        If Not lstMSMSData Is Nothing AndAlso lstMSMSData.Count > 0 Then
+        If lstMSMSData IsNot Nothing AndAlso lstMSMSData.Count > 0 Then
 
             ReDim dblMasses(lstMSMSData.Count - 1)
             ReDim sngIntensities(lstMSMSData.Count - 1)
@@ -594,7 +595,7 @@ Public MustInherit Class clsMSTextFileReaderBaseClass
     Protected Sub UpdateStreamReaderProgress()
         Dim objStreamReader = TryCast(mFileReader, IO.StreamReader)
 
-        If Not objStreamReader Is Nothing Then
+        If objStreamReader IsNot Nothing Then
             MyBase.UpdateProgress((objStreamReader.BaseStream.Position / objStreamReader.BaseStream.Length * 100.0))
         ElseIf mInFileStreamLength > 0 Then
             MyBase.UpdateProgress(mTotalBytesRead / mInFileStreamLength * 100.0)

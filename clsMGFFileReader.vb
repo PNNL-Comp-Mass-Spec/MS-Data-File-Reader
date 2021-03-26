@@ -160,10 +160,10 @@ Public Class clsMGFFileReader
                 Do While Not blnSpectrumFound AndAlso mFileReader.Peek() > -1 AndAlso Not mAbortProcessing
 
                     strLineIn = mFileReader.ReadLine
-                    If Not strLineIn Is Nothing Then mTotalBytesRead += strLineIn.Length + 2
+                    If strLineIn IsNot Nothing Then mTotalBytesRead += strLineIn.Length + 2
                     mInFileLineNumber += 1
 
-                    If Not strLineIn Is Nothing AndAlso strLineIn.Trim().Length > 0 Then
+                    If strLineIn IsNot Nothing AndAlso strLineIn.Trim().Length > 0 Then
                         MyBase.AddNewRecentFileText(strLineIn)
                         strLineIn = strLineIn.Trim()
 
@@ -246,7 +246,7 @@ Public Class clsMGFFileReader
                                     strLineIn = mFileReader.ReadLine()
                                     mInFileLineNumber += 1
 
-                                    If Not strLineIn Is Nothing Then
+                                    If strLineIn IsNot Nothing Then
                                         mTotalBytesRead += strLineIn.Length + 2
                                         MyBase.AddNewRecentFileText(strLineIn)
 
@@ -365,7 +365,7 @@ Public Class clsMGFFileReader
                                         mInFileLineNumber += 1
 
                                         ' See if strLineIn is blank
-                                        If Not strLineIn Is Nothing Then
+                                        If strLineIn IsNot Nothing Then
                                             mTotalBytesRead += strLineIn.Length + 2
                                             MyBase.AddNewRecentFileText(strLineIn)
 
@@ -419,7 +419,7 @@ Public Class clsMGFFileReader
 
                         Dim objStreamReader = TryCast(mFileReader, StreamReader)
 
-                        If Not objStreamReader Is Nothing Then
+                        If objStreamReader IsNot Nothing Then
                             MyBase.UpdateProgress(
                                 (objStreamReader.BaseStream.Position / objStreamReader.BaseStream.Length * 100.0))
                         ElseIf mInFileStreamLength > 0 Then

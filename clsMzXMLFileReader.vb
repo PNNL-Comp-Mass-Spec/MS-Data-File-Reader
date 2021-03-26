@@ -411,7 +411,7 @@ Public Class clsMzXMLFileReader
                     mSpectrumFound = True
                 End If
 
-                mScanDepth = mScanDepth - 1
+                mScanDepth -= 1
                 If mScanDepth < 0 Then
                     ' This shouldn't happen
                     LogErrors("ParseEndElement", "Unexpected condition: mScanDepth < 0")
@@ -639,7 +639,7 @@ Public Class clsMzXMLFileReader
         If Not String.IsNullOrWhiteSpace(xmlWithFileVersion) Then
             ' Parse out the version number
             Dim objMatch = objFileVersionRegEx.Match(xmlWithFileVersion)
-            If objMatch.Success AndAlso Not objMatch.Value Is Nothing Then
+            If objMatch.Success AndAlso objMatch.Value IsNot Nothing Then
                 ' Record the version
                 xmlFileVersion = objMatch.Value
                 Return True

@@ -106,12 +106,12 @@ Public Class clsDtaTextFileReader
                         mHeaderSaved = String.Empty
                     Else
                         strLineIn = mFileReader.ReadLine()
-                        If Not strLineIn Is Nothing Then mTotalBytesRead += strLineIn.Length + 2
+                        If strLineIn IsNot Nothing Then mTotalBytesRead += strLineIn.Length + 2
                         mInFileLineNumber += 1
                     End If
 
                     ' See if strLineIn is nothing or starts with the comment line character (equals sign)
-                    If Not strLineIn Is Nothing AndAlso strLineIn.Trim.StartsWith(mCommentLineStartChar) Then
+                    If strLineIn IsNot Nothing AndAlso strLineIn.Trim.StartsWith(mCommentLineStartChar) Then
                         MyBase.AddNewRecentFileText(strLineIn)
 
                         With mCurrentSpectrum
@@ -130,7 +130,7 @@ Public Class clsDtaTextFileReader
                             strLineIn = String.Empty
                         End If
 
-                        If Not strLineIn Is Nothing Then mTotalBytesRead += strLineIn.Length + 2
+                        If strLineIn IsNot Nothing Then mTotalBytesRead += strLineIn.Length + 2
                         mInFileLineNumber += 1
 
                         If String.IsNullOrWhiteSpace(strLineIn) Then
@@ -172,11 +172,11 @@ Public Class clsDtaTextFileReader
                                 If String.IsNullOrWhiteSpace(strLineIn) AndAlso mFileReader.Peek() > -1 Then
                                     ' Read the next line
                                     strLineIn = mFileReader.ReadLine()
-                                    If Not strLineIn Is Nothing Then mTotalBytesRead += strLineIn.Length + 2
+                                    If strLineIn IsNot Nothing Then mTotalBytesRead += strLineIn.Length + 2
                                     mInFileLineNumber += 1
                                 End If
 
-                                If Not strLineIn Is Nothing AndAlso strLineIn.StartsWith(mCommentLineStartChar) Then
+                                If strLineIn IsNot Nothing AndAlso strLineIn.StartsWith(mCommentLineStartChar) Then
                                     mHeaderSaved = String.Copy(strLineIn)
                                     strCompareTitle = MyBase.CleanupComment(mHeaderSaved, mCommentLineStartChar, True)
 
@@ -201,7 +201,7 @@ Public Class clsDtaTextFileReader
                                                 mInFileLineNumber += 1
 
                                                 ' See if strLineIn is blank or starts with an equals sign
-                                                If Not strLineIn Is Nothing Then
+                                                If strLineIn IsNot Nothing Then
                                                     mTotalBytesRead += strLineIn.Length + 2
                                                     If strLineIn.Trim().Length = 0 Then
                                                         Exit Do
@@ -273,7 +273,7 @@ Public Class clsDtaTextFileReader
                     strLineIn = fileReader.ReadLine
                     mInFileLineNumber += 1
 
-                    If Not strLineIn Is Nothing Then mTotalBytesRead += strLineIn.Length + 2
+                    If strLineIn IsNot Nothing Then mTotalBytesRead += strLineIn.Length + 2
                     If Not String.IsNullOrWhiteSpace(strLineIn) Then
                         If Char.IsDigit(strLineIn.Trim(), 0) Then
                             blnSpectrumFound = ReadSingleSpectrum(fileReader, strLineIn, lstMsMsDataList,
@@ -387,7 +387,7 @@ Public Class clsDtaTextFileReader
                 intLinesRead += 1
 
                 ' See if strLineIn is blank
-                If Not strLineIn Is Nothing Then
+                If strLineIn IsNot Nothing Then
                     mTotalBytesRead += strLineIn.Length + 2
                     strMostRecentLineIn = String.Copy(strLineIn)
 

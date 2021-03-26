@@ -28,14 +28,14 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
         MyBase.Finalize()
 
         Try
-            If Not mDataFileOrTextStream Is Nothing Then
+            If mDataFileOrTextStream IsNot Nothing Then
                 mDataFileOrTextStream.Close()
             End If
         Catch ex As Exception
         End Try
 
         Try
-            If Not mXMLReader Is Nothing Then
+            If mXMLReader IsNot Nothing Then
                 mXMLReader.Close()
             End If
         Catch ex As Exception
@@ -82,7 +82,7 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
         Get
             If mXMLReader Is Nothing Then
                 Dim xmlReader = TryCast(mXMLReader, XmlTextReader)
-                If Not xmlReader Is Nothing Then
+                If xmlReader IsNot Nothing Then
                     Return xmlReader.LineNumber
                 End If
             End If
@@ -94,7 +94,7 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
         Get
             If mXMLReader Is Nothing Then
                 Dim xmlReader = TryCast(mXMLReader, XmlTextReader)
-                If Not xmlReader Is Nothing Then
+                If xmlReader IsNot Nothing Then
                     Return xmlReader.LinePosition
                 End If
             End If
@@ -114,7 +114,7 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
 #End Region
 
     Public Overrides Sub CloseFile()
-        If Not mXMLReader Is Nothing Then
+        If mXMLReader IsNot Nothing Then
             mXMLReader.Close()
         End If
 
@@ -380,12 +380,12 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
             blnSuccess = OpenFileInit(strInputFilePath)
             If Not blnSuccess Then Return False
 
-            ' Initialize the stream reader and the XML Text Reader
+            ' Initialize the stream reader and the XML Text Reader (set to skip all whitespace)
             mDataFileOrTextStream = New StreamReader(strInputFilePath)
-            Dim reader = New XmlTextReader(mDataFileOrTextStream)
 
-            ' Skip all whitespace
-            reader.WhitespaceHandling = WhitespaceHandling.None
+            Dim reader = New XmlTextReader(mDataFileOrTextStream) With {
+                .WhitespaceHandling = WhitespaceHandling.None
+            }
             mXMLReader = reader
 
             mErrorMessage = String.Empty
@@ -415,12 +415,12 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
         Try
             mInputFilePath = "TextStream"
 
-            ' Initialize the stream reader and the XML Text Reader
+            ' Initialize the stream reader and the XML Text Reader (set to skip all whitespace)
             mDataFileOrTextStream = New StringReader(strTextStream)
-            Dim reader = New XmlTextReader(mDataFileOrTextStream)
 
-            ' Skip all whitespace
-            reader.WhitespaceHandling = WhitespaceHandling.None
+            Dim reader = New XmlTextReader(mDataFileOrTextStream) With {
+                .WhitespaceHandling = WhitespaceHandling.None
+            }
             mXMLReader = reader
 
             mErrorMessage = String.Empty
@@ -496,7 +496,7 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
                 mErrorMessage = "Data file not currently open"
             Else
 
-                If Not mDataFileOrTextStream Is Nothing Then
+                If mDataFileOrTextStream IsNot Nothing Then
 
                     If TypeOf mDataFileOrTextStream Is StreamReader Then
                         With CType(mDataFileOrTextStream, StreamReader)
@@ -504,7 +504,7 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
                         End With
                     Else
                         Dim xmlReader = TryCast(mXMLReader, XmlTextReader)
-                        If Not xmlReader Is Nothing Then
+                        If xmlReader IsNot Nothing Then
                             ' Note that 1000 is an arbitrary value for the number of lines in the input stream 
                             ' (only needed if mDataFileOrTextStream is a StringReader)
                             MyBase.UpdateProgress((xmlReader.LineNumber Mod 1000) / 1000 * 100.0)

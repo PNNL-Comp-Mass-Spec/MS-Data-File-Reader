@@ -362,7 +362,7 @@ Public Class clsSpectrumInfo
         Dim sngMzRangeEnd As Single = 0
 
         Try
-            If DataCount > 0 AndAlso Not MZList Is Nothing Then
+            If DataCount > 0 AndAlso MZList IsNot Nothing Then
                 sngMzRangeStart = CSng(MZList(0))
                 sngMzRangeEnd = CSng(MZList(DataCount - 1))
             End If
@@ -387,7 +387,7 @@ Public Class clsSpectrumInfo
             dblBasePeakMZ = 0
             sngBasePeakIntensity = 0
 
-            If DataCount > 0 AndAlso Not MZList Is Nothing AndAlso Not IntensityList Is Nothing Then
+            If DataCount > 0 AndAlso MZList IsNot Nothing AndAlso IntensityList IsNot Nothing Then
                 dblBasePeakMZ = MZList(0)
                 sngBasePeakIntensity = IntensityList(0)
                 dblTotalIonCurrent = IntensityList(0)
@@ -461,13 +461,13 @@ Public Class clsSpectrumInfo
         End If
 
         If mAutoShrinkDataLists Then
-            If Not MZList Is Nothing Then
+            If MZList IsNot Nothing Then
                 If MZList.Length > DataCount Then
                     ReDim Preserve MZList(DataCount - 1)
                 End If
             End If
 
-            If Not IntensityList Is Nothing Then
+            If IntensityList IsNot Nothing Then
                 If IntensityList.Length > DataCount Then
                     ReDim Preserve IntensityList(DataCount - 1)
                 End If

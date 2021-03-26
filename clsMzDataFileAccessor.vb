@@ -45,7 +45,7 @@ Public Class clsMzDataFileAccessor
     Protected Overrides Sub Finalize()
         MyBase.Finalize()
 
-        If Not mXmlFileReader Is Nothing Then
+        If mXmlFileReader IsNot Nothing Then
             mXmlFileReader = Nothing
         End If
     End Sub
@@ -110,7 +110,7 @@ Public Class clsMzDataFileAccessor
         End Get
         Set(Value As Boolean)
             MyBase.ParseFilesWithUnknownVersion = Value
-            If Not mXmlFileReader Is Nothing Then
+            If mXmlFileReader IsNot Nothing Then
                 mXmlFileReader.ParseFilesWithUnknownVersion = Value
             End If
         End Set
@@ -351,8 +351,9 @@ Public Class clsMzDataFileAccessor
             If GetSpectrumReadyStatus(True) Then
 
                 If mXmlFileReader Is Nothing Then
-                    mXmlFileReader = New clsMzDataFileReader()
-                    mXmlFileReader.ParseFilesWithUnknownVersion = mParseFilesWithUnknownVersion
+                    mXmlFileReader = New clsMzDataFileReader With {
+                        .ParseFilesWithUnknownVersion = mParseFilesWithUnknownVersion
+                    }
                 End If
 
                 If mIndexedSpectrumInfoCount = 0 Then
@@ -423,7 +424,7 @@ Public Class clsMzDataFileAccessor
                     Else
                         ' Look for intSpectrumID in mIndexedSpectraSpectrumIDToIndex
                         Dim objIndex = mIndexedSpectraSpectrumIDToIndex(intSpectrumID)
-                        If Not objIndex Is Nothing Then
+                        If objIndex IsNot Nothing Then
                             intSpectrumIndex = CType(objIndex, Integer)
                             blnSuccess = GetSpectrumByIndexWork(intSpectrumIndex, objSpectrumInfo, blnHeaderInfoOnly)
                         End If
@@ -517,8 +518,9 @@ Public Class clsMzDataFileAccessor
         '       It also allows for other attributes to be present between <acquisition and the acqNumber attribute
         mAcquisitionNumberRegEx = InitializeRegEx("<acquisition[^/]+acqNumber\s*=\s*""([0-9]+)""")
 
-        mXMLReaderSettings = New XmlReaderSettings()
-        mXMLReaderSettings.IgnoreWhitespace = True
+        mXMLReaderSettings = New XmlReaderSettings With {
+            .IgnoreWhitespace = True
+        }
     End Sub
 
     Protected Overrides Function LoadExistingIndex() As Boolean
