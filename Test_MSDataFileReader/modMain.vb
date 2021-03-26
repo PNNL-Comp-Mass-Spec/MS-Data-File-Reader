@@ -240,7 +240,7 @@ Module modMain
         'TestMZXmlReader("MSFMS_018_Agilent_Fusion_031305.mzXML", eDataReaderMode, maxScansToAccess)
 
         'TestMZXmlReader("Gsulf326_LTQFT_run2_23Aug05_Andro_0705-06.mzXML", eDataReaderMode, maxScansToAccess)
-        'TestMZXmlReader("Unicode_Gsulf326_LTQFT.mzxml", eDataReaderMod, maxScansToShowe)
+        'TestMZXmlReader("Unicode_Gsulf326_LTQFT.mzxml", eDataReaderMod, maxScansToAccess)
         'TestMZXmlReader("Ding-UG-G-IMAC-Label-60.mzXML", eDataReaderMode, maxScansToAccess)
         TestMZXmlReader("Mortierella_iTRAQ4_test_28Mar14_Samwise_13-07-17_excerpt.mzXML", eDataReaderMode, maxScansToAccess)
     End Sub
@@ -300,7 +300,7 @@ Module modMain
         End If
 
         Dim outputFilePath = Path.Combine(diOutputFolder.FullName, Path.GetFileNameWithoutExtension(fiInputFile.Name))
-        
+
         If maxScansToAccess > 0 Then
             outputFilePath &= "_" & maxScansToAccess & "scans_results.txt"
         Else
@@ -310,7 +310,7 @@ Module modMain
         Using resultsWriter = New StreamWriter(New FileStream(outputFilePath, FileMode.Create, FileAccess.Write, FileShare.ReadWrite))
             TestReader(strInputFilePath, objMSFileReader, eDataReaderMode, resultsWriter, maxScansToAccess)
         End Using
-        
+
     End Sub
 
     Private Sub TestReader(
@@ -374,7 +374,7 @@ Module modMain
                 dtStartTime = DateTime.UtcNow
 
                 ' Read all of the spectra using .GetSpectrumByIndex()
-                
+
                 Dim modValue As Integer
                 Dim increaseModValueOverTime As Boolean
                 Dim spectraShown = 0
@@ -407,7 +407,7 @@ Module modMain
                     If maxScansToAccess > 0 AndAlso intIndex >= maxScansToAccess Then
                         Exit For
                     End If
-                    
+
                 Next intIndex
 
                 dtEndTime = DateTime.UtcNow
@@ -454,7 +454,7 @@ Module modMain
                     dtStartTime = DateTime.UtcNow
 
                     ' Read all of the spectra using .GetSpectrumByScanNumber()
-                    ' Show 30 of them                    
+                    ' Show 30 of them
                     If maxScansToAccess > 0 AndAlso maxScansToAccess < intScanNumberList.Length Then
                         modValue = CInt(maxScansToAccess / 30)
                     Else
@@ -553,7 +553,7 @@ Module modMain
                     intIndex += 1
 
                     If maxScansToAccess > 0 AndAlso intIndex >= maxScansToAccess Then
-                        Exit do
+                        Exit Do
                     End If
                 Loop
                 ShowResult(resultsWriter, "Scan Count (final): " & objMSFileReader.ScanCount.ToString())
