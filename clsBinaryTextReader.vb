@@ -8,7 +8,7 @@ Imports System.Text
 ' In addition, the byte offset at the start and end of the line is also returned
 '
 ' Note that this class is compatible with UTF-16 Unicode files; it looks for byte order mark
-'  FF FE or FE FF in the first two bytes of the file to determine if a file is Unicode 
+'  FF FE or FE FF in the first two bytes of the file to determine if a file is Unicode
 ' (though you can override this using the InputFileEncoding property after calling .OpenFile()
 ' This class will also look for the byte order mark for UTF-8 files (EF BB BF) though it may not
 '  properly decode UTF-8 characters (not fully tested)
@@ -23,8 +23,8 @@ Imports System.Text
 ' Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
 ' Program started April 18, 2006
 '
-' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+' Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/
 ' -------------------------------------------------------------------------------
 '
 ' Licensed under the Apache License, Version 2.0; you may not use this file except
@@ -394,7 +394,7 @@ Public Class clsBinaryTextReader
 
                 ElseIf lngByteOffset > mByteBufferFileOffsetStart + mByteBufferCount Then
                     If mByteBufferFileOffsetStart < mBinaryReader.Length Then
-                        ' Possibly slide the buffer window forward (note that if 
+                        ' Possibly slide the buffer window forward (note that if
                         '  mByteBufferCount < mByteBuffer.Length then we may not need to update mByteBufferFileOffsetStart)
                         Do While lngByteOffset > mByteBufferFileOffsetStart + mByteBuffer.Length
                             mByteBufferFileOffsetStart += mByteBuffer.Length
@@ -426,7 +426,7 @@ Public Class clsBinaryTextReader
                     ' The desired byte offset is already present in mByteBuffer
                     mByteBufferNextLineStartIndex = CInt(lngByteOffset - mByteBufferFileOffsetStart)
                     If mByteBufferNextLineStartIndex > mByteBufferCount Then
-                        ' This shouldn't normally happen, but is possible if jumping around a file and reading forward and 
+                        ' This shouldn't normally happen, but is possible if jumping around a file and reading forward and
                         mByteBufferNextLineStartIndex = mByteBufferCount
                     End If
                 End If
@@ -489,7 +489,7 @@ Public Class clsBinaryTextReader
                         mByteBufferNextLineStartIndex = 3
                         mByteOrderMarkLength = 3
                     Else
-                        ' Examine the first 2000 bytes and check whether or not 
+                        ' Examine the first 2000 bytes and check whether or not
                         '  every other byte is 0 for at least 95% of the data
                         ' If it is, then assume the appropriate Unicode format
 
@@ -682,9 +682,9 @@ Public Class clsBinaryTextReader
                     If eDirection = ReadDirectionConstants.Reverse AndAlso
                        mLineTerminator1Code <> 0 AndAlso
                        mByteBufferFileOffsetStart > 0 Then
-                        ' We're looking for a two-character line terminator (though the 
+                        ' We're looking for a two-character line terminator (though the
                         '  presence of mLineTerminator1Code is not required)
-                        ' Need to increment intIndexMinimum to guarantee we'll be able to find both line terminators if the 
+                        ' Need to increment intIndexMinimum to guarantee we'll be able to find both line terminators if the
                         '  second line terminator happens to be at the start of mByteBuffer
                         intIndexMinimum += mCharSize
                     End If

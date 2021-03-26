@@ -12,8 +12,8 @@ Imports System.Xml
 ' Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
 ' Started March 26, 2006
 '
-' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+' Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/
 ' -------------------------------------------------------------------------------
 '
 
@@ -453,8 +453,8 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
 
     Protected Sub ParentElementStackAdd(objXMLReader As XmlReader)
         ' Adds a new entry to the end of mParentElementStack
-        ' Since the XML Text Reader doesn't recognize implicit end elements (e.g. the "/>" characters at 
-        '  the end of <City name="Laramie" />) we need to compare the depth of the current element with 
+        ' Since the XML Text Reader doesn't recognize implicit end elements (e.g. the "/>" characters at
+        '  the end of <City name="Laramie" />) we need to compare the depth of the current element with
         '  the depth of the element at the top of the stack
         ' If the depth values are the same, then we pop the top element off and push the new element on
         ' If the depth values are not the same, then we push the new element on
@@ -505,7 +505,7 @@ Public MustInherit Class clsMSXMLFileReaderBaseClass
                     Else
                         Dim xmlReader = TryCast(mXMLReader, XmlTextReader)
                         If xmlReader IsNot Nothing Then
-                            ' Note that 1000 is an arbitrary value for the number of lines in the input stream 
+                            ' Note that 1000 is an arbitrary value for the number of lines in the input stream
                             ' (only needed if mDataFileOrTextStream is a StringReader)
                             MyBase.UpdateProgress((xmlReader.LineNumber Mod 1000) / 1000 * 100.0)
                         End If

@@ -8,8 +8,8 @@ Imports System.Runtime.InteropServices
 ' Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
 ' Started March 23, 2006
 '
-' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+' Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/
 ' -------------------------------------------------------------------------------
 
 <Serializable()>
@@ -69,7 +69,7 @@ Public Class clsSpectrumInfo
 #End Region
 
 #Region "Classwide Variables"
-    ' When mAutoShrinkDataLists is True, then MZList().Length and IntensityList().Length will equal DataCount; 
+    ' When mAutoShrinkDataLists is True, then MZList().Length and IntensityList().Length will equal DataCount;
     ' When mAutoShrinkDataLists is False, then the memory will not be freed when DataCount shrinks or .Clear() is called
     ' Setting mAutoShrinkDataLists to False helps reduce slow, increased memory usage due to inefficient garbage collection
     Private mAutoShrinkDataLists As Boolean
@@ -331,7 +331,7 @@ Public Class clsSpectrumInfo
         Dim objTarget = CType(Me.MemberwiseClone, clsSpectrumInfo)
 
         ' Next, manually copy the array objects and any other objects
-        ' Note: Since Clone() functions in the derived classes Shadow this function, 
+        ' Note: Since Clone() functions in the derived classes Shadow this function,
         '      be sure to update them too if you change any code below
         With objTarget
             If Me.MZList Is Nothing Then

@@ -5,10 +5,10 @@ Imports System.Runtime.InteropServices
 Imports System.Text
 Imports System.Text.RegularExpressions
 
-' This class can be used to open an MS Data file (currently .mzXML and .mzData) and 
+' This class can be used to open an MS Data file (currently .mzXML and .mzData) and
 ' index the location of all of the spectra present.  This does not cache the mass spectra
-' data in memory, and therefore uses little memory, but once the indexing is complete, 
-' random access to the spectra is possible.  After the indexing is complete, spectra 
+' data in memory, and therefore uses little memory, but once the indexing is complete,
+' random access to the spectra is possible.  After the indexing is complete, spectra
 ' can be obtained using GetSpectrumByScanNumber or GetSpectrumByIndex
 
 ' -------------------------------------------------------------------------------
@@ -16,8 +16,8 @@ Imports System.Text.RegularExpressions
 ' Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
 ' Program started April 16, 2006
 '
-' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+' Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/
 ' -------------------------------------------------------------------------------
 '
 ' Licensed under the Apache License, Version 2.0; you may not use this file except
@@ -530,7 +530,7 @@ Public MustInherit Class clsMSDataFileAccessorBaseClass
             mInputFilePath = String.Copy(strInputFilePath)
 
             ' Initialize the binary text reader
-            ' Even if an existing index is present, this is needed to determine 
+            ' Even if an existing index is present, this is needed to determine
             '  the input file encoding and the character size
             mBinaryTextReader = New clsBinaryTextReader
 

@@ -8,8 +8,8 @@ Imports System.Runtime.InteropServices
 ' Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
 ' Started April 1, 2006
 '
-' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+' Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/
 ' -------------------------------------------------------------------------------
 
 <Serializable()>

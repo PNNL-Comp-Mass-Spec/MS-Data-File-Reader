@@ -10,8 +10,8 @@ Imports System.Xml
 ' Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
 ' Started March 26, 2006
 '
-' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+' Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/
 ' -------------------------------------------------------------------------------
 
 Public Class clsMzXMLFileReader
@@ -372,7 +372,7 @@ Public Class clsMzXMLFileReader
         Try
             ' Skip the element if we aren't parsing a scan (inside a scan element)
             ' This is an easy way to skip whitespace
-            ' We can do this since since we only care about the data inside the 
+            ' We can do this since since we only care about the data inside the
             ' ScanSectionNames.precursorMz and ScanSectionNames.peaks elements
             If mScanDepth > 0 Then
                 ' Check the last element name sent to startElement to determine

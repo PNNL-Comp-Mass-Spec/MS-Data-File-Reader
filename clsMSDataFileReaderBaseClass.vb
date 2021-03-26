@@ -10,8 +10,8 @@ Imports System.Runtime.InteropServices
 ' Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
 ' Started March 24, 2006
 '
-' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+' Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/
 ' -------------------------------------------------------------------------------
 '
 
@@ -61,7 +61,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
 #Region "Structures"
 
     Protected Structure udtFileStatsType
-        ' Actual scan count if mDataReaderMode = Cached or mDataReaderMode = Indexed, or scan count as reported by the XML file if mDataReaderMode = Sequential 
+        ' Actual scan count if mDataReaderMode = Cached or mDataReaderMode = Indexed, or scan count as reported by the XML file if mDataReaderMode = Sequential
         Public ScanCount As Integer
         Public ScanNumberMinimum As Integer
         Public ScanNumberMaximum As Integer
@@ -99,7 +99,7 @@ Public MustInherit Class clsMSDataFileReaderBaseClass
 #Region "Processing Options and Interface Functions"
 
     ''' <summary>
-    '''  When mAutoShrinkDataLists is True, clsSpectrumInfo.MZList().Length and clsSpectrumInfo.IntensityList().Length will equal DataCount; 
+    '''  When mAutoShrinkDataLists is True, clsSpectrumInfo.MZList().Length and clsSpectrumInfo.IntensityList().Length will equal DataCount;
     '''  When mAutoShrinkDataLists is False, the memory will not be freed when DataCount shrinks or clsSpectrumInfo.Clear() is called
     ''' </summary>
     ''' <value></value>

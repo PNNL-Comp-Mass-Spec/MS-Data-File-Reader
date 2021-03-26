@@ -7,8 +7,8 @@ Option Strict On
 ' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
 ' Started November 15, 2003
 '
-' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+' Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/
 ' -------------------------------------------------------------------------------
 
 Imports System.Collections.Generic
@@ -185,7 +185,7 @@ Public Class clsMGFFileReader
                                 strLineIn = strLineIn.TrimStart("#"c).Trim()
 
                                 ' Look for the / sign and remove any text following it
-                                ' For example, 
+                                ' For example,
                                 '   ###MS: 4458/4486/
                                 '   ###MSMS: 4459/4488/
                                 ' The / sign is used to indicate that several MS/MS scans were combined to make the given spectrum; we'll just keep the first one

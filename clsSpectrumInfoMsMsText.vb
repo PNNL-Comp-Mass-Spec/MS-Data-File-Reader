@@ -8,8 +8,8 @@ Imports System.Runtime.InteropServices
 ' Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
 ' Started March 24, 2006
 '
-' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+' Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/
 ' -------------------------------------------------------------------------------
 
 <Serializable()>
@@ -195,14 +195,14 @@ Public Class clsSpectrumInfoMsMsText
     ''    objTarget = New clsSpectrumInfoMsMsText
     ''    objTargetBase = objTarget
 
-    ''    ' Note: Cannot use "objTarget = MyBase.Clone()" since the Clone() function 
+    ''    ' Note: Cannot use "objTarget = MyBase.Clone()" since the Clone() function
     ''    '       in the base class returns clsSpectrumInfo
-    ''    ' Could also use "objTarget = CType(MyBase.Clone(), clsSpectrumInfoMsMsText)" 
+    ''    ' Could also use "objTarget = CType(MyBase.Clone(), clsSpectrumInfoMsMsText)"
     ''    '  but what I've shown here works fine
     ''    objTargetBase = MyBase.Clone()
 
     ''    ' Now copy the members specific to clsSpectrumInfoMsMsText
-    ''    ' Unfortunately, this re-copies the base class members too and 
+    ''    ' Unfortunately, this re-copies the base class members too and
     ''    '  creates shallow, reference-based copies of my arrays
     ''    objTarget = CType(Me.MemberwiseClone, clsSpectrumInfoMsMsText)
 

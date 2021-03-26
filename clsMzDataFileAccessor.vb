@@ -7,8 +7,8 @@ Imports System.Xml
 
 ' This class can be used to open a .mzData file and index the location
 ' of all of the spectra present.  This does not cache the mass spectra data in
-' memory, and therefore uses little memory, but once the indexing is complete, 
-' random access to the spectra is possible.  After the indexing is complete, spectra 
+' memory, and therefore uses little memory, but once the indexing is complete,
+' random access to the spectra is possible.  After the indexing is complete, spectra
 ' can be obtained using GetSpectrumByScanNumber or GetSpectrumByIndex
 
 ' -------------------------------------------------------------------------------
@@ -16,8 +16,8 @@ Imports System.Xml
 ' Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
 ' Program started April 16, 2006
 '
-' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+' Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/
 ' -------------------------------------------------------------------------------
 '
 ' Licensed under the Apache License, Version 2.0; you may not use this file except
@@ -256,7 +256,7 @@ Public Class clsMzDataFileAccessor
                                 End If
                             Else
                                 ' Could not find the id attribute
-                                ' If strInFileCurrentLineSubstring does not contain SPECTRUM_END_ELEMENT, then 
+                                ' If strInFileCurrentLineSubstring does not contain SPECTRUM_END_ELEMENT, then
                                 '  set blnAppendingText to True and continue reading
                                 If strInFileCurrentLineSubstring.IndexOf(SPECTRUM_END_ELEMENT, StringComparison.Ordinal) < 0 Then
                                     blnMatchFound = False

@@ -8,8 +8,8 @@ Option Strict On
 ' Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
 ' Started November 2004
 '
-' E-mail: matthew.monroe@pnnl.gov or matt@alchemistmatt.com
-' Website: http://omics.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
+' Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/
 ' -------------------------------------------------------------------------------
 
 Imports System.Runtime.InteropServices
