@@ -205,8 +205,9 @@ Module modMain
       eDataReaderMode As clsMSDataFileReaderBaseClass.drmDataReaderModeConstants,
       Optional maxScansToAccess As Integer = 0)
 
-        mMSFileReader = New clsDtaTextFileReader()
-        mMSFileReader.AutoShrinkDataLists = False
+        mMSFileReader = New clsDtaTextFileReader With {
+            .AutoShrinkDataLists = False
+        }
 
         TestReader(strInputFilePath, mMSFileReader, eDataReaderMode, maxScansToAccess)
     End Sub
@@ -224,8 +225,9 @@ Module modMain
       eDataReaderMode As clsMSDataFileReaderBaseClass.drmDataReaderModeConstants,
       Optional maxScansToAccess As Integer = 0)
 
-        mMSFileReader = New clsMGFFileReader()
-        mMSFileReader.AutoShrinkDataLists = False
+        mMSFileReader = New clsMGFFileReader With {
+            .AutoShrinkDataLists = False
+        }
 
         TestReader(strInputFilePath, mMSFileReader, eDataReaderMode, maxScansToAccess)
     End Sub
