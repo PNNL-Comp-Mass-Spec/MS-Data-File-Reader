@@ -95,17 +95,18 @@ Public Class clsMGFFileReader
             End If
         End If
 
-
-        If scanNumberFound Then
-            mCurrentSpectrum.SpectrumID = mCurrentSpectrum.ScanNumber
-            If spectrumInfo.ScanNumber = spectrumInfo.ScanNumberEnd OrElse spectrumInfo.ScanNumber > spectrumInfo.ScanNumberEnd Then
-                mCurrentSpectrum.ScanCount = 1
-            Else
-                mCurrentSpectrum.ScanCount = spectrumInfo.ScanNumberEnd - spectrumInfo.ScanNumber + 1
-            End If
+        If Not scanNumberFound Then
+            Return False
         End If
 
-        Return False
+        mCurrentSpectrum.SpectrumID = mCurrentSpectrum.ScanNumber
+        If spectrumInfo.ScanNumber = spectrumInfo.ScanNumberEnd OrElse spectrumInfo.ScanNumber > spectrumInfo.ScanNumberEnd Then
+            mCurrentSpectrum.ScanCount = 1
+        Else
+            mCurrentSpectrum.ScanCount = spectrumInfo.ScanNumberEnd - spectrumInfo.ScanNumber + 1
+        End If
+
+        Return True
     End Function
 
     Public Overrides Function ReadNextSpectrum(<Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
