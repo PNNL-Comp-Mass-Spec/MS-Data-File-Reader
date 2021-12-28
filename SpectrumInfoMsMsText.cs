@@ -230,60 +230,9 @@ namespace MSDataFileReader
 
             return objTarget;
         }
-
-        // 'Public Function CloneDoesntWork() As clsSpectrumInfoMsMsText
-        // '    Dim objTarget As clsSpectrumInfoMsMsText
-        // '    Dim objTargetBase As clsSpectrumInfo
-
-        // '    objTarget = New clsSpectrumInfoMsMsText
-        // '    objTargetBase = objTarget
-
-        // '    ' Note: Cannot use "objTarget = MyBase.Clone()" since the Clone() function
-        // '    '       in the base class returns clsSpectrumInfo
-        // '    ' Could also use "objTarget = CType(MyBase.Clone(), clsSpectrumInfoMsMsText)"
-        // '    '  but what I've shown here works fine
-        // '    objTargetBase = MyBase.Clone()
-
-        // '    ' Now copy the members specific to clsSpectrumInfoMsMsText
-        // '    ' Unfortunately, this re-copies the base class members too and
-        // '    '  creates shallow, reference-based copies of my arrays
-        // '    objTarget = CType(Me.MemberwiseClone, clsSpectrumInfoMsMsText)
-
-        // '    Return objTarget
-        // 'End Function
-
+        
         public void CopyTo(out clsSpectrumInfoMsMsText objTarget)
         {
-            // ' Note; in classes derived from clsSpectrumInfo, call MyBase.CopyTo() but do not call objTarget.Clear()
-            // 'Dim objTargetBase As clsSpectrumInfo
-
-            // 'If objTarget Is Nothing Then
-            // '    objTarget = New clsSpectrumInfoMsMsText
-            // 'Else
-            // '    objTarget.Clear()
-            // 'End If
-
-            // 'objTargetBase = objTarget
-            // 'MyBase.CopyTo(objTargetBase)
-
-            // ' Perform a deep copy of this class's members to objTarget
-            // 'With objTarget
-            // '    .mSpectrumTitleWithCommentChars = Me.mSpectrumTitleWithCommentChars
-            // '    .mSpectrumTitle = Me.mSpectrumTitle
-            // '    .mParentIonLineText = Me.mParentIonLineText
-            // '    .mParentIonMH = Me.mParentIonMH
-
-            // '    .ParentIonChargeCount = Me.ParentIonChargeCount
-            // '    If Me.ParentIonCharges Is Nothing Then
-            // '        .ParentIonCharges = Nothing
-            // '    Else
-            // '        ReDim .ParentIonCharges(Me.ParentIonCharges.Length - 1)
-            // '        Me.ParentIonCharges.CopyTo(.ParentIonCharges, 0)
-            // '    End If
-
-            // '    .mChargeIs2And3Plus = Me.mChargeIs2And3Plus
-            // 'End With
-
             objTarget = Clone();
         }
 
