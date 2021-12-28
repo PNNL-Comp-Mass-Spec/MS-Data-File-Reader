@@ -164,7 +164,14 @@ namespace MSDataFileReader
                                 AddNewRecentFileText(strLineIn);
 
                                 // Parse the parent ion info and read the MsMs Data
-                                blnSpectrumFound = ReadSingleSpectrum(mFileReader, strLineIn, out mCurrentMsMsDataList, mCurrentSpectrum, ref mInFileLineNumber, ref intLastProgressUpdateLine, ref strMostRecentLineIn);
+                                blnSpectrumFound = ReadSingleSpectrum(
+                                    mFileReader, strLineIn,
+                                    out mCurrentMsMsDataList,
+                                    mCurrentSpectrum,
+                                    ref mInFileLineNumber,
+                                    ref intLastProgressUpdateLine,
+                                    out var strMostRecentLineIn);
+
                                 if (blnSpectrumFound)
                                 {
                                     if (mReadTextDataOnly)
@@ -314,8 +321,14 @@ namespace MSDataFileReader
                         {
                             if (char.IsDigit(strLineIn.Trim(), 0))
                             {
-                                var argstrMostRecentLineIn = "";
-                                blnSpectrumFound = ReadSingleSpectrum(fileReader, strLineIn, out lstMsMsDataList, objSpectrumInfoMsMsText, ref mInFileLineNumber, ref intLastProgressUpdateLine, strMostRecentLineIn: ref argstrMostRecentLineIn);
+                                blnSpectrumFound = ReadSingleSpectrum(
+                                    fileReader,
+                                    strLineIn,
+                                    out lstMsMsDataList,
+                                    objSpectrumInfoMsMsText,
+                                    ref mInFileLineNumber,
+                                    ref intLastProgressUpdateLine,
+                                    out _);
                                 break;
                             }
                         }
@@ -377,7 +390,14 @@ namespace MSDataFileReader
         /// <param name="intLastProgressUpdateLine"></param>
         /// <param name="strMostRecentLineIn"></param>
         /// <returns>if a valid spectrum is found, otherwise, false</returns>
-        private bool ReadSingleSpectrum(TextReader srReader, string strParentIonLineText, out List<string> lstMsMsDataList, clsSpectrumInfoMsMsText objSpectrumInfoMsMsText, ref int intLinesRead, ref int intLastProgressUpdateLine, [Optional, DefaultParameterValue("")] ref string strMostRecentLineIn)
+        private bool ReadSingleSpectrum(
+            TextReader srReader,
+            string strParentIonLineText,
+            out List<string> lstMsMsDataList,
+            clsSpectrumInfoMsMsText objSpectrumInfoMsMsText,
+            ref int intLinesRead,
+            ref int intLastProgressUpdateLine,
+            out string strMostRecentLineIn)
         {
             var blnSpectrumFound = default(bool);
             objSpectrumInfoMsMsText.ParentIonLineText = string.Copy(strParentIonLineText);
