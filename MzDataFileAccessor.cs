@@ -127,8 +127,8 @@ namespace MSDataFileReader
         protected override bool AdvanceFileReaders(emmElementMatchModeConstants eElementMatchMode)
         {
             bool blnMatchFound;
-            var lngByteOffsetForRewind = default(long);
-            var blnLookForScanCountOnNextRead = default(bool);
+            var lngByteOffsetForRewind = 0L;
+            var blnLookForScanCountOnNextRead = false;
             var strScanCountSearchText = string.Empty;
 
             try
@@ -638,8 +638,8 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         private bool ReadMZDataFile()
         {
-            var lngCurrentSpectrumByteOffsetStart = default(long);
-            var lngCurrentSpectrumByteOffsetEnd = default(long);
+            var lngCurrentSpectrumByteOffsetStart = 0L;
+            var lngCurrentSpectrumByteOffsetEnd = 0L;
 
             try
             {

@@ -79,7 +79,7 @@ namespace MSDataFileReader
         /// <returns>True if a spectrum is found, otherwise false</returns>
         public override bool ReadNextSpectrum(out clsSpectrumInfo objSpectrumInfo)
         {
-            var blnSpectrumFound = default(bool);
+            var blnSpectrumFound = false;
 
             try
             {
@@ -287,7 +287,7 @@ namespace MSDataFileReader
         /// <returns>True if the file was successfully opened and a spectrum was read</returns>
         public bool ReadSingleDtaFile(string strInputFilePath, out string[] strMsMsDataList, out int intMsMsDataCount, out clsSpectrumInfoMsMsText objSpectrumInfoMsMsText)
         {
-            var blnSpectrumFound = default(bool);
+            var blnSpectrumFound = false;
             var lstMsMsDataList = new List<string>();
             intMsMsDataCount = 0;
             objSpectrumInfoMsMsText = new clsSpectrumInfoMsMsText();
@@ -383,7 +383,7 @@ namespace MSDataFileReader
             ref int intLastProgressUpdateLine,
             out string strMostRecentLineIn)
         {
-            var blnSpectrumFound = default(bool);
+            var blnSpectrumFound = false;
             objSpectrumInfoMsMsText.ParentIonLineText = string.Copy(strParentIonLineText);
             strParentIonLineText = strParentIonLineText.Trim();
 

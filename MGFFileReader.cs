@@ -121,7 +121,7 @@ namespace MSDataFileReader
         public override bool ReadNextSpectrum(out clsSpectrumInfo objSpectrumInfo)
         {
             var strSepChars = new char[] { ' ', '\t' };
-            var blnSpectrumFound = default(bool);
+            var blnSpectrumFound = false;
 
             try
             {

@@ -269,7 +269,7 @@ namespace MSDataFileReader
         /// <returns>True if the scan numbers are found in the header</returns>
         public bool ExtractScanInfoFromDtaHeader(string strSpectrumHeader, out int intScanNumberStart, out int intScanNumberEnd, out int intScanCount, out int intCharge)
         {
-            var blnScanNumberFound = default(bool);
+            var blnScanNumberFound = false;
             intScanNumberStart = 0;
             intScanNumberEnd = 0;
             intScanCount = 0;
@@ -277,7 +277,6 @@ namespace MSDataFileReader
 
             try
             {
-                blnScanNumberFound = false;
                 if (strSpectrumHeader != null)
                 {
                     strSpectrumHeader = strSpectrumHeader.Trim();
