@@ -80,9 +80,9 @@ namespace MSDataFileReader
 
         public enum InputFileEncodingConstants
         {
-            Ascii = 0,                   // No Byte Order Mark
-            UTF8 = 1,                    // Byte Order Mark: EF BB BF (UTF-8)
-            UnicodeNormal = 2,           // Byte Order Mark: FF FE (Little Endian Unicode)
+            ASCII = 0,                  // No Byte Order Mark
+            UTF8 = 1,                   // Byte Order Mark: EF BB BF (UTF-8)
+            UnicodeNormal = 2,          // Byte Order Mark: FF FE (Little Endian Unicode)
             UnicodeBigEndian = 3        // Byte Order Mark: FE FF (Big Endian Unicode)
         }
 
@@ -101,7 +101,7 @@ namespace MSDataFileReader
         #region Classwide Variables
 
         private string mInputFilePath;
-        private InputFileEncodingConstants mInputFileEncoding = InputFileEncodingConstants.Ascii;
+        private InputFileEncodingConstants mInputFileEncoding = InputFileEncodingConstants.ASCII;
         private byte mCharSize = 1;
         private byte mByteOrderMarkLength;
 
@@ -665,7 +665,7 @@ namespace MSDataFileReader
                 mInputFilePath = string.Copy(dataFilePath);
 
                 // Note that this sets mCharSize to 1
-                SetInputFileEncoding(InputFileEncodingConstants.Ascii);
+                SetInputFileEncoding(InputFileEncodingConstants.ASCII);
 
                 // Initialize the binary reader
                 mBinaryReader = new FileStream(mInputFilePath, FileMode.Open, FileAccess.Read, share);
@@ -733,10 +733,10 @@ namespace MSDataFileReader
                 {
                     switch (mInputFileEncoding)
                     {
-                        case InputFileEncodingConstants.Ascii:
+                        case InputFileEncodingConstants.ASCII:
                         case InputFileEncodingConstants.UTF8:
                             {
-                                // Ascii or UTF-8 encoding; Assure mCharSize = 1
+                                // ASCII or UTF-8 encoding; Assure mCharSize = 1
                                 mCharSize = 1;
                                 break;
                             }
@@ -810,10 +810,10 @@ namespace MSDataFileReader
                             {
                                 switch (mInputFileEncoding)
                                 {
-                                    case InputFileEncodingConstants.Ascii:
+                                    case InputFileEncodingConstants.ASCII:
                                     case InputFileEncodingConstants.UTF8:
                                         {
-                                            // Ascii or UTF-8 encoding; Assure mCharSize = 1
+                                            // ASCII or UTF-8 encoding; Assure mCharSize = 1
                                             if (mByteBuffer[intIndex] == mLineTerminator2Code)
                                             {
                                                 blnTerminatorFound = true;
@@ -894,7 +894,6 @@ namespace MSDataFileReader
 
                             if (mCharSize > 1 && intStartIndexShiftCount < mCharSize - 1 && dblValueZeroFraction >= 0.95d)
                             {
-
                                 // mByteBufferNextLineStartIndex is most likely off by 1
                                 // This could happen due to an inappropriate byte value being sent to MoveToByteOffset()
                                 // or due to a corrupted Unicode file
@@ -965,10 +964,10 @@ namespace MSDataFileReader
                             // Determine the line terminator length
                             switch (mInputFileEncoding)
                             {
-                                case InputFileEncodingConstants.Ascii:
+                                case InputFileEncodingConstants.ASCII:
                                 case InputFileEncodingConstants.UTF8:
                                     {
-                                        // Ascii encoding
+                                        // ASCII encoding
                                         if (mLineTerminator1Code != 0 && intMatchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize] == mLineTerminator1Code)
                                         {
                                             intLineTerminatorLength = 2;
@@ -1275,7 +1274,7 @@ namespace MSDataFileReader
             mInputFileEncoding = EncodingMode;
             switch (mInputFileEncoding)
             {
-                case InputFileEncodingConstants.Ascii:
+                case InputFileEncodingConstants.ASCII:
                 case InputFileEncodingConstants.UTF8:
                     {
                         mCharSize = 1;

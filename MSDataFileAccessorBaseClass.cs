@@ -167,7 +167,7 @@ namespace MSDataFileReader
                         intBytesToRead = mBinaryReader.Read(bytData, 0, intBytesToRead);
                         switch (mInputFileEncoding)
                         {
-                            case clsBinaryTextReader.InputFileEncodingConstants.Ascii:
+                            case clsBinaryTextReader.InputFileEncodingConstants.ASCII:
                                 {
                                     return new string(Encoding.ASCII.GetChars(bytData, 0, intBytesToRead));
                                 }
@@ -596,7 +596,7 @@ namespace MSDataFileReader
             mErrorMessage = string.Empty;
             mLastSpectrumIndexRead = 0;
             mDataReaderMode = drmDataReaderModeConstants.Indexed;
-            mInputFileEncoding = clsBinaryTextReader.InputFileEncodingConstants.Ascii;
+            mInputFileEncoding = clsBinaryTextReader.InputFileEncodingConstants.ASCII;
             mCharSize = 1;
             mIndexingComplete = false;
         }
