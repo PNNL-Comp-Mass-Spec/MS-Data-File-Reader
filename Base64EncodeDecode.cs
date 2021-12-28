@@ -23,11 +23,11 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// Extracts an array of Bytes from a base-64 encoded string
-    /// </summary>
-    /// <param name="strBase64EncodedText"></param>
-    /// <param name="dataArray"></param>
-    /// <returns></returns>
+        /// Extracts an array of Bytes from a base-64 encoded string
+        /// </summary>
+        /// <param name="strBase64EncodedText"></param>
+        /// <param name="dataArray"></param>
+        /// <returns></returns>
         public static bool DecodeNumericArray(string strBase64EncodedText, out byte[] dataArray)
         {
             dataArray = Convert.FromBase64String(strBase64EncodedText);
@@ -35,13 +35,13 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// Extracts an array of 16-bit integers from a base-64 encoded string
-    /// </summary>
-    /// <param name="strBase64EncodedText"></param>
-    /// <param name="dataArray"></param>
-    /// <param name="zLibCompressed"></param>
-    /// <param name="eEndianMode"></param>
-    /// <returns></returns>
+        /// Extracts an array of 16-bit integers from a base-64 encoded string
+        /// </summary>
+        /// <param name="strBase64EncodedText"></param>
+        /// <param name="dataArray"></param>
+        /// <param name="zLibCompressed"></param>
+        /// <param name="eEndianMode"></param>
+        /// <returns></returns>
         public static bool DecodeNumericArray(string strBase64EncodedText, out short[] dataArray, bool zLibCompressed, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 2;
@@ -69,7 +69,6 @@ namespace MSDataFileReader
             var loopTo = bytArray.Length - 1;
             for (intIndex = 0; intIndex <= loopTo; intIndex += DATA_TYPE_PRECISION_BYTES)
             {
-
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
@@ -93,13 +92,13 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// Extracts an array of 32-bit integers from a base-64 encoded string
-    /// </summary>
-    /// <param name="strBase64EncodedText"></param>
-    /// <param name="dataArray"></param>
-    /// <param name="zLibCompressed"></param>
-    /// <param name="eEndianMode"></param>
-    /// <returns></returns>
+        /// Extracts an array of 32-bit integers from a base-64 encoded string
+        /// </summary>
+        /// <param name="strBase64EncodedText"></param>
+        /// <param name="dataArray"></param>
+        /// <param name="zLibCompressed"></param>
+        /// <param name="eEndianMode"></param>
+        /// <returns></returns>
         public static bool DecodeNumericArray(string strBase64EncodedText, out int[] dataArray, bool zLibCompressed, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 4;
@@ -127,7 +126,6 @@ namespace MSDataFileReader
             var loopTo = bytArray.Length - 1;
             for (intIndex = 0; intIndex <= loopTo; intIndex += DATA_TYPE_PRECISION_BYTES)
             {
-
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
@@ -153,13 +151,13 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// Extracts an array of Singles from a base-64 encoded string
-    /// </summary>
-    /// <param name="strBase64EncodedText"></param>
-    /// <param name="dataArray"></param>
-    /// <param name="zLibCompressed"></param>
-    /// <param name="eEndianMode"></param>
-    /// <returns></returns>
+        /// Extracts an array of Singles from a base-64 encoded string
+        /// </summary>
+        /// <param name="strBase64EncodedText"></param>
+        /// <param name="dataArray"></param>
+        /// <param name="zLibCompressed"></param>
+        /// <param name="eEndianMode"></param>
+        /// <returns></returns>
         public static bool DecodeNumericArray(string strBase64EncodedText, out float[] dataArray, bool zLibCompressed, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 4;
@@ -187,7 +185,6 @@ namespace MSDataFileReader
             var loopTo = bytArray.Length - 1;
             for (intIndex = 0; intIndex <= loopTo; intIndex += DATA_TYPE_PRECISION_BYTES)
             {
-
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
@@ -213,13 +210,13 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// Extracts an array of Doubles from a base-64 encoded string
-    /// </summary>
-    /// <param name="strBase64EncodedText"></param>
-    /// <param name="dataArray"></param>
-    /// <param name="zLibCompressed"></param>
-    /// <param name="eEndianMode"></param>
-    /// <returns></returns>
+        /// Extracts an array of Doubles from a base-64 encoded string
+        /// </summary>
+        /// <param name="strBase64EncodedText"></param>
+        /// <param name="dataArray"></param>
+        /// <param name="zLibCompressed"></param>
+        /// <param name="eEndianMode"></param>
+        /// <returns></returns>
         public static bool DecodeNumericArray(string strBase64EncodedText, out double[] dataArray, bool zLibCompressed, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 8;
@@ -247,7 +244,6 @@ namespace MSDataFileReader
             var loopTo = bytArray.Length - 1;
             for (intIndex = 0; intIndex <= loopTo; intIndex += DATA_TYPE_PRECISION_BYTES)
             {
-
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
@@ -318,13 +314,13 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// Converts an array of Bytes to a base-64 encoded string
-    /// </summary>
-    /// <param name="dataArray"></param>
-    /// <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
-    /// <param name="strDataTypeNameReturn">Output: Datatype name</param>
-    /// <param name="removeTrailingPaddingChars"></param>
-    /// <returns>Base-64 encoded string</returns>
+        /// Converts an array of Bytes to a base-64 encoded string
+        /// </summary>
+        /// <param name="dataArray"></param>
+        /// <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
+        /// <param name="strDataTypeNameReturn">Output: Datatype name</param>
+        /// <param name="removeTrailingPaddingChars"></param>
+        /// <returns>Base-64 encoded string</returns>
         public static string EncodeNumericArray(byte[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false)
         {
             const int DATA_TYPE_PRECISION_BYTES = 1;
@@ -342,15 +338,15 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// Converts an array of 16-bit integers to a base-64 encoded string
-    /// In addition, returns the bits of precision and datatype name for the given data type
-    /// </summary>
-    /// <param name="dataArray"></param>
-    /// <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
-    /// <param name="strDataTypeNameReturn">Output: Datatype name</param>
-    /// <param name="removeTrailingPaddingChars"></param>
-    /// <param name="eEndianMode"></param>
-    /// <returns>Base-64 encoded string</returns>
+        /// Converts an array of 16-bit integers to a base-64 encoded string
+        /// In addition, returns the bits of precision and data type name for the given data type
+        /// </summary>
+        /// <param name="dataArray"></param>
+        /// <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
+        /// <param name="strDataTypeNameReturn">Output: Data type name</param>
+        /// <param name="removeTrailingPaddingChars"></param>
+        /// <param name="eEndianMode"></param>
+        /// <returns>Base-64 encoded string</returns>
         public static string EncodeNumericArray(short[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 2;
@@ -396,14 +392,14 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// Converts an array of 32-bit integers to a base-64 encoded string
-    /// </summary>
-    /// <param name="dataArray"></param>
-    /// <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
-    /// <param name="strDataTypeNameReturn">Output: Datatype name</param>
-    /// <param name="removeTrailingPaddingChars"></param>
-    /// <param name="eEndianMode"></param>
-    /// <returns>Base-64 encoded string</returns>
+        /// Converts an array of 32-bit integers to a base-64 encoded string
+        /// </summary>
+        /// <param name="dataArray"></param>
+        /// <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
+        /// <param name="strDataTypeNameReturn">Output: Data type name</param>
+        /// <param name="removeTrailingPaddingChars"></param>
+        /// <param name="eEndianMode"></param>
+        /// <returns>Base-64 encoded string</returns>
         public static string EncodeNumericArray(int[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 4;
@@ -451,14 +447,14 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// Converts an array of singles (floats) to a base-64 encoded string
-    /// </summary>
-    /// <param name="dataArray"></param>
-    /// <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
-    /// <param name="strDataTypeNameReturn">Output: Datatype name</param>
-    /// <param name="removeTrailingPaddingChars"></param>
-    /// <param name="eEndianMode"></param>
-    /// <returns>Base-64 encoded string</returns>
+        /// Converts an array of singles (floats) to a base-64 encoded string
+        /// </summary>
+        /// <param name="dataArray"></param>
+        /// <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
+        /// <param name="strDataTypeNameReturn">Output: Data type name</param>
+        /// <param name="removeTrailingPaddingChars"></param>
+        /// <param name="eEndianMode"></param>
+        /// <returns>Base-64 encoded string</returns>
         public static string EncodeNumericArray(float[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 4;
@@ -506,14 +502,14 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// Converts an array of doubles to a base-64 encoded string
-    /// </summary>
-    /// <param name="dataArray"></param>
-    /// <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
-    /// <param name="strDataTypeNameReturn">Output: Datatype name</param>
-    /// <param name="removeTrailingPaddingChars"></param>
-    /// <param name="eEndianMode"></param>
-    /// <returns>Base-64 encoded string</returns>
+        /// Converts an array of doubles to a base-64 encoded string
+        /// </summary>
+        /// <param name="dataArray"></param>
+        /// <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
+        /// <param name="strDataTypeNameReturn">Output: Data type name</param>
+        /// <param name="removeTrailingPaddingChars"></param>
+        /// <param name="eEndianMode"></param>
+        /// <returns>Base-64 encoded string</returns>
         public static string EncodeNumericArray(double[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 8;

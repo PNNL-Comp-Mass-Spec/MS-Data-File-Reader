@@ -1,20 +1,19 @@
-﻿using System;
-
-// This class can be used to open a _Dta.txt file and return each spectrum present
-//
-// -------------------------------------------------------------------------------
+﻿// -------------------------------------------------------------------------------
 // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-// Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
-// Started November 14, 2003
+// Copyright 2021, Battelle Memorial Institute.  All Rights Reserved.
 //
 // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
 // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
 // -------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Runtime.InteropServices;
 
+/// <summary>
+/// This class can be used to open a _Dta.txt file and return each spectrum present
+/// </summary>
 namespace MSDataFileReader
 {
     public class clsDtaTextFileReader : clsMSTextFileReaderBaseClass
@@ -71,12 +70,16 @@ namespace MSDataFileReader
             mHeaderSaved = string.Empty;
         }
 
+        /// <summary>
+        /// Read the next spectrum from a _dta.txt file
+        /// </summary>
+        /// <remarks>
+        /// If mCombineIdenticalSpectra is true, combines spectra that have the same scan number but different charge state
+        /// </remarks>
+        /// <param name="objSpectrumInfo"></param>
+        /// <returns>True if a spectrum is found, otherwise false</returns>
         public override bool ReadNextSpectrum(out clsSpectrumInfo objSpectrumInfo)
         {
-            // Reads the next spectrum from a _Dta.txt file
-            // Returns True if a spectrum is found, otherwise, returns False
-            // If blnCombineIdenticalSpectra = True, then combines spectra that only differ by their charge state
-
             string strLineIn;
             string strMostRecentLineIn = string.Empty;
             int intLastProgressUpdateLine;
@@ -210,7 +213,6 @@ namespace MSDataFileReader
                                         {
                                             if (string.Equals(mCurrentSpectrum.SpectrumTitle.Substring(0, mCurrentSpectrum.SpectrumTitle.Length - 5), strCompareTitle.Substring(0, strCompareTitle.Length - 5), StringComparison.InvariantCultureIgnoreCase))
                                             {
-
                                                 // Yes, the spectra match
 
                                                 {
@@ -277,10 +279,16 @@ namespace MSDataFileReader
             return blnSpectrumFound;
         }
 
+        /// <summary>
+        /// Read a single .dta file
+        /// </summary>
+        /// <param name="strInputFilePath"></param>
+        /// <param name="strMsMsDataList"></param>
+        /// <param name="intMsMsDataCount"></param>
+        /// <param name="objSpectrumInfoMsMsText"></param>
+        /// <returns>True if the file was successfully opened and a spectrum was read</returns>
         public bool ReadSingleDtaFile(string strInputFilePath, out string[] strMsMsDataList, out int intMsMsDataCount, out clsSpectrumInfoMsMsText objSpectrumInfoMsMsText)
         {
-
-            // Open the .Dta file and read the spectrum
             int intLastProgressUpdateLine;
             string strLineIn;
             var blnSpectrumFound = default(bool);
@@ -357,11 +365,19 @@ namespace MSDataFileReader
             return blnSpectrumFound;
         }
 
+        /// <summary>
+        /// Read a single mass spectrum
+        /// </summary>
+        /// <param name="srReader"></param>
+        /// <param name="strParentIonLineText"></param>
+        /// <param name="lstMsMsDataList"></param>
+        /// <param name="objSpectrumInfoMsMsText"></param>
+        /// <param name="intLinesRead"></param>
+        /// <param name="intLastProgressUpdateLine"></param>
+        /// <param name="strMostRecentLineIn"></param>
+        /// <returns>if a valid spectrum is found, otherwise, false</returns>
         private bool ReadSingleSpectrum(TextReader srReader, string strParentIonLineText, out List<string> lstMsMsDataList, clsSpectrumInfoMsMsText objSpectrumInfoMsMsText, ref int intLinesRead, ref int intLastProgressUpdateLine, [Optional, DefaultParameterValue("")] ref string strMostRecentLineIn)
         {
-
-            // Returns True if a valid spectrum is found, otherwise, returns False
-
             int intCharIndex;
             string strLineIn;
             string strValue;
@@ -432,7 +448,6 @@ namespace MSDataFileReader
                         }
                         else
                         {
-
                             // Add to MS/MS data string list
                             lstMsMsDataList.Add(strLineIn.Trim());
                             AddNewRecentFileText(strLineIn);

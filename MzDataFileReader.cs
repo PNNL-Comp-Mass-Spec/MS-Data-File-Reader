@@ -1,22 +1,20 @@
-﻿using System;
+﻿// -------------------------------------------------------------------------------
+// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+// Copyright 2021, Battelle Memorial Institute.  All Rights Reserved.
+//
+// E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+// Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+// -------------------------------------------------------------------------------
+
+using System;
 using System.Collections;
 using System.Xml;
 
 namespace MSDataFileReader
 {
-
-    // This class uses a SAX Parser to read an mzData file
-    //
-    // -------------------------------------------------------------------------------
-    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-    // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-    // Started April 1, 2006
-    //
-    // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-    // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
-    // -------------------------------------------------------------------------------
-    //
-
+    /// <summary>
+    /// This class uses a SAX Parser to read an mzData file
+    /// </summary>
     public class clsMzDataFileReader : clsMSXMLFileReaderBaseClass
     {
         public clsMzDataFileReader()
@@ -323,10 +321,17 @@ namespace MSDataFileReader
             return blnSuccess;
         }
 
+        /// <summary>
+        /// Parse strMSMSDataBase64Encoded and store the data in sngValues
+        /// </summary>
+        /// <param name="strMSMSDataBase64Encoded"></param>
+        /// <param name="sngValues"></param>
+        /// <param name="NumericPrecisionOfData"></param>
+        /// <param name="PeaksEndianMode"></param>
+        /// <param name="blnUpdatePeaksCountIfInconsistent"></param>
+        /// <returns>True if successful, false if an error</returns>
         private bool ParseBinaryData(string strMSMSDataBase64Encoded, ref float[] sngValues, int NumericPrecisionOfData, string PeaksEndianMode, bool blnUpdatePeaksCountIfInconsistent)
         {
-            // Parses strMSMSDataBase64Encoded and stores the data in sngValues
-
             float[] sngDataArray = null;
             double[] dblDataArray = null;
             bool zLibCompressed = false;
@@ -407,10 +412,17 @@ namespace MSDataFileReader
             return blnSuccess;
         }
 
+        /// <summary>
+        /// Parse strMSMSDataBase64Encoded and store the data in dblValues
+        /// </summary>
+        /// <param name="strMSMSDataBase64Encoded"></param>
+        /// <param name="dblValues"></param>
+        /// <param name="NumericPrecisionOfData"></param>
+        /// <param name="PeaksEndianMode"></param>
+        /// <param name="blnUpdatePeaksCountIfInconsistent"></param>
+        /// <returns>True if successful, false if an error</returns>
         private bool ParseBinaryData(string strMSMSDataBase64Encoded, ref double[] dblValues, int NumericPrecisionOfData, string PeaksEndianMode, bool blnUpdatePeaksCountIfInconsistent)
         {
-            // Parses strMSMSDataBase64Encoded and stores the data in dblValues
-
             float[] sngDataArray = null;
             double[] dblDataArray = null;
             bool zLibCompressed = false;
@@ -560,7 +572,7 @@ namespace MSDataFileReader
                 return;
             try
             {
-                // If we just moved out of a spectrum element, then finalize the current scan
+                // If we just moved out of a spectrum element, finalize the current scan
                 if ((mXMLReader.Name ?? "") == ScanSectionNames.spectrum)
                 {
                     mCurrentSpectrum.Validate();
@@ -976,11 +988,11 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// Updates the current XMLReader object with a new reader positioned at the XML for a new mass spectrum
-    /// </summary>
-    /// <param name="newReader"></param>
-    /// <returns></returns>
-    /// <remarks></remarks>
+        /// Updates the current XMLReader object with a new reader positioned at the XML for a new mass spectrum
+        /// </summary>
+        /// <param name="newReader"></param>
+        /// <returns></returns>
+        /// <remarks></remarks>
         public bool SetXMLReaderForSpectrum(XmlReader newReader)
         {
             try
@@ -1000,8 +1012,6 @@ namespace MSDataFileReader
 
         private void ValidateMZDataFileVersion(string strFileVersion)
         {
-            // This sub should be called from ParseElementContent
-
             System.Text.RegularExpressions.Regex objFileVersionRegEx;
             System.Text.RegularExpressions.Match objMatch;
             string strMessage;

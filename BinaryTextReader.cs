@@ -1,55 +1,62 @@
-﻿using System;
+﻿// -------------------------------------------------------------------------------
+// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+// Copyright 2021, Battelle Memorial Institute.  All Rights Reserved.
+//
+// E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+// Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+// -------------------------------------------------------------------------------
+//
+// Licensed under the Apache License, Version 2.0; you may not use this file except
+// in compliance with the License.  You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Notice: This computer software was prepared by Battelle Memorial Institute,
+// hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
+// Department of Energy (DOE).  All rights in the computer software are reserved
+// by DOE on behalf of the United States Government and the Contractor as
+// provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY
+// WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
+// SOFTWARE.  This notice including this sentence must appear on any copies of
+// this computer software.
+
+using System;
 using System.IO;
 using System.Text;
 using PRISM;
 
 namespace MSDataFileReader
 {
-
-    // This class can be used to open a Text file and read each of the lines from the file,
-    // where a line of text ends with CRLF or simply LF
-    // In addition, the byte offset at the start and end of the line is also returned
-    //
-    // Note that this class is compatible with UTF-16 Unicode files; it looks for byte order mark
-    // FF FE or FE FF in the first two bytes of the file to determine if a file is Unicode
-    // (though you can override this using the InputFileEncoding property after calling .OpenFile()
-    // This class will also look for the byte order mark for UTF-8 files (EF BB BF) though it may not
-    // properly decode UTF-8 characters (not fully tested)
-    //
-    // You can change the expected line terminator character using Property FileSystemMode
-    // If FileSystemMode = FileSystemModeConstants.Windows, then the Line Terminator = LF, optionally preceded by CR
-    // If FileSystemMode = FileSystemModeConstants.Unix, then the Line Terminator = LF, optionally preceded by CR
-    // If FileSystemMode = FileSystemModeConstants.Macintosh, then the Line Terminator = CR, previous character is not considered
-    //
-    // -------------------------------------------------------------------------------
-    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-    // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-    // Program started April 18, 2006
-    //
-    // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-    // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
-    // -------------------------------------------------------------------------------
-    //
-    // Licensed under the Apache License, Version 2.0; you may not use this file except
-    // in compliance with the License.  You may obtain a copy of the License at
-    // http://www.apache.org/licenses/LICENSE-2.0
-    //
-    // Notice: This computer software was prepared by Battelle Memorial Institute,
-    // hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
-    // Department of Energy (DOE).  All rights in the computer software are reserved
-    // by DOE on behalf of the United States Government and the Contractor as
-    // provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY
-    // WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
-    // SOFTWARE.  This notice including this sentence must appear on any copies of
-    // this computer software.
-    //
-
+    /// <summary>
+    /// <para>
+    /// This class can be used to open a Text file and read each of the lines from the file,
+    /// where a line of text ends with CRLF or simply LF
+    /// In addition, the byte offset at the start and end of the line is also returned
+    /// </para>
+    /// </summary>
+    /// <remarks>
+    /// <para>
+    /// Note that this class is compatible with UTF-16 Unicode files; it looks for byte order mark
+    /// FF FE or FE FF in the first two bytes of the file to determine if a file is Unicode
+    /// (though you can override this using the InputFileEncoding property after calling .OpenFile()
+    /// This class will also look for the byte order mark for UTF-8 files (EF BB BF) though it may not
+    /// properly decode UTF-8 characters (not fully tested)
+    /// </para>
+    /// <para>
+    /// You can change the expected line terminator character using Property FileSystemMode
+    /// If FileSystemMode = FileSystemModeConstants.Windows, the Line Terminator = LF, optionally preceded by CR
+    /// If FileSystemMode = FileSystemModeConstants.Unix, the Line Terminator = LF, optionally preceded by CR
+    /// If FileSystemMode = FileSystemModeConstants.Macintosh, the Line Terminator = CR, previous character is not considered
+    /// </para>
+    /// </remarks>
     public class clsBinaryTextReader : EventNotifier
     {
+        // Ignore Spelling: endian
+
         public clsBinaryTextReader()
         {
-            // Note: This property will also update mLineTerminator1Code and mLineTerminator2Code
+            // Note: Setting this property's value will also update mLineTerminator1Code and mLineTerminator2Code
             FileSystemMode = FileSystemModeConstants.Windows;
+
             InitializeLocalVariables();
         }
 
@@ -323,9 +330,13 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Check whether the reader is at the end of the file
+        /// </summary>
+        /// <param name="lngBytePosition"></param>
+        /// <returns>True if lngBytePosition is at or beyond the end of the file</returns>
         public bool ByteAtEOF(long lngBytePosition)
         {
-            // Returns True if lngBytePosition is >= the end of the file
             if (lngBytePosition >= mBinaryReader.Length)
             {
                 return true;
@@ -365,10 +376,14 @@ namespace MSDataFileReader
             mCurrentLineTerminator = string.Empty;
         }
 
+        /// <summary>
+        /// Initialize local variables
+        /// </summary>
+        /// <remarks>
+        /// Do not update mFileSystemMode, mLineTerminator1Code, mLineTerminator2Code, or mInputFileEncoding in this method
+        /// </remarks>
         private void InitializeLocalVariables()
         {
-            // Note: Do Not update mFileSystemMode, mLineTerminator1Code, mLineTerminator2Code, or mInputFileEncoding in this sub
-
             mInputFilePath = string.Empty;
             mErrorMessage = string.Empty;
             mLineNumber = 0;
@@ -479,10 +494,11 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Move to the beginning of the file and freshly populate the byte buffer
+        /// </summary>
         public void MoveToBeginning()
         {
-            // Move to the beginning of the file and freshly populate the byte buffer
-
             int intIndex;
             int intIndexStart;
             int intIndexEnd;
@@ -525,7 +541,7 @@ namespace MSDataFileReader
                     {
                         if (mByteBuffer[0] == 239 && mByteBuffer[1] == 187 && mByteBuffer[2] == 191)
                         {
-                            // UTF8
+                            // UTF-8
                             // Note that this sets mCharSize to 1
                             SetInputFileEncoding(InputFileEncodingConstants.UTF8);
                             // Skip the first 3 bytes
@@ -536,7 +552,7 @@ namespace MSDataFileReader
                         {
                             // Examine the first 2000 bytes and check whether or not
                             // every other byte is 0 for at least 95% of the data
-                            // If it is, then assume the appropriate Unicode format
+                            // If it is, assume the appropriate Unicode format
 
                             intIndexEnd = 2000;
                             if (intIndexEnd >= mByteBufferCount - 1)
@@ -607,15 +623,24 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Open the data file, granting other programs read-access
+        /// </summary>
+        /// <param name="dataFilePath"></param>
+        /// <returns>True if successful, false if an error</returns>
         public bool OpenFile(string dataFilePath)
         {
             return OpenFile(dataFilePath, FileShare.Read);
         }
 
+        /// <summary>
+        /// Open the data file, granting other programs the given FileShare access
+        /// </summary>
+        /// <param name="dataFilePath"></param>
+        /// <param name="share"></param>
+        /// <returns>True if successful, false if an error</returns>
         public bool OpenFile(string dataFilePath, FileShare share)
         {
-            // Returns true if the file is successfully opened
-
             bool blnSuccess;
             mErrorMessage = string.Empty;
 
@@ -670,12 +695,16 @@ namespace MSDataFileReader
             return ReadLine(ReadDirectionConstants.Forward);
         }
 
+        /// <summary>
+        /// Read the next line in the data file (by looking for the next LF symbol in the binary file)
+        /// </summary>
+        /// <remarks>
+        /// Use Property CurrentLine to obtain the text for the line
+        /// </remarks>
+        /// <param name="eDirection"></param>
+        /// <returns>True if successful, False if failure</returns>
         public bool ReadLine(ReadDirectionConstants eDirection)
         {
-            // Looks for the next line in the file (by looking for the next LF symbol in the binary file)
-            // Returns True if success, False if failure
-            // Use Property CurrentLine to obtain the text for the line
-
             int intSearchIndexStartOffset;
             int intBytesRead;
             int intBytesToRead;
@@ -1086,16 +1115,15 @@ namespace MSDataFileReader
                             }
 
                             // Check whether the user just changed reading direction
-                            // If they did, then it is possible that this function will return the exact same line
-                            // as was previously read.  Check for this, and if true, then read the next line (in direction eDiretion)
+                            // If they did, it is possible that this method will return the exact same line
+                            // as was previously read.  Check for this, and if true, read the next line (in direction eDirection)
                             if (eDirection != mReadLineDirectionSaved &&
                                 mCurrentLineByteOffsetStartSaved >= 0L &&
                                 mCurrentLineByteOffsetStart == mCurrentLineByteOffsetStartSaved &&
                                 mCurrentLineTextSaved != null &&
                                 (mCurrentLineText ?? "") == (mCurrentLineTextSaved ?? ""))
                             {
-
-                                // Recursively call this function to read the next line
+                                // Recursively call this method to read the next line
                                 // To avoid infinite loops, set mCurrentLineByteOffsetStartSaved to -1
                                 mCurrentLineByteOffsetStartSaved = -1;
                                 blnMatchFound = ReadLine(eDirection);

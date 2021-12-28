@@ -1,18 +1,18 @@
-﻿using System;
+﻿// -------------------------------------------------------------------------------
+// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+// Copyright 2021, Battelle Memorial Institute.  All Rights Reserved.
+//
+// E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+// Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+// -------------------------------------------------------------------------------
+
+using System;
 
 namespace MSDataFileReader
 {
-    // This class holds the values associated with each spectrum in an DTA or MGF file
-    // 
-    // -------------------------------------------------------------------------------
-    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-    // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-    // Started March 24, 2006
-    // 
-    // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-    // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
-    // -------------------------------------------------------------------------------
-
+    /// <summary>
+    /// This class holds the values associated with each spectrum in an DTA or MGF file
+    /// </summary>
     [Serializable()]
     public class clsSpectrumInfoMsMsText : clsSpectrumInfo
     {
@@ -124,11 +124,14 @@ namespace MSDataFileReader
             mChargeIs2And3Plus = false;
         }
 
+        /// <summary>
+        /// If blnAddToExistingChargeList is True, adds intNewCharge to the ParentIonCharges array
+        /// Otherwise, clears ParentIonCharges and sets ParentIonCharges[0] to intNewCharge
+        /// </summary>
+        /// <param name="intNewCharge"></param>
+        /// <param name="blnAddToExistingChargeList"></param>
         public void AddOrUpdateChargeList(int intNewCharge, bool blnAddToExistingChargeList)
         {
-            // If blnAddToExistingChargeList is True, then adds intNewCharge to ParentIonCharges()
-            // Otherwise, clears ParentIonCharges and sets ParentIonCharges(0) to intNewCharge
-
             int intIndex, intCopyIndex;
             bool blnChargeAdded;
             try
@@ -183,9 +186,12 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Clone this spectrum object
+        /// </summary>
+        /// <returns>Deep copy of this spectrum</returns>
         public new clsSpectrumInfoMsMsText Clone()
         {
-
             // First create a shallow copy of this object
             clsSpectrumInfoMsMsText objTarget = (clsSpectrumInfoMsMsText)MemberwiseClone();
 

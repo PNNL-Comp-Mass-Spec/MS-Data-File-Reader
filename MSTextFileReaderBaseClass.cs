@@ -1,23 +1,21 @@
-﻿using System;
-
-// This is the base class for the DTA and MGF file readers
-//
-// -------------------------------------------------------------------------------
+﻿// -------------------------------------------------------------------------------
 // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-// Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-// Started March 26, 2006
+// Copyright 2021, Battelle Memorial Institute.  All Rights Reserved.
 //
 // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
 // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
 // -------------------------------------------------------------------------------
-//
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
 namespace MSDataFileReader
 {
+    /// <summary>
+    /// This is the base class for the DTA and MGF file readers
+    /// </summary>
     public abstract class clsMSTextFileReaderBaseClass : clsMSDataFileReaderBaseClass
     {
         public clsMSTextFileReaderBaseClass()
@@ -51,11 +49,22 @@ namespace MSDataFileReader
 
         private readonly Regex mDtaHeaderScanAndCharge = new Regex(@".+\.(\d+)\.(\d+)\.(\d*)$", RegexOptions.Compiled);
 
-        // Number between 0 and 100; if the percentage of ions greater than the parent ion m/z is less than this number, then the charge is definitely 1+
+        /// <summary>
+        /// Threshold ion percent to assume a 1+ spectrum (number between 0 and 100)
+        /// </summary>
+        /// <remarks>
+        /// If the percentage of ions greater than the parent ion m/z is less than this number, the charge is definitely 1+
+        /// </remarks>
         protected float mThresholdIonPctForSingleCharge;
 
-        // Number between 0 and 100; if the percentage of ions greater than the parent ion m/z is greater than this number, then the charge is definitely 2+ or higher
+        /// <summary>
+        /// Threshold ion percent to assume a 2+ spectrum (number between 0 and 100)
+        /// </summary>
+        /// <remarks>
+        /// If the percentage of ions greater than the parent ion m/z is greater than this number, the charge is definitely 2+ or higher
+        /// </remarks>
         protected float mThresholdIonPctForDoubleCharge;
+
         protected System.IO.TextReader mFileReader;
         protected char mCommentLineStartChar = '=';
         private string mSecondMostRecentSpectrumFileText;
@@ -145,11 +154,9 @@ namespace MSDataFileReader
         /// <param name="strCommentIn"></param>
         /// <param name="strCommentChar"></param>
         /// <param name="blnRemoveQuoteMarks">When True, also look for double quotation marks at the beginning and end</param>
-        /// <returns></returns>
+        /// <returns>Updated comment</returns>
         protected string CleanupComment(string strCommentIn, char strCommentChar, bool blnRemoveQuoteMarks)
         {
-
-            // Extract out the comment
             if (strCommentIn is null)
             {
                 strCommentIn = string.Empty;
@@ -359,34 +366,36 @@ namespace MSDataFileReader
             return mCurrentSpectrum.SpectrumTitleWithCommentChars;
         }
 
+        /// <summary>
+        /// Guesstimate the parent ion charge based on its m/z and the ions in the fragmentation spectrum
+        /// </summary>
+        /// <param name="objSpectrumInfo"></param>
+        /// <param name="blnAddToExistingChargeList"></param>
+        /// <param name="blnForceChargeAddnFor2and3Plus"></param>
         public void GuesstimateCharge(clsSpectrumInfoMsMsText objSpectrumInfo, bool blnAddToExistingChargeList = false, bool blnForceChargeAddnFor2and3Plus = false)
         {
-
-            // Guesstimate the parent ion charge based on its m/z and the ions in the fragmentation spectrum
-            //
             // Strategy:
-            // 1) If all frag peaks have m/z values less than the parent ion m/z, then definitely assume a
-            // 1+ parent ion
+            // 1) If all frag peaks have m/z values less than the parent ion m/z, definitely assume a 1+ parent ion
             //
             // 2) If less than mThresholdIonPctForSingleCharge percent of the data's m/z values are greater
-            // than the parent ion, then definitely assume 1+ parent ion
+            // than the parent ion, definitely assume 1+ parent ion
             // When determining percentage, use both # of data points and the sum of the ion intensities.
             // Both values must be less than mThresholdIonPctForSingleCharge percent to declare 1+
             //
             // 3) If mThresholdIonPctForSingleCharge percent to mThresholdIonPctForDoubleCharge percent
-            // of the data's m/z values are greater than the parent ion, then declare 1+, 2+, 3+ ...
+            // of the data's m/z values are greater than the parent ion, declare 1+, 2+, 3+ ...
             // up to the charge that gives a deconvoluted parent ion that matches the above test (#2)
             // At a minimum, include 2+ and 3+
             // Allow up to 5+
             // Allow a 3 Da mass tolerance when comparing deconvoluted mass to maximum ion mass
-            // E.g. if parent ion m/z is 476, but frag data ranges from 624 to 1922, then guess 2+ to 5+
+            // E.g. if parent ion m/z is 476, but frag data ranges from 624 to 1922, guess 2+ to 5+
             // Math involved: 476*2-1 = 951:  this is less than 1922
             // 476*3-2 = 1426: this is less than 1922
             // 476*4-3 = 1902: this is less than 1922
             // 476*5-4 = 2376: this is greater than 1922
             // Thus, assign charges 2+ to 5+
             //
-            // 4) Otherwise, if both test 2 and test 3 fail, then assume 2+, 3+, ... up to the charge that
+            // 4) Otherwise, if both test 2 and test 3 fail, assume 2+, 3+, ... up to the charge that
             // gives a deconvoluted parent ion that matches the above test (#2)
             // The same tests as outlined in step 3 will be performed to determine the maximum charge
             // to assign
@@ -510,10 +519,13 @@ namespace MSDataFileReader
             mCurrentMsMsDataList = new List<string>();
         }
 
+        /// <summary>
+        /// Open a data file
+        /// </summary>
+        /// <param name="strInputFilePath"></param>
+        /// <returns>True if successful, false if an error</returns>
         public override bool OpenFile(string strInputFilePath)
         {
-            // Returns true if the file is successfully opened
-
             bool blnSuccess;
             System.IO.StreamReader objStreamReader;
             try
@@ -537,10 +549,13 @@ namespace MSDataFileReader
             return blnSuccess;
         }
 
+        /// <summary>
+        /// Open a text stream
+        /// </summary>
+        /// <param name="strTextStream"></param>
+        /// <returns>True if successful, false if an error</returns>
         public override bool OpenTextStream(string strTextStream)
         {
-            // Returns true if the text stream is successfully opened
-
             bool blnSuccess;
 
             // Make sure any open file or text stream is closed
@@ -571,12 +586,16 @@ namespace MSDataFileReader
             return ParseMsMsDataList(lstMSMSData, out dblMasses, out sngIntensities, blnShrinkDataArrays);
         }
 
+        /// <summary>
+        /// Parse a space or tab separated list of list of mass and intensity pairs
+        /// </summary>
+        /// <param name="lstMSMSData"></param>
+        /// <param name="dblMasses"></param>
+        /// <param name="sngIntensities"></param>
+        /// <param name="blnShrinkDataArrays">If true and any invalid lines were encountered, shrink the arrays</param>
+        /// <returns>The number of data points in the output arrays</returns>
         public int ParseMsMsDataList(List<string> lstMSMSData, out double[] dblMasses, out float[] sngIntensities, bool blnShrinkDataArrays)
         {
-
-            // Returns the number of data points in dblMasses() and sngIntensities()
-            // If blnShrinkDataArrays = False, then will not shrink dblMasses or sngIntensities
-
             string[] strSplitLine;
             int intDataCount;
             var strSepChars = new char[] { ' ', '\t' };
@@ -587,10 +606,9 @@ namespace MSDataFileReader
                 intDataCount = 0;
                 foreach (string strItem in lstMSMSData)
                 {
-
                     // Each line in strMSMSData should contain a mass and intensity pair, separated by a space or Tab
                     // MGF files sometimes contain a third number, the charge of the ion
-                    // Use the .Split function to parse the numbers in the line to extract the mass and intensity, and ignore the charge (if present)
+                    // Use .Split() to parse the numbers in the line to extract the mass and intensity, and ignore the charge (if present)
                     strSplitLine = strItem.Split(strSepChars);
                     if (strSplitLine.Length >= 2)
                     {

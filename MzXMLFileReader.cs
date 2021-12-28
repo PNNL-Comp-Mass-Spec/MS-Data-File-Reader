@@ -1,20 +1,19 @@
-﻿using System;
+﻿// -------------------------------------------------------------------------------
+// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+// Copyright 2021, Battelle Memorial Institute.  All Rights Reserved.
+//
+// E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+// Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+// -------------------------------------------------------------------------------
+
+using System;
 using System.Xml;
 
 namespace MSDataFileReader
 {
-
-    // This class uses a SAX Parser to read an mzXML file
-
-    // -------------------------------------------------------------------------------
-    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-    // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-    // Started March 26, 2006
-    // 
-    // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-    // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
-    // -------------------------------------------------------------------------------
-
+    /// <summary>
+    /// This class uses a SAX Parser to read an mzXML file
+    /// </summary>
     public class clsMzXMLFileReader : clsMSXMLFileReaderBaseClass
     {
         public clsMzXMLFileReader()
@@ -87,10 +86,10 @@ namespace MSDataFileReader
             // Collision energy used to fragment the parent ion
             public const string collisionEnergy = "collisionEnergy";
 
-            // Setted low m/z boundary (this is the instrumetal setting); not present in .mzXML files created with ReadW
+            // Low m/z boundary (this is the instrumental setting); not present in .mzXML files created with ReadW
             public const string startMz = "startMz";
 
-            // Setted high m/z boundary (this is the instrumetal setting); not present in .mzXML files created with ReadW
+            // High m/z boundary (this is the instrumental setting); not present in .mzXML files created with ReadW
             public const string endMz = "endMz";
 
             // Observed low m/z (this is what the actual data looks like
@@ -246,10 +245,14 @@ namespace MSDataFileReader
             return blnSuccess;
         }
 
+        /// <summary>
+        /// Parse strMSMSDataBase64Encoded and store the data in mIntensityList() and mMZList()
+        /// </summary>
+        /// <param name="strMSMSDataBase64Encoded"></param>
+        /// <param name="strCompressionType"></param>
+        /// <returns>True if successful, false if an error</returns>
         private bool ParseBinaryData(string strMSMSDataBase64Encoded, string strCompressionType)
         {
-            // Parses strMSMSDataBase64Encoded and stores the data in mIntensityList() and mMZList()
-
             float[] sngDataArray = null;
             double[] dblDataArray = null;
             bool zLibCompressed = false;
@@ -290,7 +293,6 @@ namespace MSDataFileReader
                             {
                                 if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out sngDataArray, zLibCompressed, eEndianMode))
                                 {
-
                                     // sngDataArray now contains pairs of singles, either m/z and intensity or intensity and m/z
                                     // Need to split this apart into two arrays
 
@@ -424,7 +426,7 @@ namespace MSDataFileReader
             {
                 // Skip the element if we aren't parsing a scan (inside a scan element)
                 // This is an easy way to skip whitespace
-                // We can do this since since we only care about the data inside the
+                // We can do this since we only care about the data inside the
                 // ScanSectionNames.precursorMz and ScanSectionNames.peaks elements
                 if (mScanDepth > 0)
                 {
@@ -476,7 +478,7 @@ namespace MSDataFileReader
                 return;
             try
             {
-                // If we just moved out of a scan element, then finalize the current scan
+                // If we just moved out of a scan element, finalize the current scan
                 if ((mXMLReader.Name ?? "") == ScanSectionNames.scan)
                 {
                     if (mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Initialized && mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Validated)
@@ -718,11 +720,11 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// Updates the current XMLReader object with a new reader positioned at the XML for a new mass spectrum
-    /// </summary>
-    /// <param name="newReader"></param>
-    /// <returns></returns>
-    /// <remarks></remarks>
+        /// Updates the current XMLReader object with a new reader positioned at the XML for a new mass spectrum
+        /// </summary>
+        /// <param name="newReader"></param>
+        /// <returns></returns>
+        /// <remarks></remarks>
         public bool SetXMLReaderForSpectrum(XmlReader newReader)
         {
             try
@@ -740,10 +742,17 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Determine the .mzXML file version
+        /// </summary>
+        /// <remarks>
+        /// The supported versions are mzXML_2.x and mzXML_3.x
+        /// </remarks>
+        /// <param name="xmlWithFileVersion"></param>
+        /// <param name="xmlFileVersion">Output: file version</param>
+        /// <returns>True if the version could be determined, otherwise false</returns>
         public static bool ExtractMzXmlFileVersion(string xmlWithFileVersion, out string xmlFileVersion)
         {
-
-            // Currently, the supported versions are mzXML_2.x and mzXML_3.x
             var objFileVersionRegEx = new System.Text.RegularExpressions.Regex(@"mzXML_[^\s""/]+", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
             // Validate the mzXML file version
@@ -765,8 +774,6 @@ namespace MSDataFileReader
 
         private void ValidateMZXmlFileVersion(string xmlWithFileVersion)
         {
-            // This sub should be called from ParseStartElement
-
             string strMessage;
             try
             {

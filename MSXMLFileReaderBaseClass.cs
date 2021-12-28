@@ -1,4 +1,12 @@
-﻿using System;
+﻿// -------------------------------------------------------------------------------
+// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+// Copyright 2021, Battelle Memorial Institute.  All Rights Reserved.
+//
+// E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+// Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+// -------------------------------------------------------------------------------
+
+using System;
 using System.Collections;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -7,19 +15,9 @@ using PRISM;
 
 namespace MSDataFileReader
 {
-
-    // This is the base class for the mzXML and mzData readers
-    //
-    // -------------------------------------------------------------------------------
-    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-    // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-    // Started March 26, 2006
-    //
-    // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-    // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
-    // -------------------------------------------------------------------------------
-    //
-
+    /// <summary>
+    /// This is the base class for the mzXML and mzData readers
+    /// </summary>
     public abstract class clsMSXMLFileReaderBaseClass : clsMSDataFileReaderBaseClass
     {
         public clsMSXMLFileReaderBaseClass()
@@ -72,9 +70,12 @@ namespace MSDataFileReader
         protected XmlReader mXMLReader;
         protected bool mSpectrumFound;
 
-        // When this is set to True, then the base-64 encoded data in the file is not parsed;
-        // This speeds up the reader
+        /// <summary>
+        /// When true, the base-64 encoded data in the file is not parsed,
+        /// thus speeding up the reader
+        /// </summary>
         protected bool mSkipBinaryData = false;
+
         protected bool mSkipNextReaderAdvance;
         protected bool mSkippedStartElementAdvance;
 
@@ -144,23 +145,26 @@ namespace MSDataFileReader
             mInputFilePath = string.Empty;
         }
 
+        /// <summary>
+        /// Convert a timespan to an XML duration
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// XML duration value is typically of the form "PT249.559S" or "PT4M9.559S"
+        /// where the S indicates seconds and M indicates minutes
+        /// Thus, "PT249.559S" means 249.559 seconds while
+        /// "PT4M9.559S" means 4 minutes plus 9.559 seconds
+        /// </para>
+        /// <para>
+        /// When blnTrimLeadingZeroValues is true, for TimeSpan 3 minutes, returns P3M0S rather than P0Y0M0DT0H3M0S
+        /// </para>
+        /// </remarks>
+        /// <param name="dtTimeSpan"></param>
+        /// <param name="blnTrimLeadingZeroValues">When false, return the full specification; otherwise, remove any leading zero-value entries</param>
+        /// <param name="bytSecondsValueDigitsAfterDecimal"></param>
+        /// <returns>XML duration string</returns>
         public static string ConvertTimeFromTimespanToXmlDuration(TimeSpan dtTimeSpan, bool blnTrimLeadingZeroValues, byte bytSecondsValueDigitsAfterDecimal = 3)
         {
-
-            // XML duration value is typically of the form "PT249.559S" or "PT4M9.559S"
-            // where the S indicates seconds and M indicates minutes
-            // Thus, "PT249.559S" means 249.559 seconds while
-            // "PT4M9.559S" means 4 minutes plus 9.559 seconds
-
-            // Official definition:
-            // A length of time given in the ISO 8601 extended format: PnYnMnDTnHnMnS. The number of seconds
-            // can be a decimal or an integer. All the other values must be non-negative integers. For example,
-            // P1Y2M3DT4H5M6.7S is one year, two months, three days, four hours, five minutes, and 6.7 seconds.
-
-            // If blnTrimLeadingZeroValues = False, then will return the full specification.
-            // If blnTrimLeadingZeroValues = True, then removes any leading zero-value entries, for example,
-            // for TimeSpan 3 minutes, returns P3M0S rather than P0Y0M0DT0H3M0S
-
             const string ZERO_SOAP_DURATION_FULL = "P0Y0M0DT0H0M0S";
             const string ZERO_SOAP_DURATION_SHORT = "PT0S";
 
@@ -287,13 +291,20 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Convert an XML duration to a TimeSpan
+        /// </summary>
+        /// <remarks>
+        /// XML duration value is typically of the form "PT249.559S" or "PT4M9.559S"
+        /// where the S indicates seconds and M indicates minutes
+        /// Thus, "PT249.559S" means 249.559 seconds while
+        /// "PT4M9.559S" means 4 minutes plus 9.559 seconds
+        /// </remarks>
+        /// <param name="strTime"></param>
+        /// <param name="dtDefaultTimeSpan"></param>
+        /// <returns>TimeSpan, or dtDefaultTimeSpan if an error</returns>
         public static TimeSpan ConvertTimeFromXmlDurationToTimespan(string strTime, TimeSpan dtDefaultTimeSpan)
         {
-            // XML duration value is typically of the form "PT249.559S" or "PT4M9.559S"
-            // where the S indicates seconds and M indicates minutes
-            // Thus, "PT249.559S" means 249.559 seconds while
-            // "PT4M9.559S" means 4 minutes plus 9.559 seconds
-
             // Official definition:
             // A length of time given in the ISO 8601 extended format: PnYnMnDTnHnMnS. The number of seconds
             // can be a decimal or an integer. All the other values must be non-negative integers. For example,
@@ -400,11 +411,15 @@ namespace MSDataFileReader
 
         protected abstract clsSpectrumInfo GetCurrentSpectrum();
 
+        /// <summary>
+        /// Obtain the element name one level up from intDepth
+        /// </summary>
+        /// <remarks>
+        /// If intDepth = 0, returns the element name one level up from the last entry in mParentElementStack
+        /// </remarks>
+        /// <param name="intElementDepth"></param>
         protected string GetParentElement(int intElementDepth = 0)
         {
-            // Returns the element name one level up from intDepth
-            // If intDepth = 0, then returns the element name one level up from the last entry in mParentElementStack
-
             udtElementInfoType udtElementInfo;
             if (intElementDepth == 0)
             {
@@ -438,8 +453,8 @@ namespace MSDataFileReader
 
         protected override void InitializeLocalVariables()
         {
-            // Note: This sub is called from OpenFile and OpenTextStream,
-            // so do not update mSkipBinaryData
+            // This method is called from OpenFile and OpenTextStream;
+            // thus, do not update mSkipBinaryData
 
             base.InitializeLocalVariables();
             mSkipNextReaderAdvance = false;
@@ -456,10 +471,13 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Open the data file
+        /// </summary>
+        /// <param name="strInputFilePath"></param>
+        /// <returns>True if successful, false if an error</returns>
         public override bool OpenFile(string strInputFilePath)
         {
-            // Returns true if the file is successfully opened
-
             bool blnSuccess;
             try
             {
@@ -485,10 +503,13 @@ namespace MSDataFileReader
             return blnSuccess;
         }
 
+        /// <summary>
+        /// Open the text stream
+        /// </summary>
+        /// <param name="strTextStream"></param>
+        /// <returns>True if successful, false if an error</returns>
         public override bool OpenTextStream(string strTextStream)
         {
-            // Returns true if the text stream is successfully opened
-
             bool blnSuccess;
 
             // Make sure any open file or text stream is closed
@@ -531,14 +552,17 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Adds a new entry to the end of mParentElementStack
+        /// </summary>
+        /// <param name="objXMLReader"></param>
         protected void ParentElementStackAdd(XmlReader objXMLReader)
         {
-            // Adds a new entry to the end of mParentElementStack
             // Since the XML Text Reader doesn't recognize implicit end elements (e.g. the "/>" characters at
             // the end of <City name="Laramie" />) we need to compare the depth of the current element with
             // the depth of the element at the top of the stack
-            // If the depth values are the same, then we pop the top element off and push the new element on
-            // If the depth values are not the same, then we push the new element on
+            // If the depth values are the same, we pop the top element off and push the new element on
+            // If the depth values are not the same, we push the new element on
 
             udtElementInfoType udtElementInfo;
             if (mParentElementStack.Count > 0)
@@ -559,11 +583,13 @@ namespace MSDataFileReader
         protected abstract void ParseElementContent();
         protected abstract void ParseEndElement();
 
+        /// <summary>
+        /// Read the next spectrum from an mzXML or mzData file
+        /// </summary>
+        /// <param name="objSpectrumInfo"></param>
+        /// <returns>True if a spectrum is found, otherwise, returns False</returns>
         public override bool ReadNextSpectrum(out clsSpectrumInfo objSpectrumInfo)
         {
-            // Reads the next spectrum from an mzXML or mzData file
-            // Returns True if a spectrum is found, otherwise, returns False
-
             bool blnReadSuccessful;
             try
             {
@@ -686,7 +712,7 @@ namespace MSDataFileReader
             {
                 if (mXMLReader.NodeType == XmlNodeType.Whitespace)
                 {
-                    // Whitspace; read the next node
+                    // Whitespace; read the next node
                     mXMLReader.Read();
                 }
             }

@@ -1,5 +1,25 @@
-﻿using System;
-using System.Collections;
+﻿// -------------------------------------------------------------------------------
+// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+// Copyright 2021, Battelle Memorial Institute.  All Rights Reserved.
+//
+// E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+// Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+// -------------------------------------------------------------------------------
+//
+// Licensed under the Apache License, Version 2.0; you may not use this file except
+// in compliance with the License.  You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Notice: This computer software was prepared by Battelle Memorial Institute,
+// hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
+// Department of Energy (DOE).  All rights in the computer software are reserved
+// by DOE on behalf of the United States Government and the Contractor as
+// provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY
+// WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
+// SOFTWARE.  This notice including this sentence must appear on any copies of
+// this computer software.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
@@ -7,36 +27,14 @@ using System.Text.RegularExpressions;
 
 namespace MSDataFileReader
 {
-
-    // This class can be used to open an MS Data file (currently .mzXML and .mzData) and
-    // index the location of all of the spectra present.  This does not cache the mass spectra
-    // data in memory, and therefore uses little memory, but once the indexing is complete,
-    // random access to the spectra is possible.  After the indexing is complete, spectra
-    // can be obtained using GetSpectrumByScanNumber or GetSpectrumByIndex
-
-    // -------------------------------------------------------------------------------
-    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-    // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-    // Program started April 16, 2006
-    //
-    // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-    // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
-    // -------------------------------------------------------------------------------
-    //
-    // Licensed under the Apache License, Version 2.0; you may not use this file except
-    // in compliance with the License.  You may obtain a copy of the License at
-    // http://www.apache.org/licenses/LICENSE-2.0
-    //
-    // Notice: This computer software was prepared by Battelle Memorial Institute,
-    // hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
-    // Department of Energy (DOE).  All rights in the computer software are reserved
-    // by DOE on behalf of the United States Government and the Contractor as
-    // provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY
-    // WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
-    // SOFTWARE.  This notice including this sentence must appear on any copies of
-    // this computer software.
-    //
-
+    /// <summary>
+    ///
+    /// This class can be used to open an MS Data file (currently .mzXML and .mzData) and
+    /// index the location of all of the spectra present.  This does not cache the mass spectra
+    /// data in memory, and therefore uses little memory, but once the indexing is complete,
+    /// random access to the spectra is possible.  After the indexing is complete, spectra
+    /// can be obtained using GetSpectrumByScanNumber or GetSpectrumByIndex
+    /// </summary>
     public abstract class clsMSDataFileAccessorBaseClass : clsMSDataFileReaderBaseClass
     {
         public clsMSDataFileAccessorBaseClass()
@@ -96,7 +94,7 @@ namespace MSDataFileReader
         protected int mInFileCurrentCharIndex;
 
         // This dictionary maps scan number to index in mIndexedSpectrumInfo()
-        // If more than one spectrum comes from the same scan, then tracks the first one read
+        // If more than one spectrum comes from the same scan, tracks the first one read
         protected readonly Dictionary<int, int> mIndexedSpectraScanToIndex = new();
         protected int mLastSpectrumIndexRead;
 
@@ -203,12 +201,12 @@ namespace MSDataFileReader
                 OnErrorEvent("Error in ExtractXMLText", ex);
             }
 
-            // If we get here, then no match was found, so return an empty string
+            // If we get here, no match was found, so return an empty string
             return string.Empty;
         }
 
         /// <summary>
-        /// Extract the text between lngStartByteOffset and lngEndByteOffset in strFilePath, then append it to
+        /// Extract the text between lngStartByteOffset and lngEndByteOffset in strFilePath, append it to
         /// mXmlFileHeader, add the closing element tags, and return ByRef in strExtractedText
         /// </summary>
         /// <param name="strFilePath"></param>
@@ -258,10 +256,13 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Obtain the list of scan numbers (aka acquisition numbers)
+        /// </summary>
+        /// <param name="ScanNumberList"></param>
+        /// <returns>True if successful, false if an error or no cached spectra</returns>
         public override bool GetScanNumberList(out int[] ScanNumberList)
         {
-            // Return the list of indexed scan numbers (aka acquisition numbers)
-
             int intSpectrumIndex;
             var blnSuccess = default(bool);
             try
@@ -303,12 +304,22 @@ namespace MSDataFileReader
         public abstract string GetSourceXMLFooter();
         public abstract string GetSourceXMLHeader(int intScanCountTotal, float sngStartTimeMinutesAllScans, float sngEndTimeMinutesAllScans);
 
+        /// <summary>
+        /// Obtain the source XML for the given spectrum index
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This does not include the header or footer XML for the file
+        /// </para>
+        /// <para>
+        /// Only valid if we have Indexed data in memory
+        /// </para>
+        /// </remarks>
+        /// <param name="intSpectrumIndex"></param>
+        /// <param name="strSourceXML"></param>
+        /// <returns>True if successful, false if an error or invalid spectrum</returns>
         public bool GetSourceXMLByIndex(int intSpectrumIndex, out string strSourceXML)
         {
-            // Returns the XML for the given spectrum
-            // This does not include the header or footer XML for the file
-            // Only valid if we have Indexed data in memory
-
             var blnSuccess = default(bool);
             strSourceXML = string.Empty;
             try
@@ -355,12 +366,22 @@ namespace MSDataFileReader
             return blnSuccess;
         }
 
+        /// <summary>
+        /// Obtain the source XML for the given scan number
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// This does not include the header or footer XML for the file
+        /// </para>
+        /// <para>
+        /// Only valid if we have Indexed data in memory
+        /// </para>
+        /// </remarks>
+        /// <param name="intScanNumber"></param>
+        /// <param name="strSourceXML"></param>
+        /// <returns>True if successful, false if an error or invalid spectrum</returns>
         public bool GetSourceXMLByScanNumber(int intScanNumber, out string strSourceXML)
         {
-            // Returns the XML for the given spectrum
-            // This does not include the header or footer XML for the file
-            // Only valid if we have Indexed data in memory
-
             var blnSuccess = default(bool);
             strSourceXML = string.Empty;
             try
@@ -408,11 +429,17 @@ namespace MSDataFileReader
             return blnSuccess;
         }
 
+        /// <summary>
+        /// Get the spectrum for the given index
+        /// </summary>
+        /// <remarks>
+        /// Only valid if we have Cached or Indexed data in memory
+        /// </remarks>
+        /// <param name="intSpectrumIndex"></param>
+        /// <param name="objSpectrumInfo"></param>
+        /// <returns>True if success, False if failure</returns>
         public override bool GetSpectrumByIndex(int intSpectrumIndex, out clsSpectrumInfo objSpectrumInfo)
         {
-            // Returns True if success, False if failure
-            // Only valid if we have Cached or Indexed data in memory
-
             var blnSuccess = default(bool);
             try
             {
@@ -447,13 +474,18 @@ namespace MSDataFileReader
             return GetSpectrumByScanNumberWork(intScanNumber, out objSpectrumInfo, false);
         }
 
+        /// <summary>
+        /// Obtain the spectrum data for the given scan
+        /// </summary>
+        /// <remarks>
+        /// Only valid if we have Cached or Indexed data in memory
+        /// </remarks>
+        /// <param name="intScanNumber"></param>
+        /// <param name="objSpectrumInfo"></param>
+        /// <param name="blnHeaderInfoOnly"></param>
+        /// <returns>True if success, False if failure</returns>
         protected bool GetSpectrumByScanNumberWork(int intScanNumber, out clsSpectrumInfo objSpectrumInfo, bool blnHeaderInfoOnly)
         {
-
-            // Return the data for scan intScanNumber in mIndexedSpectrumInfo
-            // Returns True if success, False if failure
-            // Only valid if we have Cached or Indexed data in memory
-
             var blnSuccess = default(bool);
             objSpectrumInfo = null;
             try
@@ -515,12 +547,17 @@ namespace MSDataFileReader
             return GetSpectrumByScanNumberWork(intScanNumber, out objSpectrumInfo, true);
         }
 
+        /// <summary>
+        /// Check whether the reader is open and spectra can be obtained
+        /// </summary>
+        /// <remarks>
+        /// If blnAllowConcurrentReading = True, returns True if mBinaryReader is ready for reading
+        /// If blnAllowConcurrentReading = False, returns True only after the file is fully indexed
+        /// Otherwise, returns false
+        /// </remarks>
+        /// <param name="blnAllowConcurrentReading"></param>
         protected bool GetSpectrumReadyStatus(bool blnAllowConcurrentReading)
         {
-            // If blnAllowConcurrentReading = True, then returns True if mBinaryReader is ready for reading
-            // If blnAllowConcurrentReading = False, then Returns True only after the file is fully indexed
-            // Otherwise, returns false
-
             bool blnReady;
             if (mBinaryReader is null || !mBinaryReader.CanRead)
             {
@@ -569,14 +606,19 @@ namespace MSDataFileReader
             return new Regex(strPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
         }
 
-        // This function should be defined to look for an existing byte offset index and, if found,
-        // populate mIndexedSpectrumInfo() and set mIndexingComplete = True
+        /// <summary>
+        /// This method should be defined to look for an existing byte offset index and, if found,
+        /// populate mIndexedSpectrumInfo() and set mIndexingComplete = True
+        /// </summary>
         protected abstract bool LoadExistingIndex();
 
+        /// <summary>
+        /// Open the given file
+        /// </summary>
+        /// <param name="strInputFilePath"></param>
+        /// <returns>True if the file is successfully opened</returns>
         public override bool OpenFile(string strInputFilePath)
         {
-            // Returns true if the file is successfully opened
-
             bool blnSuccess;
             try
             {
@@ -603,7 +645,7 @@ namespace MSDataFileReader
 
                     // Look for a byte offset index, present either inside the .XML file (e.g. .mzXML)
                     // or in a separate file (future capability)
-                    // If an index is found, then set mIndexingComplete to True
+                    // If an index is found, set mIndexingComplete to True
                     if (LoadExistingIndex())
                     {
                         mIndexingComplete = true;
@@ -639,10 +681,12 @@ namespace MSDataFileReader
             return false;
         }
 
+        /// <summary>
+        /// Cache the entire file rather than indexing it and accessing it with a binary reader
+        /// </summary>
+        /// <returns>True if successful, false if an error</returns>
         public bool ReadAndCacheEntireFileNonIndexed()
         {
-            // Provides the option to cache the entire file rather than indexing it and accessing it with a binary reader
-
             bool blnSuccess;
             blnSuccess = base.ReadAndCacheEntireFile();
             if (blnSuccess)

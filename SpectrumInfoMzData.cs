@@ -1,18 +1,18 @@
-﻿using System;
+﻿// -------------------------------------------------------------------------------
+// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+// Copyright 2021, Battelle Memorial Institute.  All Rights Reserved.
+//
+// E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+// Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+// -------------------------------------------------------------------------------
+
+using System;
 
 namespace MSDataFileReader
 {
-    // This class holds the values associated with each spectrum in an mzData file
-    // 
-    // -------------------------------------------------------------------------------
-    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-    // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-    // Started March 24, 2006
-    // 
-    // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-    // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
-    // -------------------------------------------------------------------------------
-
+    /// <summary>
+    /// This class holds the values associated with each spectrum in an mzData file
+    /// </summary>
     [Serializable()]
     public class clsSpectrumInfoMzData : clsSpectrumInfo
     {
@@ -253,9 +253,12 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Clone this spectrum object
+        /// </summary>
+        /// <returns>Deep copy of this spectrum</returns>
         public new clsSpectrumInfoMzData Clone()
         {
-
             // First create a shallow copy of this object
             clsSpectrumInfoMzData objTarget = (clsSpectrumInfoMzData)MemberwiseClone();
 

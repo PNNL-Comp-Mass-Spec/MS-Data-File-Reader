@@ -1,18 +1,18 @@
-﻿using System;
+﻿// -------------------------------------------------------------------------------
+// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+// Copyright 2021, Battelle Memorial Institute.  All Rights Reserved.
+//
+// E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+// Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+// -------------------------------------------------------------------------------
+
+using System;
 
 namespace MSDataFileReader
 {
-    // This class holds the values associated with each spectrum in an MS Data file
-    //
-    // -------------------------------------------------------------------------------
-    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-    // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-    // Started March 23, 2006
-    //
-    // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-    // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
-    // -------------------------------------------------------------------------------
-
+    /// <summary>
+    /// This class holds the values associated with each spectrum in an MS Data file
+    /// </summary>
     [Serializable()]
     public class clsSpectrumInfo : ICloneable
     {
@@ -67,11 +67,18 @@ namespace MSDataFileReader
         #endregion
 
         #region Classwide Variables
-        // When mAutoShrinkDataLists is True, then MZList().Length and IntensityList().Length will equal DataCount;
-        // When mAutoShrinkDataLists is False, then the memory will not be freed when DataCount shrinks or .Clear() is called
-        // Setting mAutoShrinkDataLists to False helps reduce slow, increased memory usage due to inefficient garbage collection
+
+        /// <summary>
+        /// When True, MZList().Length and IntensityList().Length will equal DataCount
+        /// When False, the memory will not be freed when DataCount shrinks or .Clear() is called
+        /// </summary>
+        /// <remarks>
+        /// Setting mAutoShrinkDataLists to False helps reduce slow, increased memory usage due to inefficient garbage collection
+        /// </remarks>
         private bool mAutoShrinkDataLists;
+
         protected string mErrorMessage;
+
         protected eSpectrumStatusConstants mSpectrumStatus;
 
         #endregion
@@ -402,15 +409,20 @@ namespace MSDataFileReader
 
         private object CloneMe() => ((ICloneable)this).Clone();
 
+        /// <summary>
+        /// Clone this spectrum object
+        /// </summary>
+        /// <remarks>
+        /// Clone() methods in the derived SpectrumInfo classes hide this method using new
+        /// </remarks>
+        /// <returns>Deep copy of this spectrum</returns>
         public clsSpectrumInfo Clone()
         {
-            // Note: Clone() functions in the derived SpectrumInfo classes Shadow this function and duplicate its code
-
             // First create a shallow copy of this object
             clsSpectrumInfo objTarget = (clsSpectrumInfo)MemberwiseClone();
 
             // Next, manually copy the array objects and any other objects
-            // Note: Since Clone() functions in the derived classes Shadow this function,
+            // Note: Since Clone() methods in the derived classes hide this method,
             // be sure to update them too if you change any code below
             if (MZList is null)
             {
@@ -503,12 +515,15 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Look for dblMZToFind in this spectrum's data and return the intensity, if found
+        /// </summary>
+        /// <param name="dblMZToFind">m/z to find</param>
+        /// <param name="sngIntensityIfNotFound">Intensity to return, if not found</param>
+        /// <param name="sngMatchTolerance">Match tolerance</param>
+        /// <returns>Intensity for the given ion, or sngIntensityIfNotFound if not found</returns>
         public float LookupIonIntensityByMZ(double dblMZToFind, float sngIntensityIfNotFound, float sngMatchTolerance = 0.05f)
         {
-            // Looks for dblMZToFind in this spectrum's data
-            // If found, returns the intensity
-            // If not found, returns an intensity of sngIntensityIfNotFound
-
             float sngIntensityMatch;
             double dblMZMinimum;
             double dblMZDifference;

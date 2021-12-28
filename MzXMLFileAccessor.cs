@@ -1,4 +1,25 @@
-﻿using System;
+﻿// -------------------------------------------------------------------------------
+// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+// Copyright 2021, Battelle Memorial Institute.  All Rights Reserved.
+//
+// E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+// Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+// -------------------------------------------------------------------------------
+//
+// Licensed under the Apache License, Version 2.0; you may not use this file except
+// in compliance with the License.  You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Notice: This computer software was prepared by Battelle Memorial Institute,
+// hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
+// Department of Energy (DOE).  All rights in the computer software are reserved
+// by DOE on behalf of the United States Government and the Contractor as
+// provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY
+// WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
+// SOFTWARE.  This notice including this sentence must appear on any copies of
+// this computer software.
+
+using System;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -6,35 +27,13 @@ using System.Xml;
 
 namespace MSDataFileReader
 {
-
-    // This class can be used to open a .mzXML file and index the location
-    // of all of the spectra present.  This does not cache the mass spectra data in
-    // memory, and therefore uses little memory, but once the indexing is complete,
-    // random access to the spectra is possible.  After the indexing is complete, spectra
-    // can be obtained using GetSpectrumByScanNumber or GetSpectrumByIndex
-
-    // -------------------------------------------------------------------------------
-    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-    // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-    // Program started April 16, 2006
-    //
-    // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-    // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
-    // -------------------------------------------------------------------------------
-    //
-    // Licensed under the Apache License, Version 2.0; you may not use this file except
-    // in compliance with the License.  You may obtain a copy of the License at
-    // http://www.apache.org/licenses/LICENSE-2.0
-    //
-    // Notice: This computer software was prepared by Battelle Memorial Institute,
-    // hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
-    // Department of Energy (DOE).  All rights in the computer software are reserved
-    // by DOE on behalf of the United States Government and the Contractor as
-    // provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY
-    // WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
-    // SOFTWARE.  This notice including this sentence must appear on any copies of
-    // this computer software.
-
+    /// <summary>
+    /// This class can be used to open a .mzXML file and index the location
+    /// of all of the spectra present.  This does not cache the mass spectra data in
+    /// memory, and therefore uses little memory, but once the indexing is complete,
+    /// random access to the spectra is possible.  After the indexing is complete, spectra
+    /// can be obtained using GetSpectrumByScanNumber or GetSpectrumByIndex
+    /// </summary>
     public class clsMzXMLFileAccessor : clsMSDataFileAccessorBaseClass
     {
         public clsMzXMLFileAccessor()
@@ -119,10 +118,13 @@ namespace MSDataFileReader
 
         #endregion
 
+        /// <summary>
+        /// Use the binary reader to look for the given element type (as specified by eElementMatchMode)
+        /// </summary>
+        /// <param name="eElementMatchMode"></param>
+        /// <returns>True if successful, false if an error</returns>
         protected override bool AdvanceFileReaders(emmElementMatchModeConstants eElementMatchMode)
         {
-            // Uses the BinaryTextReader to look for the given element type (as specified by eElementMatchMode)
-
             bool blnMatchFound;
             bool blnAppendingText;
             var lngByteOffsetForRewind = default(long);
@@ -247,7 +249,7 @@ namespace MSDataFileReader
                                     }
                                 }
                                 // Could not find the num attribute
-                                // If strInFileCurrentLineSubstring does not contain PEAKS_END_ELEMENT, then
+                                // If strInFileCurrentLineSubstring does not contain PEAKS_END_ELEMENT,
                                 // set blnAppendingText to True and continue reading
                                 else if (strInFileCurrentLineSubstring.IndexOf(PEAKS_END_ELEMENT, StringComparison.Ordinal) < 0)
                                 {
@@ -307,11 +309,13 @@ namespace MSDataFileReader
             return blnMatchFound;
         }
 
+        /// <summary>
+        /// Look for the number following the indexOffset tag
+        /// </summary>
+        /// <param name="strTextStream"></param>
+        /// <returns>Byte offset if found, otherwise 0</returns>
         private long ExtractIndexOffsetFromTextStream(string strTextStream)
         {
-            // Looks for the number between "<indexOffset" and "</indexOffset" in strTextStream
-            // Returns the number if found, or 0 if an error
-
             int intMatchIndex;
             int intIndex;
             string strNumber;
@@ -595,13 +599,16 @@ namespace MSDataFileReader
             mXMLReaderSettings = new XmlReaderSettings() { IgnoreWhitespace = true };
         }
 
+        /// <summary>
+        /// Load the spectrum index from the data file
+        /// </summary>
+        /// <remarks>
+        /// Use the mBinaryTextReader to jump to the end of the file and read the data line-by-line backward
+        /// looking for the indexOffset element
+        /// </remarks>
+        /// <returns>True if index elements are successfully loaded, otherwise false</returns>
         protected override bool LoadExistingIndex()
         {
-            // Use the mBinaryTextReader to jump to the end of the file and read the data line-by-line backward
-            // looking for the <indexOffset> element or the <index
-            // If found, and if the index elements are successfully loaded, then returns True
-            // Otherwise, returns False
-
             string strCurrentLine;
             int intCharIndex;
             int intCharIndexEnd;
@@ -717,7 +724,7 @@ namespace MSDataFileReader
                             // Validate the first entry of the index to make sure the index is valid
 
                             // For now, set blnIndexLoaded to False
-                            // If the test read works, then we'll set blnIndexLoaded to True
+                            // If the test read works, we'll set blnIndexLoaded to True
                             blnIndexLoaded = false;
                             if (mIndexedSpectrumInfoCount > 0)
                             {
@@ -812,7 +819,6 @@ namespace MSDataFileReader
                 string strCurrentElement = string.Empty;
                 using (var objXMLReader = new XmlTextReader(new StringReader(strTextStream)))
                 {
-
                     // Skip all whitespace
                     objXMLReader.WhitespaceHandling = WhitespaceHandling.None;
                     bool blnReadSuccessful = true;
@@ -922,10 +928,15 @@ namespace MSDataFileReader
             return blnIndexLoaded;
         }
 
+        /// <summary>
+        /// Indexes the location of each of the spectra in the input file
+        /// </summary>
+        /// <remarks>
+        /// Returns true if mIndexingComplete is true
+        /// </remarks>
+        /// <returns>True if successful, false if an error</returns>
         public override bool ReadAndCacheEntireFile()
         {
-            // Indexes the location of each of the spectra in the input file
-
             bool blnSuccess;
             try
             {
@@ -977,12 +988,15 @@ namespace MSDataFileReader
             return blnSuccess;
         }
 
+        /// <summary>
+        /// Use the binary reader to determine the location of the scan and peaks elements in the .xml file
+        /// </summary>
+        /// <remarks>
+        /// Returns true if mIndexingComplete is true
+        /// </remarks>
+        /// <returns>True if successful, false if an error</returns>
         private bool ReadMZXmlFile()
         {
-            // This function uses the Binary Text Reader to determine
-            // the location of the "<scan" and "</peaks>" elements in the .Xml file
-            // If mIndexingComplete is already True, then simply returns True
-
             var lngCurrentSpectrumByteOffsetStart = default(long);
             var lngCurrentSpectrumByteOffsetEnd = default(long);
             bool blnSuccess;
@@ -1068,14 +1082,19 @@ namespace MSDataFileReader
             return blnSuccess;
         }
 
+        /// <summary>
+        /// Use the binary reader to jump to lngByteOffsetStart, then read line-by-line until the next closing peaks tag is found
+        /// </summary>
+        /// <param name="intScanNumber"></param>
+        /// <param name="lngByteOffsetStart"></param>
         private void StoreFinalIndexEntry(int intScanNumber, long lngByteOffsetStart)
         {
-            // Use the binary text reader to jump to lngByteOffsetStart, then read line-by-line until the next </peaks> tag is found
-            // The end of this tag is equal to lngByteOffsetEnd
-
             string strCurrentLine;
             int intMatchIndex;
+
+            // The byte offset of the end of </peaks>
             long lngByteOffsetEnd;
+
             mBinaryTextReader.MoveToByteOffset(lngByteOffsetStart);
             while (mBinaryTextReader.ReadLine(clsBinaryTextReader.ReadDirectionConstants.Forward))
             {
@@ -1095,11 +1114,14 @@ namespace MSDataFileReader
             UpdateXmlFileHeaderScanCount(ref strHeaderText, 1);
         }
 
+        /// <summary>
+        /// Examine strHeaderText to look for the number after the scanCount attribute of msRun,
+        /// then replace the number with intScanCountTotal
+        /// </summary>
+        /// <param name="strHeaderText"></param>
+        /// <param name="intScanCountTotal"></param>
         private void UpdateXmlFileHeaderScanCount(ref string strHeaderText, int intScanCountTotal)
         {
-            // Examine strHeaderText to look for the number after the scanCount attribute of msRun
-            // Replace the number with intScanCountTotal
-
             Match objMatch;
             if (!string.IsNullOrWhiteSpace(strHeaderText))
             {

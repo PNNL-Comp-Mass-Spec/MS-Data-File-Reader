@@ -1,24 +1,21 @@
-﻿using System;
-using System.Collections;
+﻿// -------------------------------------------------------------------------------
+// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+// Copyright 2021, Battelle Memorial Institute.  All Rights Reserved.
+//
+// E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+// Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+// -------------------------------------------------------------------------------
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using PRISM;
 
 namespace MSDataFileReader
 {
-
-    // This is the base class for the various MS data file readers
-    // 
-    // -------------------------------------------------------------------------------
-    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-    // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-    // Started March 24, 2006
-    // 
-    // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-    // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
-    // -------------------------------------------------------------------------------
-    // 
-
+    /// <summary>
+    /// This is the base class for the various MS data file readers
+    /// </summary>
     public abstract class clsMSDataFileReaderBaseClass : EventNotifier
     {
         public event ProgressResetEventHandler ProgressReset;
@@ -74,9 +71,20 @@ namespace MSDataFileReader
 
         protected struct udtFileStatsType
         {
-            // Actual scan count if mDataReaderMode = Cached or mDataReaderMode = Indexed, or scan count as reported by the XML file if mDataReaderMode = Sequential
+            /// <summary>
+            /// Actual scan count if mDataReaderMode = Cached or mDataReaderMode = Indexed
+            /// Scan count as reported by the XML file if mDataReaderMode = Sequential
+            /// </summary>
             public int ScanCount;
+
+            /// <summary>
+            /// First scan number
+            /// </summary>
             public int ScanNumberMinimum;
+
+            /// <summary>
+            /// Last scan number
+            /// </summary>
             public int ScanNumberMaximum;
         }
 
@@ -99,7 +107,7 @@ namespace MSDataFileReader
         protected clsSpectrumInfo[] mCachedSpectra;
 
         // This dictionary maps scan number to index in mCachedSpectra()
-        // If more than one spectrum comes from the same scan, then tracks the first one read
+        // If more than one spectrum comes from the same scan, tracks the first one read
         protected readonly Dictionary<int, int> mCachedSpectraScanToIndex = new();
 
         protected bool mAutoShrinkDataLists;
@@ -109,15 +117,15 @@ namespace MSDataFileReader
         #region Processing Options and Interface Functions
 
         /// <summary>
-    /// When mAutoShrinkDataLists is True, clsSpectrumInfo.MZList().Length and clsSpectrumInfo.IntensityList().Length will equal DataCount;
-    /// When mAutoShrinkDataLists is False, the memory will not be freed when DataCount shrinks or clsSpectrumInfo.Clear() is called
-    /// </summary>
-    /// <value></value>
-    /// <returns></returns>
-    /// <remarks>
-    /// Setting mAutoShrinkDataLists to False helps reduce slow, increased memory usage due to inefficient garbage collection
-    /// (this is not much of an issue in 2016, and thus this parameter defaults to True)
-    /// </remarks>
+        /// When mAutoShrinkDataLists is True, clsSpectrumInfo.MZList().Length and clsSpectrumInfo.IntensityList().Length will equal DataCount;
+        /// When mAutoShrinkDataLists is False, the memory will not be freed when DataCount shrinks or clsSpectrumInfo.Clear() is called
+        /// </summary>
+        /// <value></value>
+        /// <returns></returns>
+        /// <remarks>
+        /// Setting mAutoShrinkDataLists to False helps reduce slow, increased memory usage due to inefficient garbage collection
+        /// (this is not much of an issue in 2016, and thus this parameter defaults to True)
+        /// </remarks>
         public bool AutoShrinkDataLists
         {
             get
@@ -337,14 +345,14 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// Converts dblMassMZ to the MZ that would appear at the given intDesiredCharge
-    /// </summary>
-    /// <param name="dblMassMZ"></param>
-    /// <param name="intCurrentCharge"></param>
-    /// <param name="intDesiredCharge"></param>
-    /// <param name="dblChargeCarrierMass"></param>
-    /// <returns></returns>
-    /// <remarks>To return the neutral mass, set intDesiredCharge to 0</remarks>
+        /// Converts dblMassMZ to the MZ that would appear at the given intDesiredCharge
+        /// </summary>
+        /// <param name="dblMassMZ"></param>
+        /// <param name="intCurrentCharge"></param>
+        /// <param name="intDesiredCharge"></param>
+        /// <param name="dblChargeCarrierMass"></param>
+        /// <returns></returns>
+        /// <remarks>To return the neutral mass, set intDesiredCharge to 0</remarks>
         public static double ConvoluteMass(double dblMassMZ, int intCurrentCharge, int intDesiredCharge, double dblChargeCarrierMass)
         {
             double dblNewMZ;
@@ -380,8 +388,8 @@ namespace MSDataFileReader
                 }
                 else if (intDesiredCharge == 1)
                 {
+                    // Return M+H, which is currently stored in dblNewMZ
                 }
-                // Return M+H, which is currently stored in dblNewMZ
                 else if (intDesiredCharge == 0)
                 {
                     // Return the neutral mass
@@ -397,12 +405,14 @@ namespace MSDataFileReader
             return dblNewMZ;
         }
 
+        /// <summary>
+        /// Determine the file type based on its extension
+        /// </summary>
+        /// <param name="strFileNameOrPath"></param>
+        /// <param name="eFileType"></param>
+        /// <returns>True if a known file type, otherwise false</returns>
         public static bool DetermineFileType(string strFileNameOrPath, out dftDataFileTypeConstants eFileType)
         {
-
-            // Returns true if the file type is known
-            // Returns false if unknown or an error
-
             string strFileExtension;
             string strFileName;
             bool blnKnownType;
@@ -481,11 +491,13 @@ namespace MSDataFileReader
             return blnKnownType;
         }
 
+        /// <summary>
+        /// Obtain a forward-only reader for the given file
+        /// </summary>
+        /// <param name="strFileNameOrPath"></param>
+        /// <returns>An MS File reader, or null if an error or unknown file extension</returns>
         public static clsMSDataFileReaderBaseClass GetFileReaderBasedOnFileType(string strFileNameOrPath)
         {
-            // Returns a file reader based on strFileNameOrPath
-            // If the file type cannot be determined, then returns Nothing
-
             dftDataFileTypeConstants eFileType;
             clsMSDataFileReaderBaseClass objFileReader = null;
             if (DetermineFileType(strFileNameOrPath, out eFileType))
@@ -527,12 +539,16 @@ namespace MSDataFileReader
             return objFileReader;
         }
 
+        /// <summary>
+        /// Obtain a random-access reader for the given file
+        /// </summary>
+        /// <remarks>
+        /// Returns null if the file type is _dta.txt or .mgf since those file types do not have file accessors
+        /// </remarks>
+        /// <param name="strFileNameOrPath"></param>
+        /// <returns>An MS file accessor, or null if an error or unknown file extension</returns>
         public static clsMSDataFileAccessorBaseClass GetFileAccessorBasedOnFileType(string strFileNameOrPath)
         {
-            // Returns a file accessor based on strFileNameOrPath
-            // If the file type cannot be determined, then returns Nothing
-            // If the file type is _Dta.txt or .MGF then returns Nothing since those file types do not have file accessors
-
             dftDataFileTypeConstants eFileType;
             clsMSDataFileAccessorBaseClass objFileAccessor = null;
             if (DetermineFileType(strFileNameOrPath, out eFileType))
@@ -570,10 +586,13 @@ namespace MSDataFileReader
 
         protected abstract string GetInputFileLocation();
 
+        /// <summary>
+        /// Obtain the list of scan numbers (aka acquisition numbers)
+        /// </summary>
+        /// <param name="ScanNumberList"></param>
+        /// <returns>True if successful, false if an error or no cached spectra</returns>
         public virtual bool GetScanNumberList(out int[] ScanNumberList)
         {
-            // Return the list of cached scan numbers (aka acquisition numbers)
-
             var blnSuccess = default(bool);
             int intSpectrumIndex;
             try
@@ -601,11 +620,17 @@ namespace MSDataFileReader
             return blnSuccess;
         }
 
+        /// <summary>
+        /// Get the spectrum at the given index
+        /// </summary>
+        /// <remarks>
+        /// Only valid if we have Cached data in memory
+        /// </remarks>
+        /// <param name="intSpectrumIndex"></param>
+        /// <param name="objSpectrumInfo"></param>
+        /// <returns>True if successful, false if an error</returns>
         public virtual bool GetSpectrumByIndex(int intSpectrumIndex, out clsSpectrumInfo objSpectrumInfo)
         {
-            // Returns True if success, False if failure
-            // Only valid if we have Cached data in memory
-
             bool blnSuccess;
             blnSuccess = false;
             if (mDataReaderMode == drmDataReaderModeConstants.Cached && mCachedSpectrumCount > 0)
@@ -630,12 +655,18 @@ namespace MSDataFileReader
             return blnSuccess;
         }
 
+        /// <summary>
+        /// Get the spectrum for the given scan number by
+        /// looking for the first entry in mCachedSpectra with .ScanNumber = intScanNumber
+        /// </summary>
+        /// <remarks>
+        /// Only valid if we have Cached data in memory
+        /// </remarks>
+        /// <param name="intScanNumber"></param>
+        /// <param name="objSpectrumInfo"></param>
+        /// <returns>True if successful, false if an error or invalid scan number</returns>
         public virtual bool GetSpectrumByScanNumber(int intScanNumber, out clsSpectrumInfo objSpectrumInfo)
         {
-            // Looks for the first entry in mCachedSpectra with .ScanNumber = intScanNumber
-            // Returns True if success, False if failure
-            // Only valid if we have Cached data in memory
-
             var blnSuccess = default(bool);
             objSpectrumInfo = null;
             try
@@ -720,14 +751,13 @@ namespace MSDataFileReader
         public abstract bool OpenTextStream(string strTextStream);
 
         /// <summary>
-    /// Validates that strInputFilePath exists
-    /// </summary>
-    /// <param name="strInputFilePath"></param>
-    /// <returns>True if the file exists, otherwise false</returns>
-    /// <remarks>Updates mFilePath if the file is valid</remarks>
+        /// Validates that strInputFilePath exists
+        /// </summary>
+        /// <param name="strInputFilePath"></param>
+        /// <returns>True if the file exists, otherwise false</returns>
+        /// <remarks>Updates mFilePath if the file is valid</remarks>
         protected bool OpenFileInit(string strInputFilePath)
         {
-
             // Make sure any open file or text stream is closed
             CloseFile();
             if (string.IsNullOrEmpty(strInputFilePath))
@@ -755,6 +785,10 @@ namespace MSDataFileReader
 
         public abstract bool ReadNextSpectrum(out clsSpectrumInfo objSpectrumInfo);
 
+        /// <summary>
+        /// Cache the entire file in memory
+        /// </summary>
+        /// <returns></returns>
         public virtual bool ReadAndCacheEntireFile()
         {
             bool blnSuccess;

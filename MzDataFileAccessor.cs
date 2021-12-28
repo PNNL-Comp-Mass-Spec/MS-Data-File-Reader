@@ -1,5 +1,25 @@
-﻿using System;
-using System.Collections;
+﻿// -------------------------------------------------------------------------------
+// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+// Copyright 2021, Battelle Memorial Institute.  All Rights Reserved.
+//
+// E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+// Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+// -------------------------------------------------------------------------------
+//
+// Licensed under the Apache License, Version 2.0; you may not use this file except
+// in compliance with the License.  You may obtain a copy of the License at
+// http://www.apache.org/licenses/LICENSE-2.0
+//
+// Notice: This computer software was prepared by Battelle Memorial Institute,
+// hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
+// Department of Energy (DOE).  All rights in the computer software are reserved
+// by DOE on behalf of the United States Government and the Contractor as
+// provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY
+// WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
+// SOFTWARE.  This notice including this sentence must appear on any copies of
+// this computer software.
+
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
@@ -7,36 +27,13 @@ using System.Xml;
 
 namespace MSDataFileReader
 {
-
-    // This class can be used to open a .mzData file and index the location
-    // of all of the spectra present.  This does not cache the mass spectra data in
-    // memory, and therefore uses little memory, but once the indexing is complete,
-    // random access to the spectra is possible.  After the indexing is complete, spectra
-    // can be obtained using GetSpectrumByScanNumber or GetSpectrumByIndex
-
-    // -------------------------------------------------------------------------------
-    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-    // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-    // Program started April 16, 2006
-    //
-    // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-    // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
-    // -------------------------------------------------------------------------------
-    //
-    // Licensed under the Apache License, Version 2.0; you may not use this file except
-    // in compliance with the License.  You may obtain a copy of the License at
-    // http://www.apache.org/licenses/LICENSE-2.0
-    //
-    // Notice: This computer software was prepared by Battelle Memorial Institute,
-    // hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
-    // Department of Energy (DOE).  All rights in the computer software are reserved
-    // by DOE on behalf of the United States Government and the Contractor as
-    // provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY
-    // WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
-    // SOFTWARE.  This notice including this sentence must appear on any copies of
-    // this computer software.
-    //
-
+    /// <summary>
+    /// This class can be used to open a .mzData file and index the location
+    /// of all of the spectra present.  This does not cache the mass spectra data in
+    /// memory, and therefore uses little memory, but once the indexing is complete,
+    /// random access to the spectra is possible.  After the indexing is complete, spectra
+    /// can be obtained using GetSpectrumByScanNumber or GetSpectrumByIndex
+    /// </summary>
     public class clsMzDataFileAccessor : clsMSDataFileAccessorBaseClass
     {
         public clsMzDataFileAccessor()
@@ -79,7 +76,7 @@ namespace MSDataFileReader
         private Regex mSpectrumIDRegEx;
 
         // This dictionary maps spectrum ID to index in mCachedSpectra()
-        // If more than one spectrum has the same spectrum ID, then tracks the first one read
+        // If more than one spectrum has the same spectrum ID, tracks the first one read
         private readonly Dictionary<int, int> mIndexedSpectraSpectrumIDToIndex = new();
         private XmlReaderSettings mXMLReaderSettings;
 
@@ -122,10 +119,13 @@ namespace MSDataFileReader
 
         #endregion
 
+        /// <summary>
+        /// Use the binary reader to look for strTextToFind
+        /// </summary>
+        /// <param name="eElementMatchMode"></param>
+        /// <returns>True if successful, false if an error</returns>
         protected override bool AdvanceFileReaders(emmElementMatchModeConstants eElementMatchMode)
         {
-            // Uses the BinaryTextReader to look for strTextToFind
-
             bool blnMatchFound;
             bool blnAppendingText;
             var lngByteOffsetForRewind = default(long);
@@ -289,7 +289,7 @@ namespace MSDataFileReader
                                     }
                                 }
                                 // Could not find the id attribute
-                                // If strInFileCurrentLineSubstring does not contain SPECTRUM_END_ELEMENT, then
+                                // If strInFileCurrentLineSubstring does not contain SPECTRUM_END_ELEMENT,
                                 // set blnAppendingText to True and continue reading
                                 else if (strInFileCurrentLineSubstring.IndexOf(SPECTRUM_END_ELEMENT, StringComparison.Ordinal) < 0)
                                 {
@@ -428,17 +428,32 @@ namespace MSDataFileReader
             return blnSuccess;
         }
 
+        /// <summary>
+        /// Obtain a spectrum by spectrum ID
+        /// </summary>
+        /// <remarks>
+        /// Only valid if we have Indexed data in memory
+        /// </remarks>
+        /// <param name="intSpectrumID"></param>
+        /// <param name="objSpectrumInfo"></param>
+        /// <returns>True if successful, false if an error or invalid spectrum ID</returns>
         public bool GetSpectrumBySpectrumID(int intSpectrumID, out clsSpectrumInfo objSpectrumInfo)
         {
             return GetSpectrumBySpectrumIDWork(intSpectrumID, out objSpectrumInfo, false);
         }
 
+        /// <summary>
+        /// Obtain a spectrum by spectrum ID
+        /// </summary>
+        /// <remarks>
+        /// Only valid if we have Indexed data in memory
+        /// </remarks>
+        /// <param name="intSpectrumID"></param>
+        /// <param name="objSpectrumInfo"></param>
+        /// <param name="blnHeaderInfoOnly"></param>
+        /// <returns>True if successful, false if an error or invalid spectrum ID</returns>
         private bool GetSpectrumBySpectrumIDWork(int intSpectrumID, out clsSpectrumInfo objSpectrumInfo, bool blnHeaderInfoOnly)
         {
-
-            // Returns True if success, False if failure
-            // Only valid if we have Indexed data in memory
-
             var blnSuccess = default(bool);
             objSpectrumInfo = null;
 
@@ -497,10 +512,13 @@ namespace MSDataFileReader
             return GetSpectrumBySpectrumIDWork(intSpectrumID, out objSpectrumInfo, true);
         }
 
+        /// <summary>
+        /// Obtain the list of indexed spectrumID values
+        /// </summary>
+        /// <param name="SpectrumIDList"></param>
+        /// <returns>True if successful, false if an error</returns>
         public bool GetSpectrumIDList(out int[] SpectrumIDList)
         {
-            // Return the list of indexed spectrumID values
-
             int intSpectrumIndex;
             var blnSuccess = default(bool);
             try
@@ -570,17 +588,24 @@ namespace MSDataFileReader
             mXMLReaderSettings = new XmlReaderSettings() { IgnoreWhitespace = true };
         }
 
+        /// <summary>
+        /// Load the spectrum index from the data file
+        /// </summary>
+        /// <remarks>
+        /// Returns True if an existing index is found, False if not
+        /// </remarks>
+        /// <returns>Always returns false since mzData files to not have a spectrum index</returns>
         protected override bool LoadExistingIndex()
         {
-            // Returns True if an existing index is found, False if not
-            // mzData files do not have existing indices so always return False
             return false;
         }
 
+        /// <summary>
+        /// Index the location of each of the spectra in the input file
+        /// </summary>
+        /// <returns>True if successful, false if an error</returns>
         public override bool ReadAndCacheEntireFile()
         {
-            // Indexes the location of each of the spectra in the input file
-
             bool blnSuccess;
             try
             {
@@ -630,12 +655,15 @@ namespace MSDataFileReader
             return blnSuccess;
         }
 
+        /// <summary>
+        /// Use the binary reader to determine the location of the spectrum elements in the .xml file
+        /// </summary>
+        /// <remarks>
+        /// Returns true if mIndexingComplete is already true
+        /// </remarks>
+        /// <returns>True if successful, false if an error</returns>
         private bool ReadMZDataFile()
         {
-            // This function uses the Binary Text Reader to determine
-            // the location of the "<spectrum" and "</spectrum>" elements in the .Xml file
-            // If mIndexingComplete is already True, then simply returns True
-
             var lngCurrentSpectrumByteOffsetStart = default(long);
             var lngCurrentSpectrumByteOffsetEnd = default(long);
             bool blnSuccess;

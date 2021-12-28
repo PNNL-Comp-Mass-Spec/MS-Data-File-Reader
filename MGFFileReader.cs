@@ -1,21 +1,20 @@
-﻿using System;
-
-// This class can be used to open a Mascot Generic File (.MGF) and return each spectrum present
-// 
-// -------------------------------------------------------------------------------
+﻿// -------------------------------------------------------------------------------
 // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-// Copyright 2005, Battelle Memorial Institute.  All Rights Reserved.
-// Started November 15, 2003
-// 
+// Copyright 2021, Battelle Memorial Institute.  All Rights Reserved.
+//
 // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
 // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
 // -------------------------------------------------------------------------------
 
+using System;
 using System.Collections.Generic;
 using System.IO;
 
 namespace MSDataFileReader
 {
+    /// <summary>
+    /// This class can be used to open a Mascot Generic File (.MGF) and return each spectrum present
+    /// </summary>
     public class clsMGFFileReader : clsMSTextFileReaderBaseClass
     {
         public clsMGFFileReader()
@@ -53,11 +52,11 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// Parse out a scan number or scan number range from strData
-    /// </summary>
-    /// <param name="strData">Single integer or two integers separated by a dash</param>
-    /// <param name="spectrumInfo"></param>
-    /// <returns></returns>
+        /// Parse out a scan number or scan number range from strData
+        /// </summary>
+        /// <param name="strData">Single integer or two integers separated by a dash</param>
+        /// <param name="spectrumInfo"></param>
+        /// <returns>True if the scan number was found, otherwise false</returns>
         private bool ExtractScanRange(string strData, clsSpectrumInfo spectrumInfo)
         {
             bool scanNumberFound = false;
@@ -114,11 +113,13 @@ namespace MSDataFileReader
             return true;
         }
 
+        /// <summary>
+        /// Read the next spectrum from a .mgf file
+        /// </summary>
+        /// <param name="objSpectrumInfo"></param>
+        /// <returns>True if a spectrum is found, otherwise false</returns>
         public override bool ReadNextSpectrum(out clsSpectrumInfo objSpectrumInfo)
         {
-            // Reads the next spectrum from a .MGF file
-            // Returns True if a spectrum is found, otherwise, returns False
-
             string strLineIn;
             string strTemp;
             string[] strSplitLine;

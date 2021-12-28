@@ -1,18 +1,18 @@
-﻿using System;
+﻿// -------------------------------------------------------------------------------
+// Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+// Copyright 2021, Battelle Memorial Institute.  All Rights Reserved.
+//
+// E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+// Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+// -------------------------------------------------------------------------------
+
+using System;
 
 namespace MSDataFileReader
 {
-    // This class holds the values associated with each spectrum in an mzXML file
-    // 
-    // -------------------------------------------------------------------------------
-    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-    // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-    // Started April 1, 2006
-    // 
-    // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-    // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
-    // -------------------------------------------------------------------------------
-
+    /// <summary>
+    /// This class holds the values associated with each spectrum in an mzXML file
+    /// </summary>
     [Serializable()]
     public class clsSpectrumInfoMzXML : clsSpectrumInfo
     {
@@ -35,10 +35,10 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// Tracks pairOrder for mzXML v1.x and v2.x
-    /// Tracks contentType for mzXML 3.x files
-    /// </summary>
-    /// <remarks></remarks>
+        /// Tracks pairOrder for mzXML v1.x and v2.x
+        /// Tracks contentType for mzXML 3.x files
+        /// </summary>
+        /// <remarks></remarks>
         public class PairOrderTypes
         {
             public const string MZandIntensity = "m/z-int";
@@ -75,10 +75,10 @@ namespace MSDataFileReader
         // Thermo-specific filter line text
         protected string mFilterLine;
 
-        // Setted low m/z boundary (this is the instrumetal setting)
+        // Low m/z boundary (this is the instrumental setting)
         protected float mStartMZ;
 
-        // Setted high m/z boundary (this is the instrumetal setting)
+        // High m/z boundary (this is the instrumental setting)
         protected float mEndMZ;
 
         // Typically 32 or 64
@@ -317,9 +317,12 @@ namespace MSDataFileReader
             mPrecursorScanNum = 0;
         }
 
+        /// <summary>
+        /// Clone this spectrum object
+        /// </summary>
+        /// <returns>Deep copy of this spectrum</returns>
         public new clsSpectrumInfoMzXML Clone()
         {
-
             // First create a shallow copy of this object
             clsSpectrumInfoMzXML objTarget = (clsSpectrumInfoMzXML)MemberwiseClone();
 
