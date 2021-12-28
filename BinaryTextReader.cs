@@ -1,1103 +1,1386 @@
-Option Strict On
-
-Imports System.IO
-Imports System.Text
-
-' This class can be used to open a Text file and read each of the lines from the file,
-'  where a line of text ends with CRLF or simply LF
-' In addition, the byte offset at the start and end of the line is also returned
-'
-' Note that this class is compatible with UTF-16 Unicode files; it looks for byte order mark
-'  FF FE or FE FF in the first two bytes of the file to determine if a file is Unicode
-' (though you can override this using the InputFileEncoding property after calling .OpenFile()
-' This class will also look for the byte order mark for UTF-8 files (EF BB BF) though it may not
-'  properly decode UTF-8 characters (not fully tested)
-'
-' You can change the expected line terminator character using Property FileSystemMode
-'  If FileSystemMode = FileSystemModeConstants.Windows, then the Line Terminator = LF, optionally preceded by CR
-'  If FileSystemMode = FileSystemModeConstants.Unix, then the Line Terminator = LF, optionally preceded by CR
-'  If FileSystemMode = FileSystemModeConstants.Macintosh, then the Line Terminator = CR, previous character is not considered
-'
-' -------------------------------------------------------------------------------
-' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-' Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-' Program started April 18, 2006
-'
-' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-' Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
-' -------------------------------------------------------------------------------
-'
-' Licensed under the Apache License, Version 2.0; you may not use this file except
-' in compliance with the License.  You may obtain a copy of the License at
-' http://www.apache.org/licenses/LICENSE-2.0
-'
-' Notice: This computer software was prepared by Battelle Memorial Institute,
-' hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
-' Department of Energy (DOE).  All rights in the computer software are reserved
-' by DOE on behalf of the United States Government and the Contractor as
-' provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY
-' WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
-' SOFTWARE.  This notice including this sentence must appear on any copies of
-' this computer software.
-'
-
-Public Class clsBinaryTextReader
-    Public Sub New()
-        ' Note: This property will also update mLineTerminator1Code and mLineTerminator2Code
-        Me.FileSystemMode = FileSystemModeConstants.Windows
-
-        InitializeLocalVariables()
-    End Sub
-
-    Protected Overrides Sub Finalize()
-        MyBase.Finalize()
-        Me.Close()
-    End Sub
-
-#Region "Constants and Enums"
-    ' In order to support Unicode files, it is important that the buffer length always be a power of 2
-    Private Const INITIAL_BUFFER_LENGTH As Integer = 10000
-
-    Private Const LINE_TERMINATOR_CODE_LF As Byte = 10
-    Private Const LINE_TERMINATOR_CODE_CR As Byte = 13
-
-    Public Enum FileSystemModeConstants
-        Windows = 0
-        Unix = 1
-        Macintosh = 2
-    End Enum
-
-    Public Enum InputFileEncodingConstants
-        Ascii = 0                   ' No Byte Order Mark
-        UTF8 = 1                    ' Byte Order Mark: EF BB BF (UTF-8)
-        UnicodeNormal = 2           ' Byte Order Mark: FF FE (Little Endian Unicode)
-        UnicodeBigEndian = 3        ' Byte Order Mark: FE FF (Big Endian Unicode)
-    End Enum
-
-    Public Enum ReadDirectionConstants
-        Forward = 0
-        Reverse = 1
-    End Enum
-
-#End Region
-
-#Region "Structures"
-
-#End Region
-
-#Region "Classwide Variables"
-
-    Private mInputFilePath As String
-
-    Private mInputFileEncoding As InputFileEncodingConstants = InputFileEncodingConstants.Ascii
-    Private mCharSize As Byte = 1
-    Private mByteOrderMarkLength As Byte
-
-    ' Note: Use Me.FileSystemMode to set this variable so that mLineTerminator1Code and mLineTerminator2Code also get updated
-    Private mFileSystemMode As FileSystemModeConstants
-    Private mLineTerminator1Code As Byte
-    Private mLineTerminator2Code As Byte
-
-    Private mErrorMessage As String
-
-    Private mBinaryReader As FileStream
-    Private mLineNumber As Integer
-
-    Private mByteBufferCount As Integer
-    Private mByteBuffer() As Byte
-
-    ' Note: The first byte in the file is Byte 0
-    Private mByteBufferFileOffsetStart As Long
-
-    ' This variable defines the index in mByteBuffer() at which the next line starts
-    Private mByteBufferNextLineStartIndex As Integer
-
-    Private mCurrentLineText As String
-    Private mCurrentLineByteOffsetStart As Long
-    Private mCurrentLineByteOffsetEnd As Long
-    Private mCurrentLineByteOffsetEndWithTerminator As Long
-
-    Private mReadLineDirectionSaved As ReadDirectionConstants
-    Private mCurrentLineByteOffsetStartSaved As Long
-    Private mCurrentLineTextSaved As String
-
-    Private mCurrentLineTerminator As String
-
-#End Region
-
-#Region "Processing Options and Interface Functions"
-
-    Public ReadOnly Property ByteBufferFileOffsetStart() As Long
-        Get
-            Return mByteBufferFileOffsetStart
-        End Get
-    End Property
-
-    Public ReadOnly Property ByteOrderMarkLength() As Byte
-        Get
-            Return mByteOrderMarkLength
-        End Get
-    End Property
-
-    Public ReadOnly Property CharSize() As Byte
-        Get
-            Return mCharSize
-        End Get
-    End Property
-
-    Public ReadOnly Property CurrentLine() As String
-        Get
-            If mCurrentLineText Is Nothing Then
-                Return String.Empty
-            Else
-                Return mCurrentLineText
-            End If
-        End Get
-    End Property
-
-    Public ReadOnly Property CurrentLineLength() As Integer
-        Get
-            If mCurrentLineText Is Nothing Then
-                Return 0
-            Else
-                Return mCurrentLineText.Length
-            End If
-        End Get
-    End Property
-
-    Public ReadOnly Property CurrentLineByteOffsetStart() As Long
-        Get
-            Return mCurrentLineByteOffsetStart
-        End Get
-    End Property
-
-    Public ReadOnly Property CurrentLineByteOffsetEnd() As Long
-        Get
-            Return mCurrentLineByteOffsetEnd
-        End Get
-    End Property
-
-    Public ReadOnly Property CurrentLineByteOffsetEndWithTerminator() As Long
-        Get
-            Return mCurrentLineByteOffsetEndWithTerminator
-        End Get
-    End Property
-
-    Public ReadOnly Property CurrentLineTerminator() As String
-        Get
-            If mCurrentLineTerminator Is Nothing Then
-                Return String.Empty
-            Else
-                Return mCurrentLineTerminator
-            End If
-        End Get
-    End Property
-
-    Public ReadOnly Property ErrorMessage() As String
-        Get
-            Return mErrorMessage
-        End Get
-    End Property
-
-    Public ReadOnly Property FileLengthBytes() As Long
-        Get
-            Try
-                If mBinaryReader Is Nothing Then
-                    Return 0
-                Else
-                    Return mBinaryReader.Length
-                End If
-            Catch ex As Exception
-                Return 0
-            End Try
-        End Get
-    End Property
-
-    Public Property FileSystemMode() As FileSystemModeConstants
-        Get
-            Return mFileSystemMode
-        End Get
-        Set(Value As FileSystemModeConstants)
-            mFileSystemMode = Value
-            Select Case mFileSystemMode
-                Case FileSystemModeConstants.Windows, FileSystemModeConstants.Unix
-                    ' Normally present for Windows; normally not present for Unix
-                    mLineTerminator1Code = LINE_TERMINATOR_CODE_CR
-                    mLineTerminator2Code = LINE_TERMINATOR_CODE_LF
-                Case FileSystemModeConstants.Macintosh
-                    mLineTerminator1Code = 0
-                    mLineTerminator2Code = LINE_TERMINATOR_CODE_CR
-            End Select
-        End Set
-    End Property
-
-    Public ReadOnly Property InputFilePath() As String
-        Get
-            Return mInputFilePath
-        End Get
-    End Property
-
-    Public ReadOnly Property LineNumber() As Integer
-        Get
-            Return mLineNumber
-        End Get
-    End Property
-
-    Public Property InputFileEncoding() As InputFileEncodingConstants
-        Get
-            Return mInputFileEncoding
-        End Get
-        Set(Value As InputFileEncodingConstants)
-            SetInputFileEncoding(Value)
-        End Set
-    End Property
-
-#End Region
-
-    Public Function ByteAtBOF(lngBytePosition As Long) As Boolean
-        If lngBytePosition <= mByteOrderMarkLength Then
-            Return True
-        Else
-            Return False
-        End If
-    End Function
-
-    Public Function ByteAtEOF(lngBytePosition As Long) As Boolean
-        ' Returns True if lngBytePosition is >= the end of the file
-        If lngBytePosition >= mBinaryReader.Length Then
-            Return True
-        Else
-            Return False
-        End If
-    End Function
-
-    Public Sub Close()
-        Try
-            If mBinaryReader IsNot Nothing Then
-                mBinaryReader.Close()
-            End If
-        Catch ex As Exception
-        End Try
-
-        mInputFilePath = String.Empty
-        mLineNumber = 0
-        mByteBufferCount = 0
-        mByteBufferFileOffsetStart = 0
-        mByteBufferNextLineStartIndex = 0
-    End Sub
-
-    Private Sub InitializeCurrentLine()
-        mCurrentLineText = String.Empty
-        mCurrentLineByteOffsetStart = 0
-        mCurrentLineByteOffsetEnd = 0
-        mCurrentLineByteOffsetEndWithTerminator = 0
-        mCurrentLineTerminator = String.Empty
-    End Sub
-
-    Private Sub InitializeLocalVariables()
-        ' Note: Do Not update mFileSystemMode, mLineTerminator1Code, mLineTerminator2Code, or mInputFileEncoding in this sub
-
-        mInputFilePath = String.Empty
-        mErrorMessage = String.Empty
-
-        mLineNumber = 0
-        mByteOrderMarkLength = 0
-
-        mByteBufferCount = 0
-        If mByteBuffer Is Nothing Then
-            ' In order to support Unicode files, it is important that the buffer length always be a power of 2
-            ReDim mByteBuffer(INITIAL_BUFFER_LENGTH - 1)
-        Else
-            ' Clear the buffer
-            Array.Clear(mByteBuffer, 0, mByteBuffer.Length)
-        End If
-
-        mReadLineDirectionSaved = ReadDirectionConstants.Forward
-        mCurrentLineByteOffsetStartSaved = -1
-        mCurrentLineTextSaved = String.Empty
-
-        InitializeCurrentLine()
-    End Sub
-
-    Private Sub LogErrors(strCallingFunction As String, strErrorDescription As String)
-
-        Static LastCallingFunction As String
-        Static LastErrorMessage As String
-        Static LastSaveTime As DateTime
-
-        Try
-            If strErrorDescription IsNot Nothing Then
-                mErrorMessage = String.Copy(strErrorDescription)
-            Else
-                mErrorMessage = "Unknown error"
-            End If
-
-            If LastCallingFunction IsNot Nothing Then
-                If LastCallingFunction = strCallingFunction AndAlso
-                   LastErrorMessage = strErrorDescription Then
-                    If DateTime.UtcNow.Subtract(LastSaveTime).TotalSeconds < 0.5 Then
-                        ' Duplicate message, less than 500 milliseconds since the last save
-                        ' Do not update the log file
-                        Exit Sub
-                    End If
-                End If
-            End If
-
-            LastCallingFunction = String.Copy(strCallingFunction)
-            LastErrorMessage = String.Copy(strErrorDescription)
-            LastSaveTime = DateTime.UtcNow
-
-            Dim strLogFilePath = "MSDataFileReader_ErrorLog.txt"
-            Using swErrorLog = New StreamWriter(New FileStream(strLogFilePath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite))
-
-                swErrorLog.WriteLine(DateTime.Now & ControlChars.Tab &
-                                     strCallingFunction & ControlChars.Tab &
-                                     mErrorMessage)
-
-            End Using
-
-        Catch ex As Exception
-            ' Ignore errors that occur while logging errors
-        End Try
-    End Sub
-
-    Public Sub MoveToByteOffset(lngByteOffset As Long)
-        Dim intBytesRead As Integer
-
-        Try
-            If mBinaryReader IsNot Nothing AndAlso mBinaryReader.CanRead Then
-                If lngByteOffset < 0 Then
-                    lngByteOffset = 0
-                ElseIf lngByteOffset > mBinaryReader.Length Then
-                    lngByteOffset = mBinaryReader.Length
-                End If
-
-                If lngByteOffset < mByteBufferFileOffsetStart Then
-                    ' Need to slide the buffer window backward
-                    Do
-                        mByteBufferFileOffsetStart -= mByteBuffer.Length
-                    Loop While lngByteOffset < mByteBufferFileOffsetStart
-
-                    If mByteBufferFileOffsetStart < 0 Then
-                        mByteBufferFileOffsetStart = 0
-                    End If
-
-                    mBinaryReader.Seek(mByteBufferFileOffsetStart, SeekOrigin.Begin)
-
-                    ' Clear the buffer
-                    Array.Clear(mByteBuffer, 0, mByteBuffer.Length)
-
-                    intBytesRead = mBinaryReader.Read(mByteBuffer, 0, mByteBuffer.Length)
-                    mByteBufferCount = intBytesRead
-
-                    mByteBufferNextLineStartIndex = CInt(lngByteOffset - mByteBufferFileOffsetStart)
-
-                ElseIf lngByteOffset > mByteBufferFileOffsetStart + mByteBufferCount Then
-                    If mByteBufferFileOffsetStart < mBinaryReader.Length Then
-                        ' Possibly slide the buffer window forward (note that if
-                        '  mByteBufferCount < mByteBuffer.Length then we may not need to update mByteBufferFileOffsetStart)
-                        Do While lngByteOffset > mByteBufferFileOffsetStart + mByteBuffer.Length
-                            mByteBufferFileOffsetStart += mByteBuffer.Length
-                        Loop
-
-                        If mByteBufferFileOffsetStart >= mBinaryReader.Length Then
-                            ' This shouldn't normally happen
-                            mByteBufferFileOffsetStart -= mByteBuffer.Length
-                            If mByteBufferFileOffsetStart < 0 Then
-                                mByteBufferFileOffsetStart = 0
-                            End If
-                        End If
-
-                        mBinaryReader.Seek(mByteBufferFileOffsetStart, SeekOrigin.Begin)
-
-                        ' Clear the buffer
-                        Array.Clear(mByteBuffer, 0, mByteBuffer.Length)
-
-                        intBytesRead = mBinaryReader.Read(mByteBuffer, 0, mByteBuffer.Length)
-                        mByteBufferCount = intBytesRead
-                    End If
-
-                    mByteBufferNextLineStartIndex = CInt(lngByteOffset - mByteBufferFileOffsetStart)
-                    If mByteBufferNextLineStartIndex > mByteBufferCount Then
-                        ' This shouldn't normally happen
-                        mByteBufferNextLineStartIndex = mByteBufferCount
-                    End If
-                Else
-                    ' The desired byte offset is already present in mByteBuffer
-                    mByteBufferNextLineStartIndex = CInt(lngByteOffset - mByteBufferFileOffsetStart)
-                    If mByteBufferNextLineStartIndex > mByteBufferCount Then
-                        ' This shouldn't normally happen, but is possible if jumping around a file and reading forward and
-                        mByteBufferNextLineStartIndex = mByteBufferCount
-                    End If
-                End If
-            End If
-
-        Catch ex As Exception
-            If mInputFilePath Is Nothing Then mInputFilePath = String.Empty
-            LogErrors("MoveToByteOffset",
-                      "Error moving to byte offset " & lngByteOffset.ToString & " in file " & mInputFilePath & "; " &
-                      ex.Message)
-        End Try
-    End Sub
-
-    Public Sub MoveToBeginning()
-        ' Move to the beginning of the file and freshly populate the byte buffer
-
-        Dim intIndex As Integer
-        Dim intIndexStart As Integer
-        Dim intIndexEnd As Integer
-
-        Dim intCharCheckCount As Integer
-        Dim intAlternatedZeroMatchCount As Integer
-
-        Try
-            mByteBufferFileOffsetStart = 0
-
-            ' Clear the buffer
-            Array.Clear(mByteBuffer, 0, mByteBuffer.Length)
-
-            mBinaryReader.Seek(mByteBufferFileOffsetStart, SeekOrigin.Begin)
-            mByteBufferCount = mBinaryReader.Read(mByteBuffer, 0, mByteBuffer.Length)
-            mByteBufferNextLineStartIndex = 0
-
-            ' Look for a byte order mark at the beginning of the file
-            mByteOrderMarkLength = 0
-            If mByteBufferCount >= 2 Then
-                If mByteBuffer(0) = 255 And mByteBuffer(1) = 254 Then
-                    ' Unicode (Little Endian)
-                    ' Note that this sets mCharSize to 2
-                    SetInputFileEncoding(InputFileEncodingConstants.UnicodeNormal)
-
-                    ' Skip the first 2 bytes
-                    mByteBufferNextLineStartIndex = 2
-                    mByteOrderMarkLength = 2
-
-                ElseIf mByteBuffer(0) = 254 And mByteBuffer(1) = 255 Then
-                    ' Unicode (Big Endian)
-                    ' Note that this sets mCharSize to 2
-                    SetInputFileEncoding(InputFileEncodingConstants.UnicodeBigEndian)
-                    ' Skip the first 2 bytes
-                    mByteBufferNextLineStartIndex = 2
-                    mByteOrderMarkLength = 2
-
-                ElseIf mByteBufferCount >= 3 Then
-                    If mByteBuffer(0) = 239 And mByteBuffer(1) = 187 And mByteBuffer(2) = 191 Then
-                        ' UTF8
-                        ' Note that this sets mCharSize to 1
-                        SetInputFileEncoding(InputFileEncodingConstants.UTF8)
-                        ' Skip the first 3 bytes
-                        mByteBufferNextLineStartIndex = 3
-                        mByteOrderMarkLength = 3
-                    Else
-                        ' Examine the first 2000 bytes and check whether or not
-                        '  every other byte is 0 for at least 95% of the data
-                        ' If it is, then assume the appropriate Unicode format
-
-                        intIndexEnd = 2000
-                        If intIndexEnd >= mByteBufferCount - 1 Then
-                            intIndexEnd = mByteBufferCount - 2
-                        End If
-
-                        For intIndexStart = 0 To 1
-                            intCharCheckCount = 0
-                            intAlternatedZeroMatchCount = 0
-
-                            For intIndex = intIndexStart To mByteBufferCount - 2 Step 2
-                                intCharCheckCount += 1
-                                If mByteBuffer(intIndex) <> 0 And mByteBuffer(intIndex + 1) = 0 Then
-                                    intAlternatedZeroMatchCount += 1
-                                End If
-                            Next intIndex
-
-                            If intCharCheckCount > 0 Then
-                                If intAlternatedZeroMatchCount / CDbl(intCharCheckCount) >= 0.95 Then
-                                    ' Assume this is a Unicode file
-                                    If intIndexStart = 0 Then
-                                        ' Unicode (Little Endian)
-                                        SetInputFileEncoding(InputFileEncodingConstants.UnicodeNormal)
-                                    Else
-                                        ' Unicode (Big Endian)
-                                        SetInputFileEncoding(InputFileEncodingConstants.UnicodeBigEndian)
-                                    End If
-                                    Exit For
-                                End If
-                            End If
-                        Next intIndexStart
-                    End If
-                End If
-            End If
-
-        Catch ex As Exception
-            If mInputFilePath Is Nothing Then mInputFilePath = String.Empty
-            LogErrors("MoveToBeginning", "Error moving to beginning of file " & mInputFilePath & "; " & ex.Message)
-        End Try
-    End Sub
-
-    Public Sub MoveToEnd()
-        Try
-            If mBinaryReader IsNot Nothing AndAlso mBinaryReader.CanRead Then
-                MoveToByteOffset(mBinaryReader.Length)
-            End If
-        Catch ex As Exception
-            If mInputFilePath Is Nothing Then mInputFilePath = String.Empty
-            LogErrors("MoveToEnd", "Error moving to end of file " & mInputFilePath & "; " & ex.Message)
-        End Try
-    End Sub
-
-    Public Function OpenFile(dataFilePath As String) As Boolean
-        Return OpenFile(dataFilePath, FileShare.Read)
-    End Function
-
-    Public Function OpenFile(dataFilePath As String, share As FileShare) As Boolean
-        ' Returns true if the file is successfully opened
-
-        Dim blnSuccess As Boolean
-
-        mErrorMessage = String.Empty
-
-        ' Make sure any open file or text stream is closed
-        Me.Close()
-
-        Try
-            blnSuccess = False
-            If String.IsNullOrEmpty(dataFilePath) Then
-                mErrorMessage = "Error opening file: input file path is blank"
-                Return False
-            End If
-
-            If Not File.Exists(dataFilePath) Then
-                mErrorMessage = "File not found: " & InputFilePath
-                Return False
-            End If
-
-            InitializeLocalVariables()
-
-            mInputFilePath = String.Copy(dataFilePath)
-
-            ' Note that this sets mCharSize to 1
-            SetInputFileEncoding(InputFileEncodingConstants.Ascii)
-
-            ' Initialize the binary reader
-            mBinaryReader = New FileStream(mInputFilePath, FileMode.Open, FileAccess.Read, share)
-
-            If mBinaryReader.Length = 0 Then
-                Close()
-
-                mErrorMessage = "File is zero-length"
-                blnSuccess = False
-            Else
-                MoveToBeginning()
-                blnSuccess = True
-            End If
-
-        Catch ex As Exception
-            LogErrors("OpenFile", "Error opening file: " & InputFilePath & "; " & ex.Message)
-            blnSuccess = False
-        End Try
-
-        Return blnSuccess
-    End Function
-
-    Public Function ReadLine() As Boolean
-        Return ReadLine(ReadDirectionConstants.Forward)
-    End Function
-
-    Public Function ReadLine(eDirection As ReadDirectionConstants) As Boolean
-        ' Looks for the next line in the file (by looking for the next LF symbol in the binary file)
-        ' Returns True if success, False if failure
-        ' Use Property CurrentLine to obtain the text for the line
-
-        Dim intSearchIndexStartOffset As Integer
-        Dim intBytesRead As Integer
-        Dim intBytesToRead As Integer
-
-        Dim intIndex As Integer
-        Dim intIndexMinimum As Integer
-        Dim intIndexMaximum As Integer
-        Dim intShiftIncrement As Integer
-
-        Dim intMatchingTextIndexStart As Integer
-        Dim intMatchingTextIndexEnd As Integer
-
-        Dim intLineTerminatorLength As Integer
-
-        Dim intTerminatorCheckCount As Integer
-        Dim intTerminatorCheckCountValueZero As Integer
-        Dim dblValueZeroFraction As Double
-
-        Dim intStartIndexShiftCount As Integer
-        Dim intStartIndexShiftIncrement As Integer
-        Dim blnStartIndexShifted As Boolean
-
-        Dim blnMatchFound As Boolean
-        Dim blnTerminatorFound As Boolean
-
-        Try
-            blnMatchFound = False
-            blnTerminatorFound = False
-            intStartIndexShiftCount = 0
-
-            InitializeCurrentLine()
-
-            If mBinaryReader IsNot Nothing AndAlso mBinaryReader.CanRead Then
-                Select Case mInputFileEncoding
-                    Case InputFileEncodingConstants.Ascii, InputFileEncodingConstants.UTF8
-                        ' Ascii or UTF-8 encoding; Assure mCharSize = 1
-                        mCharSize = 1
-                    Case InputFileEncodingConstants.UnicodeNormal
-                        ' Unicode (Little Endian) encoding; Assure mCharSize = 2
-                        mCharSize = 2
-                    Case InputFileEncodingConstants.UnicodeBigEndian
-                        ' Unicode (Big Endian) encoding; Assure mCharSize = 2
-                        mCharSize = 2
-                    Case Else
-                        ' Unknown encoding
-                        mCurrentLineText = String.Empty
-                        Return False
-                End Select
-
-                If eDirection = ReadDirectionConstants.Forward Then
-                    intSearchIndexStartOffset = 0
-                    If ByteAtEOF(mByteBufferFileOffsetStart + mByteBufferNextLineStartIndex + intSearchIndexStartOffset) Then
-                        mCurrentLineByteOffsetStart = mBinaryReader.Length
-                        mCurrentLineByteOffsetEnd = mBinaryReader.Length
-                        mCurrentLineByteOffsetEndWithTerminator = mBinaryReader.Length
-                        Return False
-                    End If
-                Else
-                    intSearchIndexStartOffset = -mCharSize * 2
-                    If ByteAtBOF(mByteBufferFileOffsetStart + mByteBufferNextLineStartIndex + intSearchIndexStartOffset) Then
-                        Return False
-                    End If
-                End If
-
-                Do While Not blnMatchFound
-                    ' Note that intSearchIndexStartOffset will be >=0 if searching forward and <=-2 if searching backward
-                    intIndex = mByteBufferNextLineStartIndex + intSearchIndexStartOffset
-
-                    ' Define the minimum and maximum allowable indices for searching for mLineTerminator2Code
-                    intIndexMinimum = mCharSize - 1                     ' This is only used when searching backward
-                    intIndexMaximum = mByteBufferCount - mCharSize      ' This is only used when searching forward
-
-                    If eDirection = ReadDirectionConstants.Reverse AndAlso
-                       mLineTerminator1Code <> 0 AndAlso
-                       mByteBufferFileOffsetStart > 0 Then
-                        ' We're looking for a two-character line terminator (though the
-                        '  presence of mLineTerminator1Code is not required)
-                        ' Need to increment intIndexMinimum to guarantee we'll be able to find both line terminators if the
-                        '  second line terminator happens to be at the start of mByteBuffer
-                        intIndexMinimum += mCharSize
-                    End If
-
-                    ' Reset the terminator check counters
-                    intTerminatorCheckCount = 0
-                    intTerminatorCheckCountValueZero = 0
-                    blnStartIndexShifted = False
-
-                    If (eDirection = ReadDirectionConstants.Reverse AndAlso intIndex >= intIndexMinimum) OrElse
-                       (eDirection = ReadDirectionConstants.Forward AndAlso intIndex <= intIndexMaximum) Then
-                        Do
-                            Select Case mInputFileEncoding
-                                Case InputFileEncodingConstants.Ascii, InputFileEncodingConstants.UTF8
-                                    ' Ascii or UTF-8 encoding; Assure mCharSize = 1
-                                    If mByteBuffer(intIndex) = mLineTerminator2Code Then
-                                        blnTerminatorFound = True
-                                        Exit Do
-                                    End If
-                                Case InputFileEncodingConstants.UnicodeNormal
-                                    ' Look for the LF symbol followed by a byte with value 0 in mByteBuffer
-                                    If mByteBuffer(intIndex) = mLineTerminator2Code AndAlso
-                                       mByteBuffer(intIndex + 1) = 0 Then
-                                        blnTerminatorFound = True
-                                        Exit Do
-                                    ElseIf mByteBuffer(intIndex) = 0 Then
-                                        intTerminatorCheckCountValueZero += 1
-                                    End If
-                                    intTerminatorCheckCount += 1
-
-                                Case InputFileEncodingConstants.UnicodeBigEndian
-                                    ' Unicode (Big Endian) encoding; Assure mCharSize = 2
-                                    If mByteBuffer(intIndex) = 0 AndAlso
-                                       mByteBuffer(intIndex + 1) = mLineTerminator2Code Then
-                                        blnTerminatorFound = True
-                                        Exit Do
-                                    ElseIf mByteBuffer(intIndex + 1) = 0 Then
-                                        intTerminatorCheckCountValueZero += 1
-                                    End If
-                                    intTerminatorCheckCount += 1
-
-                            End Select
-
-                            If eDirection = ReadDirectionConstants.Forward Then
-                                If intIndex + mCharSize <= intIndexMaximum Then
-                                    intIndex += mCharSize
-                                Else
-                                    Exit Do
-                                End If
-                            Else
-                                If intIndex - mCharSize >= intIndexMinimum Then
-                                    intIndex -= mCharSize
-                                Else
-                                    Exit Do
-                                End If
-                            End If
-
-                        Loop While Not blnTerminatorFound
-                    End If
-
-                    If Not blnTerminatorFound Then
-                        If intTerminatorCheckCount > 0 Then
-                            dblValueZeroFraction = intTerminatorCheckCountValueZero / CDbl(intTerminatorCheckCount)
-                        Else
-                            dblValueZeroFraction = 0
-                        End If
-
-                        If mCharSize > 1 AndAlso
-                           intStartIndexShiftCount < mCharSize - 1 AndAlso
-                           dblValueZeroFraction >= 0.95 Then
-
-                            ' mByteBufferNextLineStartIndex is most likely off by 1
-                            ' This could happen due to an inappropriate byte value being sent to MoveToByteOffset()
-                            '  or due to a corrupted Unicode file
-
-                            ' Shift mByteBufferNextLineStartIndex by 1 and try again
-                            If intStartIndexShiftCount = 0 Then
-                                ' First attempt to shift; determine the shift direction
-                                If eDirection = ReadDirectionConstants.Forward Then
-                                    ' Searching forward
-                                    If mByteBufferNextLineStartIndex > mCharSize - 2 Then
-                                        intStartIndexShiftIncrement = -1
-                                    Else
-                                        intStartIndexShiftIncrement = 1
-                                    End If
-                                Else
-                                    ' Searching reverse
-                                    If mByteBufferNextLineStartIndex < mByteBufferCount - (mCharSize - 2) Then
-                                        intStartIndexShiftIncrement = 1
-                                    Else
-                                        intStartIndexShiftIncrement = -1
-                                    End If
-                                End If
-                            End If
-
-                            mByteBufferNextLineStartIndex += intStartIndexShiftIncrement
-                            intStartIndexShiftCount += 1
-                            blnStartIndexShifted = True
-                        Else
-                            If eDirection = ReadDirectionConstants.Forward Then
-                                ' Searching forward; are we at the end of the file?
-                                If ByteAtEOF(mByteBufferFileOffsetStart + intIndex + mCharSize) Then
-                                    ' Yes, we're at the end of the file
-                                    blnTerminatorFound = True
-                                    intIndex = CInt(mByteBufferCount - 1)
-                                End If
-                            Else
-                                ' Searching backward; are we at the beginning of the file?
-                                If ByteAtBOF(mByteBufferFileOffsetStart + intIndex) Then
-                                    ' Yes, we're at the beginning of the file
-                                    blnTerminatorFound = True
-                                    intIndex = CInt(mByteOrderMarkLength) - mCharSize
-                                End If
-                            End If
-                        End If
-
-                    End If
-
-                    If blnTerminatorFound Then
-                        If eDirection = ReadDirectionConstants.Forward Then
-                            intMatchingTextIndexStart = mByteBufferNextLineStartIndex
-                            intMatchingTextIndexEnd = intIndex
-                        Else
-                            intMatchingTextIndexStart = intIndex + mCharSize
-                            intMatchingTextIndexEnd = mByteBufferNextLineStartIndex - mCharSize
-                        End If
-
-                        ' Determine the line terminator length
-                        Select Case mInputFileEncoding
-                            Case InputFileEncodingConstants.Ascii, InputFileEncodingConstants.UTF8
-                                ' Ascii encoding
-                                If mLineTerminator1Code <> 0 AndAlso
-                                   intMatchingTextIndexEnd - mCharSize >= 0 AndAlso
-                                   mByteBuffer(intMatchingTextIndexEnd - mCharSize) = mLineTerminator1Code Then
-                                    intLineTerminatorLength = 2
-                                    mCurrentLineTerminator =
-                                        Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd - mCharSize)) &
-                                        Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd))
-                                ElseIf mByteBuffer(intMatchingTextIndexEnd) = mLineTerminator2Code Then
-                                    intLineTerminatorLength = 1
-                                    mCurrentLineTerminator = Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd))
-                                Else
-                                    ' No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
-                                    intLineTerminatorLength = 0
-                                    mCurrentLineTerminator = String.Empty
-                                End If
-
-                                intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart -
-                                                 mCharSize * (intLineTerminatorLength - 1)
-                                If intBytesToRead <= 0 Then
-                                    ' Blank line
-                                    mCurrentLineText = String.Empty
-                                Else
-                                    If mInputFileEncoding = InputFileEncodingConstants.UTF8 Then
-                                        ' Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
-                                        mCurrentLineText = Convert.ToString(Encoding.UTF8.GetChars(mByteBuffer,
-                                                                                                   intMatchingTextIndexStart,
-                                                                                                   intBytesToRead))
-                                    Else
-                                        ' Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
-                                        mCurrentLineText = Convert.ToString(Encoding.ASCII.GetChars(mByteBuffer,
-                                                                                                    intMatchingTextIndexStart,
-                                                                                                    intBytesToRead))
-                                    End If
-                                End If
-
-                            Case InputFileEncodingConstants.UnicodeNormal
-                                ' Unicode (Little Endian) encoding
-                                If mLineTerminator1Code <> 0 AndAlso
-                                   intMatchingTextIndexEnd - mCharSize >= 0 AndAlso
-                                   mByteBuffer(intMatchingTextIndexEnd - mCharSize) = mLineTerminator1Code AndAlso
-                                   mByteBuffer(intMatchingTextIndexEnd - mCharSize + 1) = 0 Then
-                                    intLineTerminatorLength = 2
-                                    mCurrentLineTerminator =
-                                        Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd - mCharSize)) &
-                                        Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd))
-                                ElseIf mByteBuffer(intMatchingTextIndexEnd) = mLineTerminator2Code AndAlso
-                                       intMatchingTextIndexEnd + 1 < mByteBufferCount AndAlso
-                                       mByteBuffer(intMatchingTextIndexEnd + 1) = 0 Then
-                                    intLineTerminatorLength = 1
-                                    mCurrentLineTerminator = Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd))
-                                Else
-                                    ' No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
-                                    intLineTerminatorLength = 0
-                                    mCurrentLineTerminator = String.Empty
-                                End If
-
-                                ' Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
-                                intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart -
-                                                 mCharSize * (intLineTerminatorLength - 1)
-                                If intBytesToRead <= 0 Then
-                                    ' Blank line
-                                    mCurrentLineText = String.Empty
-                                Else
-                                    mCurrentLineText = Convert.ToString(Encoding.Unicode.GetChars(mByteBuffer,
-                                                                                                  intMatchingTextIndexStart,
-                                                                                                  intBytesToRead))
-                                End If
-
-                            Case InputFileEncodingConstants.UnicodeBigEndian
-                                ' Unicode (Big Endian) encoding
-                                If mLineTerminator1Code <> 0 AndAlso
-                                   intMatchingTextIndexEnd - mCharSize >= 0 AndAlso
-                                   mByteBuffer(intMatchingTextIndexEnd - mCharSize) = 0 AndAlso
-                                   mByteBuffer(intMatchingTextIndexEnd - mCharSize + 1) = mLineTerminator1Code Then
-                                    intLineTerminatorLength = 2
-                                    mCurrentLineTerminator =
-                                        Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd - mCharSize + 1)) &
-                                        Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd + 1))
-                                ElseIf mByteBuffer(intMatchingTextIndexEnd) = 0 AndAlso
-                                       intMatchingTextIndexEnd + 1 < mByteBufferCount AndAlso
-                                       mByteBuffer(intMatchingTextIndexEnd + 1) = mLineTerminator2Code Then
-                                    intLineTerminatorLength = 1
-                                    mCurrentLineTerminator = Convert.ToChar(mByteBuffer(intMatchingTextIndexEnd + 1))
-                                Else
-                                    ' No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
-                                    intLineTerminatorLength = 0
-                                    mCurrentLineTerminator = String.Empty
-                                End If
-
-                                ' Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
-                                intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart -
-                                                 mCharSize * (intLineTerminatorLength - 1)
-                                If intBytesToRead <= 0 Then
-                                    ' Blank line
-                                    mCurrentLineText = String.Empty
-                                Else
-                                    mCurrentLineText = Convert.ToString(Encoding.BigEndianUnicode.GetChars(mByteBuffer,
-                                                                                                           intMatchingTextIndexStart,
-                                                                                                           intBytesToRead))
-                                End If
-
-                            Case Else
-                                ' Unknown/unsupported encoding
-                                mCurrentLineText = String.Empty
-                                blnMatchFound = False
-                                Exit Do
-                        End Select
-
-                        If mCharSize > 1 AndAlso Not ByteAtEOF(mByteBufferFileOffsetStart + intMatchingTextIndexEnd) Then
-                            intMatchingTextIndexEnd += (mCharSize - 1)
-                        End If
-
-                        mCurrentLineByteOffsetStart = mByteBufferFileOffsetStart + intMatchingTextIndexStart
-                        mCurrentLineByteOffsetEndWithTerminator = mByteBufferFileOffsetStart + intMatchingTextIndexEnd
-
-                        mCurrentLineByteOffsetEnd = mByteBufferFileOffsetStart + intMatchingTextIndexEnd -
-                                                    intLineTerminatorLength * mCharSize
-                        If mCurrentLineByteOffsetEnd < mCurrentLineByteOffsetStart Then
-                            ' Zero-length line
-                            mCurrentLineByteOffsetEnd = mCurrentLineByteOffsetStart
-                        End If
-
-                        If eDirection = ReadDirectionConstants.Forward Then
-                            mByteBufferNextLineStartIndex = intMatchingTextIndexEnd + 1
-                            mLineNumber += 1
-                        Else
-                            mByteBufferNextLineStartIndex = intMatchingTextIndexStart
-                            If mLineNumber > 0 Then
-                                mLineNumber -= 1
-                            End If
-                        End If
-
-                        ' Check whether the user just changed reading direction
-                        ' If they did, then it is possible that this function will return the exact same line
-                        '  as was previously read.  Check for this, and if true, then read the next line (in direction eDiretion)
-                        If eDirection <> mReadLineDirectionSaved AndAlso
-                           mCurrentLineByteOffsetStartSaved >= 0 AndAlso
-                           mCurrentLineByteOffsetStart = mCurrentLineByteOffsetStartSaved AndAlso
-                           mCurrentLineTextSaved IsNot Nothing AndAlso
-                           mCurrentLineText = mCurrentLineTextSaved Then
-
-                            ' Recursively call this function to read the next line
-                            ' To avoid infinite loops, set mCurrentLineByteOffsetStartSaved to -1
-                            mCurrentLineByteOffsetStartSaved = -1
-                            blnMatchFound = ReadLine(eDirection)
-                        Else
-                            blnMatchFound = True
-                        End If
-
-                        Exit Do
-                    End If
-
-                    If Not blnMatchFound AndAlso Not blnStartIndexShifted Then
-                        ' Need to add more data to the buffer (or shift the data in the buffer)
-                        If eDirection = ReadDirectionConstants.Forward Then
-                            If mBinaryReader.Position >= mBinaryReader.Length Then
-                                ' Already at the end of the file; cannot move forward
-                                Exit Do
-                            End If
-
-                            If mByteBufferNextLineStartIndex > 0 Then
-                                ' First, shift all of the data so that element mByteBufferNextLineStartIndex moves to element 0
-                                For intIndex = mByteBufferNextLineStartIndex To mByteBufferCount - 1
-                                    mByteBuffer(intIndex - mByteBufferNextLineStartIndex) = mByteBuffer(intIndex)
-                                Next intIndex
-
-                                mByteBufferCount -= mByteBufferNextLineStartIndex
-                                mByteBufferFileOffsetStart += mByteBufferNextLineStartIndex
-                                intSearchIndexStartOffset = mByteBufferCount
-
-                                mByteBufferNextLineStartIndex = 0
-
-                                If mByteBufferFileOffsetStart + mByteBufferCount <> mBinaryReader.Position Then
-                                    ' The file read-position is out-of-sync with mByteBufferFileOffsetStart; this can happen
-                                    '  if we used MoveToByteOffset, read backward, and are now reading forward
-                                    mBinaryReader.Seek(mByteBufferFileOffsetStart + mByteBufferCount, SeekOrigin.Begin)
-                                End If
-                            Else
-                                intSearchIndexStartOffset = mByteBufferCount
-
-                                If mByteBufferCount >= mByteBuffer.Length Then
-                                    ' Need to expand the buffer
-                                    ' In order to support Unicode files, it is important that the buffer length always be a power of 2
-                                    ReDim Preserve mByteBuffer(mByteBuffer.Length * 2 - 1)
-                                End If
-                            End If
-
-                            intBytesRead = mBinaryReader.Read(mByteBuffer, intSearchIndexStartOffset,
-                                                              mByteBuffer.Length - intSearchIndexStartOffset)
-                            If intBytesRead = 0 Then
-                                ' No data could be read; exit the loop
-                                Exit Do
-                            Else
-                                mByteBufferCount += intBytesRead
-                            End If
-                        Else
-
-                            If mByteBufferFileOffsetStart <= mByteOrderMarkLength OrElse mBinaryReader.Position <= 0 Then
-                                ' Already at the beginning of the file; cannot move backward
-                                Exit Do
-                            End If
-
-                            If mByteBufferCount >= mByteBuffer.Length And
-                               mByteBufferNextLineStartIndex >= mByteBuffer.Length Then
-                                ' The byte buffer is full and mByteBufferNextLineStartIndex is past the end of the buffer
-                                ' Need to double its size, shift the data from the first half to the second half, and
-                                '  populate the first half
-
-                                ' Expand the buffer
-                                ' In order to support Unicode files, it is important that the buffer length always be a power of 2
-                                ReDim Preserve mByteBuffer(mByteBuffer.Length * 2 - 1)
-                            End If
-
-                            If mByteBufferCount < mByteBuffer.Length Then
-                                intShiftIncrement = mByteBuffer.Length - mByteBufferCount
-                            Else
-                                intShiftIncrement = mByteBuffer.Length - mByteBufferNextLineStartIndex
-                            End If
-
-                            If mByteBufferFileOffsetStart - intShiftIncrement < mByteOrderMarkLength Then
-                                intShiftIncrement = CInt(mByteBufferFileOffsetStart) - mByteOrderMarkLength
-                            End If
-
-                            ' Possibly update mByteBufferCount
-                            If mByteBufferCount < mByteBuffer.Length Then
-                                mByteBufferCount += intShiftIncrement
-                            End If
-
-                            ' Shift the data
-                            For intIndex = mByteBufferCount - intShiftIncrement - 1 To 0 Step -1
-                                mByteBuffer(intShiftIncrement + intIndex) = mByteBuffer(intIndex)
-                            Next intIndex
-
-                            ' Update the tracking variables
-                            mByteBufferFileOffsetStart -= intShiftIncrement
-                            mByteBufferNextLineStartIndex += intShiftIncrement
-
-                            ' Populate the first portion of the byte buffer with new data
-                            mBinaryReader.Seek(mByteBufferFileOffsetStart, SeekOrigin.Begin)
-                            intBytesRead = mBinaryReader.Read(mByteBuffer, 0, intShiftIncrement)
-                            If intBytesRead = 0 Then
-                                ' No data could be read; this shouldn't ever happen
-                                ' Move to the beginning of the file and re-populate mByteBuffer
-                                MoveToBeginning()
-                                Exit Do
-                            End If
-
-                        End If
-                    End If
-                Loop
-            End If
-
-        Catch ex As Exception
-            LogErrors("ReadLine", ex.Message)
-            blnMatchFound = False
-        End Try
-
-        If blnMatchFound Then
-            mReadLineDirectionSaved = eDirection
-            mCurrentLineByteOffsetStartSaved = mCurrentLineByteOffsetStart
-            mCurrentLineTextSaved = String.Copy(mCurrentLineText)
-        Else
-            mReadLineDirectionSaved = eDirection
-            mCurrentLineByteOffsetStartSaved = -1
-            mCurrentLineTextSaved = String.Empty
-        End If
-
-        Return blnMatchFound
-    End Function
-
-    Private Sub SetInputFileEncoding(EncodingMode As InputFileEncodingConstants)
-        mInputFileEncoding = EncodingMode
-        Select Case mInputFileEncoding
-            Case InputFileEncodingConstants.Ascii, InputFileEncodingConstants.UTF8
-                mCharSize = 1
-            Case InputFileEncodingConstants.UnicodeNormal
-                mCharSize = 2
-            Case InputFileEncodingConstants.UnicodeBigEndian
-                mCharSize = 2
-            Case Else
-                ' Unknown mode; assume mCharSize = 1
-                mCharSize = 1
-        End Select
-    End Sub
-End Class
+﻿using System;
+using System.IO;
+using System.Text;
+
+namespace MSDataFileReader
+{
+
+    // This class can be used to open a Text file and read each of the lines from the file,
+    // where a line of text ends with CRLF or simply LF
+    // In addition, the byte offset at the start and end of the line is also returned
+    // 
+    // Note that this class is compatible with UTF-16 Unicode files; it looks for byte order mark
+    // FF FE or FE FF in the first two bytes of the file to determine if a file is Unicode
+    // (though you can override this using the InputFileEncoding property after calling .OpenFile()
+    // This class will also look for the byte order mark for UTF-8 files (EF BB BF) though it may not
+    // properly decode UTF-8 characters (not fully tested)
+    // 
+    // You can change the expected line terminator character using Property FileSystemMode
+    // If FileSystemMode = FileSystemModeConstants.Windows, then the Line Terminator = LF, optionally preceded by CR
+    // If FileSystemMode = FileSystemModeConstants.Unix, then the Line Terminator = LF, optionally preceded by CR
+    // If FileSystemMode = FileSystemModeConstants.Macintosh, then the Line Terminator = CR, previous character is not considered
+    // 
+    // -------------------------------------------------------------------------------
+    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+    // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
+    // Program started April 18, 2006
+    // 
+    // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+    // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+    // -------------------------------------------------------------------------------
+    // 
+    // Licensed under the Apache License, Version 2.0; you may not use this file except
+    // in compliance with the License.  You may obtain a copy of the License at
+    // http://www.apache.org/licenses/LICENSE-2.0
+    // 
+    // Notice: This computer software was prepared by Battelle Memorial Institute,
+    // hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
+    // Department of Energy (DOE).  All rights in the computer software are reserved
+    // by DOE on behalf of the United States Government and the Contractor as
+    // provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY
+    // WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
+    // SOFTWARE.  This notice including this sentence must appear on any copies of
+    // this computer software.
+    // 
+
+    public class clsBinaryTextReader
+    {
+        public clsBinaryTextReader()
+        {
+            // Note: This property will also update mLineTerminator1Code and mLineTerminator2Code
+            FileSystemMode = FileSystemModeConstants.Windows;
+            InitializeLocalVariables();
+        }
+
+        ~clsBinaryTextReader()
+        {
+            Close();
+        }
+
+        #region Constants and Enums
+        // In order to support Unicode files, it is important that the buffer length always be a power of 2
+        private const int INITIAL_BUFFER_LENGTH = 10000;
+        private const byte LINE_TERMINATOR_CODE_LF = 10;
+        private const byte LINE_TERMINATOR_CODE_CR = 13;
+
+        public enum FileSystemModeConstants
+        {
+            Windows = 0,
+            Unix = 1,
+            Macintosh = 2
+        }
+
+        public enum InputFileEncodingConstants
+        {
+            Ascii = 0,                   // No Byte Order Mark
+            UTF8 = 1,                    // Byte Order Mark: EF BB BF (UTF-8)
+            UnicodeNormal = 2,           // Byte Order Mark: FF FE (Little Endian Unicode)
+            UnicodeBigEndian = 3        // Byte Order Mark: FE FF (Big Endian Unicode)
+        }
+
+        public enum ReadDirectionConstants
+        {
+            Forward = 0,
+            Reverse = 1
+        }
+
+        #endregion
+
+        #region Structures
+
+        #endregion
+
+        #region Classwide Variables
+
+        private string mInputFilePath;
+        private InputFileEncodingConstants mInputFileEncoding = InputFileEncodingConstants.Ascii;
+        private byte mCharSize = 1;
+        private byte mByteOrderMarkLength;
+
+        // Note: Use Me.FileSystemMode to set this variable so that mLineTerminator1Code and mLineTerminator2Code also get updated
+        private FileSystemModeConstants mFileSystemMode;
+        private byte mLineTerminator1Code;
+        private byte mLineTerminator2Code;
+        private string mErrorMessage;
+        private FileStream mBinaryReader;
+        private int mLineNumber;
+        private int mByteBufferCount;
+        private byte[] mByteBuffer;
+
+        // Note: The first byte in the file is Byte 0
+        private long mByteBufferFileOffsetStart;
+
+        // This variable defines the index in mByteBuffer() at which the next line starts
+        private int mByteBufferNextLineStartIndex;
+        private string mCurrentLineText;
+        private long mCurrentLineByteOffsetStart;
+        private long mCurrentLineByteOffsetEnd;
+        private long mCurrentLineByteOffsetEndWithTerminator;
+        private ReadDirectionConstants mReadLineDirectionSaved;
+        private long mCurrentLineByteOffsetStartSaved;
+        private string mCurrentLineTextSaved;
+        private string mCurrentLineTerminator;
+
+        #endregion
+
+        #region Processing Options and Interface Functions
+
+        public long ByteBufferFileOffsetStart
+        {
+            get
+            {
+                return mByteBufferFileOffsetStart;
+            }
+        }
+
+        public byte ByteOrderMarkLength
+        {
+            get
+            {
+                return mByteOrderMarkLength;
+            }
+        }
+
+        public byte CharSize
+        {
+            get
+            {
+                return mCharSize;
+            }
+        }
+
+        public string CurrentLine
+        {
+            get
+            {
+                if (mCurrentLineText is null)
+                {
+                    return string.Empty;
+                }
+                else
+                {
+                    return mCurrentLineText;
+                }
+            }
+        }
+
+        public int CurrentLineLength
+        {
+            get
+            {
+                if (mCurrentLineText is null)
+                {
+                    return 0;
+                }
+                else
+                {
+                    return mCurrentLineText.Length;
+                }
+            }
+        }
+
+        public long CurrentLineByteOffsetStart
+        {
+            get
+            {
+                return mCurrentLineByteOffsetStart;
+            }
+        }
+
+        public long CurrentLineByteOffsetEnd
+        {
+            get
+            {
+                return mCurrentLineByteOffsetEnd;
+            }
+        }
+
+        public long CurrentLineByteOffsetEndWithTerminator
+        {
+            get
+            {
+                return mCurrentLineByteOffsetEndWithTerminator;
+            }
+        }
+
+        public string CurrentLineTerminator
+        {
+            get
+            {
+                if (mCurrentLineTerminator is null)
+                {
+                    return string.Empty;
+                }
+                else
+                {
+                    return mCurrentLineTerminator;
+                }
+            }
+        }
+
+        public string ErrorMessage
+        {
+            get
+            {
+                return mErrorMessage;
+            }
+        }
+
+        public long FileLengthBytes
+        {
+            get
+            {
+                try
+                {
+                    if (mBinaryReader is null)
+                    {
+                        return 0L;
+                    }
+                    else
+                    {
+                        return mBinaryReader.Length;
+                    }
+                }
+                catch (Exception ex)
+                {
+                    return 0L;
+                }
+            }
+        }
+
+        public FileSystemModeConstants FileSystemMode
+        {
+            get
+            {
+                return mFileSystemMode;
+            }
+
+            set
+            {
+                mFileSystemMode = value;
+                switch (mFileSystemMode)
+                {
+                    case FileSystemModeConstants.Windows:
+                    case FileSystemModeConstants.Unix:
+                        {
+                            // Normally present for Windows; normally not present for Unix
+                            mLineTerminator1Code = LINE_TERMINATOR_CODE_CR;
+                            mLineTerminator2Code = LINE_TERMINATOR_CODE_LF;
+                            break;
+                        }
+
+                    case FileSystemModeConstants.Macintosh:
+                        {
+                            mLineTerminator1Code = 0;
+                            mLineTerminator2Code = LINE_TERMINATOR_CODE_CR;
+                            break;
+                        }
+                }
+            }
+        }
+
+        public string InputFilePath
+        {
+            get
+            {
+                return mInputFilePath;
+            }
+        }
+
+        public int LineNumber
+        {
+            get
+            {
+                return mLineNumber;
+            }
+        }
+
+        public InputFileEncodingConstants InputFileEncoding
+        {
+            get
+            {
+                return mInputFileEncoding;
+            }
+
+            set
+            {
+                SetInputFileEncoding(value);
+            }
+        }
+
+        #endregion
+
+        public bool ByteAtBOF(long lngBytePosition)
+        {
+            if (lngBytePosition <= mByteOrderMarkLength)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public bool ByteAtEOF(long lngBytePosition)
+        {
+            // Returns True if lngBytePosition is >= the end of the file
+            if (lngBytePosition >= mBinaryReader.Length)
+            {
+                return true;
+            }
+            else
+            {
+                return false;
+            }
+        }
+
+        public void Close()
+        {
+            try
+            {
+                if (mBinaryReader is object)
+                {
+                    mBinaryReader.Close();
+                }
+            }
+            catch (Exception ex)
+            {
+            }
+
+            mInputFilePath = string.Empty;
+            mLineNumber = 0;
+            mByteBufferCount = 0;
+            mByteBufferFileOffsetStart = 0L;
+            mByteBufferNextLineStartIndex = 0;
+        }
+
+        private void InitializeCurrentLine()
+        {
+            mCurrentLineText = string.Empty;
+            mCurrentLineByteOffsetStart = 0L;
+            mCurrentLineByteOffsetEnd = 0L;
+            mCurrentLineByteOffsetEndWithTerminator = 0L;
+            mCurrentLineTerminator = string.Empty;
+        }
+
+        private void InitializeLocalVariables()
+        {
+            // Note: Do Not update mFileSystemMode, mLineTerminator1Code, mLineTerminator2Code, or mInputFileEncoding in this sub
+
+            mInputFilePath = string.Empty;
+            mErrorMessage = string.Empty;
+            mLineNumber = 0;
+            mByteOrderMarkLength = 0;
+            mByteBufferCount = 0;
+            if (mByteBuffer is null)
+            {
+                // In order to support Unicode files, it is important that the buffer length always be a power of 2
+                mByteBuffer = new byte[10000];
+            }
+            else
+            {
+                // Clear the buffer
+                Array.Clear(mByteBuffer, 0, mByteBuffer.Length);
+            }
+
+            mReadLineDirectionSaved = ReadDirectionConstants.Forward;
+            mCurrentLineByteOffsetStartSaved = -1;
+            mCurrentLineTextSaved = string.Empty;
+            InitializeCurrentLine();
+        }
+
+        private void LogErrors(string strCallingFunction, string strErrorDescription)
+        {
+            ;
+#error Cannot convert LocalDeclarationStatementSyntax - see comment for details
+            /* Cannot convert LocalDeclarationStatementSyntax, System.NotSupportedException: StaticKeyword not supported!
+               at ICSharpCode.CodeConverter.CSharp.SyntaxKindExtensions.ConvertToken(SyntaxKind t, TokenContext context)
+               at ICSharpCode.CodeConverter.CSharp.CommonConversions.ConvertModifier(SyntaxToken m, TokenContext context)
+               at ICSharpCode.CodeConverter.CSharp.CommonConversions.<ConvertModifiersCore>d__49.MoveNext()
+               at System.Linq.Enumerable.<ConcatIterator>d__59`1.MoveNext()
+               at System.Linq.Enumerable.WhereEnumerableIterator`1.MoveNext()
+               at System.Linq.Buffer`1..ctor(IEnumerable`1 source)
+               at System.Linq.OrderedEnumerable`1.<GetEnumerator>d__1.MoveNext()
+               at Microsoft.CodeAnalysis.SyntaxTokenList.CreateNode(IEnumerable`1 tokens)
+               at ICSharpCode.CodeConverter.CSharp.CommonConversions.ConvertModifiers(SyntaxNode node, IReadOnlyCollection`1 modifiers, TokenContext context, Boolean isVariableOrConst, SyntaxKind[] extraCsModifierKinds)
+               at ICSharpCode.CodeConverter.CSharp.MethodBodyExecutableStatementVisitor.<VisitLocalDeclarationStatement>d__31.MoveNext()
+            --- End of stack trace from previous location where exception was thrown ---
+               at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+               at ICSharpCode.CodeConverter.CSharp.HoistedNodeStateVisitor.<AddLocalVariablesAsync>d__6.MoveNext()
+            --- End of stack trace from previous location where exception was thrown ---
+               at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+               at ICSharpCode.CodeConverter.CSharp.CommentConvertingMethodBodyVisitor.<DefaultVisitInnerAsync>d__3.MoveNext()
+
+            Input:
+
+                    Static LastCallingFunction As String
+
+             */
+            ;
+#error Cannot convert LocalDeclarationStatementSyntax - see comment for details
+            /* Cannot convert LocalDeclarationStatementSyntax, System.NotSupportedException: StaticKeyword not supported!
+               at ICSharpCode.CodeConverter.CSharp.SyntaxKindExtensions.ConvertToken(SyntaxKind t, TokenContext context)
+               at ICSharpCode.CodeConverter.CSharp.CommonConversions.ConvertModifier(SyntaxToken m, TokenContext context)
+               at ICSharpCode.CodeConverter.CSharp.CommonConversions.<ConvertModifiersCore>d__49.MoveNext()
+               at System.Linq.Enumerable.<ConcatIterator>d__59`1.MoveNext()
+               at System.Linq.Enumerable.WhereEnumerableIterator`1.MoveNext()
+               at System.Linq.Buffer`1..ctor(IEnumerable`1 source)
+               at System.Linq.OrderedEnumerable`1.<GetEnumerator>d__1.MoveNext()
+               at Microsoft.CodeAnalysis.SyntaxTokenList.CreateNode(IEnumerable`1 tokens)
+               at ICSharpCode.CodeConverter.CSharp.CommonConversions.ConvertModifiers(SyntaxNode node, IReadOnlyCollection`1 modifiers, TokenContext context, Boolean isVariableOrConst, SyntaxKind[] extraCsModifierKinds)
+               at ICSharpCode.CodeConverter.CSharp.MethodBodyExecutableStatementVisitor.<VisitLocalDeclarationStatement>d__31.MoveNext()
+            --- End of stack trace from previous location where exception was thrown ---
+               at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+               at ICSharpCode.CodeConverter.CSharp.HoistedNodeStateVisitor.<AddLocalVariablesAsync>d__6.MoveNext()
+            --- End of stack trace from previous location where exception was thrown ---
+               at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+               at ICSharpCode.CodeConverter.CSharp.CommentConvertingMethodBodyVisitor.<DefaultVisitInnerAsync>d__3.MoveNext()
+
+            Input:
+                    Static LastErrorMessage As String
+
+             */
+            ;
+#error Cannot convert LocalDeclarationStatementSyntax - see comment for details
+            /* Cannot convert LocalDeclarationStatementSyntax, System.NotSupportedException: StaticKeyword not supported!
+               at ICSharpCode.CodeConverter.CSharp.SyntaxKindExtensions.ConvertToken(SyntaxKind t, TokenContext context)
+               at ICSharpCode.CodeConverter.CSharp.CommonConversions.ConvertModifier(SyntaxToken m, TokenContext context)
+               at ICSharpCode.CodeConverter.CSharp.CommonConversions.<ConvertModifiersCore>d__49.MoveNext()
+               at System.Linq.Enumerable.<ConcatIterator>d__59`1.MoveNext()
+               at System.Linq.Enumerable.WhereEnumerableIterator`1.MoveNext()
+               at System.Linq.Buffer`1..ctor(IEnumerable`1 source)
+               at System.Linq.OrderedEnumerable`1.<GetEnumerator>d__1.MoveNext()
+               at Microsoft.CodeAnalysis.SyntaxTokenList.CreateNode(IEnumerable`1 tokens)
+               at ICSharpCode.CodeConverter.CSharp.CommonConversions.ConvertModifiers(SyntaxNode node, IReadOnlyCollection`1 modifiers, TokenContext context, Boolean isVariableOrConst, SyntaxKind[] extraCsModifierKinds)
+               at ICSharpCode.CodeConverter.CSharp.MethodBodyExecutableStatementVisitor.<VisitLocalDeclarationStatement>d__31.MoveNext()
+            --- End of stack trace from previous location where exception was thrown ---
+               at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+               at ICSharpCode.CodeConverter.CSharp.HoistedNodeStateVisitor.<AddLocalVariablesAsync>d__6.MoveNext()
+            --- End of stack trace from previous location where exception was thrown ---
+               at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
+               at ICSharpCode.CodeConverter.CSharp.CommentConvertingMethodBodyVisitor.<DefaultVisitInnerAsync>d__3.MoveNext()
+
+            Input:
+                    Static LastSaveTime As Global.System.DateTime
+
+             */
+            try
+            {
+                if (strErrorDescription is object)
+                {
+                    mErrorMessage = string.Copy(strErrorDescription);
+                }
+                else
+                {
+                    mErrorMessage = "Unknown error";
+                }
+
+                if (LastCallingFunction is object)
+                {
+                    if ((LastCallingFunction ?? "") == (strCallingFunction ?? "") && (LastErrorMessage ?? "") == (strErrorDescription ?? ""))
+                    {
+                        if (DateTime.UtcNow.Subtract(LastSaveTime).TotalSeconds < 0.5d)
+                        {
+                            // Duplicate message, less than 500 milliseconds since the last save
+                            // Do not update the log file
+                            return;
+                        }
+                    }
+                }
+
+                LastCallingFunction = string.Copy(strCallingFunction);
+                LastErrorMessage = string.Copy(strErrorDescription);
+                LastSaveTime = DateTime.UtcNow;
+                string strLogFilePath = "MSDataFileReader_ErrorLog.txt";
+                using (var swErrorLog = new StreamWriter(new FileStream(strLogFilePath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)))
+                {
+                    swErrorLog.WriteLine(Conversions.ToString(DateTime.Now) + ControlChars.Tab + strCallingFunction + ControlChars.Tab + mErrorMessage);
+                }
+            }
+            catch (Exception ex)
+            {
+                // Ignore errors that occur while logging errors
+            }
+        }
+
+        public void MoveToByteOffset(long lngByteOffset)
+        {
+            int intBytesRead;
+            try
+            {
+                if (mBinaryReader is object && mBinaryReader.CanRead)
+                {
+                    if (lngByteOffset < 0L)
+                    {
+                        lngByteOffset = 0L;
+                    }
+                    else if (lngByteOffset > mBinaryReader.Length)
+                    {
+                        lngByteOffset = mBinaryReader.Length;
+                    }
+
+                    if (lngByteOffset < mByteBufferFileOffsetStart)
+                    {
+                        // Need to slide the buffer window backward
+                        do
+                            mByteBufferFileOffsetStart -= mByteBuffer.Length;
+                        while (lngByteOffset < mByteBufferFileOffsetStart);
+                        if (mByteBufferFileOffsetStart < 0L)
+                        {
+                            mByteBufferFileOffsetStart = 0L;
+                        }
+
+                        mBinaryReader.Seek(mByteBufferFileOffsetStart, SeekOrigin.Begin);
+
+                        // Clear the buffer
+                        Array.Clear(mByteBuffer, 0, mByteBuffer.Length);
+                        intBytesRead = mBinaryReader.Read(mByteBuffer, 0, mByteBuffer.Length);
+                        mByteBufferCount = intBytesRead;
+                        mByteBufferNextLineStartIndex = (int)(lngByteOffset - mByteBufferFileOffsetStart);
+                    }
+                    else if (lngByteOffset > mByteBufferFileOffsetStart + mByteBufferCount)
+                    {
+                        if (mByteBufferFileOffsetStart < mBinaryReader.Length)
+                        {
+                            // Possibly slide the buffer window forward (note that if
+                            // mByteBufferCount < mByteBuffer.Length then we may not need to update mByteBufferFileOffsetStart)
+                            while (lngByteOffset > mByteBufferFileOffsetStart + mByteBuffer.Length)
+                                mByteBufferFileOffsetStart += mByteBuffer.Length;
+                            if (mByteBufferFileOffsetStart >= mBinaryReader.Length)
+                            {
+                                // This shouldn't normally happen
+                                mByteBufferFileOffsetStart -= mByteBuffer.Length;
+                                if (mByteBufferFileOffsetStart < 0L)
+                                {
+                                    mByteBufferFileOffsetStart = 0L;
+                                }
+                            }
+
+                            mBinaryReader.Seek(mByteBufferFileOffsetStart, SeekOrigin.Begin);
+
+                            // Clear the buffer
+                            Array.Clear(mByteBuffer, 0, mByteBuffer.Length);
+                            intBytesRead = mBinaryReader.Read(mByteBuffer, 0, mByteBuffer.Length);
+                            mByteBufferCount = intBytesRead;
+                        }
+
+                        mByteBufferNextLineStartIndex = (int)(lngByteOffset - mByteBufferFileOffsetStart);
+                        if (mByteBufferNextLineStartIndex > mByteBufferCount)
+                        {
+                            // This shouldn't normally happen
+                            mByteBufferNextLineStartIndex = mByteBufferCount;
+                        }
+                    }
+                    else
+                    {
+                        // The desired byte offset is already present in mByteBuffer
+                        mByteBufferNextLineStartIndex = (int)(lngByteOffset - mByteBufferFileOffsetStart);
+                        if (mByteBufferNextLineStartIndex > mByteBufferCount)
+                        {
+                            // This shouldn't normally happen, but is possible if jumping around a file and reading forward and
+                            mByteBufferNextLineStartIndex = mByteBufferCount;
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (mInputFilePath is null)
+                    mInputFilePath = string.Empty;
+                LogErrors("MoveToByteOffset", "Error moving to byte offset " + lngByteOffset.ToString() + " in file " + mInputFilePath + "; " + ex.Message);
+            }
+        }
+
+        public void MoveToBeginning()
+        {
+            // Move to the beginning of the file and freshly populate the byte buffer
+
+            int intIndex;
+            int intIndexStart;
+            int intIndexEnd;
+            int intCharCheckCount;
+            int intAlternatedZeroMatchCount;
+            try
+            {
+                mByteBufferFileOffsetStart = 0L;
+
+                // Clear the buffer
+                Array.Clear(mByteBuffer, 0, mByteBuffer.Length);
+                mBinaryReader.Seek(mByteBufferFileOffsetStart, SeekOrigin.Begin);
+                mByteBufferCount = mBinaryReader.Read(mByteBuffer, 0, mByteBuffer.Length);
+                mByteBufferNextLineStartIndex = 0;
+
+                // Look for a byte order mark at the beginning of the file
+                mByteOrderMarkLength = 0;
+                if (mByteBufferCount >= 2)
+                {
+                    if (mByteBuffer[0] == 255 & mByteBuffer[1] == 254)
+                    {
+                        // Unicode (Little Endian)
+                        // Note that this sets mCharSize to 2
+                        SetInputFileEncoding(InputFileEncodingConstants.UnicodeNormal);
+
+                        // Skip the first 2 bytes
+                        mByteBufferNextLineStartIndex = 2;
+                        mByteOrderMarkLength = 2;
+                    }
+                    else if (mByteBuffer[0] == 254 & mByteBuffer[1] == 255)
+                    {
+                        // Unicode (Big Endian)
+                        // Note that this sets mCharSize to 2
+                        SetInputFileEncoding(InputFileEncodingConstants.UnicodeBigEndian);
+                        // Skip the first 2 bytes
+                        mByteBufferNextLineStartIndex = 2;
+                        mByteOrderMarkLength = 2;
+                    }
+                    else if (mByteBufferCount >= 3)
+                    {
+                        if (mByteBuffer[0] == 239 & mByteBuffer[1] == 187 & mByteBuffer[2] == 191)
+                        {
+                            // UTF8
+                            // Note that this sets mCharSize to 1
+                            SetInputFileEncoding(InputFileEncodingConstants.UTF8);
+                            // Skip the first 3 bytes
+                            mByteBufferNextLineStartIndex = 3;
+                            mByteOrderMarkLength = 3;
+                        }
+                        else
+                        {
+                            // Examine the first 2000 bytes and check whether or not
+                            // every other byte is 0 for at least 95% of the data
+                            // If it is, then assume the appropriate Unicode format
+
+                            intIndexEnd = 2000;
+                            if (intIndexEnd >= mByteBufferCount - 1)
+                            {
+                                intIndexEnd = mByteBufferCount - 2;
+                            }
+
+                            for (intIndexStart = 0; intIndexStart <= 1; intIndexStart++)
+                            {
+                                intCharCheckCount = 0;
+                                intAlternatedZeroMatchCount = 0;
+                                var loopTo = mByteBufferCount - 2;
+                                for (intIndex = intIndexStart; intIndex <= loopTo; intIndex += 2)
+                                {
+                                    intCharCheckCount += 1;
+                                    if (mByteBuffer[intIndex] != 0 & mByteBuffer[intIndex + 1] == 0)
+                                    {
+                                        intAlternatedZeroMatchCount += 1;
+                                    }
+                                }
+
+                                if (intCharCheckCount > 0)
+                                {
+                                    if (intAlternatedZeroMatchCount / (double)intCharCheckCount >= 0.95d)
+                                    {
+                                        // Assume this is a Unicode file
+                                        if (intIndexStart == 0)
+                                        {
+                                            // Unicode (Little Endian)
+                                            SetInputFileEncoding(InputFileEncodingConstants.UnicodeNormal);
+                                        }
+                                        else
+                                        {
+                                            // Unicode (Big Endian)
+                                            SetInputFileEncoding(InputFileEncodingConstants.UnicodeBigEndian);
+                                        }
+
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                if (mInputFilePath is null)
+                    mInputFilePath = string.Empty;
+                LogErrors("MoveToBeginning", "Error moving to beginning of file " + mInputFilePath + "; " + ex.Message);
+            }
+        }
+
+        public void MoveToEnd()
+        {
+            try
+            {
+                if (mBinaryReader is object && mBinaryReader.CanRead)
+                {
+                    MoveToByteOffset(mBinaryReader.Length);
+                }
+            }
+            catch (Exception ex)
+            {
+                if (mInputFilePath is null)
+                    mInputFilePath = string.Empty;
+                LogErrors("MoveToEnd", "Error moving to end of file " + mInputFilePath + "; " + ex.Message);
+            }
+        }
+
+        public bool OpenFile(string dataFilePath)
+        {
+            return OpenFile(dataFilePath, FileShare.Read);
+        }
+
+        public bool OpenFile(string dataFilePath, FileShare share)
+        {
+            // Returns true if the file is successfully opened
+
+            bool blnSuccess;
+            mErrorMessage = string.Empty;
+
+            // Make sure any open file or text stream is closed
+            Close();
+            try
+            {
+                blnSuccess = false;
+                if (string.IsNullOrEmpty(dataFilePath))
+                {
+                    mErrorMessage = "Error opening file: input file path is blank";
+                    return false;
+                }
+
+                if (!File.Exists(dataFilePath))
+                {
+                    mErrorMessage = "File not found: " + InputFilePath;
+                    return false;
+                }
+
+                InitializeLocalVariables();
+                mInputFilePath = string.Copy(dataFilePath);
+
+                // Note that this sets mCharSize to 1
+                SetInputFileEncoding(InputFileEncodingConstants.Ascii);
+
+                // Initialize the binary reader
+                mBinaryReader = new FileStream(mInputFilePath, FileMode.Open, FileAccess.Read, share);
+                if (mBinaryReader.Length == 0L)
+                {
+                    Close();
+                    mErrorMessage = "File is zero-length";
+                    blnSuccess = false;
+                }
+                else
+                {
+                    MoveToBeginning();
+                    blnSuccess = true;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogErrors("OpenFile", "Error opening file: " + InputFilePath + "; " + ex.Message);
+                blnSuccess = false;
+            }
+
+            return blnSuccess;
+        }
+
+        public bool ReadLine()
+        {
+            return ReadLine(ReadDirectionConstants.Forward);
+        }
+
+        public bool ReadLine(ReadDirectionConstants eDirection)
+        {
+            // Looks for the next line in the file (by looking for the next LF symbol in the binary file)
+            // Returns True if success, False if failure
+            // Use Property CurrentLine to obtain the text for the line
+
+            int intSearchIndexStartOffset;
+            int intBytesRead;
+            int intBytesToRead;
+            int intIndex;
+            int intIndexMinimum;
+            int intIndexMaximum;
+            int intShiftIncrement;
+            int intMatchingTextIndexStart;
+            int intMatchingTextIndexEnd;
+            int intLineTerminatorLength;
+            int intTerminatorCheckCount;
+            int intTerminatorCheckCountValueZero;
+            double dblValueZeroFraction;
+            int intStartIndexShiftCount;
+            var intStartIndexShiftIncrement = default(int);
+            bool blnStartIndexShifted;
+            bool blnMatchFound;
+            bool blnTerminatorFound;
+            try
+            {
+                blnMatchFound = false;
+                blnTerminatorFound = false;
+                intStartIndexShiftCount = 0;
+                InitializeCurrentLine();
+                if (mBinaryReader is object && mBinaryReader.CanRead)
+                {
+                    switch (mInputFileEncoding)
+                    {
+                        case InputFileEncodingConstants.Ascii:
+                        case InputFileEncodingConstants.UTF8:
+                            {
+                                // Ascii or UTF-8 encoding; Assure mCharSize = 1
+                                mCharSize = 1;
+                                break;
+                            }
+
+                        case InputFileEncodingConstants.UnicodeNormal:
+                            {
+                                // Unicode (Little Endian) encoding; Assure mCharSize = 2
+                                mCharSize = 2;
+                                break;
+                            }
+
+                        case InputFileEncodingConstants.UnicodeBigEndian:
+                            {
+                                // Unicode (Big Endian) encoding; Assure mCharSize = 2
+                                mCharSize = 2;
+                                break;
+                            }
+
+                        default:
+                            {
+                                // Unknown encoding
+                                mCurrentLineText = string.Empty;
+                                return false;
+                            }
+                    }
+
+                    if (eDirection == ReadDirectionConstants.Forward)
+                    {
+                        intSearchIndexStartOffset = 0;
+                        if (ByteAtEOF(mByteBufferFileOffsetStart + mByteBufferNextLineStartIndex + intSearchIndexStartOffset))
+                        {
+                            mCurrentLineByteOffsetStart = mBinaryReader.Length;
+                            mCurrentLineByteOffsetEnd = mBinaryReader.Length;
+                            mCurrentLineByteOffsetEndWithTerminator = mBinaryReader.Length;
+                            return false;
+                        }
+                    }
+                    else
+                    {
+                        intSearchIndexStartOffset = -mCharSize * 2;
+                        if (ByteAtBOF(mByteBufferFileOffsetStart + mByteBufferNextLineStartIndex + intSearchIndexStartOffset))
+                        {
+                            return false;
+                        }
+                    }
+
+                    while (!blnMatchFound)
+                    {
+                        // Note that intSearchIndexStartOffset will be >=0 if searching forward and <=-2 if searching backward
+                        intIndex = mByteBufferNextLineStartIndex + intSearchIndexStartOffset;
+
+                        // Define the minimum and maximum allowable indices for searching for mLineTerminator2Code
+                        intIndexMinimum = mCharSize - 1;                     // This is only used when searching backward
+                        intIndexMaximum = mByteBufferCount - mCharSize;      // This is only used when searching forward
+                        if (eDirection == ReadDirectionConstants.Reverse && mLineTerminator1Code != 0 && mByteBufferFileOffsetStart > 0L)
+                        {
+                            // We're looking for a two-character line terminator (though the
+                            // presence of mLineTerminator1Code is not required)
+                            // Need to increment intIndexMinimum to guarantee we'll be able to find both line terminators if the
+                            // second line terminator happens to be at the start of mByteBuffer
+                            intIndexMinimum += mCharSize;
+                        }
+
+                        // Reset the terminator check counters
+                        intTerminatorCheckCount = 0;
+                        intTerminatorCheckCountValueZero = 0;
+                        blnStartIndexShifted = false;
+                        if (eDirection == ReadDirectionConstants.Reverse && intIndex >= intIndexMinimum || eDirection == ReadDirectionConstants.Forward && intIndex <= intIndexMaximum)
+                        {
+                            do
+                            {
+                                switch (mInputFileEncoding)
+                                {
+                                    case InputFileEncodingConstants.Ascii:
+                                    case InputFileEncodingConstants.UTF8:
+                                        {
+                                            // Ascii or UTF-8 encoding; Assure mCharSize = 1
+                                            if (mByteBuffer[intIndex] == mLineTerminator2Code)
+                                            {
+                                                blnTerminatorFound = true;
+                                                break;
+                                            }
+
+                                            break;
+                                        }
+
+                                    case InputFileEncodingConstants.UnicodeNormal:
+                                        {
+                                            // Look for the LF symbol followed by a byte with value 0 in mByteBuffer
+                                            if (mByteBuffer[intIndex] == mLineTerminator2Code && mByteBuffer[intIndex + 1] == 0)
+                                            {
+                                                blnTerminatorFound = true;
+                                                break;
+                                            }
+                                            else if (mByteBuffer[intIndex] == 0)
+                                            {
+                                                intTerminatorCheckCountValueZero += 1;
+                                            }
+
+                                            intTerminatorCheckCount += 1;
+                                            break;
+                                        }
+
+                                    case InputFileEncodingConstants.UnicodeBigEndian:
+                                        {
+                                            // Unicode (Big Endian) encoding; Assure mCharSize = 2
+                                            if (mByteBuffer[intIndex] == 0 && mByteBuffer[intIndex + 1] == mLineTerminator2Code)
+                                            {
+                                                blnTerminatorFound = true;
+                                                break;
+                                            }
+                                            else if (mByteBuffer[intIndex + 1] == 0)
+                                            {
+                                                intTerminatorCheckCountValueZero += 1;
+                                            }
+
+                                            intTerminatorCheckCount += 1;
+                                            break;
+                                        }
+                                }
+
+                                if (eDirection == ReadDirectionConstants.Forward)
+                                {
+                                    if (intIndex + mCharSize <= intIndexMaximum)
+                                    {
+                                        intIndex += mCharSize;
+                                    }
+                                    else
+                                    {
+                                        break;
+                                    }
+                                }
+                                else if (intIndex - mCharSize >= intIndexMinimum)
+                                {
+                                    intIndex -= mCharSize;
+                                }
+                                else
+                                {
+                                    break;
+                                }
+                            }
+                            while (!blnTerminatorFound);
+                        }
+
+                        if (!blnTerminatorFound)
+                        {
+                            if (intTerminatorCheckCount > 0)
+                            {
+                                dblValueZeroFraction = intTerminatorCheckCountValueZero / (double)intTerminatorCheckCount;
+                            }
+                            else
+                            {
+                                dblValueZeroFraction = 0d;
+                            }
+
+                            if (mCharSize > 1 && intStartIndexShiftCount < mCharSize - 1 && dblValueZeroFraction >= 0.95d)
+                            {
+
+                                // mByteBufferNextLineStartIndex is most likely off by 1
+                                // This could happen due to an inappropriate byte value being sent to MoveToByteOffset()
+                                // or due to a corrupted Unicode file
+
+                                // Shift mByteBufferNextLineStartIndex by 1 and try again
+                                if (intStartIndexShiftCount == 0)
+                                {
+                                    // First attempt to shift; determine the shift direction
+                                    if (eDirection == ReadDirectionConstants.Forward)
+                                    {
+                                        // Searching forward
+                                        if (mByteBufferNextLineStartIndex > mCharSize - 2)
+                                        {
+                                            intStartIndexShiftIncrement = -1;
+                                        }
+                                        else
+                                        {
+                                            intStartIndexShiftIncrement = 1;
+                                        }
+                                    }
+                                    // Searching reverse
+                                    else if (mByteBufferNextLineStartIndex < mByteBufferCount - (mCharSize - 2))
+                                    {
+                                        intStartIndexShiftIncrement = 1;
+                                    }
+                                    else
+                                    {
+                                        intStartIndexShiftIncrement = -1;
+                                    }
+                                }
+
+                                mByteBufferNextLineStartIndex += intStartIndexShiftIncrement;
+                                intStartIndexShiftCount += 1;
+                                blnStartIndexShifted = true;
+                            }
+                            else if (eDirection == ReadDirectionConstants.Forward)
+                            {
+                                // Searching forward; are we at the end of the file?
+                                if (ByteAtEOF(mByteBufferFileOffsetStart + intIndex + mCharSize))
+                                {
+                                    // Yes, we're at the end of the file
+                                    blnTerminatorFound = true;
+                                    intIndex = mByteBufferCount - 1;
+                                }
+                            }
+                            // Searching backward; are we at the beginning of the file?
+                            else if (ByteAtBOF(mByteBufferFileOffsetStart + intIndex))
+                            {
+                                // Yes, we're at the beginning of the file
+                                blnTerminatorFound = true;
+                                intIndex = mByteOrderMarkLength - mCharSize;
+                            }
+                        }
+
+                        if (blnTerminatorFound)
+                        {
+                            if (eDirection == ReadDirectionConstants.Forward)
+                            {
+                                intMatchingTextIndexStart = mByteBufferNextLineStartIndex;
+                                intMatchingTextIndexEnd = intIndex;
+                            }
+                            else
+                            {
+                                intMatchingTextIndexStart = intIndex + mCharSize;
+                                intMatchingTextIndexEnd = mByteBufferNextLineStartIndex - mCharSize;
+                            }
+
+                            // Determine the line terminator length
+                            switch (mInputFileEncoding)
+                            {
+                                case InputFileEncodingConstants.Ascii:
+                                case InputFileEncodingConstants.UTF8:
+                                    {
+                                        // Ascii encoding
+                                        if (mLineTerminator1Code != 0 && intMatchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize] == mLineTerminator1Code)
+                                        {
+                                            intLineTerminatorLength = 2;
+                                            mCurrentLineTerminator = Conversions.ToString(Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd - mCharSize])) + Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]);
+                                        }
+                                        else if (mByteBuffer[intMatchingTextIndexEnd] == mLineTerminator2Code)
+                                        {
+                                            intLineTerminatorLength = 1;
+                                            mCurrentLineTerminator = Conversions.ToString(Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]));
+                                        }
+                                        else
+                                        {
+                                            // No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
+                                            intLineTerminatorLength = 0;
+                                            mCurrentLineTerminator = string.Empty;
+                                        }
+
+                                        intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart - mCharSize * (intLineTerminatorLength - 1);
+                                        if (intBytesToRead <= 0)
+                                        {
+                                            // Blank line
+                                            mCurrentLineText = string.Empty;
+                                        }
+                                        else if (mInputFileEncoding == InputFileEncodingConstants.UTF8)
+                                        {
+                                            // Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
+                                            mCurrentLineText = Convert.ToString(Conversions.ToString(Encoding.UTF8.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead)));
+                                        }
+                                        else
+                                        {
+                                            // Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
+                                            mCurrentLineText = Convert.ToString(Conversions.ToString(Encoding.ASCII.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead)));
+                                        }
+
+                                        break;
+                                    }
+
+                                case InputFileEncodingConstants.UnicodeNormal:
+                                    {
+                                        // Unicode (Little Endian) encoding
+                                        if (mLineTerminator1Code != 0 && intMatchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize] == mLineTerminator1Code && mByteBuffer[intMatchingTextIndexEnd - mCharSize + 1] == 0)
+                                        {
+                                            intLineTerminatorLength = 2;
+                                            mCurrentLineTerminator = Conversions.ToString(Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd - mCharSize])) + Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]);
+                                        }
+                                        else if (mByteBuffer[intMatchingTextIndexEnd] == mLineTerminator2Code && intMatchingTextIndexEnd + 1 < mByteBufferCount && mByteBuffer[intMatchingTextIndexEnd + 1] == 0)
+                                        {
+                                            intLineTerminatorLength = 1;
+                                            mCurrentLineTerminator = Conversions.ToString(Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]));
+                                        }
+                                        else
+                                        {
+                                            // No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
+                                            intLineTerminatorLength = 0;
+                                            mCurrentLineTerminator = string.Empty;
+                                        }
+
+                                        // Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
+                                        intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart - mCharSize * (intLineTerminatorLength - 1);
+                                        if (intBytesToRead <= 0)
+                                        {
+                                            // Blank line
+                                            mCurrentLineText = string.Empty;
+                                        }
+                                        else
+                                        {
+                                            mCurrentLineText = Convert.ToString(Conversions.ToString(Encoding.Unicode.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead)));
+                                        }
+
+                                        break;
+                                    }
+
+                                case InputFileEncodingConstants.UnicodeBigEndian:
+                                    {
+                                        // Unicode (Big Endian) encoding
+                                        if (mLineTerminator1Code != 0 && intMatchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize] == 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize + 1] == mLineTerminator1Code)
+                                        {
+                                            intLineTerminatorLength = 2;
+                                            mCurrentLineTerminator = Conversions.ToString(Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd - mCharSize + 1])) + Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd + 1]);
+                                        }
+                                        else if (mByteBuffer[intMatchingTextIndexEnd] == 0 && intMatchingTextIndexEnd + 1 < mByteBufferCount && mByteBuffer[intMatchingTextIndexEnd + 1] == mLineTerminator2Code)
+                                        {
+                                            intLineTerminatorLength = 1;
+                                            mCurrentLineTerminator = Conversions.ToString(Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd + 1]));
+                                        }
+                                        else
+                                        {
+                                            // No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
+                                            intLineTerminatorLength = 0;
+                                            mCurrentLineTerminator = string.Empty;
+                                        }
+
+                                        // Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
+                                        intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart - mCharSize * (intLineTerminatorLength - 1);
+                                        if (intBytesToRead <= 0)
+                                        {
+                                            // Blank line
+                                            mCurrentLineText = string.Empty;
+                                        }
+                                        else
+                                        {
+                                            mCurrentLineText = Convert.ToString(Conversions.ToString(Encoding.BigEndianUnicode.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead)));
+                                        }
+
+                                        break;
+                                    }
+
+                                default:
+                                    {
+                                        // Unknown/unsupported encoding
+                                        mCurrentLineText = string.Empty;
+                                        blnMatchFound = false;
+                                        break;
+                                    }
+                            }
+
+                            if (mCharSize > 1 && !ByteAtEOF(mByteBufferFileOffsetStart + intMatchingTextIndexEnd))
+                            {
+                                intMatchingTextIndexEnd += mCharSize - 1;
+                            }
+
+                            mCurrentLineByteOffsetStart = mByteBufferFileOffsetStart + intMatchingTextIndexStart;
+                            mCurrentLineByteOffsetEndWithTerminator = mByteBufferFileOffsetStart + intMatchingTextIndexEnd;
+                            mCurrentLineByteOffsetEnd = mByteBufferFileOffsetStart + intMatchingTextIndexEnd - intLineTerminatorLength * mCharSize;
+                            if (mCurrentLineByteOffsetEnd < mCurrentLineByteOffsetStart)
+                            {
+                                // Zero-length line
+                                mCurrentLineByteOffsetEnd = mCurrentLineByteOffsetStart;
+                            }
+
+                            if (eDirection == ReadDirectionConstants.Forward)
+                            {
+                                mByteBufferNextLineStartIndex = intMatchingTextIndexEnd + 1;
+                                mLineNumber += 1;
+                            }
+                            else
+                            {
+                                mByteBufferNextLineStartIndex = intMatchingTextIndexStart;
+                                if (mLineNumber > 0)
+                                {
+                                    mLineNumber -= 1;
+                                }
+                            }
+
+                            // Check whether the user just changed reading direction
+                            // If they did, then it is possible that this function will return the exact same line
+                            // as was previously read.  Check for this, and if true, then read the next line (in direction eDiretion)
+                            if (eDirection != mReadLineDirectionSaved && mCurrentLineByteOffsetStartSaved >= 0L && mCurrentLineByteOffsetStart == mCurrentLineByteOffsetStartSaved && mCurrentLineTextSaved is object && (mCurrentLineText ?? "") == (mCurrentLineTextSaved ?? ""))
+                            {
+
+                                // Recursively call this function to read the next line
+                                // To avoid infinite loops, set mCurrentLineByteOffsetStartSaved to -1
+                                mCurrentLineByteOffsetStartSaved = -1;
+                                blnMatchFound = ReadLine(eDirection);
+                            }
+                            else
+                            {
+                                blnMatchFound = true;
+                            }
+
+                            break;
+                        }
+
+                        if (!blnMatchFound && !blnStartIndexShifted)
+                        {
+                            // Need to add more data to the buffer (or shift the data in the buffer)
+                            if (eDirection == ReadDirectionConstants.Forward)
+                            {
+                                if (mBinaryReader.Position >= mBinaryReader.Length)
+                                {
+                                    // Already at the end of the file; cannot move forward
+                                    break;
+                                }
+
+                                if (mByteBufferNextLineStartIndex > 0)
+                                {
+                                    // First, shift all of the data so that element mByteBufferNextLineStartIndex moves to element 0
+                                    var loopTo = mByteBufferCount - 1;
+                                    for (intIndex = mByteBufferNextLineStartIndex; intIndex <= loopTo; intIndex++)
+                                        mByteBuffer[intIndex - mByteBufferNextLineStartIndex] = mByteBuffer[intIndex];
+                                    mByteBufferCount -= mByteBufferNextLineStartIndex;
+                                    mByteBufferFileOffsetStart += mByteBufferNextLineStartIndex;
+                                    intSearchIndexStartOffset = mByteBufferCount;
+                                    mByteBufferNextLineStartIndex = 0;
+                                    if (mByteBufferFileOffsetStart + mByteBufferCount != mBinaryReader.Position)
+                                    {
+                                        // The file read-position is out-of-sync with mByteBufferFileOffsetStart; this can happen
+                                        // if we used MoveToByteOffset, read backward, and are now reading forward
+                                        mBinaryReader.Seek(mByteBufferFileOffsetStart + mByteBufferCount, SeekOrigin.Begin);
+                                    }
+                                }
+                                else
+                                {
+                                    intSearchIndexStartOffset = mByteBufferCount;
+                                    if (mByteBufferCount >= mByteBuffer.Length)
+                                    {
+                                        // Need to expand the buffer
+                                        // In order to support Unicode files, it is important that the buffer length always be a power of 2
+                                        Array.Resize(ref mByteBuffer, mByteBuffer.Length * 2);
+                                    }
+                                }
+
+                                intBytesRead = mBinaryReader.Read(mByteBuffer, intSearchIndexStartOffset, mByteBuffer.Length - intSearchIndexStartOffset);
+                                if (intBytesRead == 0)
+                                {
+                                    // No data could be read; exit the loop
+                                    break;
+                                }
+                                else
+                                {
+                                    mByteBufferCount += intBytesRead;
+                                }
+                            }
+                            else
+                            {
+                                if (mByteBufferFileOffsetStart <= mByteOrderMarkLength || mBinaryReader.Position <= 0L)
+                                {
+                                    // Already at the beginning of the file; cannot move backward
+                                    break;
+                                }
+
+                                if (mByteBufferCount >= mByteBuffer.Length & mByteBufferNextLineStartIndex >= mByteBuffer.Length)
+                                {
+                                    // The byte buffer is full and mByteBufferNextLineStartIndex is past the end of the buffer
+                                    // Need to double its size, shift the data from the first half to the second half, and
+                                    // populate the first half
+
+                                    // Expand the buffer
+                                    // In order to support Unicode files, it is important that the buffer length always be a power of 2
+                                    Array.Resize(ref mByteBuffer, mByteBuffer.Length * 2);
+                                }
+
+                                if (mByteBufferCount < mByteBuffer.Length)
+                                {
+                                    intShiftIncrement = mByteBuffer.Length - mByteBufferCount;
+                                }
+                                else
+                                {
+                                    intShiftIncrement = mByteBuffer.Length - mByteBufferNextLineStartIndex;
+                                }
+
+                                if (mByteBufferFileOffsetStart - intShiftIncrement < mByteOrderMarkLength)
+                                {
+                                    intShiftIncrement = (int)mByteBufferFileOffsetStart - mByteOrderMarkLength;
+                                }
+
+                                // Possibly update mByteBufferCount
+                                if (mByteBufferCount < mByteBuffer.Length)
+                                {
+                                    mByteBufferCount += intShiftIncrement;
+                                }
+
+                                // Shift the data
+                                for (intIndex = mByteBufferCount - intShiftIncrement - 1; intIndex >= 0; intIndex -= 1)
+                                    mByteBuffer[intShiftIncrement + intIndex] = mByteBuffer[intIndex];
+
+                                // Update the tracking variables
+                                mByteBufferFileOffsetStart -= intShiftIncrement;
+                                mByteBufferNextLineStartIndex += intShiftIncrement;
+
+                                // Populate the first portion of the byte buffer with new data
+                                mBinaryReader.Seek(mByteBufferFileOffsetStart, SeekOrigin.Begin);
+                                intBytesRead = mBinaryReader.Read(mByteBuffer, 0, intShiftIncrement);
+                                if (intBytesRead == 0)
+                                {
+                                    // No data could be read; this shouldn't ever happen
+                                    // Move to the beginning of the file and re-populate mByteBuffer
+                                    MoveToBeginning();
+                                    break;
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogErrors("ReadLine", ex.Message);
+                blnMatchFound = false;
+            }
+
+            if (blnMatchFound)
+            {
+                mReadLineDirectionSaved = eDirection;
+                mCurrentLineByteOffsetStartSaved = mCurrentLineByteOffsetStart;
+                mCurrentLineTextSaved = string.Copy(mCurrentLineText);
+            }
+            else
+            {
+                mReadLineDirectionSaved = eDirection;
+                mCurrentLineByteOffsetStartSaved = -1;
+                mCurrentLineTextSaved = string.Empty;
+            }
+
+            return blnMatchFound;
+        }
+
+        private void SetInputFileEncoding(InputFileEncodingConstants EncodingMode)
+        {
+            mInputFileEncoding = EncodingMode;
+            switch (mInputFileEncoding)
+            {
+                case InputFileEncodingConstants.Ascii:
+                case InputFileEncodingConstants.UTF8:
+                    {
+                        mCharSize = 1;
+                        break;
+                    }
+
+                case InputFileEncodingConstants.UnicodeNormal:
+                    {
+                        mCharSize = 2;
+                        break;
+                    }
+
+                case InputFileEncodingConstants.UnicodeBigEndian:
+                    {
+                        mCharSize = 2;
+                        break;
+                    }
+
+                default:
+                    {
+                        // Unknown mode; assume mCharSize = 1
+                        mCharSize = 1;
+                        break;
+                    }
+            }
+        }
+    }
+}

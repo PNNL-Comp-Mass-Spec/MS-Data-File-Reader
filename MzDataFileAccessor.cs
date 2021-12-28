@@ -1,687 +1,772 @@
-Option Strict On
-
-Imports System.IO
-Imports System.Runtime.InteropServices
-Imports System.Text.RegularExpressions
-Imports System.Xml
-
-' This class can be used to open a .mzData file and index the location
-' of all of the spectra present.  This does not cache the mass spectra data in
-' memory, and therefore uses little memory, but once the indexing is complete,
-' random access to the spectra is possible.  After the indexing is complete, spectra
-' can be obtained using GetSpectrumByScanNumber or GetSpectrumByIndex
-
-' -------------------------------------------------------------------------------
-' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-' Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-' Program started April 16, 2006
-'
-' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-' Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
-' -------------------------------------------------------------------------------
-'
-' Licensed under the Apache License, Version 2.0; you may not use this file except
-' in compliance with the License.  You may obtain a copy of the License at
-' http://www.apache.org/licenses/LICENSE-2.0
-'
-' Notice: This computer software was prepared by Battelle Memorial Institute,
-' hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
-' Department of Energy (DOE).  All rights in the computer software are reserved
-' by DOE on behalf of the United States Government and the Contractor as
-' provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY
-' WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
-' SOFTWARE.  This notice including this sentence must appear on any copies of
-' this computer software.
-'
-
-Public Class clsMzDataFileAccessor
-    Inherits clsMSDataFileAccessorBaseClass
-
-    Public Sub New()
-        InitializeObjectVariables()
-        InitializeLocalVariables()
-    End Sub
-
-    Protected Overrides Sub Finalize()
-        MyBase.Finalize()
-
-        If mXmlFileReader IsNot Nothing Then
-            mXmlFileReader = Nothing
-        End If
-    End Sub
-
-#Region "Constants and Enums"
-
-    Private Const SPECTRUM_LIST_START_ELEMENT As String = "<spectrumList"
-    Private Const SPECTRUM_LIST_END_ELEMENT As String = "</spectrumList>"
-
-    Private Const SPECTRUM_START_ELEMENT As String = "<spectrum"
-    Private Const SPECTRUM_END_ELEMENT As String = "</spectrum>"
-
-    Private Const MZDATA_START_ELEMENT As String = "<mzData"
-    Private Const MZDATA_END_ELEMENT As String = "</mzData>"
-
-#End Region
-
-#Region "Classwide Variables"
-
-    Private mXmlFileReader As clsMzDataFileReader
-
-    Private mCurrentSpectrumInfo As clsSpectrumInfoMzData
-
-    Private mInputFileStatsSpectrumIDMinimum As Integer
-    Private mInputFileStatsSpectrumIDMaximum As Integer
-
-    Private mXmlFileHeader As String
-    Private mAddNewLinesToHeader As Boolean
-
-    Private mSpectrumStartElementRegEx As Regex
-    Private mSpectrumEndElementRegEx As Regex
-
-    Private mSpectrumListRegEx As Regex
-    Private mAcquisitionNumberRegEx As Regex
-    Private mSpectrumIDRegEx As Regex
-
-    ' This hash table maps spectrum ID to index in mCachedSpectra()
-    ' If more than one spectrum has the same spectrum ID, then tracks the first one read
-    Private mIndexedSpectraSpectrumIDToIndex As Hashtable
-
-    Private mXMLReaderSettings As XmlReaderSettings
-
-#End Region
-
-#Region "Processing Options and Interface Functions"
-
-    Public ReadOnly Property CachedSpectraSpectrumIDMinimum() As Integer
-        Get
-            Return mInputFileStatsSpectrumIDMinimum
-        End Get
-    End Property
-
-    Public ReadOnly Property CachedSpectraSpectrumIDMaximum() As Integer
-        Get
-            Return mInputFileStatsSpectrumIDMaximum
-        End Get
-    End Property
-
-    Public Overrides Property ParseFilesWithUnknownVersion() As Boolean
-        Get
-            Return MyBase.ParseFilesWithUnknownVersion
-        End Get
-        Set(Value As Boolean)
-            MyBase.ParseFilesWithUnknownVersion = Value
-            If mXmlFileReader IsNot Nothing Then
-                mXmlFileReader.ParseFilesWithUnknownVersion = Value
-            End If
-        End Set
-    End Property
-
-#End Region
-
-    Protected Overrides Function AdvanceFileReaders(eElementMatchMode As emmElementMatchModeConstants) As Boolean
-        ' Uses the BinaryTextReader to look for strTextToFind
-
-        Dim blnMatchFound As Boolean
-        Dim blnAppendingText As Boolean
-        Dim lngByteOffsetForRewind As Long
-
-        Dim blnLookForScanCountOnNextRead As Boolean
-        Dim strScanCountSearchText As String = String.Empty
-
-        Dim intCharIndex As Integer
-
-        Dim strAcqNumberSearchText As String
-        Dim blnAcqNumberFound As Boolean
-
-        Dim strInFileCurrentLineSubstring As String
-
-        Dim objMatch As Match
-
-        Try
-            If mInFileCurrentLineText Is Nothing Then
-                mInFileCurrentLineText = String.Empty
-            End If
-
-            strInFileCurrentLineSubstring = String.Empty
-            blnAppendingText = False
-
-            strAcqNumberSearchText = String.Empty
-            blnAcqNumberFound = False
-
-            blnMatchFound = False
-            Do While Not (blnMatchFound Or mAbortProcessing)
-
-                If mInFileCurrentCharIndex + 1 < mInFileCurrentLineText.Length Then
-
-                    If blnAppendingText Then
-                        strInFileCurrentLineSubstring &= ControlChars.NewLine &
-                                                         mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1)
-                    Else
-                        strInFileCurrentLineSubstring = mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1)
-                    End If
-
-                    If mAddNewLinesToHeader Then
-                        ' We haven't yet found the first scan; look for "<spectrumList"
-                        intCharIndex = mInFileCurrentLineText.IndexOf(SPECTRUM_LIST_START_ELEMENT,
-                                                                      mInFileCurrentCharIndex + 1,
-                                                                      StringComparison.Ordinal)
-
-                        If intCharIndex >= 0 Then
-                            ' Only add a portion of mInFileCurrentLineText to mXmlFileHeader
-                            '  since it contains SPECTRUM_LIST_START_ELEMENT
-
-                            If intCharIndex > 0 Then
-                                mXmlFileHeader &= mInFileCurrentLineText.Substring(0, intCharIndex)
-                            End If
-                            mAddNewLinesToHeader = False
-
-                            strScanCountSearchText = strInFileCurrentLineSubstring.Substring(intCharIndex)
-                            blnLookForScanCountOnNextRead = True
-                        Else
-                            ' Append mInFileCurrentLineText to mXmlFileHeader
-                            mXmlFileHeader &= mInFileCurrentLineText & ControlChars.NewLine
-                        End If
-                    ElseIf blnLookForScanCountOnNextRead Then
-                        strScanCountSearchText &= ControlChars.NewLine & strInFileCurrentLineSubstring
-                    End If
-
-                    If blnLookForScanCountOnNextRead Then
-                        ' Look for the Scan Count value in strScanCountSearchText
-                        objMatch = mSpectrumListRegEx.Match(strScanCountSearchText)
-
-                        If objMatch.Success Then
-                            ' Record the Scan Count value
-                            If objMatch.Groups.Count > 1 Then
-                                Try
-                                    mInputFileStats.ScanCount = CInt(objMatch.Groups(1).Captures(0).Value)
-                                Catch ex As Exception
-                                End Try
-                            End If
-                            blnLookForScanCountOnNextRead = False
-                        Else
-                            ' The count attribute is not on the same line as the <spectrumList element
-                            ' Set blnLookForScanCountOnNextRead to true if strScanCountSearchText does not contain the end element symbol, i.e. >
-                            If strScanCountSearchText.IndexOf(">"c) >= 0 Then
-                                blnLookForScanCountOnNextRead = False
-                            End If
-                        End If
-                    End If
-
-                    If eElementMatchMode = emmElementMatchModeConstants.EndElement AndAlso Not blnAcqNumberFound Then
-                        strAcqNumberSearchText &= ControlChars.NewLine & strInFileCurrentLineSubstring
-
-                        ' Look for the acquisition number
-                        ' Because strAcqNumberSearchText contains all of the text from <spectrum on (i.e. not just the text for the current line)
-                        '  the test by mAcquisitionNumberRegEx should match the acqNumber attribute even if it is not
-                        '  on the same line as <acquisition or if it is not the first attribute following <acquisition
-                        objMatch = mAcquisitionNumberRegEx.Match(strAcqNumberSearchText)
-                        If objMatch.Success Then
-                            If objMatch.Groups.Count > 1 Then
-                                Try
-                                    blnAcqNumberFound = True
-                                    mCurrentSpectrumInfo.ScanNumber = CInt(objMatch.Groups(1).Captures(0).Value)
-                                Catch ex As Exception
-                                End Try
-                            End If
-                        End If
-                    End If
-
-                    ' Look for the appropriate search text in mInFileCurrentLineText, starting at mInFileCurrentCharIndex + 1
-                    Select Case eElementMatchMode
-                        Case emmElementMatchModeConstants.StartElement
-                            objMatch = mSpectrumStartElementRegEx.Match(strInFileCurrentLineSubstring)
-                        Case emmElementMatchModeConstants.EndElement
-                            objMatch = mSpectrumEndElementRegEx.Match(strInFileCurrentLineSubstring)
-                        Case Else
-                            ' Unknown mode
-                            LogErrors("AdvanceFileReaders",
-                                      "Unknown mode for eElementMatchMode: " & eElementMatchMode.ToString)
-                            Return False
-                    End Select
-
-                    If objMatch.Success Then
-                        ' Match Found
-                        blnMatchFound = True
-                        intCharIndex = objMatch.Index + 1 + mInFileCurrentCharIndex
-
-                        If eElementMatchMode = emmElementMatchModeConstants.StartElement Then
-                            ' Look for the id value after <spectrum
-                            objMatch = mSpectrumIDRegEx.Match(strInFileCurrentLineSubstring)
-                            If objMatch.Success Then
-                                If objMatch.Groups.Count > 1 Then
-                                    Try
-                                        mCurrentSpectrumInfo.SpectrumID = CInt(objMatch.Groups(1).Captures(0).Value)
-                                    Catch ex As Exception
-                                    End Try
-                                End If
-                            Else
-                                ' Could not find the id attribute
-                                ' If strInFileCurrentLineSubstring does not contain SPECTRUM_END_ELEMENT, then
-                                '  set blnAppendingText to True and continue reading
-                                If strInFileCurrentLineSubstring.IndexOf(SPECTRUM_END_ELEMENT, StringComparison.Ordinal) < 0 Then
-                                    blnMatchFound = False
-                                    If Not blnAppendingText Then
-                                        blnAppendingText = True
-                                        ' Record the byte offset of the start of the current line
-                                        ' We will use this offset to "rewind" the file pointer once the id attribute is found
-                                        lngByteOffsetForRewind = mBinaryTextReader.CurrentLineByteOffsetStart
-                                    End If
-                                End If
-                            End If
-
-                        ElseIf eElementMatchMode = emmElementMatchModeConstants.EndElement Then
-                            ' Move to the end of the element
-                            intCharIndex += objMatch.Value.Length - 1
-                            If intCharIndex >= mInFileCurrentLineText.Length Then
-                                ' This shouldn't happen
-                                LogErrors("AdvanceFileReaders",
-                                          "Unexpected condition: intCharIndex >= mInFileCurrentLineText.Length")
-                                intCharIndex = mInFileCurrentLineText.Length - 1
-                            End If
-                        End If
-
-                        mInFileCurrentCharIndex = intCharIndex
-                        If blnMatchFound Then
-                            If blnAppendingText Then
-                                mBinaryTextReader.MoveToByteOffset(lngByteOffsetForRewind)
-                                mBinaryTextReader.ReadLine()
-                                mInFileCurrentLineText = mBinaryTextReader.CurrentLine
-                            End If
-
-                            Exit Do
-                        End If
-                    End If
-
-                End If
-
-                ' Read the next line from the BinaryTextReader
-                If Not mBinaryTextReader.ReadLine Then
-                    Exit Do
-                End If
-
-                mInFileCurrentLineText = mBinaryTextReader.CurrentLine
-                mInFileCurrentCharIndex = -1
-            Loop
-        Catch ex As Exception
-            LogErrors("AdvanceFileReaders", ex.Message)
-            blnMatchFound = False
-        End Try
-
-        Return blnMatchFound
-    End Function
-
-    <Obsolete("No longer used")>
-    Public Overrides Function GetSourceXMLFooter() As String
-        Return SPECTRUM_LIST_END_ELEMENT & ControlChars.NewLine & MZDATA_END_ELEMENT & ControlChars.NewLine
-    End Function
-
-    <Obsolete("No longer used")>
-    Public Overrides Function GetSourceXMLHeader(intScanCountTotal As Integer, sngStartTimeMinutesAllScans As Single,
-                                                 sngEndTimeMinutesAllScans As Single) As String
-        Dim strHeaderText As String
-        Dim intAsciiValue As Integer
-
-        If mXmlFileHeader Is Nothing Then mXmlFileHeader = String.Empty
-        strHeaderText = String.Copy(mXmlFileHeader)
-
-        If strHeaderText.Length = 0 Then
-            strHeaderText = "<?xml version=""1.0"" encoding=""UTF-8""?>" & ControlChars.NewLine &
-                            MZDATA_START_ELEMENT & " version=""1.05"" accessionNumber=""psi-ms:100""" &
-                            " xmlns:xsi=""http://www.w3.org/2001/XMLSchema-instance"">" & ControlChars.NewLine
-        End If
-
-        intAsciiValue = Convert.ToInt32(strHeaderText.Chars(strHeaderText.Length - 1))
-        If Not (intAsciiValue = 10 OrElse intAsciiValue = 13 OrElse intAsciiValue = 9 OrElse intAsciiValue = 32) Then
-            strHeaderText &= ControlChars.NewLine
-        End If
-
-        Return strHeaderText & " " & SPECTRUM_LIST_START_ELEMENT & " count=""" & intScanCountTotal & """>"
-    End Function
-
-    Protected Overrides Function GetSpectrumByIndexWork(
-                                                        intSpectrumIndex As Integer,
-                                                        <Out()> ByRef objCurrentSpectrumInfo As clsSpectrumInfo,
-                                                        blnHeaderInfoOnly As Boolean) As Boolean
-
-        Dim blnSuccess As Boolean
-        objCurrentSpectrumInfo = Nothing
-
-        Try
-            blnSuccess = False
-            If GetSpectrumReadyStatus(True) Then
-
-                If mXmlFileReader Is Nothing Then
-                    mXmlFileReader = New clsMzDataFileReader With {
-                        .ParseFilesWithUnknownVersion = mParseFilesWithUnknownVersion
-                    }
-                End If
-
-                If mIndexedSpectrumInfoCount = 0 Then
-                    mErrorMessage = "Indexed data not in memory"
-                ElseIf intSpectrumIndex >= 0 And intSpectrumIndex < mIndexedSpectrumInfoCount Then
-                    ' Move the binary file reader to .ByteOffsetStart and instantiate an XMLReader at that position
-                    mBinaryReader.Position = mIndexedSpectrumInfo(intSpectrumIndex).ByteOffsetStart
-
-                    MyBase.UpdateProgress((mBinaryReader.Position / mBinaryReader.Length * 100.0))
-
-                    ' Create a new XmlTextReader
-                    Using reader = XmlReader.Create(mBinaryReader, mXMLReaderSettings)
-                        reader.MoveToContent()
-
-                        mXmlFileReader.SetXMLReaderForSpectrum(reader.ReadSubtree())
-
-                        blnSuccess = mXmlFileReader.ReadNextSpectrum(objCurrentSpectrumInfo)
-
-                    End Using
-
-                    If Not String.IsNullOrWhiteSpace(mXmlFileReader.FileVersion) Then
-                        mFileVersion = mXmlFileReader.FileVersion
-                    End If
-
-                Else
-                    mErrorMessage = "Invalid spectrum index: " & intSpectrumIndex.ToString
-                End If
-            End If
-        Catch ex As Exception
-            LogErrors("GetSpectrumByIndexWork", ex.Message)
-        End Try
-
-        Return blnSuccess
-    End Function
-
-    Public Function GetSpectrumBySpectrumID(intSpectrumID As Integer, <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
-        Return GetSpectrumBySpectrumIDWork(intSpectrumID, objSpectrumInfo, False)
-    End Function
-
-    Private Function GetSpectrumBySpectrumIDWork(
-      intSpectrumID As Integer,
-      <Out()> ByRef objSpectrumInfo As clsSpectrumInfo,
-      blnHeaderInfoOnly As Boolean) As Boolean
-
-        ' Returns True if success, False if failure
-        ' Only valid if we have Indexed data in memory
-
-        Dim intSpectrumIndex As Integer
-
-        Dim blnSuccess As Boolean
-        objSpectrumInfo = Nothing
-
-        Try
-            blnSuccess = False
-            mErrorMessage = String.Empty
-            If mDataReaderMode = drmDataReaderModeConstants.Cached Then
-                mErrorMessage =
-                    "Cannot obtain spectrum by spectrum ID when data is cached in memory; only valid when the data is indexed"
-            ElseIf mDataReaderMode = drmDataReaderModeConstants.Indexed Then
-                If GetSpectrumReadyStatus(True) Then
-                    If mIndexedSpectraSpectrumIDToIndex Is Nothing OrElse mIndexedSpectraSpectrumIDToIndex.Count = 0 Then
-                        For intSpectrumIndex = 0 To mIndexedSpectrumInfoCount - 1
-                            If mIndexedSpectrumInfo(intSpectrumIndex).SpectrumID = intSpectrumID Then
-                                blnSuccess = GetSpectrumByIndexWork(intSpectrumIndex, objSpectrumInfo, blnHeaderInfoOnly)
-                                Exit For
-                            End If
-                        Next intSpectrumIndex
-                    Else
-                        ' Look for intSpectrumID in mIndexedSpectraSpectrumIDToIndex
-                        Dim objIndex = mIndexedSpectraSpectrumIDToIndex(intSpectrumID)
-                        If objIndex IsNot Nothing Then
-                            intSpectrumIndex = CType(objIndex, Integer)
-                            blnSuccess = GetSpectrumByIndexWork(intSpectrumIndex, objSpectrumInfo, blnHeaderInfoOnly)
-                        End If
-                    End If
-
-                    If Not blnSuccess AndAlso mErrorMessage.Length = 0 Then
-                        mErrorMessage = "Invalid spectrum ID: " & intSpectrumID.ToString
-                    End If
-                End If
-            Else
-                mErrorMessage = "Cached or indexed data not in memory"
-            End If
-        Catch ex As Exception
-            LogErrors("GetSpectrumBySpectrumID", ex.Message)
-        End Try
-
-        Return blnSuccess
-    End Function
-
-    Public Function GetSpectrumHeaderInfoBySpectrumID(
-      intSpectrumID As Integer,
-      <Out()> ByRef objSpectrumInfo As clsSpectrumInfo) As Boolean
-        Return GetSpectrumBySpectrumIDWork(intSpectrumID, objSpectrumInfo, True)
-    End Function
-
-    Public Function GetSpectrumIDList(<Out()> ByRef SpectrumIDList() As Integer) As Boolean
-        ' Return the list of indexed spectrumID values
-
-        Dim intSpectrumIndex As Integer
-        Dim blnSuccess As Boolean
-
-        Try
-            blnSuccess = False
-            If mDataReaderMode = drmDataReaderModeConstants.Cached Then
-                ' Cannot get the spectrum ID list when mDataReaderMode = Cached
-                ReDim SpectrumIDList(-1)
-            Else
-                If GetSpectrumReadyStatus(True) Then
-                    If mIndexedSpectrumInfo Is Nothing OrElse mIndexedSpectrumInfoCount = 0 Then
-                        ReDim SpectrumIDList(-1)
-                    Else
-                        ReDim SpectrumIDList(mIndexedSpectrumInfoCount - 1)
-                        For intSpectrumIndex = 0 To SpectrumIDList.Length - 1
-                            SpectrumIDList(intSpectrumIndex) = mIndexedSpectrumInfo(intSpectrumIndex).SpectrumID
-                        Next intSpectrumIndex
-                        blnSuccess = True
-                    End If
-                Else
-                    ReDim SpectrumIDList(-1)
-                End If
-            End If
-        Catch ex As Exception
-            LogErrors("GetSpectrumIDList", ex.Message)
-            ReDim SpectrumIDList(-1)
-        End Try
-
-        Return blnSuccess
-    End Function
-
-    Protected Overrides Sub InitializeLocalVariables()
-        MyBase.InitializeLocalVariables()
-
-        mInputFileStatsSpectrumIDMinimum = 0
-        mInputFileStatsSpectrumIDMaximum = 0
-
-        mXmlFileHeader = String.Empty
-        mAddNewLinesToHeader = True
-
-        If mIndexedSpectraSpectrumIDToIndex Is Nothing Then
-            mIndexedSpectraSpectrumIDToIndex = New Hashtable
-        Else
-            mIndexedSpectraSpectrumIDToIndex.Clear()
-        End If
-    End Sub
-
-    Private Sub InitializeObjectVariables()
-        ' Note: This form of the RegEx allows the <spectrum element to be followed by a space or present at the end of the line
-        mSpectrumStartElementRegEx = InitializeRegEx(SPECTRUM_START_ELEMENT & "\s+|" & SPECTRUM_START_ELEMENT & "$")
-
-        mSpectrumEndElementRegEx = InitializeRegEx(SPECTRUM_END_ELEMENT)
-
-        ' Note: This form of the RegEx allows for the count attribute to occur on a separate line from <spectrumList
-        '       It also allows for other attributes to be present between <spectrumList and the count attribute
-        mSpectrumListRegEx = InitializeRegEx(SPECTRUM_LIST_START_ELEMENT & "[^/]+count\s*=\s*""([0-9]+)""")
-
-        ' Note: This form of the RegEx allows for the id attribute to occur on a separate line from <spectrum
-        '       It also allows for other attributes to be present between <spectrum and the id attribute
-        mSpectrumIDRegEx = InitializeRegEx(SPECTRUM_START_ELEMENT & "[^/]+id\s*=\s*""([0-9]+)""")
-
-        ' Note: This form of the RegEx allows for the acqNumber attribute to occur on a separate line from <acquisition
-        '       It also allows for other attributes to be present between <acquisition and the acqNumber attribute
-        mAcquisitionNumberRegEx = InitializeRegEx("<acquisition[^/]+acqNumber\s*=\s*""([0-9]+)""")
-
-        mXMLReaderSettings = New XmlReaderSettings With {
-            .IgnoreWhitespace = True
+﻿using System;
+using System.Collections;
+using System.IO;
+using System.Text.RegularExpressions;
+using System.Xml;
+
+namespace MSDataFileReader
+{
+
+    // This class can be used to open a .mzData file and index the location
+    // of all of the spectra present.  This does not cache the mass spectra data in
+    // memory, and therefore uses little memory, but once the indexing is complete,
+    // random access to the spectra is possible.  After the indexing is complete, spectra
+    // can be obtained using GetSpectrumByScanNumber or GetSpectrumByIndex
+
+    // -------------------------------------------------------------------------------
+    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+    // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
+    // Program started April 16, 2006
+    //
+    // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+    // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+    // -------------------------------------------------------------------------------
+    //
+    // Licensed under the Apache License, Version 2.0; you may not use this file except
+    // in compliance with the License.  You may obtain a copy of the License at
+    // http://www.apache.org/licenses/LICENSE-2.0
+    //
+    // Notice: This computer software was prepared by Battelle Memorial Institute,
+    // hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
+    // Department of Energy (DOE).  All rights in the computer software are reserved
+    // by DOE on behalf of the United States Government and the Contractor as
+    // provided in the Contract.  NEITHER THE GOVERNMENT NOR THE CONTRACTOR MAKES ANY
+    // WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
+    // SOFTWARE.  This notice including this sentence must appear on any copies of
+    // this computer software.
+    //
+
+    public class clsMzDataFileAccessor : clsMSDataFileAccessorBaseClass
+    {
+        public clsMzDataFileAccessor()
+        {
+            InitializeObjectVariables();
+            InitializeLocalVariables();
         }
-    End Sub
 
-    Protected Overrides Function LoadExistingIndex() As Boolean
-        ' Returns True if an existing index is found, False if not
-        ' mzData files do not have existing indices so always return False
-        Return False
-    End Function
+        ~clsMzDataFileAccessor()
+        {
+            if (mXmlFileReader is object)
+            {
+                mXmlFileReader = null;
+            }
+        }
 
-    Protected Overrides Sub LogErrors(strCallingFunction As String, strErrorDescription As String)
-        MyBase.LogErrors("clsMzDataFileAccessor." & strCallingFunction, strErrorDescription)
-    End Sub
+        #region Constants and Enums
 
-    Public Overrides Function ReadAndCacheEntireFile() As Boolean
-        ' Indexes the location of each of the spectra in the input file
+        private const string SPECTRUM_LIST_START_ELEMENT = "<spectrumList";
+        private const string SPECTRUM_LIST_END_ELEMENT = "</spectrumList>";
+        private const string SPECTRUM_START_ELEMENT = "<spectrum";
+        private const string SPECTRUM_END_ELEMENT = "</spectrum>";
+        private const string MZDATA_START_ELEMENT = "<mzData";
+        private const string MZDATA_END_ELEMENT = "</mzData>";
 
-        Dim blnSuccess As Boolean
+        #endregion
 
-        Try
-            If mBinaryTextReader Is Nothing Then
-                blnSuccess = False
-            Else
-                mReadingAndStoringSpectra = True
-                mErrorMessage = String.Empty
+        #region Classwide Variables
 
-                MyBase.ResetProgress("Indexing " & Path.GetFileName(mInputFilePath))
+        private clsMzDataFileReader mXmlFileReader;
+        private clsSpectrumInfoMzData mCurrentSpectrumInfo;
+        private int mInputFileStatsSpectrumIDMinimum;
+        private int mInputFileStatsSpectrumIDMaximum;
+        private string mXmlFileHeader;
+        private bool mAddNewLinesToHeader;
+        private Regex mSpectrumStartElementRegEx;
+        private Regex mSpectrumEndElementRegEx;
+        private Regex mSpectrumListRegEx;
+        private Regex mAcquisitionNumberRegEx;
+        private Regex mSpectrumIDRegEx;
 
-                ' Read and parse the input file to determine:
-                '  a) The header XML (text before <spectrumList)
-                '  b) The start and end byte offset of each spectrum
-                '     (text between "<spectrum" and "</spectrum>")
+        // This hash table maps spectrum ID to index in mCachedSpectra()
+        // If more than one spectrum has the same spectrum ID, then tracks the first one read
+        private Hashtable mIndexedSpectraSpectrumIDToIndex;
+        private XmlReaderSettings mXMLReaderSettings;
 
-                blnSuccess = ReadMZDataFile()
+        #endregion
 
-                mBinaryTextReader.Close()
-                mBinaryTextReader = Nothing
+        #region Processing Options and Interface Functions
 
-                If blnSuccess Then
-                    ' Note: Even if we aborted reading the data mid-file, the cached information is still valid
-                    If mAbortProcessing Then
-                        mErrorMessage = "Aborted processing"
-                    Else
-                        UpdateProgress(100)
-                        OperationComplete()
-                    End If
-                End If
+        public int CachedSpectraSpectrumIDMinimum
+        {
+            get
+            {
+                return mInputFileStatsSpectrumIDMinimum;
+            }
+        }
 
-            End If
-        Catch ex As Exception
-            LogErrors("ReadAndCacheEntireFile", ex.Message)
-            blnSuccess = False
-        Finally
-            mReadingAndStoringSpectra = False
-        End Try
+        public int CachedSpectraSpectrumIDMaximum
+        {
+            get
+            {
+                return mInputFileStatsSpectrumIDMaximum;
+            }
+        }
 
-        Return blnSuccess
-    End Function
+        public override bool ParseFilesWithUnknownVersion
+        {
+            get
+            {
+                return base.ParseFilesWithUnknownVersion;
+            }
 
-    Private Function ReadMZDataFile() As Boolean
-        ' This function uses the Binary Text Reader to determine
-        '  the location of the "<spectrum" and "</spectrum>" elements in the .Xml file
-        ' If mIndexingComplete is already True, then simply returns True
+            set
+            {
+                base.ParseFilesWithUnknownVersion = value;
+                if (mXmlFileReader is object)
+                {
+                    mXmlFileReader.ParseFilesWithUnknownVersion = value;
+                }
+            }
+        }
 
-        Dim lngCurrentSpectrumByteOffsetStart As Long
-        Dim lngCurrentSpectrumByteOffsetEnd As Long
+        #endregion
 
-        Dim blnSuccess As Boolean
-        Dim blnSpectrumFound As Boolean
+        protected override bool AdvanceFileReaders(emmElementMatchModeConstants eElementMatchMode)
+        {
+            // Uses the BinaryTextReader to look for strTextToFind
 
-        Try
-            If mIndexingComplete Then
-                Return True
-            End If
+            bool blnMatchFound;
+            bool blnAppendingText;
+            var lngByteOffsetForRewind = default(long);
+            var blnLookForScanCountOnNextRead = default(bool);
+            string strScanCountSearchText = string.Empty;
+            int intCharIndex;
+            string strAcqNumberSearchText;
+            bool blnAcqNumberFound;
+            string strInFileCurrentLineSubstring;
+            Match objMatch;
+            try
+            {
+                if (mInFileCurrentLineText is null)
+                {
+                    mInFileCurrentLineText = string.Empty;
+                }
 
-            Do
-                If mCurrentSpectrumInfo Is Nothing Then
-                    mCurrentSpectrumInfo = New clsSpectrumInfoMzData()
-                Else
-                    mCurrentSpectrumInfo.Clear()
-                End If
+                strInFileCurrentLineSubstring = string.Empty;
+                blnAppendingText = false;
+                strAcqNumberSearchText = string.Empty;
+                blnAcqNumberFound = false;
+                blnMatchFound = false;
+                while (!(blnMatchFound | mAbortProcessing))
+                {
+                    if (mInFileCurrentCharIndex + 1 < mInFileCurrentLineText.Length)
+                    {
+                        if (blnAppendingText)
+                        {
+                            strInFileCurrentLineSubstring += ControlChars.NewLine + mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1);
+                        }
+                        else
+                        {
+                            strInFileCurrentLineSubstring = mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1);
+                        }
 
-                blnSpectrumFound = AdvanceFileReaders(emmElementMatchModeConstants.StartElement)
-                If blnSpectrumFound Then
-                    If mInFileCurrentCharIndex < 0 Then
-                        ' This shouldn't normally happen
-                        lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart
-                        LogErrors("ReadMZDataFile", "Unexpected condition: mInFileCurrentCharIndex < 0")
-                    Else
-                        lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart +
-                                                            mInFileCurrentCharIndex * mCharSize
-                    End If
+                        if (mAddNewLinesToHeader)
+                        {
+                            // We haven't yet found the first scan; look for "<spectrumList"
+                            intCharIndex = mInFileCurrentLineText.IndexOf(SPECTRUM_LIST_START_ELEMENT, mInFileCurrentCharIndex + 1, StringComparison.Ordinal);
+                            if (intCharIndex >= 0)
+                            {
+                                // Only add a portion of mInFileCurrentLineText to mXmlFileHeader
+                                // since it contains SPECTRUM_LIST_START_ELEMENT
 
-                    blnSpectrumFound = AdvanceFileReaders(emmElementMatchModeConstants.EndElement)
-                    If blnSpectrumFound Then
-                        If mCharSize > 1 Then
-                            lngCurrentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart +
-                                                              mInFileCurrentCharIndex * mCharSize + (mCharSize - 1)
-                        Else
-                            lngCurrentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart +
-                                                              mInFileCurrentCharIndex
-                        End If
-                    End If
-                End If
+                                if (intCharIndex > 0)
+                                {
+                                    mXmlFileHeader += mInFileCurrentLineText.Substring(0, intCharIndex);
+                                }
 
-                If blnSpectrumFound Then
-                    ' Make sure mAddNewLinesToHeader is now false
-                    If mAddNewLinesToHeader Then
-                        LogErrors("ReadMZDataFile",
-                                  "Unexpected condition: mAddNewLinesToHeader was True; changing to False")
-                        mAddNewLinesToHeader = False
-                    End If
+                                mAddNewLinesToHeader = false;
+                                strScanCountSearchText = strInFileCurrentLineSubstring.Substring(intCharIndex);
+                                blnLookForScanCountOnNextRead = true;
+                            }
+                            else
+                            {
+                                // Append mInFileCurrentLineText to mXmlFileHeader
+                                mXmlFileHeader += mInFileCurrentLineText + ControlChars.NewLine;
+                            }
+                        }
+                        else if (blnLookForScanCountOnNextRead)
+                        {
+                            strScanCountSearchText += ControlChars.NewLine + strInFileCurrentLineSubstring;
+                        }
 
-                    StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, lngCurrentSpectrumByteOffsetStart,
-                                    lngCurrentSpectrumByteOffsetEnd)
+                        if (blnLookForScanCountOnNextRead)
+                        {
+                            // Look for the Scan Count value in strScanCountSearchText
+                            objMatch = mSpectrumListRegEx.Match(strScanCountSearchText);
+                            if (objMatch.Success)
+                            {
+                                // Record the Scan Count value
+                                if (objMatch.Groups.Count > 1)
+                                {
+                                    try
+                                    {
+                                        mInputFileStats.ScanCount = Conversions.ToInteger(objMatch.Groups[1].Captures[0].Value);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                    }
+                                }
 
-                    ' Note that StoreIndexEntry will have incremented mIndexedSpectrumInfoCount
-                    With mIndexedSpectrumInfo(mIndexedSpectrumInfoCount - 1)
-                        .SpectrumID = mCurrentSpectrumInfo.SpectrumID
+                                blnLookForScanCountOnNextRead = false;
+                            }
+                            // The count attribute is not on the same line as the <spectrumList element
+                            // Set blnLookForScanCountOnNextRead to true if strScanCountSearchText does not contain the end element symbol, i.e. >
+                            else if (strScanCountSearchText.IndexOf('>') >= 0)
+                            {
+                                blnLookForScanCountOnNextRead = false;
+                            }
+                        }
 
-                        UpdateFileStats(mIndexedSpectrumInfoCount, .ScanNumber, .SpectrumID)
+                        if (eElementMatchMode == emmElementMatchModeConstants.EndElement && !blnAcqNumberFound)
+                        {
+                            strAcqNumberSearchText += ControlChars.NewLine + strInFileCurrentLineSubstring;
 
-                        If Not mIndexedSpectraSpectrumIDToIndex.Contains(.SpectrumID) Then
-                            mIndexedSpectraSpectrumIDToIndex.Add(.SpectrumID, mIndexedSpectrumInfoCount - 1)
-                        End If
-                    End With
+                            // Look for the acquisition number
+                            // Because strAcqNumberSearchText contains all of the text from <spectrum on (i.e. not just the text for the current line)
+                            // the test by mAcquisitionNumberRegEx should match the acqNumber attribute even if it is not
+                            // on the same line as <acquisition or if it is not the first attribute following <acquisition
+                            objMatch = mAcquisitionNumberRegEx.Match(strAcqNumberSearchText);
+                            if (objMatch.Success)
+                            {
+                                if (objMatch.Groups.Count > 1)
+                                {
+                                    try
+                                    {
+                                        blnAcqNumberFound = true;
+                                        mCurrentSpectrumInfo.ScanNumber = Conversions.ToInteger(objMatch.Groups[1].Captures[0].Value);
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                    }
+                                }
+                            }
+                        }
 
-                    ' Update the progress
-                    If mBinaryTextReader.FileLengthBytes > 0 Then
-                        UpdateProgress(
-                            mBinaryTextReader.CurrentLineByteOffsetEnd / CDbl(mBinaryTextReader.FileLengthBytes) * 100)
-                    End If
+                        // Look for the appropriate search text in mInFileCurrentLineText, starting at mInFileCurrentCharIndex + 1
+                        switch (eElementMatchMode)
+                        {
+                            case emmElementMatchModeConstants.StartElement:
+                                {
+                                    objMatch = mSpectrumStartElementRegEx.Match(strInFileCurrentLineSubstring);
+                                    break;
+                                }
 
-                    If mAbortProcessing Then
-                        Exit Do
-                    End If
+                            case emmElementMatchModeConstants.EndElement:
+                                {
+                                    objMatch = mSpectrumEndElementRegEx.Match(strInFileCurrentLineSubstring);
+                                    break;
+                                }
 
-                End If
-            Loop While blnSpectrumFound
+                            default:
+                                {
+                                    // Unknown mode
+                                    LogErrors("AdvanceFileReaders", "Unknown mode for eElementMatchMode: " + eElementMatchMode.ToString());
+                                    return false;
+                                }
+                        }
 
-            blnSuccess = True
+                        if (objMatch.Success)
+                        {
+                            // Match Found
+                            blnMatchFound = true;
+                            intCharIndex = objMatch.Index + 1 + mInFileCurrentCharIndex;
+                            if (eElementMatchMode == emmElementMatchModeConstants.StartElement)
+                            {
+                                // Look for the id value after <spectrum
+                                objMatch = mSpectrumIDRegEx.Match(strInFileCurrentLineSubstring);
+                                if (objMatch.Success)
+                                {
+                                    if (objMatch.Groups.Count > 1)
+                                    {
+                                        try
+                                        {
+                                            mCurrentSpectrumInfo.SpectrumID = Conversions.ToInteger(objMatch.Groups[1].Captures[0].Value);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                        }
+                                    }
+                                }
+                                // Could not find the id attribute
+                                // If strInFileCurrentLineSubstring does not contain SPECTRUM_END_ELEMENT, then
+                                // set blnAppendingText to True and continue reading
+                                else if (strInFileCurrentLineSubstring.IndexOf(SPECTRUM_END_ELEMENT, StringComparison.Ordinal) < 0)
+                                {
+                                    blnMatchFound = false;
+                                    if (!blnAppendingText)
+                                    {
+                                        blnAppendingText = true;
+                                        // Record the byte offset of the start of the current line
+                                        // We will use this offset to "rewind" the file pointer once the id attribute is found
+                                        lngByteOffsetForRewind = mBinaryTextReader.CurrentLineByteOffsetStart;
+                                    }
+                                }
+                            }
+                            else if (eElementMatchMode == emmElementMatchModeConstants.EndElement)
+                            {
+                                // Move to the end of the element
+                                intCharIndex += objMatch.Value.Length - 1;
+                                if (intCharIndex >= mInFileCurrentLineText.Length)
+                                {
+                                    // This shouldn't happen
+                                    LogErrors("AdvanceFileReaders", "Unexpected condition: intCharIndex >= mInFileCurrentLineText.Length");
+                                    intCharIndex = mInFileCurrentLineText.Length - 1;
+                                }
+                            }
 
-        Catch ex As Exception
-            LogErrors("ReadMZDataFile", ex.Message)
-            blnSuccess = False
-        End Try
+                            mInFileCurrentCharIndex = intCharIndex;
+                            if (blnMatchFound)
+                            {
+                                if (blnAppendingText)
+                                {
+                                    mBinaryTextReader.MoveToByteOffset(lngByteOffsetForRewind);
+                                    mBinaryTextReader.ReadLine();
+                                    mInFileCurrentLineText = mBinaryTextReader.CurrentLine;
+                                }
 
-        Return blnSuccess
-    End Function
+                                break;
+                            }
+                        }
+                    }
 
-    Private Overloads Sub UpdateFileStats(intScanCount As Integer, intScanNumber As Integer, intSpectrumID As Integer)
-        MyBase.UpdateFileStats(intScanCount, intScanNumber)
+                    // Read the next line from the BinaryTextReader
+                    if (!mBinaryTextReader.ReadLine())
+                    {
+                        break;
+                    }
 
-        If intScanCount <= 1 Then
-            mInputFileStatsSpectrumIDMinimum = intSpectrumID
-            mInputFileStatsSpectrumIDMaximum = intSpectrumID
-        Else
-            If intSpectrumID < mInputFileStatsSpectrumIDMinimum Then
-                mInputFileStatsSpectrumIDMinimum = intSpectrumID
-            End If
-            If intSpectrumID > mInputFileStatsSpectrumIDMaximum Then
-                mInputFileStatsSpectrumIDMaximum = intSpectrumID
-            End If
-        End If
-    End Sub
-End Class
+                    mInFileCurrentLineText = mBinaryTextReader.CurrentLine;
+                    mInFileCurrentCharIndex = -1;
+                }
+            }
+            catch (Exception ex)
+            {
+                LogErrors("AdvanceFileReaders", ex.Message);
+                blnMatchFound = false;
+            }
+
+            return blnMatchFound;
+        }
+
+        [Obsolete("No longer used")]
+        public override string GetSourceXMLFooter()
+        {
+            return SPECTRUM_LIST_END_ELEMENT + ControlChars.NewLine + MZDATA_END_ELEMENT + ControlChars.NewLine;
+        }
+
+        [Obsolete("No longer used")]
+        public override string GetSourceXMLHeader(int intScanCountTotal, float sngStartTimeMinutesAllScans, float sngEndTimeMinutesAllScans)
+        {
+            string strHeaderText;
+            int intAsciiValue;
+            if (mXmlFileHeader is null)
+                mXmlFileHeader = string.Empty;
+            strHeaderText = string.Copy(mXmlFileHeader);
+            if (strHeaderText.Length == 0)
+            {
+                strHeaderText = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + ControlChars.NewLine + MZDATA_START_ELEMENT + " version=\"1.05\" accessionNumber=\"psi-ms:100\"" + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" + ControlChars.NewLine;
+            }
+
+            intAsciiValue = Convert.ToInt32(strHeaderText[strHeaderText.Length - 1]);
+            if (!(intAsciiValue == 10 || intAsciiValue == 13 || intAsciiValue == 9 || intAsciiValue == 32))
+            {
+                strHeaderText += ControlChars.NewLine;
+            }
+
+            return strHeaderText + " " + SPECTRUM_LIST_START_ELEMENT + " count=\"" + intScanCountTotal + "\">";
+        }
+
+        protected override bool GetSpectrumByIndexWork(int intSpectrumIndex, out clsSpectrumInfo objCurrentSpectrumInfo, bool blnHeaderInfoOnly)
+        {
+            var blnSuccess = default(bool);
+            objCurrentSpectrumInfo = null;
+            try
+            {
+                blnSuccess = false;
+                if (GetSpectrumReadyStatus(true))
+                {
+                    if (mXmlFileReader is null)
+                    {
+                        mXmlFileReader = new clsMzDataFileReader() { ParseFilesWithUnknownVersion = mParseFilesWithUnknownVersion };
+                    }
+
+                    if (mIndexedSpectrumInfoCount == 0)
+                    {
+                        mErrorMessage = "Indexed data not in memory";
+                    }
+                    else if (intSpectrumIndex >= 0 & intSpectrumIndex < mIndexedSpectrumInfoCount)
+                    {
+                        // Move the binary file reader to .ByteOffsetStart and instantiate an XMLReader at that position
+                        mBinaryReader.Position = mIndexedSpectrumInfo[intSpectrumIndex].ByteOffsetStart;
+                        UpdateProgress(mBinaryReader.Position / (double)mBinaryReader.Length * 100.0d);
+
+                        // Create a new XmlTextReader
+                        using (var reader = XmlReader.Create(mBinaryReader, mXMLReaderSettings))
+                        {
+                            reader.MoveToContent();
+                            mXmlFileReader.SetXMLReaderForSpectrum(reader.ReadSubtree());
+                            blnSuccess = mXmlFileReader.ReadNextSpectrum(out objCurrentSpectrumInfo);
+                        }
+
+                        if (!string.IsNullOrWhiteSpace(mXmlFileReader.FileVersion))
+                        {
+                            mFileVersion = mXmlFileReader.FileVersion;
+                        }
+                    }
+                    else
+                    {
+                        mErrorMessage = "Invalid spectrum index: " + intSpectrumIndex.ToString();
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogErrors("GetSpectrumByIndexWork", ex.Message);
+            }
+
+            return blnSuccess;
+        }
+
+        public bool GetSpectrumBySpectrumID(int intSpectrumID, out clsSpectrumInfo objSpectrumInfo)
+        {
+            return GetSpectrumBySpectrumIDWork(intSpectrumID, out objSpectrumInfo, false);
+        }
+
+        private bool GetSpectrumBySpectrumIDWork(int intSpectrumID, out clsSpectrumInfo objSpectrumInfo, bool blnHeaderInfoOnly)
+        {
+
+            // Returns True if success, False if failure
+            // Only valid if we have Indexed data in memory
+
+            int intSpectrumIndex;
+            var blnSuccess = default(bool);
+            objSpectrumInfo = null;
+            try
+            {
+                blnSuccess = false;
+                mErrorMessage = string.Empty;
+                if (mDataReaderMode == drmDataReaderModeConstants.Cached)
+                {
+                    mErrorMessage = "Cannot obtain spectrum by spectrum ID when data is cached in memory; only valid when the data is indexed";
+                }
+                else if (mDataReaderMode == drmDataReaderModeConstants.Indexed)
+                {
+                    if (GetSpectrumReadyStatus(true))
+                    {
+                        if (mIndexedSpectraSpectrumIDToIndex is null || mIndexedSpectraSpectrumIDToIndex.Count == 0)
+                        {
+                            var loopTo = mIndexedSpectrumInfoCount - 1;
+                            for (intSpectrumIndex = 0; intSpectrumIndex <= loopTo; intSpectrumIndex++)
+                            {
+                                if (mIndexedSpectrumInfo[intSpectrumIndex].SpectrumID == intSpectrumID)
+                                {
+                                    blnSuccess = GetSpectrumByIndexWork(intSpectrumIndex, out objSpectrumInfo, blnHeaderInfoOnly);
+                                    break;
+                                }
+                            }
+                        }
+                        else
+                        {
+                            // Look for intSpectrumID in mIndexedSpectraSpectrumIDToIndex
+                            var objIndex = mIndexedSpectraSpectrumIDToIndex[intSpectrumID];
+                            if (objIndex is object)
+                            {
+                                intSpectrumIndex = Conversions.ToInteger(objIndex);
+                                blnSuccess = GetSpectrumByIndexWork(intSpectrumIndex, out objSpectrumInfo, blnHeaderInfoOnly);
+                            }
+                        }
+
+                        if (!blnSuccess && mErrorMessage.Length == 0)
+                        {
+                            mErrorMessage = "Invalid spectrum ID: " + intSpectrumID.ToString();
+                        }
+                    }
+                }
+                else
+                {
+                    mErrorMessage = "Cached or indexed data not in memory";
+                }
+            }
+            catch (Exception ex)
+            {
+                LogErrors("GetSpectrumBySpectrumID", ex.Message);
+            }
+
+            return blnSuccess;
+        }
+
+        public bool GetSpectrumHeaderInfoBySpectrumID(int intSpectrumID, out clsSpectrumInfo objSpectrumInfo)
+        {
+            return GetSpectrumBySpectrumIDWork(intSpectrumID, out objSpectrumInfo, true);
+        }
+
+        public bool GetSpectrumIDList(out int[] SpectrumIDList)
+        {
+            // Return the list of indexed spectrumID values
+
+            int intSpectrumIndex;
+            var blnSuccess = default(bool);
+            try
+            {
+                blnSuccess = false;
+                if (mDataReaderMode == drmDataReaderModeConstants.Cached)
+                {
+                    // Cannot get the spectrum ID list when mDataReaderMode = Cached
+                    SpectrumIDList = new int[0];
+                }
+                else if (GetSpectrumReadyStatus(true))
+                {
+                    if (mIndexedSpectrumInfo is null || mIndexedSpectrumInfoCount == 0)
+                    {
+                        SpectrumIDList = new int[0];
+                    }
+                    else
+                    {
+                        SpectrumIDList = new int[mIndexedSpectrumInfoCount];
+                        var loopTo = SpectrumIDList.Length - 1;
+                        for (intSpectrumIndex = 0; intSpectrumIndex <= loopTo; intSpectrumIndex++)
+                            SpectrumIDList[intSpectrumIndex] = mIndexedSpectrumInfo[intSpectrumIndex].SpectrumID;
+                        blnSuccess = true;
+                    }
+                }
+                else
+                {
+                    SpectrumIDList = new int[0];
+                }
+            }
+            catch (Exception ex)
+            {
+                LogErrors("GetSpectrumIDList", ex.Message);
+                SpectrumIDList = new int[0];
+            }
+
+            return blnSuccess;
+        }
+
+        protected override void InitializeLocalVariables()
+        {
+            base.InitializeLocalVariables();
+            mInputFileStatsSpectrumIDMinimum = 0;
+            mInputFileStatsSpectrumIDMaximum = 0;
+            mXmlFileHeader = string.Empty;
+            mAddNewLinesToHeader = true;
+            if (mIndexedSpectraSpectrumIDToIndex is null)
+            {
+                mIndexedSpectraSpectrumIDToIndex = new Hashtable();
+            }
+            else
+            {
+                mIndexedSpectraSpectrumIDToIndex.Clear();
+            }
+        }
+
+        private void InitializeObjectVariables()
+        {
+            // Note: This form of the RegEx allows the <spectrum element to be followed by a space or present at the end of the line
+            mSpectrumStartElementRegEx = InitializeRegEx(SPECTRUM_START_ELEMENT + @"\s+|" + SPECTRUM_START_ELEMENT + "$");
+            mSpectrumEndElementRegEx = InitializeRegEx(SPECTRUM_END_ELEMENT);
+
+            // Note: This form of the RegEx allows for the count attribute to occur on a separate line from <spectrumList
+            // It also allows for other attributes to be present between <spectrumList and the count attribute
+            mSpectrumListRegEx = InitializeRegEx(SPECTRUM_LIST_START_ELEMENT + @"[^/]+count\s*=\s*""([0-9]+)""");
+
+            // Note: This form of the RegEx allows for the id attribute to occur on a separate line from <spectrum
+            // It also allows for other attributes to be present between <spectrum and the id attribute
+            mSpectrumIDRegEx = InitializeRegEx(SPECTRUM_START_ELEMENT + @"[^/]+id\s*=\s*""([0-9]+)""");
+
+            // Note: This form of the RegEx allows for the acqNumber attribute to occur on a separate line from <acquisition
+            // It also allows for other attributes to be present between <acquisition and the acqNumber attribute
+            mAcquisitionNumberRegEx = InitializeRegEx(@"<acquisition[^/]+acqNumber\s*=\s*""([0-9]+)""");
+            mXMLReaderSettings = new XmlReaderSettings() { IgnoreWhitespace = true };
+        }
+
+        protected override bool LoadExistingIndex()
+        {
+            // Returns True if an existing index is found, False if not
+            // mzData files do not have existing indices so always return False
+            return false;
+        }
+
+        protected override void LogErrors(string strCallingFunction, string strErrorDescription)
+        {
+            base.LogErrors("clsMzDataFileAccessor." + strCallingFunction, strErrorDescription);
+        }
+
+        public override bool ReadAndCacheEntireFile()
+        {
+            // Indexes the location of each of the spectra in the input file
+
+            bool blnSuccess;
+            try
+            {
+                if (mBinaryTextReader is null)
+                {
+                    blnSuccess = false;
+                }
+                else
+                {
+                    mReadingAndStoringSpectra = true;
+                    mErrorMessage = string.Empty;
+                    ResetProgress("Indexing " + Path.GetFileName(mInputFilePath));
+
+                    // Read and parse the input file to determine:
+                    // a) The header XML (text before <spectrumList)
+                    // b) The start and end byte offset of each spectrum
+                    // (text between "<spectrum" and "</spectrum>")
+
+                    blnSuccess = ReadMZDataFile();
+                    mBinaryTextReader.Close();
+                    mBinaryTextReader = null;
+                    if (blnSuccess)
+                    {
+                        // Note: Even if we aborted reading the data mid-file, the cached information is still valid
+                        if (mAbortProcessing)
+                        {
+                            mErrorMessage = "Aborted processing";
+                        }
+                        else
+                        {
+                            UpdateProgress(100f);
+                            OperationComplete();
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogErrors("ReadAndCacheEntireFile", ex.Message);
+                blnSuccess = false;
+            }
+            finally
+            {
+                mReadingAndStoringSpectra = false;
+            }
+
+            return blnSuccess;
+        }
+
+        private bool ReadMZDataFile()
+        {
+            // This function uses the Binary Text Reader to determine
+            // the location of the "<spectrum" and "</spectrum>" elements in the .Xml file
+            // If mIndexingComplete is already True, then simply returns True
+
+            var lngCurrentSpectrumByteOffsetStart = default(long);
+            var lngCurrentSpectrumByteOffsetEnd = default(long);
+            bool blnSuccess;
+            bool blnSpectrumFound;
+            try
+            {
+                if (mIndexingComplete)
+                {
+                    return true;
+                }
+
+                do
+                {
+                    if (mCurrentSpectrumInfo is null)
+                    {
+                        mCurrentSpectrumInfo = new clsSpectrumInfoMzData();
+                    }
+                    else
+                    {
+                        mCurrentSpectrumInfo.Clear();
+                    }
+
+                    blnSpectrumFound = AdvanceFileReaders(emmElementMatchModeConstants.StartElement);
+                    if (blnSpectrumFound)
+                    {
+                        if (mInFileCurrentCharIndex < 0)
+                        {
+                            // This shouldn't normally happen
+                            lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart;
+                            LogErrors("ReadMZDataFile", "Unexpected condition: mInFileCurrentCharIndex < 0");
+                        }
+                        else
+                        {
+                            lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex * mCharSize;
+                        }
+
+                        blnSpectrumFound = AdvanceFileReaders(emmElementMatchModeConstants.EndElement);
+                        if (blnSpectrumFound)
+                        {
+                            if (mCharSize > 1)
+                            {
+                                lngCurrentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex * mCharSize + (mCharSize - 1);
+                            }
+                            else
+                            {
+                                lngCurrentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex;
+                            }
+                        }
+                    }
+
+                    if (blnSpectrumFound)
+                    {
+                        // Make sure mAddNewLinesToHeader is now false
+                        if (mAddNewLinesToHeader)
+                        {
+                            LogErrors("ReadMZDataFile", "Unexpected condition: mAddNewLinesToHeader was True; changing to False");
+                            mAddNewLinesToHeader = false;
+                        }
+
+                        StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, lngCurrentSpectrumByteOffsetStart, lngCurrentSpectrumByteOffsetEnd);
+
+                        // Note that StoreIndexEntry will have incremented mIndexedSpectrumInfoCount
+                        {
+                            ref var withBlock = ref mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1];
+                            withBlock.SpectrumID = mCurrentSpectrumInfo.SpectrumID;
+                            UpdateFileStats(mIndexedSpectrumInfoCount, withBlock.ScanNumber, withBlock.SpectrumID);
+                            if (!mIndexedSpectraSpectrumIDToIndex.Contains(withBlock.SpectrumID))
+                            {
+                                mIndexedSpectraSpectrumIDToIndex.Add(withBlock.SpectrumID, mIndexedSpectrumInfoCount - 1);
+                            }
+                        }
+
+                        // Update the progress
+                        if (mBinaryTextReader.FileLengthBytes > 0L)
+                        {
+                            UpdateProgress(mBinaryTextReader.CurrentLineByteOffsetEnd / (double)mBinaryTextReader.FileLengthBytes * 100d);
+                        }
+
+                        if (mAbortProcessing)
+                        {
+                            break;
+                        }
+                    }
+                }
+                while (blnSpectrumFound);
+                blnSuccess = true;
+            }
+            catch (Exception ex)
+            {
+                LogErrors("ReadMZDataFile", ex.Message);
+                blnSuccess = false;
+            }
+
+            return blnSuccess;
+        }
+
+        private void UpdateFileStats(int intScanCount, int intScanNumber, int intSpectrumID)
+        {
+            UpdateFileStats(intScanCount, intScanNumber);
+            if (intScanCount <= 1)
+            {
+                mInputFileStatsSpectrumIDMinimum = intSpectrumID;
+                mInputFileStatsSpectrumIDMaximum = intSpectrumID;
+            }
+            else
+            {
+                if (intSpectrumID < mInputFileStatsSpectrumIDMinimum)
+                {
+                    mInputFileStatsSpectrumIDMinimum = intSpectrumID;
+                }
+
+                if (intSpectrumID > mInputFileStatsSpectrumIDMaximum)
+                {
+                    mInputFileStatsSpectrumIDMaximum = intSpectrumID;
+                }
+            }
+        }
+    }
+}

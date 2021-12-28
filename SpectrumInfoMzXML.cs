@@ -1,308 +1,372 @@
-Option Strict On
+﻿using System;
 
-Imports System.Runtime.InteropServices
-' This class holds the values associated with each spectrum in an mzXML file
-'
-' -------------------------------------------------------------------------------
-' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-' Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-' Started April 1, 2006
-'
-' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-' Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
-' -------------------------------------------------------------------------------
+namespace MSDataFileReader
+{
+    // This class holds the values associated with each spectrum in an mzXML file
+    // 
+    // -------------------------------------------------------------------------------
+    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+    // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
+    // Started April 1, 2006
+    // 
+    // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+    // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+    // -------------------------------------------------------------------------------
 
-<Serializable()>
-Public Class clsSpectrumInfoMzXML
-    Inherits clsSpectrumInfo
+    [Serializable()]
+    public class clsSpectrumInfoMzXML : clsSpectrumInfo
+    {
+        public clsSpectrumInfoMzXML()
+        {
+            Clear();
+        }
 
-    Public Sub New()
-        Me.Clear()
-    End Sub
+        #region Constants and Enums
 
-#Region "Constants and Enums"
+        public class ByteOrderTypes
+        {
+            public const string network = "network";
+        }
 
-    Public Class ByteOrderTypes
-        Public Const network As String = "network"
-    End Class
+        public class CompressionTypes
+        {
+            public const string none = "none";
+            public const string zlib = "zlib";
+        }
 
-    Public Class CompressionTypes
-        Public Const none As String = "none"
-        Public Const zlib As String = "zlib"
-    End Class
+        /// <summary>
+    /// Tracks pairOrder for mzXML v1.x and v2.x
+    /// Tracks contentType for mzXML 3.x files
+    /// </summary>
+    /// <remarks></remarks>
+        public class PairOrderTypes
+        {
+            public const string MZandIntensity = "m/z-int";
+            public const string IntensityAndMZ = "int-m/z";
+            public const string MZ = "m/z";
+            public const string Intensity = "intensity";
+            public const string SN = "S/N";
+            public const string Charge = "charge";
+            public const string MZRuler = "m/z ruler";
+            public const string TOF = "TOF";
+        }
 
-    ''' <summary>
-    ''' Tracks pairOrder for mzXML v1.x and v2.x
-    ''' Tracks contentType for mzXML 3.x files
-    ''' </summary>
-    ''' <remarks></remarks>
-    Public Class PairOrderTypes
-        Public Const MZandIntensity As String = "m/z-int"
-        Public Const IntensityAndMZ As String = "int-m/z"
-        Public Const MZ As String = "m/z"
-        Public Const Intensity As String = "intensity"
-        Public Const SN As String = "S/N"
-        Public Const Charge As String = "charge"
-        Public Const MZRuler As String = "m/z ruler"
-        Public Const TOF As String = "TOF"
-    End Class
+        public class ScanTypeNames
+        {
+            public const string Full = "Full";
+            public const string zoom = "zoom";
+            public const string SIM = "SIM";
+            public const string SRM = "SRM";      // MRM is synonymous with SRM
+            public const string CRM = "CRM";
+            public const string Q1 = "Q1";
+            public const string Q3 = "Q3";
+            public const string MRM = "MRM";
+        }
 
-    Public Class ScanTypeNames
-        Public Const Full As String = "Full"
-        Public Const zoom As String = "zoom"
-        Public Const SIM As String = "SIM"
-        Public Const SRM As String = "SRM"      ' MRM is synonymous with SRM
-        Public Const CRM As String = "CRM"
-        Public Const Q1 As String = "Q1"
-        Public Const Q3 As String = "Q3"
-        Public Const MRM As String = "MRM"
-    End Class
+        #endregion
 
-#End Region
+        #region Spectrum Variables
 
-#Region "Spectrum Variables"
+        protected float mCollisionEnergy;
 
-    Protected mCollisionEnergy As Single
+        // See class ScanTypeNames for typical names
+        protected string mScanType;
 
-    ' See class ScanTypeNames for typical names
-    Protected mScanType As String
+        // Thermo-specific filter line text
+        protected string mFilterLine;
 
-    ' Thermo-specific filter line text
-    Protected mFilterLine As String
+        // Setted low m/z boundary (this is the instrumetal setting)
+        protected float mStartMZ;
 
-    ' Setted low m/z boundary (this is the instrumetal setting)
-    Protected mStartMZ As Single
+        // Setted high m/z boundary (this is the instrumetal setting)
+        protected float mEndMZ;
 
-    ' Setted high m/z boundary (this is the instrumetal setting)
-    Protected mEndMZ As Single
+        // Typically 32 or 64
+        protected int mNumericPrecisionOfData;
 
-    ' Typically 32 or 64
-    Protected mNumericPrecisionOfData As Integer
+        // See class ByteOrderTypes for values; typically ByteOrderTypes.network
+        protected string mPeaksByteOrder;
 
-    ' See class ByteOrderTypes for values; typically ByteOrderTypes.network
-    Protected mPeaksByteOrder As String
+        // See class PairOrderTypes for values; typically PairOrderTypes.MZandIntensity; stores contentType for mzXML v3.x
+        protected string mPeaksPairOrder;
 
-    ' See class PairOrderTypes for values; typically PairOrderTypes.MZandIntensity; stores contentType for mzXML v3.x
-    Protected mPeaksPairOrder As String
+        // See class CompressionTypes for values; will be "none" or "zlib"
+        protected string mCompressionType;
+        protected int mCompressedLen;
+        protected string mActivationMethod;
+        protected float mIsolationWindow;
+        protected int mParentIonCharge;
+        protected int mPrecursorScanNum;
 
-    ' See class CompressionTypes for values; will be "none" or "zlib"
-    Protected mCompressionType As String
-    Protected mCompressedLen As Integer
+        #endregion
 
-    Protected mActivationMethod As String
-    Protected mIsolationWindow As Single
-    Protected mParentIonCharge As Integer
-    Protected mPrecursorScanNum As Integer
+        #region Classwide Variables
 
-#End Region
+        #endregion
 
-#Region "Classwide Variables"
+        #region Spectrum Variable Interface Functions
 
-#End Region
+        public string ActivationMethod
+        {
+            get
+            {
+                return mActivationMethod;
+            }
 
-#Region "Spectrum Variable Interface Functions"
+            set
+            {
+                mActivationMethod = value;
+            }
+        }
 
-    Public Property ActivationMethod() As String
-        Get
-            Return mActivationMethod
-        End Get
-        Set(value As String)
-            mActivationMethod = value
-        End Set
-    End Property
+        public float CollisionEnergy
+        {
+            get
+            {
+                return mCollisionEnergy;
+            }
 
-    Public Property CollisionEnergy() As Single
-        Get
-            Return mCollisionEnergy
-        End Get
-        Set(Value As Single)
-            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-            mCollisionEnergy = Value
-        End Set
-    End Property
+            set
+            {
+                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mCollisionEnergy = value;
+            }
+        }
 
-    Public Property FilterLine() As String
-        Get
-            Return mFilterLine
-        End Get
-        Set(value As String)
-            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-            mFilterLine = value
-        End Set
-    End Property
+        public string FilterLine
+        {
+            get
+            {
+                return mFilterLine;
+            }
 
-    Public Property NumericPrecisionOfData() As Integer
-        Get
-            Return mNumericPrecisionOfData
-        End Get
-        Set(Value As Integer)
-            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-            mNumericPrecisionOfData = Value
-        End Set
-    End Property
+            set
+            {
+                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mFilterLine = value;
+            }
+        }
 
-    Public Property PeaksByteOrder() As String
-        Get
-            Return mPeaksByteOrder
-        End Get
-        Set(Value As String)
-            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-            mPeaksByteOrder = Value
-        End Set
-    End Property
+        public int NumericPrecisionOfData
+        {
+            get
+            {
+                return mNumericPrecisionOfData;
+            }
 
-    Public Property PeaksPairOrder() As String
-        Get
-            Return mPeaksPairOrder
-        End Get
-        Set(Value As String)
-            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-            mPeaksPairOrder = Value
-        End Set
-    End Property
+            set
+            {
+                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mNumericPrecisionOfData = value;
+            }
+        }
 
-    Public Property CompressionType() As String
-        Get
-            Return mCompressionType
-        End Get
-        Set(value As String)
-            mCompressionType = value
-        End Set
-    End Property
+        public string PeaksByteOrder
+        {
+            get
+            {
+                return mPeaksByteOrder;
+            }
 
-    Public Property CompressedLen() As Integer
-        Get
-            Return mCompressedLen
-        End Get
-        Set(value As Integer)
-            mCompressedLen = value
-        End Set
-    End Property
+            set
+            {
+                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mPeaksByteOrder = value;
+            }
+        }
 
-    Public Property EndMZ() As Single
-        Get
-            Return mEndMZ
-        End Get
-        Set(value As Single)
-            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-            mEndMZ = value
-        End Set
-    End Property
+        public string PeaksPairOrder
+        {
+            get
+            {
+                return mPeaksPairOrder;
+            }
 
-    Public Property IsolationWindow() As Single
-        Get
-            Return mIsolationWindow
-        End Get
-        Set(Value As Single)
-            mIsolationWindow = Value
-        End Set
-    End Property
+            set
+            {
+                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mPeaksPairOrder = value;
+            }
+        }
 
-    Public Property ParentIonCharge() As Integer
-        Get
-            Return mParentIonCharge
-        End Get
-        Set(Value As Integer)
-            mParentIonCharge = Value
-        End Set
-    End Property
+        public string CompressionType
+        {
+            get
+            {
+                return mCompressionType;
+            }
 
-    Public Property PrecursorScanNum() As Integer
-        Get
-            Return mPrecursorScanNum
-        End Get
-        Set(Value As Integer)
-            mPrecursorScanNum = Value
-        End Set
-    End Property
+            set
+            {
+                mCompressionType = value;
+            }
+        }
 
-    Public Property StartMZ() As Single
-        Get
-            Return mStartMZ
-        End Get
-        Set(value As Single)
-            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-            mStartMZ = value
-        End Set
-    End Property
+        public int CompressedLen
+        {
+            get
+            {
+                return mCompressedLen;
+            }
 
-    Public Property ScanType() As String
-        Get
-            Return mScanType
-        End Get
-        Set(value As String)
-            mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-            mScanType = value
-        End Set
-    End Property
+            set
+            {
+                mCompressedLen = value;
+            }
+        }
 
-#End Region
+        public float EndMZ
+        {
+            get
+            {
+                return mEndMZ;
+            }
 
-    Public Overrides Sub Clear()
-        MyBase.Clear()
+            set
+            {
+                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mEndMZ = value;
+            }
+        }
 
-        mCollisionEnergy = 0
+        public float IsolationWindow
+        {
+            get
+            {
+                return mIsolationWindow;
+            }
 
-        mScanType = ScanTypeNames.Full
-        mFilterLine = String.Empty
-        mStartMZ = 0
-        mEndMZ = 0
+            set
+            {
+                mIsolationWindow = value;
+            }
+        }
 
-        mNumericPrecisionOfData = 32            ' Assume 32-bit for now
-        mPeaksByteOrder = ByteOrderTypes.network
-        mPeaksPairOrder = PairOrderTypes.MZandIntensity
+        public int ParentIonCharge
+        {
+            get
+            {
+                return mParentIonCharge;
+            }
 
-        mCompressionType = CompressionTypes.none
-        mCompressedLen = 0
+            set
+            {
+                mParentIonCharge = value;
+            }
+        }
 
-        mParentIonCharge = 0
-        mActivationMethod = String.Empty
+        public int PrecursorScanNum
+        {
+            get
+            {
+                return mPrecursorScanNum;
+            }
 
-        mIsolationWindow = 0
-        mPrecursorScanNum = 0
-    End Sub
+            set
+            {
+                mPrecursorScanNum = value;
+            }
+        }
 
-    Public Shadows Function Clone() As clsSpectrumInfoMzXML
+        public float StartMZ
+        {
+            get
+            {
+                return mStartMZ;
+            }
 
-        ' First create a shallow copy of this object
-        Dim objTarget = CType(Me.MemberwiseClone, clsSpectrumInfoMzXML)
+            set
+            {
+                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mStartMZ = value;
+            }
+        }
 
-        ' Next, manually copy the array objects and any other objects
-        With objTarget
-            ' Duplicate code from the base class
-            If Me.MZList Is Nothing Then
-                .MZList = Nothing
-            Else
-                ReDim .MZList(Me.MZList.Length - 1)
-                Me.MZList.CopyTo(.MZList, 0)
-            End If
+        public string ScanType
+        {
+            get
+            {
+                return mScanType;
+            }
 
-            If Me.IntensityList Is Nothing Then
-                .IntensityList = Nothing
-            Else
-                ReDim .IntensityList(Me.IntensityList.Length - 1)
-                Me.IntensityList.CopyTo(.IntensityList, 0)
-            End If
-        End With
+            set
+            {
+                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mScanType = value;
+            }
+        }
 
-        Return objTarget
-    End Function
+        #endregion
 
-    Public Overloads Sub CopyTo(<Out()> ByRef objTarget As clsSpectrumInfoMzXML)
-        objTarget = Me.Clone()
-    End Sub
+        public override void Clear()
+        {
+            base.Clear();
+            mCollisionEnergy = 0f;
+            mScanType = ScanTypeNames.Full;
+            mFilterLine = string.Empty;
+            mStartMZ = 0f;
+            mEndMZ = 0f;
+            mNumericPrecisionOfData = 32;            // Assume 32-bit for now
+            mPeaksByteOrder = ByteOrderTypes.network;
+            mPeaksPairOrder = PairOrderTypes.MZandIntensity;
+            mCompressionType = CompressionTypes.none;
+            mCompressedLen = 0;
+            mParentIonCharge = 0;
+            mActivationMethod = string.Empty;
+            mIsolationWindow = 0f;
+            mPrecursorScanNum = 0;
+        }
 
-    Public Overloads Sub Validate()
-        Me.Validate(False, False)
-    End Sub
+        public new clsSpectrumInfoMzXML Clone()
+        {
 
-    Public Overloads Overrides Sub Validate(blnComputeBasePeakAndTIC As Boolean, blnUpdateMZRange As Boolean)
-        MyBase.Validate(blnComputeBasePeakAndTIC, blnUpdateMZRange)
+            // First create a shallow copy of this object
+            clsSpectrumInfoMzXML objTarget = (clsSpectrumInfoMzXML)MemberwiseClone();
 
-        If SpectrumID = 0 And ScanNumber <> 0 Then
-            SpectrumID = ScanNumber
-        End If
+            // Next, manually copy the array objects and any other objects
+            // Duplicate code from the base class
+            if (MZList is null)
+            {
+                objTarget.MZList = null;
+            }
+            else
+            {
+                objTarget.MZList = new double[MZList.Length];
+                MZList.CopyTo(objTarget.MZList, 0);
+            }
 
-        MyBase.mSpectrumStatus = eSpectrumStatusConstants.Validated
-    End Sub
-End Class
+            if (IntensityList is null)
+            {
+                objTarget.IntensityList = null;
+            }
+            else
+            {
+                objTarget.IntensityList = new float[IntensityList.Length];
+                IntensityList.CopyTo(objTarget.IntensityList, 0);
+            }
+
+            return objTarget;
+        }
+
+        public void CopyTo(out clsSpectrumInfoMzXML objTarget)
+        {
+            objTarget = Clone();
+        }
+
+        public void Validate()
+        {
+            Validate(false, false);
+        }
+
+        public override void Validate(bool blnComputeBasePeakAndTIC, bool blnUpdateMZRange)
+        {
+            base.Validate(blnComputeBasePeakAndTIC, blnUpdateMZRange);
+            if (SpectrumID == 0 & ScanNumber != 0)
+            {
+                SpectrumID = ScanNumber;
+            }
+
+            mSpectrumStatus = eSpectrumStatusConstants.Validated;
+        }
+    }
+}

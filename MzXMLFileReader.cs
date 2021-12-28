@@ -1,694 +1,825 @@
-Option Strict On
-
-Imports System.Runtime.InteropServices
-Imports System.Xml
-
-' This class uses a SAX Parser to read an mzXML file
-
-' -------------------------------------------------------------------------------
-' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-' Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-' Started March 26, 2006
-'
-' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-' Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
-' -------------------------------------------------------------------------------
-
-Public Class clsMzXMLFileReader
-    Inherits clsMSXMLFileReaderBaseClass
-
-    Public Sub New()
-        Me.InitializeLocalVariables()
-    End Sub
-
-#Region "Constants and Enums"
-    ' Note: The extensions must be in all caps
-    Public Const MZXML_FILE_EXTENSION As String = ".MZXML"
-    Public Const MZXML_FILE_EXTENSION_XML As String = "_MZXML.XML"
-
-    ' Note that I'm using classes to group the constants
-    Private Class XMLSectionNames
-        Public Const RootName As String = "mzXML"
-        Public Const msRun As String = "msRun"
-    End Class
-
-    Private Class mzXMLRootAttrbuteNames
-        Public Const xmlns As String = "xmlns"
-        Public Const xsi_schemaLocation As String = "xsi:schemaLocation"
-    End Class
-
-    Private Class HeaderSectionNames
-        Public Const msInstrument As String = "msInstrument"
-        Public Const dataProcessing As String = "dataProcessing"
-    End Class
-
-    Private Class ScanSectionNames
-        Public Const scan As String = "scan"
-        Public Const precursorMz As String = "precursorMz"
-        Public Const peaks As String = "peaks"
-    End Class
-
-    Private Class MSRunAttributeNames
-        Public Const scanCount As String = "scanCount"
-        Public Const startTime As String = "startTime"
-        Public Const endTime As String = "endTime"
-    End Class
-
-    Private Class DataProcessingAttributeNames
-        Public Const centroided As String = "centroided"
-    End Class
-
-    Private Class ScanAttributeNames
-        Public Const num As String = "num"
-        Public Const msLevel As String = "msLevel"
-
-        ' 0 or 1
-        Public Const centroided As String = "centroided"
-
-        Public Const peaksCount As String = "peaksCount"
-        Public Const polarity As String = "polarity"
-
-        ' Options are: Full, zoom, SIM, SRM, MRM, CRM, Q1, or Q3; note that MRM and SRM and functionally equivalent; ReadW uses SRM
-        Public Const scanType As String = "scanType"
-
-        ' Thermo-specific filter-line text; added by ReadW
-        Public Const filterLine As String = "filterLine"
-
-        ' Example retention time: PT1.0373S
-        Public Const retentionTime As String = "retentionTime"
-
-        ' Collision energy used to fragment the parent ion
-        Public Const collisionEnergy As String = "collisionEnergy"
-
-        ' Setted low m/z boundary (this is the instrumetal setting); not present in .mzXML files created with ReadW
-        Public Const startMz As String = "startMz"
-
-        ' Setted high m/z boundary (this is the instrumetal setting); not present in .mzXML files created with ReadW
-        Public Const endMz As String = "endMz"
-
-        ' Observed low m/z (this is what the actual data looks like
-        Public Const lowMz As String = "lowMz"
-
-        ' Observed high m/z (this is what the actual data looks like
-        Public Const highMz As String = "highMz"
-
-        ' m/z of the base peak (most intense peak)
-        Public Const basePeakMz As String = "basePeakMz"
-
-        ' Intensity of the base peak (most intense peak)
-        Public Const basePeakIntensity As String = "basePeakIntensity"
-
-        ' Total ion current (total intensity in the scan)
-        Public Const totIonCurrent As String = "totIonCurrent"
-
-        Public Const msInstrumentID As String = "msInstrumentID"
-    End Class
-
-    Private Class PrecursorAttributeNames
-        ' Scan number of the precursor
-        Public Const precursorScanNum As String = "precursorScanNum"
-
-        ' Intensity of the precursor ion
-        Public Const precursorIntensity As String = "precursorIntensity"
-
-        ' Charge of the precursor, typically determined at time of acquisition by the mass spectrometer
-        Public Const precursorCharge As String = "precursorCharge"
-
-        ' Fragmentation method, e.g. CID, ETD, or HCD
-        Public Const activationMethod As String = "activationMethod"
-
-        ' Isolation window width, e.g. 2.0
-        Public Const windowWideness As String = "windowWideness"
-    End Class
-
-    Private Class PeaksAttributeNames
-        Public Const precision As String = "precision"
-        Public Const byteOrder As String = "byteOrder"
-
-        ' For example, "m/z-int"  ; superseded by "contentType" in mzXML 3
-        Public Const pairOrder As String = "pairOrder"
-
-        ' Allowed values are: "none" or "zlib"
-        Public Const compressionType As String = "compressionType"
-
-        ' Integer value required when using zlib compression
-        Public Const compressedLen As String = "compressedLen"
-
-        ' Allowed values are: "m/z-int", "m/z", "intensity", "S/N", "charge", "m/z ruler", "TOF"
-        Public Const contentType As String = "contentType"
-    End Class
-
-    Private Enum eCurrentMZXMLDataFileSectionConstants As Integer
-        UnknownFile = 0
-        Start = 1
-        msRun = 2
-        msInstrument = 3
-        dataProcessing = 4
-        ScanList = 5
-    End Enum
-
-#End Region
-
-#Region "Structures"
-
-    Private Structure udtFileStatsAddnlType
-        Public StartTimeMin As Single
-        Public EndTimeMin As Single
-
-        Public IsCentroid As Boolean      ' True if centroid (aka stick) data; False if profile (aka continuum) data
-    End Structure
-
-#End Region
-
-#Region "Classwide Variables"
-
-    Private mCurrentXMLDataFileSection As eCurrentMZXMLDataFileSectionConstants
-    Private mScanDepth As Integer       ' > 0 if we're inside a scan element
-
-    Private mCurrentSpectrum As clsSpectrumInfoMzXML
-
-    Private mInputFileStatsAddnl As udtFileStatsAddnlType
-
-#End Region
-
-#Region "Processing Options and Interface Functions"
-
-    Public ReadOnly Property FileInfoStartTimeMin() As Single
-        Get
-            Return mInputFileStatsAddnl.StartTimeMin
-        End Get
-    End Property
-
-    Public ReadOnly Property FileInfoEndTimeMin() As Single
-        Get
-            Return mInputFileStatsAddnl.EndTimeMin
-        End Get
-    End Property
-
-    Public ReadOnly Property FileInfoIsCentroid() As Boolean
-        Get
-            Return mInputFileStatsAddnl.IsCentroid
-        End Get
-    End Property
-
-#End Region
-
-    Protected Overrides Function GetCurrentSpectrum() As clsSpectrumInfo
-        Return mCurrentSpectrum
-    End Function
-
-    Protected Overrides Sub InitializeCurrentSpectrum(blnAutoShrinkDataLists As Boolean)
-        If MyBase.ReadingAndStoringSpectra OrElse mCurrentSpectrum Is Nothing Then
-            mCurrentSpectrum = New clsSpectrumInfoMzXML()
-        Else
-            mCurrentSpectrum.Clear()
-        End If
-
-        mCurrentSpectrum.AutoShrinkDataLists = blnAutoShrinkDataLists
-    End Sub
-
-    Protected Overrides Sub InitializeLocalVariables()
-        MyBase.InitializeLocalVariables()
-
-        mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.UnknownFile
-        mScanDepth = 0
-
-        With mInputFileStatsAddnl
-            .StartTimeMin = 0
-            .EndTimeMin = 0
-            .IsCentroid = False
-        End With
-    End Sub
-
-    Protected Overrides Sub LogErrors(strCallingFunction As String, strErrorDescription As String)
-        MyBase.LogErrors("clsMzXMLFileReader." & strCallingFunction, strErrorDescription)
-    End Sub
-
-    Public Overrides Function OpenFile(strInputFilePath As String) As Boolean
-        Dim blnSuccess As Boolean
-
-        Me.InitializeLocalVariables()
-
-        blnSuccess = MyBase.OpenFile(strInputFilePath)
-
-        Return blnSuccess
-    End Function
-
-    Private Function ParseBinaryData(strMSMSDataBase64Encoded As String, strCompressionType As String) As Boolean
-        ' Parses strMSMSDataBase64Encoded and stores the data in mIntensityList() and mMZList()
-
-        Dim sngDataArray() As Single = Nothing
-        Dim dblDataArray() As Double = Nothing
-
-        Dim zLibCompressed = False
-
-        Dim eEndianMode = clsBase64EncodeDecode.eEndianTypeConstants.BigEndian
-        Dim intIndex As Integer
-        Dim blnSuccess As Boolean
-
-        If mCurrentSpectrum Is Nothing Then
-            Return False
-        End If
-
-        blnSuccess = False
-        If strMSMSDataBase64Encoded Is Nothing OrElse strMSMSDataBase64Encoded.Length = 0 Then
-            With mCurrentSpectrum
-                .DataCount = 0
-                ReDim .MZList(-1)
-                ReDim .IntensityList(-1)
-            End With
-        Else
-            Try
-
-                If strCompressionType = clsSpectrumInfoMzXML.CompressionTypes.zlib Then
-                    zLibCompressed = True
-                Else
-                    zLibCompressed = False
-                End If
-
-                Select Case mCurrentSpectrum.NumericPrecisionOfData
-                    Case 32
-                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded,
-                                                                    sngDataArray,
-                                                                    zLibCompressed,
-                                                                    eEndianMode) Then
-
-                            ' sngDataArray now contains pairs of singles, either m/z and intensity or intensity and m/z
-                            ' Need to split this apart into two arrays
-
-                            With mCurrentSpectrum
-                                ReDim .MZList(CInt(sngDataArray.Length / 2) - 1)
-                                ReDim .IntensityList(CInt(sngDataArray.Length / 2) - 1)
-
-                                If mCurrentSpectrum.PeaksPairOrder = clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ Then
-                                    For intIndex = 0 To sngDataArray.Length - 1 Step 2
-                                        .IntensityList(CInt(intIndex / 2)) = sngDataArray(intIndex)
-                                        .MZList(CInt(intIndex / 2)) = sngDataArray(intIndex + 1)
-                                    Next intIndex
-                                Else
-                                    ' Assume PairOrderTypes.MZandIntensity
-                                    For intIndex = 0 To sngDataArray.Length - 1 Step 2
-                                        .MZList(CInt(intIndex / 2)) = sngDataArray(intIndex)
-                                        .IntensityList(CInt(intIndex / 2)) = sngDataArray(intIndex + 1)
-                                    Next intIndex
-                                End If
-                            End With
-
-                            blnSuccess = True
-                        End If
-                    Case 64
-                        If clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, dblDataArray, zLibCompressed, eEndianMode) Then
-                            ' dblDataArray now contains pairs of doubles, either m/z and intensity or intensity and m/z
-                            ' Need to split this apart into two arrays
-
-                            With mCurrentSpectrum
-                                ReDim .MZList(CInt(dblDataArray.Length / 2) - 1)
-                                ReDim .IntensityList(CInt(dblDataArray.Length / 2) - 1)
-
-                                If mCurrentSpectrum.PeaksPairOrder = clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ Then
-                                    For intIndex = 0 To dblDataArray.Length - 1 Step 2
-                                        .IntensityList(CInt(intIndex / 2)) = CSng(dblDataArray(intIndex))
-                                        .MZList(CInt(intIndex / 2)) = dblDataArray(intIndex + 1)
-                                    Next intIndex
-                                Else
-                                    ' Assume PairOrderTypes.MZandIntensity
-                                    For intIndex = 0 To dblDataArray.Length - 1 Step 2
-                                        .MZList(CInt(intIndex / 2)) = dblDataArray(intIndex)
-                                        .IntensityList(CInt(intIndex / 2)) = CSng(dblDataArray(intIndex + 1))
-                                    Next intIndex
-                                End If
-                            End With
-
-                            blnSuccess = True
-                        End If
-                    Case Else
-                        ' Invalid numeric precision
-                End Select
-
-                If blnSuccess Then
-                    With mCurrentSpectrum
-                        If .MZList.Length <> .DataCount Then
-                            If .DataCount = 0 AndAlso .MZList.Length > 0 AndAlso
-                               Math.Abs(.MZList(0) - 0) < Single.Epsilon AndAlso
-                               Math.Abs(.IntensityList(0) - 0) < Single.Epsilon Then
-                                ' Leave .PeaksCount at 0
-                            Else
-                                If .MZList.Length > 1 AndAlso .IntensityList.Length > 1 Then
-                                    ' Check whether the last entry has a mass and intensity of 0
-                                    If Math.Abs(.MZList(.MZList.Length - 1)) < Single.Epsilon AndAlso
-                                       Math.Abs(.IntensityList(.MZList.Length - 1)) < Single.Epsilon Then
-                                        ' Remove the final entry
-                                        ReDim Preserve .MZList(.MZList.Length - 2)
-                                        ReDim Preserve .IntensityList(.IntensityList.Length - 2)
-                                    End If
-                                End If
-
-                                If .MZList.Length <> .DataCount Then
-                                    ' This shouldn't normally be necessary
-                                    LogErrors("ParseBinaryData",
-                                              "Unexpected condition: .MZList.Length <> .DataCount and .DataCount > 0")
-                                    .DataCount = .MZList.Length
-                                End If
-                            End If
-                        End If
-                    End With
-                End If
-
-            Catch ex As Exception
-                LogErrors("ParseBinaryData", ex.Message)
-            End Try
-        End If
-
-        Return blnSuccess
-    End Function
-
-    Protected Overrides Sub ParseElementContent()
-
-        Dim blnSuccess As Boolean
-
-        If mAbortProcessing Then Exit Sub
-        If mCurrentSpectrum Is Nothing Then Exit Sub
-
-        Try
-            ' Skip the element if we aren't parsing a scan (inside a scan element)
-            ' This is an easy way to skip whitespace
-            ' We can do this since since we only care about the data inside the
-            ' ScanSectionNames.precursorMz and ScanSectionNames.peaks elements
-            If mScanDepth > 0 Then
-                ' Check the last element name sent to startElement to determine
-                ' what to do with the data we just received
-                Select Case mCurrentElement
-                    Case ScanSectionNames.precursorMz
-                        Try
-                            mCurrentSpectrum.ParentIonMZ = CDbl(XMLTextReaderGetInnerText())
-                        Catch ex As Exception
-                            mCurrentSpectrum.ParentIonMZ = 0
-                        End Try
-                    Case ScanSectionNames.peaks
-                        If Not mSkipBinaryData Then
-                            blnSuccess = ParseBinaryData(XMLTextReaderGetInnerText(), mCurrentSpectrum.CompressionType)
-                        Else
-                            blnSuccess = True
-                        End If
-                End Select
-            End If
-        Catch ex As Exception
-            LogErrors("ParseElementContent", ex.Message)
-        End Try
-    End Sub
-
-    Protected Overrides Sub ParseEndElement()
-
-        If mAbortProcessing Then Exit Sub
-        If mCurrentSpectrum Is Nothing Then Exit Sub
-
-        Try
-            ' If we just moved out of a scan element, then finalize the current scan
-            If mXMLReader.Name = ScanSectionNames.scan Then
-                If mCurrentSpectrum.SpectrumStatus <> clsSpectrumInfo.eSpectrumStatusConstants.Initialized And
-                   mCurrentSpectrum.SpectrumStatus <> clsSpectrumInfo.eSpectrumStatusConstants.Validated Then
-                    mCurrentSpectrum.Validate()
-                    mSpectrumFound = True
-                End If
-
-                mScanDepth -= 1
-                If mScanDepth < 0 Then
-                    ' This shouldn't happen
-                    LogErrors("ParseEndElement", "Unexpected condition: mScanDepth < 0")
-                    mScanDepth = 0
-                End If
-            End If
-
-            ParentElementStackRemove()
-
-            ' Clear the current element name
-            mCurrentElement = String.Empty
-        Catch ex As Exception
-            LogErrors("ParseEndElement", ex.Message)
-        End Try
-    End Sub
-
-    Protected Overrides Sub ParseStartElement()
-        Dim strValue As String
-        Dim blnAttributeMissing As Boolean
-        Dim intInstrumentID As Integer
-
-        If mAbortProcessing Then Exit Sub
-        If mCurrentSpectrum Is Nothing Then Exit Sub
-
-        If Not MyBase.mSkippedStartElementAdvance Then
-            ' Add mXMLReader.Name to mParentElementStack
-            ParentElementStackAdd(mXMLReader)
-        End If
-
-        ' Store name of the element we just entered
-        mCurrentElement = mXMLReader.Name
-
-        Select Case mXMLReader.Name
-            Case ScanSectionNames.scan
-                mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.ScanList
-
-                If mScanDepth > 0 And Not MyBase.mSkippedStartElementAdvance Then
-                    If mCurrentSpectrum.SpectrumStatus <> clsSpectrumInfo.eSpectrumStatusConstants.Initialized And
-                       mCurrentSpectrum.SpectrumStatus <> clsSpectrumInfo.eSpectrumStatusConstants.Validated Then
-                        mCurrentSpectrum.Validate()
-                        MyBase.mSkipNextReaderAdvance = True
-                        MyBase.mSpectrumFound = True
-                        Exit Sub
-                    End If
-                End If
-
-                mCurrentSpectrum.Clear()
-                mScanDepth += 1
-
-                If Not mXMLReader.HasAttributes Then
-                    blnAttributeMissing = True
-                Else
-                    mCurrentSpectrum.ScanNumber = GetAttribValue(ScanAttributeNames.num, Int32.MinValue)
-                    If mCurrentSpectrum.ScanNumber = Int32.MinValue Then
-                        blnAttributeMissing = True
-                    Else
-                        blnAttributeMissing = False
-                        With mCurrentSpectrum
-                            .ScanCount = 1
-                            .ScanNumberEnd = .ScanNumber
-
-                            .MSLevel = GetAttribValue(ScanAttributeNames.msLevel, 1)
-
-                            If GetAttribValue(ScanAttributeNames.centroided, 0) = 0 Then
-                                .Centroided = False
-                            Else
-                                .Centroided = True
-                            End If
-
-                            intInstrumentID = GetAttribValue(ScanAttributeNames.msInstrumentID, 1)
-
-                            .DataCount = GetAttribValue(ScanAttributeNames.peaksCount, 0)
-                            .Polarity = GetAttribValue(ScanAttributeNames.polarity, "+")
-                            .RetentionTimeMin = GetAttribTimeValueMinutes(ScanAttributeNames.retentionTime)
-
-                            .ScanType = GetAttribValue(ScanAttributeNames.scanType, "")
-                            .FilterLine = GetAttribValue(ScanAttributeNames.filterLine, "")
-
-                            .StartMZ = GetAttribValue(ScanAttributeNames.startMz, CSng(0))
-                            .EndMZ = GetAttribValue(ScanAttributeNames.endMz, CSng(0))
-
-                            .mzRangeStart = GetAttribValue(ScanAttributeNames.lowMz, CSng(0))
-                            .mzRangeEnd = GetAttribValue(ScanAttributeNames.highMz, CSng(0))
-
-                            .BasePeakMZ = GetAttribValue(ScanAttributeNames.basePeakMz, CDbl(0))
-                            .BasePeakIntensity = GetAttribValue(ScanAttributeNames.basePeakIntensity, CSng(0))
-                            .TotalIonCurrent = GetAttribValue(ScanAttributeNames.totIonCurrent, CDbl(0))
-                        End With
-                    End If
-                End If
-
-                If blnAttributeMissing Then
-                    mCurrentSpectrum.ScanNumber = 0
-                    LogErrors("ParseStartElement",
-                              "Unable to read the ""num"" attribute for the current scan since it is missing")
-                End If
-
-            Case ScanSectionNames.precursorMz
-                If mXMLReader.HasAttributes Then
-                    mCurrentSpectrum.ParentIonIntensity = GetAttribValue(PrecursorAttributeNames.precursorIntensity,
-                                                                         CSng(0))
-
-                    mCurrentSpectrum.ActivationMethod = GetAttribValue(PrecursorAttributeNames.activationMethod,
-                                                                       String.Empty)
-                    mCurrentSpectrum.ParentIonCharge = GetAttribValue(PrecursorAttributeNames.precursorCharge, 0)
-                    mCurrentSpectrum.PrecursorScanNum = GetAttribValue(PrecursorAttributeNames.precursorScanNum, 0)
-                    mCurrentSpectrum.IsolationWindow = GetAttribValue(PrecursorAttributeNames.windowWideness, CSng(0))
-
-                End If
-
-            Case ScanSectionNames.peaks
-                If mXMLReader.HasAttributes Then
-                    With mCurrentSpectrum
-                        ' mzXML 3.x files will have a contentType attribute
-                        ' Earlier versions will have a pairOrder attribute
-
-                        .PeaksPairOrder = GetAttribValue(PeaksAttributeNames.contentType, String.Empty)
-
-                        If Not String.IsNullOrEmpty(.PeaksPairOrder) Then
-                            ' mzXML v3.x
-                            .CompressionType = GetAttribValue(PeaksAttributeNames.compressionType,
-                                                              clsSpectrumInfoMzXML.CompressionTypes.none)
-                            .CompressedLen = GetAttribValue(PeaksAttributeNames.compressedLen, 0)
-                        Else
-                            ' mzXML v1.x or v2.x
-                            .PeaksPairOrder = GetAttribValue(PeaksAttributeNames.pairOrder,
-                                                             clsSpectrumInfoMzXML.PairOrderTypes.MZandIntensity)
-                            .CompressionType = clsSpectrumInfoMzXML.CompressionTypes.none
-                            .CompressedLen = 0
-                        End If
-
-                        .NumericPrecisionOfData = GetAttribValue(PeaksAttributeNames.precision, 32)
-                        .PeaksByteOrder = GetAttribValue(PeaksAttributeNames.byteOrder,
-                                                         clsSpectrumInfoMzXML.ByteOrderTypes.network)
-
-                    End With
-                End If
-
-            Case XMLSectionNames.RootName
-                mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.Start
-                If mXMLReader.HasAttributes Then
-                    ' First look for attribute xlmns
-                    strValue = GetAttribValue(mzXMLRootAttrbuteNames.xmlns, String.Empty)
-                    If strValue Is Nothing OrElse strValue.Length = 0 Then
-                        ' Attribute not found; look for attribute xsi:schemaLocation
-                        strValue = GetAttribValue(mzXMLRootAttrbuteNames.xsi_schemaLocation, String.Empty)
-                    End If
-
-                    ValidateMZXmlFileVersion(strValue)
-                End If
-
-            Case HeaderSectionNames.msInstrument
-                If GetParentElement() = XMLSectionNames.msRun Then
-                    mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.msInstrument
-                End If
-
-            Case XMLSectionNames.msRun
-                mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.msRun
-
-                If mXMLReader.HasAttributes Then
-                    mInputFileStats.ScanCount = GetAttribValue(MSRunAttributeNames.scanCount, 0)
-
-                    With mInputFileStatsAddnl
-                        .StartTimeMin = GetAttribTimeValueMinutes(MSRunAttributeNames.startTime)
-                        .EndTimeMin = GetAttribTimeValueMinutes(MSRunAttributeNames.endTime)
-
-                        ' Note: A bug in the ReAdW software we use to create mzXML files records the .StartTime and .EndTime values in minutes but labels them as seconds
-                        ' Check for this by computing the average seconds/scan
-                        ' If too low, multiply the start and end times by 60
-                        If mInputFileStats.ScanCount > 0 Then
-                            If (.EndTimeMin - .StartTimeMin) / mInputFileStats.ScanCount * 60 < 0.1 Then
-                                ' Less than 0.1 sec/scan; this is unlikely
-                                .StartTimeMin = .StartTimeMin * 60
-                                .EndTimeMin = .EndTimeMin * 60
-                            End If
-                        End If
-                    End With
-                Else
-                    mInputFileStats.ScanCount = 0
-                End If
-
-            Case HeaderSectionNames.dataProcessing
-                If GetParentElement() = XMLSectionNames.msRun Then
-                    mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.dataProcessing
-                    mInputFileStatsAddnl.IsCentroid = GetAttribValue(DataProcessingAttributeNames.centroided, False)
-                End If
-
-        End Select
-
-        MyBase.mSkippedStartElementAdvance = False
-    End Sub
-
-    ''' <summary>
-    ''' Updates the current XMLReader object with a new reader positioned at the XML for a new mass spectrum
-    ''' </summary>
-    ''' <param name="newReader"></param>
-    ''' <returns></returns>
-    ''' <remarks></remarks>
-    Public Function SetXMLReaderForSpectrum(newReader As XmlReader) As Boolean
-
-        Try
-            mInputFilePath = "TextStream"
-
-            mXMLReader = newReader
-
-            mErrorMessage = String.Empty
-
-            InitializeLocalVariables()
-
-            Return True
-
-        Catch ex As Exception
-            mErrorMessage = "Error updating mXMLReader"
-            Return False
-        End Try
-    End Function
-
-    Public Shared Function ExtractMzXmlFileVersion(xmlWithFileVersion As String, <Out()> ByRef xmlFileVersion As String) As Boolean
-
-        ' Currently, the supported versions are mzXML_2.x and mzXML_3.x
-        Dim objFileVersionRegEx = New Text.RegularExpressions.Regex("mzXML_[^\s""/]+",
-                                                                    Text.RegularExpressions.RegexOptions.IgnoreCase)
-
-        ' Validate the mzXML file version
-        If Not String.IsNullOrWhiteSpace(xmlWithFileVersion) Then
-            ' Parse out the version number
-            Dim objMatch = objFileVersionRegEx.Match(xmlWithFileVersion)
-            If objMatch.Success AndAlso objMatch.Value IsNot Nothing Then
-                ' Record the version
-                xmlFileVersion = objMatch.Value
-                Return True
-            End If
-        End If
-
-        xmlFileVersion = String.Empty
-        Return False
-    End Function
-
-    Private Sub ValidateMZXmlFileVersion(xmlWithFileVersion As String)
-        ' This sub should be called from ParseStartElement
-
-        Dim strMessage As String
-
-        Try
-            mFileVersion = String.Empty
-
-            If Not ExtractMzXmlFileVersion(xmlWithFileVersion, mFileVersion) Then
-                strMessage = "Unknown mzXML file version; expected text not found in xmlWithFileVersion"
-                If mParseFilesWithUnknownVersion Then
-                    strMessage &= "; attempting to parse since ParseFilesWithUnknownVersion = True"
-                Else
-                    mAbortProcessing = True
-                    strMessage &= "; aborting read"
-                End If
-                LogErrors("ValidateMZXmlFileVersion", strMessage)
-                Return
-            End If
-
-            If mFileVersion.Length > 0 Then
-                If Not (mFileVersion.IndexOf("mzxml_2", StringComparison.InvariantCultureIgnoreCase) >= 0 OrElse
-                        mFileVersion.IndexOf("mzxml_3", StringComparison.InvariantCultureIgnoreCase) >= 0) Then
-                    ' strFileVersion contains mzXML_ but not mxXML_2 or mxXML_3
-                    ' Thus, assume unknown version
-                    ' Log error and abort if mParseFilesWithUnknownVersion = False
-                    strMessage = "Unknown mzXML file version: " & mFileVersion
-                    If mParseFilesWithUnknownVersion Then
-                        strMessage &= "; attempting to parse since ParseFilesWithUnknownVersion = True"
-                    Else
-                        mAbortProcessing = True
-                        strMessage &= "; aborting read"
-                    End If
-                    LogErrors("ValidateMZXmlFileVersion", strMessage)
-                End If
-            End If
-        Catch ex As Exception
-            LogErrors("ValidateMZXmlFileVersion", ex.Message)
-            mFileVersion = String.Empty
-        End Try
-    End Sub
-End Class
+﻿using System;
+using System.Xml;
+
+namespace MSDataFileReader
+{
+
+    // This class uses a SAX Parser to read an mzXML file
+
+    // -------------------------------------------------------------------------------
+    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+    // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
+    // Started March 26, 2006
+    // 
+    // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+    // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+    // -------------------------------------------------------------------------------
+
+    public class clsMzXMLFileReader : clsMSXMLFileReaderBaseClass
+    {
+        public clsMzXMLFileReader()
+        {
+            InitializeLocalVariables();
+        }
+
+        #region Constants and Enums
+        // Note: The extensions must be in all caps
+        public const string MZXML_FILE_EXTENSION = ".MZXML";
+        public const string MZXML_FILE_EXTENSION_XML = "_MZXML.XML";
+
+        // Note that I'm using classes to group the constants
+        private class XMLSectionNames
+        {
+            public const string RootName = "mzXML";
+            public const string msRun = "msRun";
+        }
+
+        private class mzXMLRootAttrbuteNames
+        {
+            public const string xmlns = "xmlns";
+            public const string xsi_schemaLocation = "xsi:schemaLocation";
+        }
+
+        private class HeaderSectionNames
+        {
+            public const string msInstrument = "msInstrument";
+            public const string dataProcessing = "dataProcessing";
+        }
+
+        private class ScanSectionNames
+        {
+            public const string scan = "scan";
+            public const string precursorMz = "precursorMz";
+            public const string peaks = "peaks";
+        }
+
+        private class MSRunAttributeNames
+        {
+            public const string scanCount = "scanCount";
+            public const string startTime = "startTime";
+            public const string endTime = "endTime";
+        }
+
+        private class DataProcessingAttributeNames
+        {
+            public const string centroided = "centroided";
+        }
+
+        private class ScanAttributeNames
+        {
+            public const string num = "num";
+            public const string msLevel = "msLevel";
+
+            // 0 or 1
+            public const string centroided = "centroided";
+            public const string peaksCount = "peaksCount";
+            public const string polarity = "polarity";
+
+            // Options are: Full, zoom, SIM, SRM, MRM, CRM, Q1, or Q3; note that MRM and SRM and functionally equivalent; ReadW uses SRM
+            public const string scanType = "scanType";
+
+            // Thermo-specific filter-line text; added by ReadW
+            public const string filterLine = "filterLine";
+
+            // Example retention time: PT1.0373S
+            public const string retentionTime = "retentionTime";
+
+            // Collision energy used to fragment the parent ion
+            public const string collisionEnergy = "collisionEnergy";
+
+            // Setted low m/z boundary (this is the instrumetal setting); not present in .mzXML files created with ReadW
+            public const string startMz = "startMz";
+
+            // Setted high m/z boundary (this is the instrumetal setting); not present in .mzXML files created with ReadW
+            public const string endMz = "endMz";
+
+            // Observed low m/z (this is what the actual data looks like
+            public const string lowMz = "lowMz";
+
+            // Observed high m/z (this is what the actual data looks like
+            public const string highMz = "highMz";
+
+            // m/z of the base peak (most intense peak)
+            public const string basePeakMz = "basePeakMz";
+
+            // Intensity of the base peak (most intense peak)
+            public const string basePeakIntensity = "basePeakIntensity";
+
+            // Total ion current (total intensity in the scan)
+            public const string totIonCurrent = "totIonCurrent";
+            public const string msInstrumentID = "msInstrumentID";
+        }
+
+        private class PrecursorAttributeNames
+        {
+            // Scan number of the precursor
+            public const string precursorScanNum = "precursorScanNum";
+
+            // Intensity of the precursor ion
+            public const string precursorIntensity = "precursorIntensity";
+
+            // Charge of the precursor, typically determined at time of acquisition by the mass spectrometer
+            public const string precursorCharge = "precursorCharge";
+
+            // Fragmentation method, e.g. CID, ETD, or HCD
+            public const string activationMethod = "activationMethod";
+
+            // Isolation window width, e.g. 2.0
+            public const string windowWideness = "windowWideness";
+        }
+
+        private class PeaksAttributeNames
+        {
+            public const string precision = "precision";
+            public const string byteOrder = "byteOrder";
+
+            // For example, "m/z-int"  ; superseded by "contentType" in mzXML 3
+            public const string pairOrder = "pairOrder";
+
+            // Allowed values are: "none" or "zlib"
+            public const string compressionType = "compressionType";
+
+            // Integer value required when using zlib compression
+            public const string compressedLen = "compressedLen";
+
+            // Allowed values are: "m/z-int", "m/z", "intensity", "S/N", "charge", "m/z ruler", "TOF"
+            public const string contentType = "contentType";
+        }
+
+        private enum eCurrentMZXMLDataFileSectionConstants : int
+        {
+            UnknownFile = 0,
+            Start = 1,
+            msRun = 2,
+            msInstrument = 3,
+            dataProcessing = 4,
+            ScanList = 5
+        }
+
+        #endregion
+
+        #region Structures
+
+        private struct udtFileStatsAddnlType
+        {
+            public float StartTimeMin;
+            public float EndTimeMin;
+            public bool IsCentroid;      // True if centroid (aka stick) data; False if profile (aka continuum) data
+        }
+
+        #endregion
+
+        #region Classwide Variables
+
+        private eCurrentMZXMLDataFileSectionConstants mCurrentXMLDataFileSection;
+        private int mScanDepth;       // > 0 if we're inside a scan element
+        private clsSpectrumInfoMzXML mCurrentSpectrum;
+        private udtFileStatsAddnlType mInputFileStatsAddnl;
+
+        #endregion
+
+        #region Processing Options and Interface Functions
+
+        public float FileInfoStartTimeMin
+        {
+            get
+            {
+                return mInputFileStatsAddnl.StartTimeMin;
+            }
+        }
+
+        public float FileInfoEndTimeMin
+        {
+            get
+            {
+                return mInputFileStatsAddnl.EndTimeMin;
+            }
+        }
+
+        public bool FileInfoIsCentroid
+        {
+            get
+            {
+                return mInputFileStatsAddnl.IsCentroid;
+            }
+        }
+
+        #endregion
+
+        protected override clsSpectrumInfo GetCurrentSpectrum()
+        {
+            return mCurrentSpectrum;
+        }
+
+        protected override void InitializeCurrentSpectrum(bool blnAutoShrinkDataLists)
+        {
+            if (ReadingAndStoringSpectra || mCurrentSpectrum is null)
+            {
+                mCurrentSpectrum = new clsSpectrumInfoMzXML();
+            }
+            else
+            {
+                mCurrentSpectrum.Clear();
+            }
+
+            mCurrentSpectrum.AutoShrinkDataLists = blnAutoShrinkDataLists;
+        }
+
+        protected override void InitializeLocalVariables()
+        {
+            base.InitializeLocalVariables();
+            mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.UnknownFile;
+            mScanDepth = 0;
+            {
+                ref var withBlock = ref mInputFileStatsAddnl;
+                withBlock.StartTimeMin = 0f;
+                withBlock.EndTimeMin = 0f;
+                withBlock.IsCentroid = false;
+            }
+        }
+
+        protected override void LogErrors(string strCallingFunction, string strErrorDescription)
+        {
+            base.LogErrors("clsMzXMLFileReader." + strCallingFunction, strErrorDescription);
+        }
+
+        public override bool OpenFile(string strInputFilePath)
+        {
+            bool blnSuccess;
+            InitializeLocalVariables();
+            blnSuccess = base.OpenFile(strInputFilePath);
+            return blnSuccess;
+        }
+
+        private bool ParseBinaryData(string strMSMSDataBase64Encoded, string strCompressionType)
+        {
+            // Parses strMSMSDataBase64Encoded and stores the data in mIntensityList() and mMZList()
+
+            float[] sngDataArray = null;
+            double[] dblDataArray = null;
+            bool zLibCompressed = false;
+            var eEndianMode = clsBase64EncodeDecode.eEndianTypeConstants.BigEndian;
+            int intIndex;
+            bool blnSuccess;
+            if (mCurrentSpectrum is null)
+            {
+                return false;
+            }
+
+            blnSuccess = false;
+            if (strMSMSDataBase64Encoded is null || strMSMSDataBase64Encoded.Length == 0)
+            {
+                {
+                    ref var withBlock = ref mCurrentSpectrum;
+                    withBlock.DataCount = 0;
+                    withBlock.MZList = new double[0];
+                    withBlock.IntensityList = new float[0];
+                }
+            }
+            else
+            {
+                try
+                {
+                    if ((strCompressionType ?? "") == clsSpectrumInfoMzXML.CompressionTypes.zlib)
+                    {
+                        zLibCompressed = true;
+                    }
+                    else
+                    {
+                        zLibCompressed = false;
+                    }
+
+                    switch (mCurrentSpectrum.NumericPrecisionOfData)
+                    {
+                        case 32:
+                            {
+                                if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out sngDataArray, zLibCompressed, eEndianMode))
+                                {
+
+                                    // sngDataArray now contains pairs of singles, either m/z and intensity or intensity and m/z
+                                    // Need to split this apart into two arrays
+
+                                    {
+                                        ref var withBlock1 = ref mCurrentSpectrum;
+                                        withBlock1.MZList = new double[((int)Math.Round(sngDataArray.Length / 2d))];
+                                        withBlock1.IntensityList = new float[((int)Math.Round(sngDataArray.Length / 2d))];
+                                        if ((mCurrentSpectrum.PeaksPairOrder ?? "") == clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ)
+                                        {
+                                            var loopTo = sngDataArray.Length - 1;
+                                            for (intIndex = 0; intIndex <= loopTo; intIndex += 2)
+                                            {
+                                                withBlock1.IntensityList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex];
+                                                withBlock1.MZList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex + 1];
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // Assume PairOrderTypes.MZandIntensity
+                                            var loopTo1 = sngDataArray.Length - 1;
+                                            for (intIndex = 0; intIndex <= loopTo1; intIndex += 2)
+                                            {
+                                                withBlock1.MZList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex];
+                                                withBlock1.IntensityList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex + 1];
+                                            }
+                                        }
+                                    }
+
+                                    blnSuccess = true;
+                                }
+
+                                break;
+                            }
+
+                        case 64:
+                            {
+                                if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out dblDataArray, zLibCompressed, eEndianMode))
+                                {
+                                    // dblDataArray now contains pairs of doubles, either m/z and intensity or intensity and m/z
+                                    // Need to split this apart into two arrays
+
+                                    {
+                                        ref var withBlock2 = ref mCurrentSpectrum;
+                                        withBlock2.MZList = new double[((int)Math.Round(dblDataArray.Length / 2d))];
+                                        withBlock2.IntensityList = new float[((int)Math.Round(dblDataArray.Length / 2d))];
+                                        if ((mCurrentSpectrum.PeaksPairOrder ?? "") == clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ)
+                                        {
+                                            var loopTo2 = dblDataArray.Length - 1;
+                                            for (intIndex = 0; intIndex <= loopTo2; intIndex += 2)
+                                            {
+                                                withBlock2.IntensityList[(int)Math.Round(intIndex / 2d)] = (float)dblDataArray[intIndex];
+                                                withBlock2.MZList[(int)Math.Round(intIndex / 2d)] = dblDataArray[intIndex + 1];
+                                            }
+                                        }
+                                        else
+                                        {
+                                            // Assume PairOrderTypes.MZandIntensity
+                                            var loopTo3 = dblDataArray.Length - 1;
+                                            for (intIndex = 0; intIndex <= loopTo3; intIndex += 2)
+                                            {
+                                                withBlock2.MZList[(int)Math.Round(intIndex / 2d)] = dblDataArray[intIndex];
+                                                withBlock2.IntensityList[(int)Math.Round(intIndex / 2d)] = (float)dblDataArray[intIndex + 1];
+                                            }
+                                        }
+                                    }
+
+                                    blnSuccess = true;
+                                }
+
+                                break;
+                            }
+
+                        default:
+                            {
+                                break;
+                            }
+                            // Invalid numeric precision
+                    }
+
+                    if (blnSuccess)
+                    {
+                        {
+                            ref var withBlock3 = ref mCurrentSpectrum;
+                            if (withBlock3.MZList.Length != withBlock3.DataCount)
+                            {
+                                if (withBlock3.DataCount == 0 && withBlock3.MZList.Length > 0 && Math.Abs(withBlock3.MZList[0] - 0d) < float.Epsilon && Math.Abs(withBlock3.IntensityList[0] - 0f) < float.Epsilon)
+                                {
+                                }
+                                // Leave .PeaksCount at 0
+                                else
+                                {
+                                    if (withBlock3.MZList.Length > 1 && withBlock3.IntensityList.Length > 1)
+                                    {
+                                        // Check whether the last entry has a mass and intensity of 0
+                                        if (Math.Abs(withBlock3.MZList[withBlock3.MZList.Length - 1]) < float.Epsilon && Math.Abs(withBlock3.IntensityList[withBlock3.MZList.Length - 1]) < float.Epsilon)
+                                        {
+                                            // Remove the final entry
+                                            Array.Resize(ref withBlock3.MZList, withBlock3.MZList.Length - 2 + 1);
+                                            Array.Resize(ref withBlock3.IntensityList, withBlock3.IntensityList.Length - 2 + 1);
+                                        }
+                                    }
+
+                                    if (withBlock3.MZList.Length != withBlock3.DataCount)
+                                    {
+                                        // This shouldn't normally be necessary
+                                        LogErrors("ParseBinaryData", "Unexpected condition: .MZList.Length <> .DataCount and .DataCount > 0");
+                                        withBlock3.DataCount = withBlock3.MZList.Length;
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+                catch (Exception ex)
+                {
+                    LogErrors("ParseBinaryData", ex.Message);
+                }
+            }
+
+            return blnSuccess;
+        }
+
+        protected override void ParseElementContent()
+        {
+            bool blnSuccess;
+            if (mAbortProcessing)
+                return;
+            if (mCurrentSpectrum is null)
+                return;
+            try
+            {
+                // Skip the element if we aren't parsing a scan (inside a scan element)
+                // This is an easy way to skip whitespace
+                // We can do this since since we only care about the data inside the
+                // ScanSectionNames.precursorMz and ScanSectionNames.peaks elements
+                if (mScanDepth > 0)
+                {
+                    // Check the last element name sent to startElement to determine
+                    // what to do with the data we just received
+                    switch (mCurrentElement ?? "")
+                    {
+                        case ScanSectionNames.precursorMz:
+                            {
+                                try
+                                {
+                                    mCurrentSpectrum.ParentIonMZ = Conversions.ToDouble(XMLTextReaderGetInnerText());
+                                }
+                                catch (Exception ex)
+                                {
+                                    mCurrentSpectrum.ParentIonMZ = 0d;
+                                }
+
+                                break;
+                            }
+
+                        case ScanSectionNames.peaks:
+                            {
+                                if (!mSkipBinaryData)
+                                {
+                                    blnSuccess = ParseBinaryData(XMLTextReaderGetInnerText(), mCurrentSpectrum.CompressionType);
+                                }
+                                else
+                                {
+                                    blnSuccess = true;
+                                }
+
+                                break;
+                            }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogErrors("ParseElementContent", ex.Message);
+            }
+        }
+
+        protected override void ParseEndElement()
+        {
+            if (mAbortProcessing)
+                return;
+            if (mCurrentSpectrum is null)
+                return;
+            try
+            {
+                // If we just moved out of a scan element, then finalize the current scan
+                if ((mXMLReader.Name ?? "") == ScanSectionNames.scan)
+                {
+                    if (mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Initialized & mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Validated)
+                    {
+                        mCurrentSpectrum.Validate();
+                        mSpectrumFound = true;
+                    }
+
+                    mScanDepth -= 1;
+                    if (mScanDepth < 0)
+                    {
+                        // This shouldn't happen
+                        LogErrors("ParseEndElement", "Unexpected condition: mScanDepth < 0");
+                        mScanDepth = 0;
+                    }
+                }
+
+                ParentElementStackRemove();
+
+                // Clear the current element name
+                mCurrentElement = string.Empty;
+            }
+            catch (Exception ex)
+            {
+                LogErrors("ParseEndElement", ex.Message);
+            }
+        }
+
+        protected override void ParseStartElement()
+        {
+            string strValue;
+            bool blnAttributeMissing;
+            int intInstrumentID;
+            if (mAbortProcessing)
+                return;
+            if (mCurrentSpectrum is null)
+                return;
+            if (!mSkippedStartElementAdvance)
+            {
+                // Add mXMLReader.Name to mParentElementStack
+                ParentElementStackAdd(mXMLReader);
+            }
+
+            // Store name of the element we just entered
+            mCurrentElement = mXMLReader.Name;
+            switch (mXMLReader.Name ?? "")
+            {
+                case ScanSectionNames.scan:
+                    {
+                        mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.ScanList;
+                        if (mScanDepth > 0 & !mSkippedStartElementAdvance)
+                        {
+                            if (mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Initialized & mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Validated)
+                            {
+                                mCurrentSpectrum.Validate();
+                                mSkipNextReaderAdvance = true;
+                                mSpectrumFound = true;
+                                return;
+                            }
+                        }
+
+                        mCurrentSpectrum.Clear();
+                        mScanDepth += 1;
+                        if (!mXMLReader.HasAttributes)
+                        {
+                            blnAttributeMissing = true;
+                        }
+                        else
+                        {
+                            mCurrentSpectrum.ScanNumber = GetAttribValue(ScanAttributeNames.num, int.MinValue);
+                            if (mCurrentSpectrum.ScanNumber == int.MinValue)
+                            {
+                                blnAttributeMissing = true;
+                            }
+                            else
+                            {
+                                blnAttributeMissing = false;
+                                {
+                                    ref var withBlock = ref mCurrentSpectrum;
+                                    withBlock.ScanCount = 1;
+                                    withBlock.ScanNumberEnd = withBlock.ScanNumber;
+                                    withBlock.MSLevel = GetAttribValue(ScanAttributeNames.msLevel, 1);
+                                    if (GetAttribValue(ScanAttributeNames.centroided, 0) == 0)
+                                    {
+                                        withBlock.Centroided = false;
+                                    }
+                                    else
+                                    {
+                                        withBlock.Centroided = true;
+                                    }
+
+                                    intInstrumentID = GetAttribValue(ScanAttributeNames.msInstrumentID, 1);
+                                    withBlock.DataCount = GetAttribValue(ScanAttributeNames.peaksCount, 0);
+                                    withBlock.Polarity = GetAttribValue(ScanAttributeNames.polarity, "+");
+                                    withBlock.RetentionTimeMin = GetAttribTimeValueMinutes(ScanAttributeNames.retentionTime);
+                                    withBlock.ScanType = GetAttribValue(ScanAttributeNames.scanType, "");
+                                    withBlock.FilterLine = GetAttribValue(ScanAttributeNames.filterLine, "");
+                                    withBlock.StartMZ = GetAttribValue(ScanAttributeNames.startMz, 0);
+                                    withBlock.EndMZ = GetAttribValue(ScanAttributeNames.endMz, 0);
+                                    withBlock.mzRangeStart = GetAttribValue(ScanAttributeNames.lowMz, 0);
+                                    withBlock.mzRangeEnd = GetAttribValue(ScanAttributeNames.highMz, 0);
+                                    withBlock.BasePeakMZ = GetAttribValue(ScanAttributeNames.basePeakMz, 0);
+                                    withBlock.BasePeakIntensity = GetAttribValue(ScanAttributeNames.basePeakIntensity, 0);
+                                    withBlock.TotalIonCurrent = GetAttribValue(ScanAttributeNames.totIonCurrent, 0);
+                                }
+                            }
+                        }
+
+                        if (blnAttributeMissing)
+                        {
+                            mCurrentSpectrum.ScanNumber = 0;
+                            LogErrors("ParseStartElement", "Unable to read the \"num\" attribute for the current scan since it is missing");
+                        }
+
+                        break;
+                    }
+
+                case ScanSectionNames.precursorMz:
+                    {
+                        if (mXMLReader.HasAttributes)
+                        {
+                            mCurrentSpectrum.ParentIonIntensity = GetAttribValue(PrecursorAttributeNames.precursorIntensity, 0);
+                            mCurrentSpectrum.ActivationMethod = GetAttribValue(PrecursorAttributeNames.activationMethod, string.Empty);
+                            mCurrentSpectrum.ParentIonCharge = GetAttribValue(PrecursorAttributeNames.precursorCharge, 0);
+                            mCurrentSpectrum.PrecursorScanNum = GetAttribValue(PrecursorAttributeNames.precursorScanNum, 0);
+                            mCurrentSpectrum.IsolationWindow = GetAttribValue(PrecursorAttributeNames.windowWideness, 0);
+                        }
+
+                        break;
+                    }
+
+                case ScanSectionNames.peaks:
+                    {
+                        if (mXMLReader.HasAttributes)
+                        {
+                            {
+                                ref var withBlock1 = ref mCurrentSpectrum;
+                                // mzXML 3.x files will have a contentType attribute
+                                // Earlier versions will have a pairOrder attribute
+
+                                withBlock1.PeaksPairOrder = GetAttribValue(PeaksAttributeNames.contentType, string.Empty);
+                                if (!string.IsNullOrEmpty(withBlock1.PeaksPairOrder))
+                                {
+                                    // mzXML v3.x
+                                    withBlock1.CompressionType = GetAttribValue(PeaksAttributeNames.compressionType, clsSpectrumInfoMzXML.CompressionTypes.none);
+                                    withBlock1.CompressedLen = GetAttribValue(PeaksAttributeNames.compressedLen, 0);
+                                }
+                                else
+                                {
+                                    // mzXML v1.x or v2.x
+                                    withBlock1.PeaksPairOrder = GetAttribValue(PeaksAttributeNames.pairOrder, clsSpectrumInfoMzXML.PairOrderTypes.MZandIntensity);
+                                    withBlock1.CompressionType = clsSpectrumInfoMzXML.CompressionTypes.none;
+                                    withBlock1.CompressedLen = 0;
+                                }
+
+                                withBlock1.NumericPrecisionOfData = GetAttribValue(PeaksAttributeNames.precision, 32);
+                                withBlock1.PeaksByteOrder = GetAttribValue(PeaksAttributeNames.byteOrder, clsSpectrumInfoMzXML.ByteOrderTypes.network);
+                            }
+                        }
+
+                        break;
+                    }
+
+                case XMLSectionNames.RootName:
+                    {
+                        mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.Start;
+                        if (mXMLReader.HasAttributes)
+                        {
+                            // First look for attribute xlmns
+                            strValue = GetAttribValue(mzXMLRootAttrbuteNames.xmlns, string.Empty);
+                            if (strValue is null || strValue.Length == 0)
+                            {
+                                // Attribute not found; look for attribute xsi:schemaLocation
+                                strValue = GetAttribValue(mzXMLRootAttrbuteNames.xsi_schemaLocation, string.Empty);
+                            }
+
+                            ValidateMZXmlFileVersion(strValue);
+                        }
+
+                        break;
+                    }
+
+                case HeaderSectionNames.msInstrument:
+                    {
+                        if ((GetParentElement() ?? "") == XMLSectionNames.msRun)
+                        {
+                            mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.msInstrument;
+                        }
+
+                        break;
+                    }
+
+                case XMLSectionNames.msRun:
+                    {
+                        mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.msRun;
+                        if (mXMLReader.HasAttributes)
+                        {
+                            mInputFileStats.ScanCount = GetAttribValue(MSRunAttributeNames.scanCount, 0);
+                            {
+                                ref var withBlock2 = ref mInputFileStatsAddnl;
+                                withBlock2.StartTimeMin = GetAttribTimeValueMinutes(MSRunAttributeNames.startTime);
+                                withBlock2.EndTimeMin = GetAttribTimeValueMinutes(MSRunAttributeNames.endTime);
+
+                                // Note: A bug in the ReAdW software we use to create mzXML files records the .StartTime and .EndTime values in minutes but labels them as seconds
+                                // Check for this by computing the average seconds/scan
+                                // If too low, multiply the start and end times by 60
+                                if (mInputFileStats.ScanCount > 0)
+                                {
+                                    if ((withBlock2.EndTimeMin - withBlock2.StartTimeMin) / mInputFileStats.ScanCount * 60f < 0.1d)
+                                    {
+                                        // Less than 0.1 sec/scan; this is unlikely
+                                        withBlock2.StartTimeMin = withBlock2.StartTimeMin * 60f;
+                                        withBlock2.EndTimeMin = withBlock2.EndTimeMin * 60f;
+                                    }
+                                }
+                            }
+                        }
+                        else
+                        {
+                            mInputFileStats.ScanCount = 0;
+                        }
+
+                        break;
+                    }
+
+                case HeaderSectionNames.dataProcessing:
+                    {
+                        if ((GetParentElement() ?? "") == XMLSectionNames.msRun)
+                        {
+                            mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.dataProcessing;
+                            mInputFileStatsAddnl.IsCentroid = GetAttribValue(DataProcessingAttributeNames.centroided, false);
+                        }
+
+                        break;
+                    }
+            }
+
+            mSkippedStartElementAdvance = false;
+        }
+
+        /// <summary>
+    /// Updates the current XMLReader object with a new reader positioned at the XML for a new mass spectrum
+    /// </summary>
+    /// <param name="newReader"></param>
+    /// <returns></returns>
+    /// <remarks></remarks>
+        public bool SetXMLReaderForSpectrum(XmlReader newReader)
+        {
+            try
+            {
+                mInputFilePath = "TextStream";
+                mXMLReader = newReader;
+                mErrorMessage = string.Empty;
+                InitializeLocalVariables();
+                return true;
+            }
+            catch (Exception ex)
+            {
+                mErrorMessage = "Error updating mXMLReader";
+                return false;
+            }
+        }
+
+        public static bool ExtractMzXmlFileVersion(string xmlWithFileVersion, out string xmlFileVersion)
+        {
+
+            // Currently, the supported versions are mzXML_2.x and mzXML_3.x
+            var objFileVersionRegEx = new System.Text.RegularExpressions.Regex(@"mzXML_[^\s""/]+", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+
+            // Validate the mzXML file version
+            if (!string.IsNullOrWhiteSpace(xmlWithFileVersion))
+            {
+                // Parse out the version number
+                var objMatch = objFileVersionRegEx.Match(xmlWithFileVersion);
+                if (objMatch.Success && objMatch.Value is object)
+                {
+                    // Record the version
+                    xmlFileVersion = objMatch.Value;
+                    return true;
+                }
+            }
+
+            xmlFileVersion = string.Empty;
+            return false;
+        }
+
+        private void ValidateMZXmlFileVersion(string xmlWithFileVersion)
+        {
+            // This sub should be called from ParseStartElement
+
+            string strMessage;
+            try
+            {
+                mFileVersion = string.Empty;
+                if (!ExtractMzXmlFileVersion(xmlWithFileVersion, out mFileVersion))
+                {
+                    strMessage = "Unknown mzXML file version; expected text not found in xmlWithFileVersion";
+                    if (mParseFilesWithUnknownVersion)
+                    {
+                        strMessage += "; attempting to parse since ParseFilesWithUnknownVersion = True";
+                    }
+                    else
+                    {
+                        mAbortProcessing = true;
+                        strMessage += "; aborting read";
+                    }
+
+                    LogErrors("ValidateMZXmlFileVersion", strMessage);
+                    return;
+                }
+
+                if (mFileVersion.Length > 0)
+                {
+                    if (!(mFileVersion.IndexOf("mzxml_2", StringComparison.InvariantCultureIgnoreCase) >= 0 || mFileVersion.IndexOf("mzxml_3", StringComparison.InvariantCultureIgnoreCase) >= 0))
+                    {
+                        // strFileVersion contains mzXML_ but not mxXML_2 or mxXML_3
+                        // Thus, assume unknown version
+                        // Log error and abort if mParseFilesWithUnknownVersion = False
+                        strMessage = "Unknown mzXML file version: " + mFileVersion;
+                        if (mParseFilesWithUnknownVersion)
+                        {
+                            strMessage += "; attempting to parse since ParseFilesWithUnknownVersion = True";
+                        }
+                        else
+                        {
+                            mAbortProcessing = true;
+                            strMessage += "; aborting read";
+                        }
+
+                        LogErrors("ValidateMZXmlFileVersion", strMessage);
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                LogErrors("ValidateMZXmlFileVersion", ex.Message);
+                mFileVersion = string.Empty;
+            }
+        }
+    }
+}

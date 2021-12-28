@@ -1,249 +1,310 @@
-Option Strict On
+﻿using System;
 
-Imports System.Runtime.InteropServices
-' This class holds the values associated with each spectrum in an mzData file
-'
-' -------------------------------------------------------------------------------
-' Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
-' Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
-' Started March 24, 2006
-'
-' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-' Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
-' -------------------------------------------------------------------------------
+namespace MSDataFileReader
+{
+    // This class holds the values associated with each spectrum in an mzData file
+    // 
+    // -------------------------------------------------------------------------------
+    // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
+    // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
+    // Started March 24, 2006
+    // 
+    // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+    // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+    // -------------------------------------------------------------------------------
 
-<Serializable()>
-Public Class clsSpectrumInfoMzData
-    Inherits clsSpectrumInfo
+    [Serializable()]
+    public class clsSpectrumInfoMzData : clsSpectrumInfo
+    {
+        public clsSpectrumInfoMzData()
+        {
+            Clear();
+        }
 
-    Public Sub New()
-        Me.Clear()
-    End Sub
+        #region Constants and Enums
 
-#Region "Constants and Enums"
+        public class EndianModes
+        {
+            public const string littleEndian = "little";
+            public const string bigEndian = "big";
+        }
 
-    Public Class EndianModes
-        Public Const littleEndian As String = "little"
-        Public Const bigEndian As String = "big"
-    End Class
+        #endregion
 
-#End Region
+        #region Spectrum Variables
 
-#Region "Spectrum Variables"
+        protected float mCollisionEnergy;
+        protected string mCollisionEnergyUnits;
+        protected string mCollisionMethod;
+        protected string mScanMode;
+        protected int mParentIonCharge;
+        protected int mParentIonSpectrumMSLevel;
+        protected int mParentIonSpectrumID;
 
-    Protected mCollisionEnergy As Single
-    Protected mCollisionEnergyUnits As String
-    Protected mCollisionMethod As String
+        // Typically 32 or 64
+        protected int mNumericPrecisionOfDataMZ;
 
-    Protected mScanMode As String
-    Protected mParentIonCharge As Integer
-    Protected mParentIonSpectrumMSLevel As Integer
-    Protected mParentIonSpectrumID As Integer
+        // See class EndianModes for values; typically EndianModes.littleEndian
+        protected string mPeaksEndianModeMZ;
 
-    ' Typically 32 or 64
-    Protected mNumericPrecisionOfDataMZ As Integer
+        // Typically 32 or 64
+        protected int mNumericPrecisionOfDataIntensity;
 
-    ' See class EndianModes for values; typically EndianModes.littleEndian
-    Protected mPeaksEndianModeMZ As String
+        // See class EndianModes for values; typically EndianModes.littleEndian
+        protected string mPeaksEndianModeIntensity;
 
-    ' Typically 32 or 64
-    Protected mNumericPrecisionOfDataIntensity As Integer
+        #endregion
 
-    ' See class EndianModes for values; typically EndianModes.littleEndian
-    Protected mPeaksEndianModeIntensity As String
+        #region Classwide Variables
 
-#End Region
+        #endregion
 
-#Region "Classwide Variables"
+        #region Spectrum Variable Interface Functions
 
-#End Region
+        public float CollisionEnergy
+        {
+            get
+            {
+                return mCollisionEnergy;
+            }
 
-#Region "Spectrum Variable Interface Functions"
+            set
+            {
+                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mCollisionEnergy = value;
+            }
+        }
 
-    Public Property CollisionEnergy() As Single
-        Get
-            Return mCollisionEnergy
-        End Get
-        Set(Value As Single)
-            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-            mCollisionEnergy = Value
-        End Set
-    End Property
+        public string CollisionEnergyUnits
+        {
+            get
+            {
+                return mCollisionEnergyUnits;
+            }
 
-    Public Property CollisionEnergyUnits() As String
-        Get
-            Return mCollisionEnergyUnits
-        End Get
-        Set(Value As String)
-            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-            mCollisionEnergyUnits = Value
-        End Set
-    End Property
+            set
+            {
+                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mCollisionEnergyUnits = value;
+            }
+        }
 
-    Public Property CollisionMethod() As String
-        Get
-            Return mCollisionMethod
-        End Get
-        Set(Value As String)
-            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-            mCollisionMethod = Value
-        End Set
-    End Property
+        public string CollisionMethod
+        {
+            get
+            {
+                return mCollisionMethod;
+            }
 
-    Public Property ParentIonCharge() As Integer
-        Get
-            Return mParentIonCharge
-        End Get
-        Set(Value As Integer)
-            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-            mParentIonCharge = Value
-        End Set
-    End Property
+            set
+            {
+                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mCollisionMethod = value;
+            }
+        }
 
-    Public Property ParentIonSpectrumMSLevel() As Integer
-        Get
-            Return mParentIonSpectrumMSLevel
-        End Get
-        Set(Value As Integer)
-            mParentIonSpectrumMSLevel = Value
-        End Set
-    End Property
+        public int ParentIonCharge
+        {
+            get
+            {
+                return mParentIonCharge;
+            }
 
-    Public Property ParentIonSpectrumID() As Integer
-        Get
-            Return mParentIonSpectrumID
-        End Get
-        Set(Value As Integer)
-            mParentIonSpectrumID = Value
-        End Set
-    End Property
+            set
+            {
+                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mParentIonCharge = value;
+            }
+        }
 
-    Public Property ScanMode() As String
-        Get
-            Return mScanMode
-        End Get
-        Set(Value As String)
-            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-            mScanMode = Value
-        End Set
-    End Property
+        public int ParentIonSpectrumMSLevel
+        {
+            get
+            {
+                return mParentIonSpectrumMSLevel;
+            }
 
-    Public Property NumericPrecisionOfDataMZ() As Integer
-        Get
-            Return mNumericPrecisionOfDataMZ
-        End Get
-        Set(Value As Integer)
-            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-            mNumericPrecisionOfDataMZ = Value
-        End Set
-    End Property
+            set
+            {
+                mParentIonSpectrumMSLevel = value;
+            }
+        }
 
-    Public Property PeaksEndianModeMZ() As String
-        Get
-            Return mPeaksEndianModeMZ
-        End Get
-        Set(Value As String)
-            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-            mPeaksEndianModeMZ = Value
-        End Set
-    End Property
+        public int ParentIonSpectrumID
+        {
+            get
+            {
+                return mParentIonSpectrumID;
+            }
 
-    Public Property NumericPrecisionOfDataIntensity() As Integer
-        Get
-            Return mNumericPrecisionOfDataIntensity
-        End Get
-        Set(Value As Integer)
-            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-            mNumericPrecisionOfDataIntensity = Value
-        End Set
-    End Property
+            set
+            {
+                mParentIonSpectrumID = value;
+            }
+        }
 
-    Public Property PeaksEndianModeIntensity() As String
-        Get
-            Return mPeaksEndianModeIntensity
-        End Get
-        Set(Value As String)
-            MyBase.mSpectrumStatus = eSpectrumStatusConstants.DataDefined
-            mPeaksEndianModeIntensity = Value
-        End Set
-    End Property
+        public string ScanMode
+        {
+            get
+            {
+                return mScanMode;
+            }
 
-#End Region
+            set
+            {
+                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mScanMode = value;
+            }
+        }
 
-    Public Overrides Sub Clear()
-        MyBase.Clear()
+        public int NumericPrecisionOfDataMZ
+        {
+            get
+            {
+                return mNumericPrecisionOfDataMZ;
+            }
 
-        mCollisionEnergy = 0
-        mCollisionEnergyUnits = "Percent"
-        mCollisionMethod = String.Empty                  ' Typically CID
+            set
+            {
+                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mNumericPrecisionOfDataMZ = value;
+            }
+        }
 
-        mScanMode = String.Empty                         ' Typically "MassScan"
-        mParentIonCharge = 0
-        mParentIonSpectrumMSLevel = 1
-        mParentIonSpectrumID = 0
+        public string PeaksEndianModeMZ
+        {
+            get
+            {
+                return mPeaksEndianModeMZ;
+            }
 
-        mNumericPrecisionOfDataMZ = 32                   ' Assume 32-bit for now
-        mPeaksEndianModeMZ = EndianModes.littleEndian
+            set
+            {
+                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mPeaksEndianModeMZ = value;
+            }
+        }
 
-        mNumericPrecisionOfDataIntensity = 32            ' Assume 32-bit for now
-        mPeaksEndianModeIntensity = EndianModes.littleEndian
-    End Sub
+        public int NumericPrecisionOfDataIntensity
+        {
+            get
+            {
+                return mNumericPrecisionOfDataIntensity;
+            }
 
-    Public Function GetEndianModeValue(strEndianModeText As String) As clsBase64EncodeDecode.eEndianTypeConstants
-        Select Case strEndianModeText
-            Case EndianModes.bigEndian
-                Return clsBase64EncodeDecode.eEndianTypeConstants.BigEndian
-            Case EndianModes.littleEndian
-                Return clsBase64EncodeDecode.eEndianTypeConstants.LittleEndian
-            Case Else
-                ' Assume littleEndian
-                Return clsBase64EncodeDecode.eEndianTypeConstants.LittleEndian
-        End Select
-    End Function
+            set
+            {
+                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mNumericPrecisionOfDataIntensity = value;
+            }
+        }
 
-    Public Shadows Function Clone() As clsSpectrumInfoMzData
+        public string PeaksEndianModeIntensity
+        {
+            get
+            {
+                return mPeaksEndianModeIntensity;
+            }
 
-        ' First create a shallow copy of this object
-        Dim objTarget = CType(Me.MemberwiseClone, clsSpectrumInfoMzData)
+            set
+            {
+                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mPeaksEndianModeIntensity = value;
+            }
+        }
 
-        ' Next, manually copy the array objects and any other objects
-        With objTarget
-            ' Duplicate code from the base class
-            If Me.MZList Is Nothing Then
-                .MZList = Nothing
-            Else
-                ReDim .MZList(Me.MZList.Length - 1)
-                Me.MZList.CopyTo(.MZList, 0)
-            End If
+        #endregion
 
-            If Me.IntensityList Is Nothing Then
-                .IntensityList = Nothing
-            Else
-                ReDim .IntensityList(Me.IntensityList.Length - 1)
-                Me.IntensityList.CopyTo(.IntensityList, 0)
-            End If
-        End With
+        public override void Clear()
+        {
+            base.Clear();
+            mCollisionEnergy = 0f;
+            mCollisionEnergyUnits = "Percent";
+            mCollisionMethod = string.Empty;                  // Typically CID
+            mScanMode = string.Empty;                         // Typically "MassScan"
+            mParentIonCharge = 0;
+            mParentIonSpectrumMSLevel = 1;
+            mParentIonSpectrumID = 0;
+            mNumericPrecisionOfDataMZ = 32;                   // Assume 32-bit for now
+            mPeaksEndianModeMZ = EndianModes.littleEndian;
+            mNumericPrecisionOfDataIntensity = 32;            // Assume 32-bit for now
+            mPeaksEndianModeIntensity = EndianModes.littleEndian;
+        }
 
-        Return objTarget
-    End Function
+        public clsBase64EncodeDecode.eEndianTypeConstants GetEndianModeValue(string strEndianModeText)
+        {
+            switch (strEndianModeText ?? "")
+            {
+                case EndianModes.bigEndian:
+                    {
+                        return clsBase64EncodeDecode.eEndianTypeConstants.BigEndian;
+                    }
 
-    Public Overloads Sub CopyTo(<Out()> ByRef objTarget As clsSpectrumInfoMzData)
-        objTarget = Me.Clone()
-    End Sub
+                case EndianModes.littleEndian:
+                    {
+                        return clsBase64EncodeDecode.eEndianTypeConstants.LittleEndian;
+                    }
 
-    Public Overloads Sub Validate()
-        Me.Validate(True, False)
-    End Sub
+                default:
+                    {
+                        // Assume littleEndian
+                        return clsBase64EncodeDecode.eEndianTypeConstants.LittleEndian;
+                    }
+            }
+        }
 
-    Public Overloads Overrides Sub Validate(blnComputeBasePeakAndTIC As Boolean, blnUpdateMZRange As Boolean)
-        MyBase.Validate(blnComputeBasePeakAndTIC, blnUpdateMZRange)
+        public new clsSpectrumInfoMzData Clone()
+        {
 
-        If ScanNumber = 0 And SpectrumID <> 0 Then
-            ScanNumber = SpectrumID
-            ScanNumberEnd = ScanNumber
-            ScanCount = 1
-        End If
+            // First create a shallow copy of this object
+            clsSpectrumInfoMzData objTarget = (clsSpectrumInfoMzData)MemberwiseClone();
 
-        MyBase.mSpectrumStatus = eSpectrumStatusConstants.Validated
-    End Sub
-End Class
+            // Next, manually copy the array objects and any other objects
+            // Duplicate code from the base class
+            if (MZList is null)
+            {
+                objTarget.MZList = null;
+            }
+            else
+            {
+                objTarget.MZList = new double[MZList.Length];
+                MZList.CopyTo(objTarget.MZList, 0);
+            }
+
+            if (IntensityList is null)
+            {
+                objTarget.IntensityList = null;
+            }
+            else
+            {
+                objTarget.IntensityList = new float[IntensityList.Length];
+                IntensityList.CopyTo(objTarget.IntensityList, 0);
+            }
+
+            return objTarget;
+        }
+
+        public void CopyTo(out clsSpectrumInfoMzData objTarget)
+        {
+            objTarget = Clone();
+        }
+
+        public void Validate()
+        {
+            Validate(true, false);
+        }
+
+        public override void Validate(bool blnComputeBasePeakAndTIC, bool blnUpdateMZRange)
+        {
+            base.Validate(blnComputeBasePeakAndTIC, blnUpdateMZRange);
+            if (ScanNumber == 0 & SpectrumID != 0)
+            {
+                ScanNumber = SpectrumID;
+                ScanNumberEnd = ScanNumber;
+                ScanCount = 1;
+            }
+
+            mSpectrumStatus = eSpectrumStatusConstants.Validated;
+        }
+    }
+}

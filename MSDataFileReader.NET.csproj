@@ -4,7 +4,7 @@
     <ProjectType>Local</ProjectType>
     <ProductVersion>9.0.30729</ProductVersion>
     <SchemaVersion>2.0</SchemaVersion>
-    <ProjectGuid>{34217FF7-0649-4007-A8CD-85B55F818F05}</ProjectGuid>
+    <ProjectGuid>{8605FE9C-CA11-0FF6-2A95-4FCB3D16BBA5}</ProjectGuid>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
     <ApplicationIcon>
@@ -24,7 +24,6 @@
     <OptionExplicit>On</OptionExplicit>
     <OptionStrict>On</OptionStrict>
     <RootNamespace>MSDataFileReader</RootNamespace>
-    <StartupObject>MSDataFileReader.%28None%29</StartupObject>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <MyType>Windows</MyType>
@@ -48,10 +47,12 @@
     <BootstrapperEnabled>true</BootstrapperEnabled>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <TargetFrameworkProfile />
+    <DefaultItemExcludes>$(DefaultItemExcludes);$(ProjectDir)**\*.vb</DefaultItemExcludes>
+    <LangVersion>latest</LangVersion>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <OutputPath>bin\</OutputPath>
-    <DocumentationFile>MSDataFileReader.xml</DocumentationFile>
+    <DocumentationFile>bin\MSDataFileReader.xml</DocumentationFile>
     <BaseAddress>285212672</BaseAddress>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
@@ -65,14 +66,15 @@
     <RemoveIntegerChecks>false</RemoveIntegerChecks>
     <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
     <WarningLevel>1</WarningLevel>
-    <NoWarn>42016,42017,42018,42019,42032,42353,42354,42355</NoWarn>
+    <NoWarn>
+    </NoWarn>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <OutputPath>bin\</OutputPath>
-    <DocumentationFile>MSDataFileReader.xml</DocumentationFile>
+    <DocumentationFile>bin\MSDataFileReader.xml</DocumentationFile>
     <BaseAddress>285212672</BaseAddress>
     <ConfigurationOverrideFile>
     </ConfigurationOverrideFile>
@@ -112,60 +114,57 @@
     <Import Include="System.Diagnostics" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="AssemblyInfo.vb">
+    <Compile Include="AssemblyInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsBase64EncodeDecode.vb">
+    <Compile Include="Base64EncodeDecode.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsBinaryTextReader.vb">
+    <Compile Include="BinaryTextReader.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsDtaTextFileReader.vb">
+    <Compile Include="DtaTextFileReader.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsMGFFileReader.vb">
+    <Compile Include="MGFFileReader.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsMSDataFileAccessorBaseClass.vb">
+    <Compile Include="MSDataFileAccessorBaseClass.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsMSDataFileReaderBaseClass.vb">
+    <Compile Include="MSDataFileReaderBaseClass.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsMSTextFileReaderBaseClass.vb">
+    <Compile Include="MSTextFileReaderBaseClass.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsMSXMLFileReaderBaseClass.vb">
+    <Compile Include="MSXMLFileReaderBaseClass.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsMzDataFileAccessor.vb">
+    <Compile Include="MzDataFileAccessor.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsMzDataFileReader.vb">
+    <Compile Include="MzDataFileReader.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsMzXMLFileAccessor.vb">
+    <Compile Include="MzXMLFileAccessor.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsMzXMLFileReader.vb">
+    <Compile Include="MzXMLFileReader.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsSpectrumInfo.vb">
+    <Compile Include="SpectrumInfo.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsSpectrumInfoMsMsText.vb">
+    <Compile Include="SpectrumInfoMsMsText.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsSpectrumInfoMzData.vb">
+    <Compile Include="SpectrumInfoMzData.cs">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="clsSpectrumInfoMzXML.vb">
+    <Compile Include="SpectrumInfoMzXML.cs">
       <SubType>Code</SubType>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="My Project\" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -194,7 +193,7 @@
       <Install>false</Install>
     </BootstrapperPackage>
   </ItemGroup>
-  <Import Project="$(MSBuildBinPath)\Microsoft.VisualBasic.targets" />
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PreBuildEvent>
     </PreBuildEvent>
