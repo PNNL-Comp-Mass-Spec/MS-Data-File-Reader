@@ -943,12 +943,12 @@ namespace MSDataFileReader
                                         if (mLineTerminator1Code != 0 && intMatchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize] == mLineTerminator1Code)
                                         {
                                             intLineTerminatorLength = 2;
-                                            mCurrentLineTerminator = Conversions.ToString(Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd - mCharSize])) + Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]);
+                                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd - mCharSize]).ToString() + Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]);
                                         }
                                         else if (mByteBuffer[intMatchingTextIndexEnd] == mLineTerminator2Code)
                                         {
                                             intLineTerminatorLength = 1;
-                                            mCurrentLineTerminator = Conversions.ToString(Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]));
+                                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]).ToString();
                                         }
                                         else
                                         {
@@ -966,12 +966,12 @@ namespace MSDataFileReader
                                         else if (mInputFileEncoding == InputFileEncodingConstants.UTF8)
                                         {
                                             // Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
-                                            mCurrentLineText = Convert.ToString(Conversions.ToString(Encoding.UTF8.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead)));
+                                            mCurrentLineText = new string(Encoding.UTF8.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead));
                                         }
                                         else
                                         {
                                             // Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
-                                            mCurrentLineText = Convert.ToString(Conversions.ToString(Encoding.ASCII.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead)));
+                                            mCurrentLineText = new string(Encoding.ASCII.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead));
                                         }
 
                                         break;
@@ -983,12 +983,12 @@ namespace MSDataFileReader
                                         if (mLineTerminator1Code != 0 && intMatchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize] == mLineTerminator1Code && mByteBuffer[intMatchingTextIndexEnd - mCharSize + 1] == 0)
                                         {
                                             intLineTerminatorLength = 2;
-                                            mCurrentLineTerminator = Conversions.ToString(Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd - mCharSize])) + Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]);
+                                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd - mCharSize]).ToString() + Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]);
                                         }
                                         else if (mByteBuffer[intMatchingTextIndexEnd] == mLineTerminator2Code && intMatchingTextIndexEnd + 1 < mByteBufferCount && mByteBuffer[intMatchingTextIndexEnd + 1] == 0)
                                         {
                                             intLineTerminatorLength = 1;
-                                            mCurrentLineTerminator = Conversions.ToString(Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]));
+                                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]).ToString();
                                         }
                                         else
                                         {
@@ -1006,7 +1006,7 @@ namespace MSDataFileReader
                                         }
                                         else
                                         {
-                                            mCurrentLineText = Convert.ToString(Conversions.ToString(Encoding.Unicode.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead)));
+                                            mCurrentLineText = new string(Encoding.Unicode.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead));
                                         }
 
                                         break;
@@ -1018,12 +1018,12 @@ namespace MSDataFileReader
                                         if (mLineTerminator1Code != 0 && intMatchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize] == 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize + 1] == mLineTerminator1Code)
                                         {
                                             intLineTerminatorLength = 2;
-                                            mCurrentLineTerminator = Conversions.ToString(Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd - mCharSize + 1])) + Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd + 1]);
+                                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd - mCharSize + 1]).ToString() + Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd + 1]);
                                         }
                                         else if (mByteBuffer[intMatchingTextIndexEnd] == 0 && intMatchingTextIndexEnd + 1 < mByteBufferCount && mByteBuffer[intMatchingTextIndexEnd + 1] == mLineTerminator2Code)
                                         {
                                             intLineTerminatorLength = 1;
-                                            mCurrentLineTerminator = Conversions.ToString(Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd + 1]));
+                                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd + 1]).ToString();
                                         }
                                         else
                                         {
@@ -1041,7 +1041,7 @@ namespace MSDataFileReader
                                         }
                                         else
                                         {
-                                            mCurrentLineText = Convert.ToString(Conversions.ToString(Encoding.BigEndianUnicode.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead)));
+                                            mCurrentLineText = new string(Encoding.BigEndianUnicode.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead));
                                         }
 
                                         break;

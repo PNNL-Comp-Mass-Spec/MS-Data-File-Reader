@@ -236,7 +236,7 @@ namespace MSDataFileReader
                                                         {
                                                             break;
                                                         }
-                                                        else if (strLineIn.Trim().StartsWith(Conversions.ToString(mCommentLineStartChar)))
+                                                        else if (strLineIn.Trim().StartsWith(mCommentLineStartChar.ToString()))
                                                         {
                                                             mHeaderSaved = string.Copy(strLineIn);
                                                             break;
@@ -247,7 +247,7 @@ namespace MSDataFileReader
                                         }
                                     }
                                 }
-                                else if (strMostRecentLineIn.StartsWith(Conversions.ToString(mCommentLineStartChar)))
+                                else if (strMostRecentLineIn.StartsWith(mCommentLineStartChar.ToString()))
                                 {
                                     mHeaderSaved = string.Copy(strMostRecentLineIn);
                                 }
@@ -426,7 +426,7 @@ namespace MSDataFileReader
                     {
                         mTotalBytesRead += strLineIn.Length + 2;
                         strMostRecentLineIn = string.Copy(strLineIn);
-                        if (strLineIn.Trim().Length == 0 || strLineIn.StartsWith(Conversions.ToString(COMMENT_LINE_START_CHAR)))
+                        if (strLineIn.Trim().Length == 0 || strLineIn.StartsWith(COMMENT_LINE_START_CHAR.ToString()))
                         {
                             break;
                         }

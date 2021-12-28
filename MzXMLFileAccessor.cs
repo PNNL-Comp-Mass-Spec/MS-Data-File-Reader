@@ -352,18 +352,18 @@ namespace MSDataFileReader
                                 var loopTo = strTextStream.Length - 1;
                                 for (intIndex = 0; intIndex <= loopTo; intIndex++)
                                 {
-                                    if (IsNumber(Conversions.ToString(strTextStream[intIndex])))
+                                    if (IsNumber(strTextStream[intIndex].ToString()))
                                     {
                                         // First number found
-                                        strNumber = Conversions.ToString(strTextStream[intIndex]);
+                                        strNumber = strTextStream[intIndex].ToString();
 
                                         // Append any additional numbers to strNumber
                                         while (intIndex + 1 < strTextStream.Length)
                                         {
                                             intIndex += 1;
-                                            if (IsNumber(Conversions.ToString(strTextStream[intIndex])))
+                                            if (IsNumber(strTextStream[intIndex].ToString()))
                                             {
-                                                strNumber += Conversions.ToString(strTextStream[intIndex]);
+                                                strNumber += strTextStream[intIndex].ToString();
                                             }
                                             else
                                             {

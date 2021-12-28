@@ -171,22 +171,22 @@ namespace MSDataFileReader
                         {
                             case clsBinaryTextReader.InputFileEncodingConstants.Ascii:
                                 {
-                                    return Convert.ToString(Conversions.ToString(Encoding.ASCII.GetChars(bytData, 0, intBytesToRead)));
+                                    return new string(Encoding.ASCII.GetChars(bytData, 0, intBytesToRead));
                                 }
 
                             case clsBinaryTextReader.InputFileEncodingConstants.UTF8:
                                 {
-                                    return Convert.ToString(Conversions.ToString(Encoding.UTF8.GetChars(bytData, 0, intBytesToRead)));
+                                    return new string(Encoding.UTF8.GetChars(bytData, 0, intBytesToRead));
                                 }
 
                             case clsBinaryTextReader.InputFileEncodingConstants.UnicodeNormal:
                                 {
-                                    return Convert.ToString(Conversions.ToString(Encoding.Unicode.GetChars(bytData, 0, intBytesToRead)));
+                                    return new string(Encoding.Unicode.GetChars(bytData, 0, intBytesToRead));
                                 }
 
                             case var @case when @case == clsBinaryTextReader.InputFileEncodingConstants.UnicodeNormal:
                                 {
-                                    return Convert.ToString(Conversions.ToString(Encoding.BigEndianUnicode.GetChars(bytData, 0, intBytesToRead)));
+                                    return new string(Encoding.BigEndianUnicode.GetChars(bytData, 0, intBytesToRead));
                                 }
 
                             default:

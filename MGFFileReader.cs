@@ -183,7 +183,7 @@ namespace MSDataFileReader
                             strLineIn = strLineIn.Trim();
 
                             // See if strLineIn starts with the comment line start character (a pound sign, #)
-                            if (strLineIn.StartsWith(Conversions.ToString(mCommentLineStartChar)))
+                            if (strLineIn.StartsWith(mCommentLineStartChar.ToString()))
                             {
                                 // Remove any comment characters at the start of strLineIn
                                 strLineIn = strLineIn.TrimStart(mCommentLineStartChar).Trim();
