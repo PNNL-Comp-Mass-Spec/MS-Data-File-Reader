@@ -796,7 +796,7 @@ namespace MSDataFileReader
                             // Only update mCurrentSpectrum.ScanNumber if mCurrentSpectrum.ScanCount = 1 or
                             // mAcquisitionElementCount = 1
                             mAcquisitionElementCount += 1;
-                            if (mAcquisitionElementCount == 1 | mCurrentSpectrum.ScanCount == 1)
+                            if (mAcquisitionElementCount == 1 || mCurrentSpectrum.ScanCount == 1)
                             {
                                 mCurrentSpectrum.ScanNumber = GetAttribValue(AcquisitionAttributeNames.acqNumber, 0);
                             }

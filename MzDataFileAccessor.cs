@@ -148,7 +148,7 @@ namespace MSDataFileReader
                 strAcqNumberSearchText = string.Empty;
                 blnAcqNumberFound = false;
                 blnMatchFound = false;
-                while (!(blnMatchFound | mAbortProcessing))
+                while (!(blnMatchFound || mAbortProcessing))
                 {
                     if (mInFileCurrentCharIndex + 1 < mInFileCurrentLineText.Length)
                     {
@@ -395,7 +395,7 @@ namespace MSDataFileReader
                     {
                         mErrorMessage = "Indexed data not in memory";
                     }
-                    else if (intSpectrumIndex >= 0 & intSpectrumIndex < mIndexedSpectrumInfoCount)
+                    else if (intSpectrumIndex >= 0 && intSpectrumIndex < mIndexedSpectrumInfoCount)
                     {
                         // Move the binary file reader to .ByteOffsetStart and instantiate an XMLReader at that position
                         mBinaryReader.Position = mIndexedSpectrumInfo[intSpectrumIndex].ByteOffsetStart;

@@ -482,7 +482,7 @@ namespace MSDataFileReader
                             }
                         }
 
-                        if (mInFileLineNumber - intLastProgressUpdateLine >= 250 | blnSpectrumFound)
+                        if (mInFileLineNumber - intLastProgressUpdateLine >= 250 || blnSpectrumFound)
                         {
                             intLastProgressUpdateLine = mInFileLineNumber;
                             if (mFileReader is StreamReader objStreamReader)

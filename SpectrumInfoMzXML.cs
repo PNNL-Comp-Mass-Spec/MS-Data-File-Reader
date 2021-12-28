@@ -361,7 +361,7 @@ namespace MSDataFileReader
         public override void Validate(bool blnComputeBasePeakAndTIC, bool blnUpdateMZRange)
         {
             base.Validate(blnComputeBasePeakAndTIC, blnUpdateMZRange);
-            if (SpectrumID == 0 & ScanNumber != 0)
+            if (SpectrumID == 0 && ScanNumber != 0)
             {
                 SpectrumID = ScanNumber;
             }

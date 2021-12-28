@@ -284,14 +284,14 @@ namespace MSDataFileReader
         public override void Validate(bool blnComputeBasePeakAndTIC, bool blnUpdateMZRange)
         {
             base.Validate(blnComputeBasePeakAndTIC, blnUpdateMZRange);
-            if (Math.Abs(ParentIonMZ) > float.Epsilon & Math.Abs(ParentIonMH) < float.Epsilon)
+            if (Math.Abs(ParentIonMZ) > float.Epsilon && Math.Abs(ParentIonMH) < float.Epsilon)
             {
                 if (ParentIonChargeCount > 0)
                 {
                     ParentIonMH = clsMSDataFileReaderBaseClass.ConvoluteMass(ParentIonMZ, ParentIonCharges[0], 1, clsMSDataFileReaderBaseClass.CHARGE_CARRIER_MASS_MONOISO);
                 }
             }
-            else if (Math.Abs(ParentIonMZ) < float.Epsilon & Math.Abs(ParentIonMH) > float.Epsilon)
+            else if (Math.Abs(ParentIonMZ) < float.Epsilon && Math.Abs(ParentIonMH) > float.Epsilon)
             {
                 if (ParentIonChargeCount > 0)
                 {

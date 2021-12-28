@@ -323,7 +323,7 @@ namespace MSDataFileReader
                         {
                             mErrorMessage = "Indexed data not in memory";
                         }
-                        else if (intSpectrumIndex >= 0 & intSpectrumIndex < mIndexedSpectrumInfoCount)
+                        else if (intSpectrumIndex >= 0 && intSpectrumIndex < mIndexedSpectrumInfoCount)
                         {
                             // Move the binary file reader to .ByteOffsetStart and populate strXMLText with the text for the given spectrum
                             strSourceXML = ExtractTextBetweenOffsets(mInputFilePath, mIndexedSpectrumInfo[intSpectrumIndex].ByteOffsetStart, mIndexedSpectrumInfo[intSpectrumIndex].ByteOffsetEnd);

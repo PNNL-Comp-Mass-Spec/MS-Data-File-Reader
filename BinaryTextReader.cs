@@ -502,7 +502,7 @@ namespace MSDataFileReader
                 mByteOrderMarkLength = 0;
                 if (mByteBufferCount >= 2)
                 {
-                    if (mByteBuffer[0] == 255 & mByteBuffer[1] == 254)
+                    if (mByteBuffer[0] == 255 && mByteBuffer[1] == 254)
                     {
                         // Unicode (Little Endian)
                         // Note that this sets mCharSize to 2
@@ -512,7 +512,7 @@ namespace MSDataFileReader
                         mByteBufferNextLineStartIndex = 2;
                         mByteOrderMarkLength = 2;
                     }
-                    else if (mByteBuffer[0] == 254 & mByteBuffer[1] == 255)
+                    else if (mByteBuffer[0] == 254 && mByteBuffer[1] == 255)
                     {
                         // Unicode (Big Endian)
                         // Note that this sets mCharSize to 2
@@ -523,7 +523,7 @@ namespace MSDataFileReader
                     }
                     else if (mByteBufferCount >= 3)
                     {
-                        if (mByteBuffer[0] == 239 & mByteBuffer[1] == 187 & mByteBuffer[2] == 191)
+                        if (mByteBuffer[0] == 239 && mByteBuffer[1] == 187 && mByteBuffer[2] == 191)
                         {
                             // UTF8
                             // Note that this sets mCharSize to 1
@@ -552,7 +552,7 @@ namespace MSDataFileReader
                                 for (intIndex = intIndexStart; intIndex <= loopTo; intIndex += 2)
                                 {
                                     intCharCheckCount += 1;
-                                    if (mByteBuffer[intIndex] != 0 & mByteBuffer[intIndex + 1] == 0)
+                                    if (mByteBuffer[intIndex] != 0 && mByteBuffer[intIndex + 1] == 0)
                                     {
                                         intAlternatedZeroMatchCount += 1;
                                     }
@@ -1166,7 +1166,7 @@ namespace MSDataFileReader
                                     break;
                                 }
 
-                                if (mByteBufferCount >= mByteBuffer.Length & mByteBufferNextLineStartIndex >= mByteBuffer.Length)
+                                if (mByteBufferCount >= mByteBuffer.Length && mByteBufferNextLineStartIndex >= mByteBuffer.Length)
                                 {
                                     // The byte buffer is full and mByteBufferNextLineStartIndex is past the end of the buffer
                                     // Need to double its size, shift the data from the first half to the second half, and

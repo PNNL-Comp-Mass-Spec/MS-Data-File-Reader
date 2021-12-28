@@ -116,7 +116,7 @@ namespace MSDataFileReader
 
             set
             {
-                if (value < 0f | value > 100f)
+                if (value < 0f || value > 100f)
                     value = 10f;
                 mThresholdIonPctForSingleCharge = value;
             }
@@ -131,7 +131,7 @@ namespace MSDataFileReader
 
             set
             {
-                if (value < 0f | value > 100f)
+                if (value < 0f || value > 100f)
                     value = 25f;
                 mThresholdIonPctForDoubleCharge = value;
             }
@@ -435,14 +435,14 @@ namespace MSDataFileReader
                 // Find percentage of data with m/z values greater than the Parent Ion m/z
                 // Compute this number using both raw data point counts and sum of intensity values
                 ComputePercentageDataAboveThreshold(objSpectrumInfo, out sngPctByCount, out sngPctByIntensity);
-                if (sngPctByCount < mThresholdIonPctForSingleCharge & sngPctByIntensity < mThresholdIonPctForSingleCharge)
+                if (sngPctByCount < mThresholdIonPctForSingleCharge && sngPctByIntensity < mThresholdIonPctForSingleCharge)
                 {
                     // Both percentages are less than the threshold for definitively single charge
                     objSpectrumInfo.AddOrUpdateChargeList(1, blnAddToExistingChargeList);
                 }
                 else
                 {
-                    if (sngPctByCount >= mThresholdIonPctForDoubleCharge & sngPctByIntensity >= mThresholdIonPctForDoubleCharge)
+                    if (sngPctByCount >= mThresholdIonPctForDoubleCharge && sngPctByIntensity >= mThresholdIonPctForDoubleCharge)
                     {
                         // Both percentages are above the threshold for definitively double charge (or higher)
                         intChargeStart = 2;
@@ -470,7 +470,7 @@ namespace MSDataFileReader
                     while (intChargeEnd < clsSpectrumInfoMsMsText.MAX_CHARGE_COUNT);
                     if (blnAddToExistingChargeList)
                     {
-                        if (!blnForceChargeAddnFor2and3Plus & intChargeStart == 2 & intChargeEnd == 3)
+                        if (!blnForceChargeAddnFor2and3Plus && intChargeStart == 2 && intChargeEnd == 3)
                         {
                             // See if objSpectrumInfo already contains a single entry and it is 2+ or 3+
                             // If so, do not alter the charge list
@@ -594,7 +594,7 @@ namespace MSDataFileReader
                     strSplitLine = strItem.Split(strSepChars);
                     if (strSplitLine.Length >= 2)
                     {
-                        if (IsNumber(strSplitLine[0]) & IsNumber(strSplitLine[1]))
+                        if (IsNumber(strSplitLine[0]) && IsNumber(strSplitLine[1]))
                         {
                             dblMasses[intDataCount] = double.Parse(strSplitLine[0]);
                             sngIntensities[intDataCount] = float.Parse(strSplitLine[1]);
@@ -608,7 +608,7 @@ namespace MSDataFileReader
                     dblMasses = new double[1];
                     sngIntensities = new float[1];
                 }
-                else if (intDataCount != lstMSMSData.Count & blnShrinkDataArrays)
+                else if (intDataCount != lstMSMSData.Count && blnShrinkDataArrays)
                 {
                     Array.Resize(ref dblMasses, intDataCount);
                     Array.Resize(ref sngIntensities, intDataCount);

@@ -610,7 +610,7 @@ namespace MSDataFileReader
             blnSuccess = false;
             if (mDataReaderMode == drmDataReaderModeConstants.Cached && mCachedSpectrumCount > 0)
             {
-                if (intSpectrumIndex >= 0 & intSpectrumIndex < mCachedSpectrumCount & mCachedSpectra != null)
+                if (intSpectrumIndex >= 0 && intSpectrumIndex < mCachedSpectrumCount && mCachedSpectra != null)
                 {
                     objSpectrumInfo = mCachedSpectra[intSpectrumIndex];
                     blnSuccess = true;
@@ -765,7 +765,7 @@ namespace MSDataFileReader
                 AutoShrinkDataLists = false;
                 mReadingAndStoringSpectra = true;
                 ResetProgress();
-                while (ReadNextSpectrum(out objSpectrumInfo) & !mAbortProcessing)
+                while (ReadNextSpectrum(out objSpectrumInfo) && !mAbortProcessing)
                 {
                     if (mCachedSpectrumCount >= mCachedSpectra.Length)
                     {

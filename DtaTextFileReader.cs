@@ -254,7 +254,7 @@ namespace MSDataFileReader
                             }  // EndIf for blnSpectrumFound = True
                         }  // EndIf for strLineIn.Trim.StartsWith(mCommentLineStartChar)
 
-                        if (mInFileLineNumber - intLastProgressUpdateLine >= 250 | blnSpectrumFound)
+                        if (mInFileLineNumber - intLastProgressUpdateLine >= 250 || blnSpectrumFound)
                         {
                             intLastProgressUpdateLine = mInFileLineNumber;
                             UpdateStreamReaderProgress();
@@ -295,7 +295,7 @@ namespace MSDataFileReader
                     ResetProgress("Parsing " + Path.GetFileName(strInputFilePath));
                     mInFileLineNumber = 0;
                     intLastProgressUpdateLine = mInFileLineNumber;
-                    while (!fileReader.EndOfStream & !mAbortProcessing)
+                    while (!fileReader.EndOfStream && !mAbortProcessing)
                     {
                         strLineIn = fileReader.ReadLine();
                         mInFileLineNumber += 1;

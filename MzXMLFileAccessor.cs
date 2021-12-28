@@ -139,7 +139,7 @@ namespace MSDataFileReader
                 strInFileCurrentLineSubstring = string.Empty;
                 blnAppendingText = false;
                 blnMatchFound = false;
-                while (!(blnMatchFound | mAbortProcessing))
+                while (!(blnMatchFound || mAbortProcessing))
                 {
                     if (mInFileCurrentCharIndex + 1 < mInFileCurrentLineText.Length)
                     {
@@ -531,7 +531,7 @@ namespace MSDataFileReader
                     {
                         mErrorMessage = "Indexed data not in memory";
                     }
-                    else if (intSpectrumIndex >= 0 & intSpectrumIndex < mIndexedSpectrumInfoCount)
+                    else if (intSpectrumIndex >= 0 && intSpectrumIndex < mIndexedSpectrumInfoCount)
                     {
                         // Move the binary file reader to .ByteOffsetStart and instantiate an XMLReader at that position
                         mBinaryReader.Position = mIndexedSpectrumInfo[intSpectrumIndex].ByteOffsetStart;
@@ -816,7 +816,7 @@ namespace MSDataFileReader
                     // Skip all whitespace
                     objXMLReader.WhitespaceHandling = WhitespaceHandling.None;
                     bool blnReadSuccessful = true;
-                    while (blnReadSuccessful && objXMLReader.ReadState == ReadState.Initial | objXMLReader.ReadState == ReadState.Interactive)
+                    while (blnReadSuccessful && objXMLReader.ReadState == ReadState.Initial || objXMLReader.ReadState == ReadState.Interactive)
                     {
                         blnReadSuccessful = objXMLReader.Read();
                         if (blnReadSuccessful && objXMLReader.ReadState == ReadState.Interactive)
@@ -889,7 +889,7 @@ namespace MSDataFileReader
                             {
                                 if (blnParseIndexValues && (strCurrentElement ?? "") == OFFSET_ELEMENT_NAME)
                                 {
-                                    if (!(objXMLReader.NodeType == XmlNodeType.Whitespace) & objXMLReader.HasValue)
+                                    if (!(objXMLReader.NodeType == XmlNodeType.Whitespace) && objXMLReader.HasValue)
                                     {
                                         try
                                         {

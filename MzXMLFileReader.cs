@@ -479,7 +479,7 @@ namespace MSDataFileReader
                 // If we just moved out of a scan element, then finalize the current scan
                 if ((mXMLReader.Name ?? "") == ScanSectionNames.scan)
                 {
-                    if (mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Initialized & mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Validated)
+                    if (mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Initialized && mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Validated)
                     {
                         mCurrentSpectrum.Validate();
                         mSpectrumFound = true;
@@ -527,9 +527,9 @@ namespace MSDataFileReader
                 case ScanSectionNames.scan:
                     {
                         mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.ScanList;
-                        if (mScanDepth > 0 & !mSkippedStartElementAdvance)
+                        if (mScanDepth > 0 && !mSkippedStartElementAdvance)
                         {
-                            if (mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Initialized & mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Validated)
+                            if (mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Initialized && mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Validated)
                             {
                                 mCurrentSpectrum.Validate();
                                 mSkipNextReaderAdvance = true;

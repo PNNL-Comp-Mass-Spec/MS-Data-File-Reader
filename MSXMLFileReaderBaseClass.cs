@@ -411,7 +411,7 @@ namespace MSDataFileReader
                 intElementDepth = mParentElementStack.Count;
             }
 
-            if (intElementDepth >= 2 & intElementDepth <= mParentElementStack.Count)
+            if (intElementDepth >= 2 && intElementDepth <= mParentElementStack.Count)
             {
                 try
                 {
@@ -596,7 +596,7 @@ namespace MSDataFileReader
                     }
 
                     blnReadSuccessful = true;
-                    while (!mSpectrumFound && blnReadSuccessful && !mAbortProcessing && mXMLReader.ReadState == ReadState.Initial | mXMLReader.ReadState == ReadState.Interactive)
+                    while (!mSpectrumFound && blnReadSuccessful && !mAbortProcessing && mXMLReader.ReadState == ReadState.Initial || mXMLReader.ReadState == ReadState.Interactive)
                     {
                         mSpectrumFound = false;
                         if (mSkipNextReaderAdvance)
@@ -672,7 +672,7 @@ namespace MSDataFileReader
                 blnSuccess = true;
             }
 
-            if ((blnSuccess && !(mXMLReader.NodeType == XmlNodeType.Whitespace)) & mXMLReader.HasValue)
+            if ((blnSuccess && !(mXMLReader.NodeType == XmlNodeType.Whitespace)) && mXMLReader.HasValue)
             {
                 strValue = mXMLReader.Value;
             }

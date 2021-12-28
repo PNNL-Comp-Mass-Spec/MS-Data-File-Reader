@@ -518,11 +518,11 @@ namespace MSDataFileReader
                 // Define the minimum MZ value to consider
                 dblMZMinimum = dblMZToFind - sngMatchTolerance;
                 sngIntensityMatch = sngIntensityIfNotFound;
-                if (!(MZList is null | IntensityList is null))
+                if (!(MZList is null || IntensityList is null))
                 {
                     for (intIndex = DataCount - 1; intIndex >= 0; intIndex -= 1)
                     {
-                        if (intIndex < MZList.Length & intIndex < IntensityList.Length)
+                        if (intIndex < MZList.Length && intIndex < IntensityList.Length)
                         {
                             if (MZList[intIndex] >= dblMZMinimum)
                             {
