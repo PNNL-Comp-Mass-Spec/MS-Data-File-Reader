@@ -1051,6 +1051,7 @@ namespace MSDataFileReader
                                     {
                                         // Unknown/unsupported encoding
                                         mCurrentLineText = string.Empty;
+                                        intLineTerminatorLength = 0;
                                         blnMatchFound = false;
                                         break;
                                     }
