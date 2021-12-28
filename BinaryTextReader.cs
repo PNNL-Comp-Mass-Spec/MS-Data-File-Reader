@@ -340,7 +340,7 @@ namespace MSDataFileReader
         {
             try
             {
-                if (mBinaryReader is object)
+                if (mBinaryReader != null)
                 {
                     mBinaryReader.Close();
                 }
@@ -390,13 +390,13 @@ namespace MSDataFileReader
             mCurrentLineTextSaved = string.Empty;
             InitializeCurrentLine();
         }
-        
+
         public void MoveToByteOffset(long lngByteOffset)
         {
             int intBytesRead;
             try
             {
-                if (mBinaryReader is object && mBinaryReader.CanRead)
+                if (mBinaryReader != null && mBinaryReader.CanRead)
                 {
                     if (lngByteOffset < 0L)
                     {
@@ -594,7 +594,7 @@ namespace MSDataFileReader
         {
             try
             {
-                if (mBinaryReader is object && mBinaryReader.CanRead)
+                if (mBinaryReader != null && mBinaryReader.CanRead)
                 {
                     MoveToByteOffset(mBinaryReader.Length);
                 }
@@ -700,7 +700,7 @@ namespace MSDataFileReader
                 blnTerminatorFound = false;
                 intStartIndexShiftCount = 0;
                 InitializeCurrentLine();
-                if (mBinaryReader is object && mBinaryReader.CanRead)
+                if (mBinaryReader != null && mBinaryReader.CanRead)
                 {
                     switch (mInputFileEncoding)
                     {
@@ -1087,7 +1087,11 @@ namespace MSDataFileReader
                             // Check whether the user just changed reading direction
                             // If they did, then it is possible that this function will return the exact same line
                             // as was previously read.  Check for this, and if true, then read the next line (in direction eDiretion)
-                            if (eDirection != mReadLineDirectionSaved && mCurrentLineByteOffsetStartSaved >= 0L && mCurrentLineByteOffsetStart == mCurrentLineByteOffsetStartSaved && mCurrentLineTextSaved is object && (mCurrentLineText ?? "") == (mCurrentLineTextSaved ?? ""))
+                            if (eDirection != mReadLineDirectionSaved &&
+                                mCurrentLineByteOffsetStartSaved >= 0L &&
+                                mCurrentLineByteOffsetStart == mCurrentLineByteOffsetStartSaved &&
+                                mCurrentLineTextSaved != null &&
+                                (mCurrentLineText ?? "") == (mCurrentLineTextSaved ?? ""))
                             {
 
                                 // Recursively call this function to read the next line

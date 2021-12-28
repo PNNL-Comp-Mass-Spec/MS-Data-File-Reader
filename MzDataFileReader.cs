@@ -226,7 +226,7 @@ namespace MSDataFileReader
             IEnumerator objEnumerator;
             clsSpectrumInfoMzData objSpectrum;
             sngIntensityMatch = 0f;
-            if (mMostRecentSurveyScanSpectra is object)
+            if (mMostRecentSurveyScanSpectra != null)
             {
                 objEnumerator = mMostRecentSurveyScanSpectra.GetEnumerator();
                 while (objEnumerator.MoveNext())
@@ -272,7 +272,7 @@ namespace MSDataFileReader
         protected override void InitializeCurrentSpectrum(bool blnAutoShrinkDataLists)
         {
             clsSpectrumInfoMzData objSpectrumCopy = null;
-            if (mCurrentSpectrum is object)
+            if (mCurrentSpectrum != null)
             {
                 if (mCurrentSpectrum.MSLevel == 1)
                 {
@@ -1013,7 +1013,7 @@ namespace MSDataFileReader
                 objFileVersionRegEx = new System.Text.RegularExpressions.Regex(@"1\.[0-9]+", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
                 // Validate the mzData file version
-                if (strFileVersion is object && strFileVersion.Length > 0)
+                if (!string.IsNullOrWhiteSpace(strFileVersion))
                 {
                     mFileVersion = string.Copy(strFileVersion);
                     objMatch = objFileVersionRegEx.Match(strFileVersion);

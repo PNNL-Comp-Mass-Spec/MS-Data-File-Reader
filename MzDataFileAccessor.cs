@@ -47,7 +47,7 @@ namespace MSDataFileReader
 
         ~clsMzDataFileAccessor()
         {
-            if (mXmlFileReader is object)
+            if (mXmlFileReader != null)
             {
                 mXmlFileReader = null;
             }
@@ -113,7 +113,7 @@ namespace MSDataFileReader
             set
             {
                 base.ParseFilesWithUnknownVersion = value;
-                if (mXmlFileReader is object)
+                if (mXmlFileReader != null)
                 {
                     mXmlFileReader.ParseFilesWithUnknownVersion = value;
                 }

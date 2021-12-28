@@ -579,7 +579,7 @@ namespace MSDataFileReader
             try
             {
                 blnSuccess = false;
-                if (mDataReaderMode == drmDataReaderModeConstants.Cached & mCachedSpectra is object)
+                if (mDataReaderMode == drmDataReaderModeConstants.Cached && mCachedSpectra != null)
                 {
                     ScanNumberList = new int[mCachedSpectrumCount];
                     var loopTo = ScanNumberList.Length - 1;
@@ -610,7 +610,7 @@ namespace MSDataFileReader
             blnSuccess = false;
             if (mDataReaderMode == drmDataReaderModeConstants.Cached && mCachedSpectrumCount > 0)
             {
-                if (intSpectrumIndex >= 0 & intSpectrumIndex < mCachedSpectrumCount & mCachedSpectra is object)
+                if (intSpectrumIndex >= 0 & intSpectrumIndex < mCachedSpectrumCount & mCachedSpectra != null)
                 {
                     objSpectrumInfo = mCachedSpectra[intSpectrumIndex];
                     blnSuccess = true;
@@ -772,7 +772,7 @@ namespace MSDataFileReader
                         Array.Resize(ref mCachedSpectra, mCachedSpectra.Length * 2);
                     }
 
-                    if (objSpectrumInfo is object)
+                    if (objSpectrumInfo != null)
                     {
                         mCachedSpectra[mCachedSpectrumCount] = objSpectrumInfo;
                         if (!mCachedSpectraScanToIndex.ContainsKey(objSpectrumInfo.ScanNumber))

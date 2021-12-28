@@ -28,7 +28,7 @@ namespace MSDataFileReader
         {
             try
             {
-                if (mFileReader is object)
+                if (mFileReader != null)
                 {
                     mFileReader.Close();
                 }
@@ -190,7 +190,7 @@ namespace MSDataFileReader
         {
             try
             {
-                if (mFileReader is object)
+                if (mFileReader != null)
                 {
                     mFileReader.Close();
                 }
@@ -293,7 +293,7 @@ namespace MSDataFileReader
             try
             {
                 blnScanNumberFound = false;
-                if (strSpectrumHeader is object)
+                if (strSpectrumHeader != null)
                 {
                     strSpectrumHeader = strSpectrumHeader.Trim();
                     if (strSpectrumHeader.ToLower().EndsWith(".dta"))
@@ -600,8 +600,8 @@ namespace MSDataFileReader
 
             string[] strSplitLine;
             int intDataCount;
-            var strSepChars = new char[] { ' ', ControlChars.Tab };
-            if (lstMSMSData is object && lstMSMSData.Count > 0)
+            var strSepChars = new char[] { ' ', '\t' };
+            if (lstMSMSData != null && lstMSMSData.Count > 0)
             {
                 dblMasses = new double[lstMSMSData.Count];
                 sngIntensities = new float[lstMSMSData.Count];
@@ -647,8 +647,7 @@ namespace MSDataFileReader
 
         protected void UpdateStreamReaderProgress()
         {
-            System.IO.StreamReader objStreamReader = mFileReader as System.IO.StreamReader;
-            if (objStreamReader is object)
+            if (mFileReader is StreamReader objStreamReader)
             {
                 UpdateProgress(objStreamReader.BaseStream.Position / (double)objStreamReader.BaseStream.Length * 100.0d);
             }

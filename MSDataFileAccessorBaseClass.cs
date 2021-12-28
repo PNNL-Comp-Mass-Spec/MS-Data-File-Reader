@@ -129,13 +129,13 @@ namespace MSDataFileReader
 
         public override void CloseFile()
         {
-            if (mBinaryReader is object)
+            if (mBinaryReader != null)
             {
                 mBinaryReader.Close();
                 mBinaryReader = null;
             }
 
-            if (mBinaryTextReader is object)
+            if (mBinaryTextReader != null)
             {
                 mBinaryTextReader.Close();
                 mBinaryTextReader = null;
@@ -159,7 +159,7 @@ namespace MSDataFileReader
             int intBytesToRead;
             try
             {
-                if (mBinaryReader is object && mBinaryReader.CanRead)
+                if (mBinaryReader != null && mBinaryReader.CanRead)
                 {
                     mBinaryReader.Seek(lngStartByteOffset, SeekOrigin.Begin);
                     intBytesToRead = (int)(lngEndByteOffset - lngStartByteOffset + 1L);

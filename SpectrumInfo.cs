@@ -446,7 +446,7 @@ namespace MSDataFileReader
             float sngMzRangeEnd = 0f;
             try
             {
-                if (DataCount > 0 && MZList is object)
+                if (DataCount > 0 && MZList != null)
                 {
                     sngMzRangeStart = (float)MZList[0];
                     sngMzRangeEnd = (float)MZList[DataCount - 1];
@@ -474,7 +474,7 @@ namespace MSDataFileReader
                 dblTotalIonCurrent = 0d;
                 dblBasePeakMZ = 0d;
                 sngBasePeakIntensity = 0f;
-                if (DataCount > 0 && MZList is object && IntensityList is object)
+                if (DataCount > 0 && MZList != null && IntensityList != null)
                 {
                     dblBasePeakMZ = MZList[0];
                     sngBasePeakIntensity = IntensityList[0];
@@ -566,7 +566,7 @@ namespace MSDataFileReader
 
             if (mAutoShrinkDataLists)
             {
-                if (MZList is object)
+                if (MZList != null)
                 {
                     if (MZList.Length > DataCount)
                     {
@@ -574,7 +574,7 @@ namespace MSDataFileReader
                     }
                 }
 
-                if (IntensityList is object)
+                if (IntensityList != null)
                 {
                     if (IntensityList.Length > DataCount)
                     {

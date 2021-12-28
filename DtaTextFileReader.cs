@@ -114,13 +114,13 @@ namespace MSDataFileReader
                         else
                         {
                             strLineIn = mFileReader.ReadLine();
-                            if (strLineIn is object)
+                            if (strLineIn != null)
                                 mTotalBytesRead += strLineIn.Length + 2;
                             mInFileLineNumber += 1;
                         }
 
                         // See if strLineIn is nothing or starts with the comment line character (equals sign)
-                        if (strLineIn is object && strLineIn.Trim().StartsWith(Conversions.ToString(mCommentLineStartChar)))
+                        if (strLineIn != null && strLineIn.Trim().StartsWith(mCommentLineStartChar.ToString()))
                         {
                             AddNewRecentFileText(strLineIn);
                             {
@@ -148,8 +148,9 @@ namespace MSDataFileReader
                                 strLineIn = string.Empty;
                             }
 
-                            if (strLineIn is object)
+                            if (strLineIn != null)
                                 mTotalBytesRead += strLineIn.Length + 2;
+
                             mInFileLineNumber += 1;
                             if (string.IsNullOrWhiteSpace(strLineIn))
                             {
@@ -195,12 +196,13 @@ namespace MSDataFileReader
                                     {
                                         // Read the next line
                                         strLineIn = mFileReader.ReadLine();
-                                        if (strLineIn is object)
+                                        if (strLineIn != null)
                                             mTotalBytesRead += strLineIn.Length + 2;
+
                                         mInFileLineNumber += 1;
                                     }
 
-                                    if (strLineIn is object && strLineIn.StartsWith(Conversions.ToString(mCommentLineStartChar)))
+                                    if (strLineIn != null && strLineIn.StartsWith(mCommentLineStartChar.ToString()))
                                     {
                                         mHeaderSaved = string.Copy(strLineIn);
                                         strCompareTitle = CleanupComment(mHeaderSaved, mCommentLineStartChar, true);
@@ -227,7 +229,7 @@ namespace MSDataFileReader
                                                     mInFileLineNumber += 1;
 
                                                     // See if strLineIn is blank or starts with an equals sign
-                                                    if (strLineIn is object)
+                                                    if (strLineIn != null)
                                                     {
                                                         mTotalBytesRead += strLineIn.Length + 2;
                                                         if (strLineIn.Trim().Length == 0)
@@ -297,7 +299,7 @@ namespace MSDataFileReader
                     {
                         strLineIn = fileReader.ReadLine();
                         mInFileLineNumber += 1;
-                        if (strLineIn is object)
+                        if (strLineIn != null)
                             mTotalBytesRead += strLineIn.Length + 2;
                         if (!string.IsNullOrWhiteSpace(strLineIn))
                         {
@@ -420,7 +422,7 @@ namespace MSDataFileReader
                     intLinesRead += 1;
 
                     // See if strLineIn is blank
-                    if (strLineIn is object)
+                    if (strLineIn != null)
                     {
                         mTotalBytesRead += strLineIn.Length + 2;
                         strMostRecentLineIn = string.Copy(strLineIn);

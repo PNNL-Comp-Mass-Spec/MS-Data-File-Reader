@@ -31,7 +31,7 @@ namespace MSDataFileReader
         {
             try
             {
-                if (mDataFileOrTextStream is object)
+                if (mDataFileOrTextStream != null)
                 {
                     mDataFileOrTextStream.Close();
                 }
@@ -42,7 +42,7 @@ namespace MSDataFileReader
 
             try
             {
-                if (mXMLReader is object)
+                if (mXMLReader != null)
                 {
                     mXMLReader.Close();
                 }
@@ -92,8 +92,7 @@ namespace MSDataFileReader
             {
                 if (mXMLReader is null)
                 {
-                    XmlTextReader xmlReader = mXMLReader as XmlTextReader;
-                    if (xmlReader is object)
+                    if (mXMLReader is XmlTextReader xmlReader)
                     {
                         return xmlReader.LineNumber;
                     }
@@ -109,8 +108,7 @@ namespace MSDataFileReader
             {
                 if (mXMLReader is null)
                 {
-                    XmlTextReader xmlReader = mXMLReader as XmlTextReader;
-                    if (xmlReader is object)
+                    if (mXMLReader is XmlTextReader xmlReader)
                     {
                         return xmlReader.LinePosition;
                     }
@@ -137,7 +135,7 @@ namespace MSDataFileReader
 
         public override void CloseFile()
         {
-            if (mXMLReader is object)
+            if (mXMLReader != null)
             {
                 mXMLReader.Close();
             }
@@ -567,19 +565,17 @@ namespace MSDataFileReader
                 }
                 else
                 {
-                    if (mDataFileOrTextStream is object)
+                    if (mDataFileOrTextStream != null)
                     {
-                        if (mDataFileOrTextStream is StreamReader)
+                        if (mDataFileOrTextStream is StreamReader streamReader)
                         {
                             {
-                                var withBlock = (StreamReader)mDataFileOrTextStream;
-                                UpdateProgress(withBlock.BaseStream.Position / (double)withBlock.BaseStream.Length * 100.0d);
+                                UpdateProgress(streamReader.BaseStream.Position / (double)streamReader.BaseStream.Length * 100.0d);
                             }
                         }
                         else
                         {
-                            XmlTextReader xmlReader = mXMLReader as XmlTextReader;
-                            if (xmlReader is object)
+                            if (mXMLReader is XmlTextReader xmlReader)
                             {
                                 // Note that 1000 is an arbitrary value for the number of lines in the input stream
                                 // (only needed if mDataFileOrTextStream is a StringReader)

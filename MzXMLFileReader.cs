@@ -751,7 +751,7 @@ namespace MSDataFileReader
             {
                 // Parse out the version number
                 var objMatch = objFileVersionRegEx.Match(xmlWithFileVersion);
-                if (objMatch.Success && objMatch.Value is object)
+                if (objMatch.Success)
                 {
                     // Record the version
                     xmlFileVersion = objMatch.Value;

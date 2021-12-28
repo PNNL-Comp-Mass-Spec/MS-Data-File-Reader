@@ -173,10 +173,11 @@ namespace MSDataFileReader
                     while (!blnSpectrumFound && mFileReader.Peek() > -1 && !mAbortProcessing)
                     {
                         strLineIn = mFileReader.ReadLine();
-                        if (strLineIn is object)
+                        if (strLineIn != null)
                             mTotalBytesRead += strLineIn.Length + 2;
+
                         mInFileLineNumber += 1;
-                        if (strLineIn is object && strLineIn.Trim().Length > 0)
+                        if (strLineIn != null && strLineIn.Trim().Length > 0)
                         {
                             AddNewRecentFileText(strLineIn);
                             strLineIn = strLineIn.Trim();
@@ -275,7 +276,7 @@ namespace MSDataFileReader
                                 {
                                     strLineIn = mFileReader.ReadLine();
                                     mInFileLineNumber += 1;
-                                    if (strLineIn is object)
+                                    if (strLineIn != null)
                                     {
                                         mTotalBytesRead += strLineIn.Length + 2;
                                         AddNewRecentFileText(strLineIn);
@@ -424,7 +425,7 @@ namespace MSDataFileReader
                                         mInFileLineNumber += 1;
 
                                         // See if strLineIn is blank
-                                        if (strLineIn is object)
+                                        if (strLineIn != null)
                                         {
                                             mTotalBytesRead += strLineIn.Length + 2;
                                             AddNewRecentFileText(strLineIn);
@@ -484,8 +485,7 @@ namespace MSDataFileReader
                         if (mInFileLineNumber - intLastProgressUpdateLine >= 250 | blnSpectrumFound)
                         {
                             intLastProgressUpdateLine = mInFileLineNumber;
-                            StreamReader objStreamReader = mFileReader as StreamReader;
-                            if (objStreamReader is object)
+                            if (mFileReader is StreamReader objStreamReader)
                             {
                                 UpdateProgress(objStreamReader.BaseStream.Position / (double)objStreamReader.BaseStream.Length * 100.0d);
                             }

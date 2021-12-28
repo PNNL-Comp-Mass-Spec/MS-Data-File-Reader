@@ -45,10 +45,7 @@ namespace MSDataFileReader
 
         ~clsMzXMLFileAccessor()
         {
-            if (mXmlFileReader is object)
-            {
-                mXmlFileReader = null;
-            }
+            mXmlFileReader = null;
         }
 
         #region Constants and Enums
@@ -113,7 +110,7 @@ namespace MSDataFileReader
             set
             {
                 base.ParseFilesWithUnknownVersion = value;
-                if (mXmlFileReader is object)
+                if (mXmlFileReader != null)
                 {
                     mXmlFileReader.ParseFilesWithUnknownVersion = value;
                 }
@@ -727,7 +724,7 @@ namespace MSDataFileReader
                                 // Set up the default error message
                                 mErrorMessage = "Index embedded in the input file (" + Path.GetFileName(mInputFilePath) + ") is corrupt: first byte offset (" + mIndexedSpectrumInfo[0].ByteOffsetStart.ToString() + ") does not point to a " + SCAN_START_ELEMENT + " element";
                                 strExtractedText = base.ExtractTextBetweenOffsets(mInputFilePath, mIndexedSpectrumInfo[0].ByteOffsetStart, mIndexedSpectrumInfo[0].ByteOffsetEnd);
-                                if (strExtractedText is object && strExtractedText.Length > 0)
+                                if (!string.IsNullOrEmpty(strExtractedText))
                                 {
                                     // Make sure the first text in strExtractedText is <scan
                                     intStartElementIndex = strExtractedText.IndexOf(SCAN_START_ELEMENT, StringComparison.Ordinal);
@@ -768,7 +765,7 @@ namespace MSDataFileReader
                                 else
                                 {
                                     // Append strCurrentLine to mXmlFileHeader
-                                    mXmlFileHeader += strCurrentLine + ControlChars.NewLine;
+                                    mXmlFileHeader += strCurrentLine + Environment.NewLine;
                                 }
                             }
                         }
@@ -776,7 +773,7 @@ namespace MSDataFileReader
                         {
                             // Index not loaded (or not valid)
 
-                            if (mErrorMessage is object && mErrorMessage.Length > 0)
+                            if (!string.IsNullOrEmpty(mErrorMessage))
                             {
                                 OnErrorEvent("Error in LoadExistingIndex: {0}", mErrorMessage);
                             }
@@ -843,7 +840,7 @@ namespace MSDataFileReader
                                             strValue = string.Empty;
                                         }
 
-                                        if (strValue is object && strValue.Length > 0)
+                                        if (!string.IsNullOrEmpty(strValue))
                                         {
                                             if (strValue == "scan")
                                             {
@@ -1104,7 +1101,7 @@ namespace MSDataFileReader
             // Replace the number with intScanCountTotal
 
             Match objMatch;
-            if (strHeaderText is object && strHeaderText.Length > 0)
+            if (!string.IsNullOrWhiteSpace(strHeaderText))
             {
                 objMatch = mMSRunRegEx.Match(strHeaderText);
                 if (objMatch.Success)
