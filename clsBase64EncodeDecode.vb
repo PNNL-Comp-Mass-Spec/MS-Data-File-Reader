@@ -9,7 +9,7 @@ Option Strict On
 ' Started November 2004
 '
 ' E-mail: matthew.monroe@pnnl.gov or proteomics@pnnl.gov
-' Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/
+' Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
 ' -------------------------------------------------------------------------------
 
 Imports System.Runtime.InteropServices

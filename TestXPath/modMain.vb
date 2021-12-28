@@ -7,8 +7,8 @@ Option Strict On
 ' Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
 ' Program started April 16, 2006
 '
-' E-mail: matthew.monroe@pnl.gov or matt@alchemistmatt.com
-' Website: http://ncrr.pnl.gov/ or http://www.sysbio.org/resources/staff/
+' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
+' Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
 ' -------------------------------------------------------------------------------
 '
 ' Last modified April 16, 2006

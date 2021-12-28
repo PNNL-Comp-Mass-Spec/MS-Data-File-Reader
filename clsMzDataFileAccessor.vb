@@ -17,7 +17,7 @@ Imports System.Xml
 ' Program started April 16, 2006
 '
 ' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-' Website: http://omics.pnl.gov/ or http://panomics.pnnl.gov/
+' Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
 ' -------------------------------------------------------------------------------
 '
 ' Licensed under the Apache License, Version 2.0; you may not use this file except
