@@ -9,7 +9,6 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Runtime.InteropServices;
 
 /// <summary>
 /// This class can be used to open a _Dta.txt file and return each spectrum present
@@ -80,7 +79,6 @@ namespace MSDataFileReader
         /// <returns>True if a spectrum is found, otherwise false</returns>
         public override bool ReadNextSpectrum(out clsSpectrumInfo objSpectrumInfo)
         {
-            var strMostRecentLineIn = string.Empty;
             var blnSpectrumFound = default(bool);
 
             try
@@ -127,18 +125,15 @@ namespace MSDataFileReader
                         {
                             AddNewRecentFileText(strLineIn);
                             {
-                                ref var withBlock = ref mCurrentSpectrum;
-                                withBlock.SpectrumTitleWithCommentChars = strLineIn;
-                                withBlock.SpectrumTitle = CleanupComment(strLineIn, mCommentLineStartChar, true);
-                                var argintScanNumberStart = withBlock.ScanNumber;
-                                var argintScanNumberEnd = withBlock.ScanNumberEnd;
-                                var argintScanCount = withBlock.ScanCount;
-                                ExtractScanInfoFromDtaHeader(withBlock.SpectrumTitle, out argintScanNumberStart, out argintScanNumberEnd, out argintScanCount);
-                                withBlock.ScanNumber = argintScanNumberStart;
-                                withBlock.ScanNumberEnd = argintScanNumberEnd;
-                                withBlock.ScanCount = argintScanCount;
-                                withBlock.MSLevel = 2;
-                                withBlock.SpectrumID = withBlock.ScanNumber;
+                                mCurrentSpectrum.SpectrumTitleWithCommentChars = strLineIn;
+                                mCurrentSpectrum.SpectrumTitle = CleanupComment(strLineIn, mCommentLineStartChar, true);
+
+                                ExtractScanInfoFromDtaHeader(mCurrentSpectrum.SpectrumTitle, out var scanNumberStart, out var scanNumberEnd, out var scanCount);
+                                mCurrentSpectrum.ScanNumber = scanNumberStart;
+                                mCurrentSpectrum.ScanNumberEnd = scanNumberEnd;
+                                mCurrentSpectrum.ScanCount = scanCount;
+                                mCurrentSpectrum.MSLevel = 2;
+                                mCurrentSpectrum.SpectrumID = mCurrentSpectrum.ScanNumber;
                             }
 
                             // Read the next line, which should have the parent ion MH value and charge
@@ -181,19 +176,15 @@ namespace MSDataFileReader
                                     }
                                     else
                                     {
+                                        try
                                         {
-                                            ref var withBlock1 = ref mCurrentSpectrum;
-
-                                            try
-                                            {
-                                                withBlock1.DataCount = ParseMsMsDataList(mCurrentMsMsDataList, out withBlock1.MZList, out withBlock1.IntensityList, withBlock1.AutoShrinkDataLists);
-                                                withBlock1.Validate(blnComputeBasePeakAndTIC: true, blnUpdateMZRange: true);
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                withBlock1.DataCount = 0;
-                                                blnSpectrumFound = false;
-                                            }
+                                            mCurrentSpectrum.DataCount = ParseMsMsDataList(mCurrentMsMsDataList, out mCurrentSpectrum.MZList, out mCurrentSpectrum.IntensityList, mCurrentSpectrum.AutoShrinkDataLists);
+                                            mCurrentSpectrum.Validate(true, true);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            mCurrentSpectrum.DataCount = 0;
+                                            blnSpectrumFound = false;
                                         }
                                     }
                                 }
@@ -224,10 +215,9 @@ namespace MSDataFileReader
                                                 // Yes, the spectra match
 
                                                 {
-                                                    ref var withBlock2 = ref mCurrentSpectrum;
-                                                    withBlock2.ParentIonChargeCount = 2;
-                                                    withBlock2.ParentIonCharges[1] = 3;
-                                                    withBlock2.ChargeIs2And3Plus = true;
+                                                    mCurrentSpectrum.ParentIonChargeCount = 2;
+                                                    mCurrentSpectrum.ParentIonCharges[1] = 3;
+                                                    mCurrentSpectrum.ChargeIs2And3Plus = true;
                                                 }
 
                                                 mHeaderSaved = string.Empty;
@@ -344,16 +334,10 @@ namespace MSDataFileReader
                     if (blnSpectrumFound)
                     {
                         // Try to determine the scan numbers by parsing strInputFilePath
-                        {
-                            ref var withBlock = ref objSpectrumInfoMsMsText;
-                            var argintScanNumberStart = withBlock.ScanNumber;
-                            var argintScanNumberEnd = withBlock.ScanNumberEnd;
-                            var argintScanCount = withBlock.ScanCount;
-                            ExtractScanInfoFromDtaHeader(Path.GetFileName(strInputFilePath), out argintScanNumberStart, out argintScanNumberEnd, out argintScanCount);
-                            withBlock.ScanNumber = argintScanNumberStart;
-                            withBlock.ScanNumberEnd = argintScanNumberEnd;
-                            withBlock.ScanCount = argintScanCount;
-                        }
+                        ExtractScanInfoFromDtaHeader(Path.GetFileName(strInputFilePath), out var scanNumberStart, out var scanNumberEnd, out var scanCount);
+                        objSpectrumInfoMsMsText.ScanNumber = scanNumberStart;
+                        objSpectrumInfoMsMsText.ScanNumberEnd = scanNumberEnd;
+                        objSpectrumInfoMsMsText.ScanCount = scanCount;
 
                         strMsMsDataList = new string[lstMsMsDataList.Count];
                         lstMsMsDataList.CopyTo(strMsMsDataList);

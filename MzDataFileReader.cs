@@ -301,13 +301,11 @@ namespace MSDataFileReader
             base.InitializeLocalVariables();
             mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.UnknownFile;
             mAcquisitionElementCount = 0;
-            {
-                ref var withBlock = ref mInputFileStatsAddnl;
-                withBlock.PeakProcessing = string.Empty;
-                withBlock.IsCentroid = false;
-                withBlock.IsDeisotoped = false;
-                withBlock.HasChargeDeconvolution = false;
-            }
+
+            mInputFileStatsAddnl.PeakProcessing = string.Empty;
+            mInputFileStatsAddnl.IsCentroid = false;
+            mInputFileStatsAddnl.IsDeisotoped = false;
+            mInputFileStatsAddnl.HasChargeDeconvolution = false;
 
             mMostRecentSurveyScanSpectra = new Queue();
         }
@@ -382,20 +380,17 @@ namespace MSDataFileReader
 
                     if (blnSuccess)
                     {
+                        if (sngValues.Length != mCurrentSpectrum.DataCount)
                         {
-                            ref var withBlock = ref mCurrentSpectrum;
-                            if (sngValues.Length != withBlock.DataCount)
+                            if (mCurrentSpectrum.DataCount == 0 && sngValues.Length > 0 && Math.Abs(sngValues[0]) < float.Epsilon)
                             {
-                                if (withBlock.DataCount == 0 && sngValues.Length > 0 && Math.Abs(sngValues[0]) < float.Epsilon)
-                                {
-                                }
-                                // Leave .PeaksCount at 0
-                                else if (blnUpdatePeaksCountIfInconsistent)
-                                {
-                                    // This shouldn't normally be necessary
-                                    OnErrorEvent("Unexpected condition in ParseBinaryData: sngValues.Length <> .DataCount and .DataCount > 0");
-                                    withBlock.DataCount = sngValues.Length;
-                                }
+                            }
+                            // Leave .PeaksCount at 0
+                            else if (blnUpdatePeaksCountIfInconsistent)
+                            {
+                                // This shouldn't normally be necessary
+                                OnErrorEvent("Unexpected condition in ParseBinaryData: sngValues.Length <> .DataCount and .DataCount > 0");
+                                mCurrentSpectrum.DataCount = sngValues.Length;
                             }
                         }
                     }
@@ -467,20 +462,17 @@ namespace MSDataFileReader
 
                     if (blnSuccess)
                     {
+                        if (dblValues.Length != mCurrentSpectrum.DataCount)
                         {
-                            ref var withBlock = ref mCurrentSpectrum;
-                            if (dblValues.Length != withBlock.DataCount)
+                            if (mCurrentSpectrum.DataCount == 0 && dblValues.Length > 0 && Math.Abs(dblValues[0]) < float.Epsilon)
                             {
-                                if (withBlock.DataCount == 0 && dblValues.Length > 0 && Math.Abs(dblValues[0]) < float.Epsilon)
-                                {
-                                }
-                                // Leave .PeaksCount at 0
-                                else if (blnUpdatePeaksCountIfInconsistent)
-                                {
-                                    // This shouldn't normally be necessary
-                                    OnErrorEvent("Unexpected condition in ParseBinaryData: sngValues.Length <> .DataCount and .DataCount > 0");
-                                    withBlock.DataCount = dblValues.Length;
-                                }
+                            }
+                            // Leave .PeaksCount at 0
+                            else if (blnUpdatePeaksCountIfInconsistent)
+                            {
+                                // This shouldn't normally be necessary
+                                OnErrorEvent("Unexpected condition in ParseBinaryData: sngValues.Length <> .DataCount and .DataCount > 0");
+                                mCurrentSpectrum.DataCount = dblValues.Length;
                             }
                         }
                     }
@@ -517,13 +509,12 @@ namespace MSDataFileReader
                             {
                                 if (!mSkipBinaryData)
                                 {
+                                    blnSuccess = ParseBinaryData(XMLTextReaderGetInnerText(), ref mCurrentSpectrum.MZList,
+                                        mCurrentSpectrum.NumericPrecisionOfDataMZ, mCurrentSpectrum.PeaksEndianModeMZ, true);
+
+                                    if (!blnSuccess)
                                     {
-                                        ref var withBlock = ref mCurrentSpectrum;
-                                        blnSuccess = ParseBinaryData(XMLTextReaderGetInnerText(), ref withBlock.MZList, withBlock.NumericPrecisionOfDataMZ, withBlock.PeaksEndianModeMZ, true);
-                                        if (!blnSuccess)
-                                        {
-                                            withBlock.DataCount = 0;
-                                        }
+                                        mCurrentSpectrum.DataCount = 0;
                                     }
                                 }
                                 else
@@ -538,11 +529,13 @@ namespace MSDataFileReader
                             {
                                 if (!mSkipBinaryData)
                                 {
-                                    {
-                                        ref var withBlock1 = ref mCurrentSpectrum;
-                                        blnSuccess = ParseBinaryData(XMLTextReaderGetInnerText(), ref withBlock1.IntensityList, withBlock1.NumericPrecisionOfDataIntensity, withBlock1.PeaksEndianModeIntensity, false);
-                                        // Note: Not calling .ComputeBasePeakAndTIC() here since it will be called when the spectrum is Validated
-                                    }
+                                    blnSuccess = ParseBinaryData(
+                                        XMLTextReaderGetInnerText(),
+                                        ref mCurrentSpectrum.IntensityList,
+                                        mCurrentSpectrum.NumericPrecisionOfDataIntensity,
+                                        mCurrentSpectrum.PeaksEndianModeIntensity,
+                                        false);
+                                    // Note: Not calling .ComputeBasePeakAndTIC() here since it will be called when the spectrum is Validated
                                 }
                                 else
                                 {
@@ -685,21 +678,16 @@ namespace MSDataFileReader
                                         switch (strCVName ?? "")
                                         {
                                             case PrecursorIonSelectionCVParamNames.MassToChargeRatio:
-                                                {
-                                                    mCurrentSpectrum.ParentIonMZ = CDblSafe(strValue, 0d);
-                                                    {
-                                                        ref var withBlock = ref mCurrentSpectrum;
-                                                        withBlock.ParentIonIntensity = FindIonIntensityInRecentSpectra(withBlock.ParentIonSpectrumID, withBlock.ParentIonMZ);
-                                                    }
+                                                mCurrentSpectrum.ParentIonMZ = CDblSafe(strValue, 0d);
+                                                mCurrentSpectrum.ParentIonIntensity =
+                                                    FindIonIntensityInRecentSpectra(mCurrentSpectrum.ParentIonSpectrumID,
+                                                        mCurrentSpectrum.ParentIonMZ);
 
-                                                    break;
-                                                }
+                                                break;
 
                                             case PrecursorIonSelectionCVParamNames.ChargeState:
-                                                {
-                                                    mCurrentSpectrum.ParentIonCharge = CIntSafe(strValue, 0);
-                                                    break;
-                                                }
+                                                mCurrentSpectrum.ParentIonCharge = CIntSafe(strValue, 0);
+                                                break;
                                         }
                                     }
 
@@ -787,12 +775,13 @@ namespace MSDataFileReader
                     {
                         if ((GetParentElement() ?? "") == ScanSectionNames.spectrumSettings)
                         {
-                            {
-                                ref var withBlock1 = ref mCurrentSpectrum;
-                                withBlock1.SpectrumType = GetAttribValue(AcqSpecificationAttributeNames.spectrumType, clsSpectrumInfo.SpectrumTypeNames.discrete);
-                                withBlock1.SpectrumCombinationMethod = GetAttribValue(AcqSpecificationAttributeNames.methodOfCombination, string.Empty);
-                                withBlock1.ScanCount = GetAttribValue(AcqSpecificationAttributeNames.count, 1);
-                            }
+                            mCurrentSpectrum.SpectrumType = GetAttribValue(AcqSpecificationAttributeNames.spectrumType,
+                                clsSpectrumInfo.SpectrumTypeNames.discrete);
+
+                            mCurrentSpectrum.SpectrumCombinationMethod =
+                                GetAttribValue(AcqSpecificationAttributeNames.methodOfCombination, string.Empty);
+
+                            mCurrentSpectrum.ScanCount = GetAttribValue(AcqSpecificationAttributeNames.count, 1);
 
                             mAcquisitionElementCount = 0;
                         }
@@ -891,27 +880,22 @@ namespace MSDataFileReader
                         {
                             case eCurrentMZDataFileSectionConstants.SpectrumDataArrayMZ:
                                 {
-                                    {
-                                        ref var withBlock2 = ref mCurrentSpectrum;
-                                        withBlock2.NumericPrecisionOfDataMZ = GetAttribValue(BinaryDataAttributeNames.precision, 32);
-                                        withBlock2.PeaksEndianModeMZ = GetAttribValue(BinaryDataAttributeNames.endian, clsSpectrumInfoMzData.EndianModes.littleEndian);
-                                        withBlock2.DataCount = GetAttribValue(BinaryDataAttributeNames.length, 0);
-                                    }
+                                    mCurrentSpectrum.NumericPrecisionOfDataMZ = GetAttribValue(BinaryDataAttributeNames.precision, 32);
+                                    mCurrentSpectrum.PeaksEndianModeMZ = GetAttribValue(BinaryDataAttributeNames.endian, clsSpectrumInfoMzData.EndianModes.littleEndian);
+                                    mCurrentSpectrum.DataCount = GetAttribValue(BinaryDataAttributeNames.length, 0);
 
                                     break;
                                 }
 
                             case eCurrentMZDataFileSectionConstants.SpectrumDataArrayIntensity:
                                 {
+                                    mCurrentSpectrum.NumericPrecisionOfDataIntensity = GetAttribValue(BinaryDataAttributeNames.precision, 32);
+                                    mCurrentSpectrum.PeaksEndianModeIntensity = GetAttribValue(BinaryDataAttributeNames.endian, clsSpectrumInfoMzData.EndianModes.littleEndian);
+
+                                    // Only update .DataCount if it is currently 0
+                                    if (mCurrentSpectrum.DataCount == 0)
                                     {
-                                        ref var withBlock3 = ref mCurrentSpectrum;
-                                        withBlock3.NumericPrecisionOfDataIntensity = GetAttribValue(BinaryDataAttributeNames.precision, 32);
-                                        withBlock3.PeaksEndianModeIntensity = GetAttribValue(BinaryDataAttributeNames.endian, clsSpectrumInfoMzData.EndianModes.littleEndian);
-                                        // Only update .DataCount if it is currently 0
-                                        if (withBlock3.DataCount == 0)
-                                        {
-                                            withBlock3.DataCount = GetAttribValue(BinaryDataAttributeNames.length, 0);
-                                        }
+                                        mCurrentSpectrum.DataCount = GetAttribValue(BinaryDataAttributeNames.length, 0);
                                     }
 
                                     break;

@@ -703,14 +703,14 @@ namespace MSDataFileReader
                         StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, lngCurrentSpectrumByteOffsetStart, lngCurrentSpectrumByteOffsetEnd);
 
                         // Note that StoreIndexEntry will have incremented mIndexedSpectrumInfoCount
+                        mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].SpectrumID = mCurrentSpectrumInfo.SpectrumID;
+                        UpdateFileStats(mIndexedSpectrumInfoCount, mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].ScanNumber,
+                            mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].SpectrumID);
+
+                        if (!mIndexedSpectraSpectrumIDToIndex.ContainsKey(mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].SpectrumID))
                         {
-                            ref var withBlock = ref mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1];
-                            withBlock.SpectrumID = mCurrentSpectrumInfo.SpectrumID;
-                            UpdateFileStats(mIndexedSpectrumInfoCount, withBlock.ScanNumber, withBlock.SpectrumID);
-                            if (!mIndexedSpectraSpectrumIDToIndex.ContainsKey(withBlock.SpectrumID))
-                            {
-                                mIndexedSpectraSpectrumIDToIndex.Add(withBlock.SpectrumID, mIndexedSpectrumInfoCount - 1);
-                            }
+                            mIndexedSpectraSpectrumIDToIndex.Add(mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].SpectrumID,
+                                mIndexedSpectrumInfoCount - 1);
                         }
 
                         // Update the progress

@@ -221,19 +221,11 @@ namespace MSDataFileReader
                     // Look for "M\.\d+S"
                     var reSecondsRegEx = new Regex(@"M(\d+\.\d+)S");
                     var objMatch = reSecondsRegEx.Match(strXMLDuration);
-                    if (objMatch.Success)
+                    if (objMatch.Success && objMatch.Groups.Count > 1 && IsNumber(objMatch.Groups[1].Captures[0].Value))
                     {
-                        if (objMatch.Groups.Count > 1)
-                        {
-                            {
-                                var withBlock = objMatch.Groups[1];
-                                if (IsNumber(withBlock.Captures[0].Value))
-                                {
-                                    var dblSeconds = double.Parse(withBlock.Captures[0].Value);
-                                    strXMLDuration = strXMLDuration.Substring(0, withBlock.Index) + Math.Round(dblSeconds, bytSecondsValueDigitsAfterDecimal).ToString() + "S";
-                                }
-                            }
-                        }
+                        var dblSeconds = double.Parse(objMatch.Groups[1].Captures[0].Value);
+                        strXMLDuration = strXMLDuration.Substring(0, objMatch.Groups[1].Index) +
+                                         Math.Round(dblSeconds, bytSecondsValueDigitsAfterDecimal) + "S";
                     }
                 }
 

@@ -157,10 +157,9 @@ namespace MSDataFileReader
                 {
                     AddNewRecentFileText(string.Empty, true, false);
                     {
-                        ref var withBlock = ref mCurrentSpectrum;
-                        withBlock.SpectrumTitleWithCommentChars = string.Empty;
-                        withBlock.SpectrumTitle = string.Empty;
-                        withBlock.MSLevel = 2;
+                        mCurrentSpectrum.SpectrumTitleWithCommentChars = string.Empty;
+                        mCurrentSpectrum.SpectrumTitle = string.Empty;
+                        mCurrentSpectrum.MSLevel = 2;
                     }
 
                     var intLastProgressUpdateLine = mInFileLineNumber;
@@ -322,24 +321,20 @@ namespace MSDataFileReader
                                                         // Typically, strSplitLine(1) will contain "and"
                                                         if (IsNumber(strSplitLine[intIndex].Trim()))
                                                         {
+                                                            if (mCurrentSpectrum.ParentIonChargeCount < clsSpectrumInfoMsMsText.MAX_CHARGE_COUNT)
                                                             {
-                                                                ref var withBlock1 = ref mCurrentSpectrum;
-                                                                if (withBlock1.ParentIonChargeCount < clsSpectrumInfoMsMsText.MAX_CHARGE_COUNT)
-                                                                {
-                                                                    withBlock1.ParentIonCharges[withBlock1.ParentIonChargeCount] = int.Parse(strSplitLine[intIndex].Trim());
-                                                                    withBlock1.ParentIonChargeCount += 1;
-                                                                }
+                                                                mCurrentSpectrum.ParentIonCharges[mCurrentSpectrum.ParentIonChargeCount] =
+                                                                    int.Parse(strSplitLine[intIndex].Trim());
+
+                                                                mCurrentSpectrum.ParentIonChargeCount += 1;
                                                             }
                                                         }
                                                     }
                                                 }
                                                 else if (IsNumber(strLineIn))
                                                 {
-                                                    {
-                                                        ref var withBlock2 = ref mCurrentSpectrum;
-                                                        withBlock2.ParentIonChargeCount = 1;
-                                                        withBlock2.ParentIonCharges[0] = int.Parse(strLineIn);
-                                                    }
+                                                    mCurrentSpectrum.ParentIonChargeCount = 1;
+                                                    mCurrentSpectrum.ParentIonCharges[0] = int.Parse(strLineIn);
                                                 }
                                             }
                                             else if (strLineIn.ToUpper().StartsWith(LINE_START_TITLE))
@@ -352,14 +347,10 @@ namespace MSDataFileReader
                                                     // We didn't find a scan number in a ### MSMS: comment line
                                                     // Attempt to extract out the scan numbers from the Title
                                                     {
-                                                        ref var withBlock3 = ref mCurrentSpectrum;
-                                                        var argintScanNumberStart = withBlock3.ScanNumber;
-                                                        var argintScanNumberEnd = withBlock3.ScanNumberEnd;
-                                                        var argintScanCount = withBlock3.ScanCount;
-                                                        ExtractScanInfoFromDtaHeader(strLineIn, out argintScanNumberStart, out argintScanNumberEnd, out argintScanCount);
-                                                        withBlock3.ScanNumber = argintScanNumberStart;
-                                                        withBlock3.ScanNumberEnd = argintScanNumberEnd;
-                                                        withBlock3.ScanCount = argintScanCount;
+                                                        ExtractScanInfoFromDtaHeader(strLineIn, out var scanNumberStart, out var scanNumberEnd, out var scanCount);
+                                                        mCurrentSpectrum.ScanNumber = scanNumberStart;
+                                                        mCurrentSpectrum.ScanNumberEnd = scanNumberEnd;
+                                                        mCurrentSpectrum.ScanCount = scanCount;
                                                     }
                                                 }
                                             }
@@ -371,8 +362,7 @@ namespace MSDataFileReader
                                             else if (strLineIn.ToUpper().StartsWith(LINE_START_RT))
                                             {
                                                 strLineIn = strLineIn.Substring(LINE_START_RT.Length).Trim();
-                                                double rtSeconds;
-                                                if (double.TryParse(strLineIn, out rtSeconds))
+                                                if (double.TryParse(strLineIn, out var rtSeconds))
                                                 {
                                                     mCurrentSpectrum.RetentionTimeMin = (float)(rtSeconds / 60.0d);
                                                 }
@@ -404,14 +394,13 @@ namespace MSDataFileReader
                                     // Note: MGF files have Parent Ion MZ defined but not Parent Ion MH
                                     // Thus, compute .ParentIonMH using .ParentIonMZ
                                     {
-                                        ref var withBlock4 = ref mCurrentSpectrum;
-                                        if (withBlock4.ParentIonChargeCount >= 1)
+                                        if (mCurrentSpectrum.ParentIonChargeCount >= 1)
                                         {
-                                            withBlock4.ParentIonMH = ConvoluteMass(withBlock4.ParentIonMZ, withBlock4.ParentIonCharges[0], 1);
+                                            mCurrentSpectrum.ParentIonMH = ConvoluteMass(mCurrentSpectrum.ParentIonMZ, mCurrentSpectrum.ParentIonCharges[0], 1);
                                         }
                                         else
                                         {
-                                            withBlock4.ParentIonMH = withBlock4.ParentIonMZ;
+                                            mCurrentSpectrum.ParentIonMH = mCurrentSpectrum.ParentIonMZ;
                                         }
                                     }
 
@@ -456,19 +445,15 @@ namespace MSDataFileReader
                                     }
                                     else
                                     {
+                                        try
                                         {
-                                            ref var withBlock5 = ref mCurrentSpectrum;
-
-                                            try
-                                            {
-                                                withBlock5.DataCount = ParseMsMsDataList(mCurrentMsMsDataList, out withBlock5.MZList, out withBlock5.IntensityList, withBlock5.AutoShrinkDataLists);
-                                                withBlock5.Validate(blnComputeBasePeakAndTIC: true, blnUpdateMZRange: true);
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                withBlock5.DataCount = 0;
-                                                blnSpectrumFound = false;
-                                            }
+                                            mCurrentSpectrum.DataCount = ParseMsMsDataList(mCurrentMsMsDataList, out mCurrentSpectrum.MZList, out mCurrentSpectrum.IntensityList, mCurrentSpectrum.AutoShrinkDataLists);
+                                            mCurrentSpectrum.Validate(true, true);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            mCurrentSpectrum.DataCount = 0;
+                                            blnSpectrumFound = false;
                                         }
                                     }
                                 }

@@ -691,16 +691,15 @@ namespace MSDataFileReader
                 Array.Resize(ref mIndexedSpectrumInfo, mIndexedSpectrumInfo.Length * 2);
             }
 
+            mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ScanNumber = intScanNumber;
+            mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ByteOffsetStart = lngByteOffsetStart;
+            mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ByteOffsetEnd = lngByteOffsetEnd;
+
+            UpdateFileStats(mIndexedSpectrumInfoCount + 1, mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ScanNumber);
+
+            if (!mIndexedSpectraScanToIndex.ContainsKey(mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ScanNumber))
             {
-                ref var withBlock = ref mIndexedSpectrumInfo[mIndexedSpectrumInfoCount];
-                withBlock.ScanNumber = intScanNumber;
-                withBlock.ByteOffsetStart = lngByteOffsetStart;
-                withBlock.ByteOffsetEnd = lngByteOffsetEnd;
-                UpdateFileStats(mIndexedSpectrumInfoCount + 1, withBlock.ScanNumber);
-                if (!mIndexedSpectraScanToIndex.ContainsKey(withBlock.ScanNumber))
-                {
-                    mIndexedSpectraScanToIndex.Add(withBlock.ScanNumber, mIndexedSpectrumInfoCount);
-                }
+                mIndexedSpectraScanToIndex.Add(mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ScanNumber, mIndexedSpectrumInfoCount);
             }
 
             // Increment mIndexedSpectrumInfoCount

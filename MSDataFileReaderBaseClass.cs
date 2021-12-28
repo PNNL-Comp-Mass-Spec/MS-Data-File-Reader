@@ -727,12 +727,10 @@ namespace MSDataFileReader
             mProgressPercentComplete = 0f;
             mCachedSpectrumCount = 0;
             mCachedSpectra = new clsSpectrumInfo[500];
-            {
-                ref var withBlock = ref mInputFileStats;
-                withBlock.ScanCount = 0;
-                withBlock.ScanNumberMinimum = 0;
-                withBlock.ScanNumberMaximum = 0;
-            }
+
+            mInputFileStats.ScanCount = 0;
+            mInputFileStats.ScanNumberMinimum = 0;
+            mInputFileStats.ScanNumberMaximum = 0;
 
             mCachedSpectraScanToIndex.Clear();
 
@@ -821,26 +819,24 @@ namespace MSDataFileReader
                         }
 
                         mCachedSpectrumCount += 1;
-                        {
-                            ref var withBlock = ref mInputFileStats;
-                            withBlock.ScanCount = mCachedSpectrumCount;
-                            var intScanNumber = objSpectrumInfo.ScanNumber;
-                            if (withBlock.ScanCount == 1)
-                            {
-                                withBlock.ScanNumberMaximum = intScanNumber;
-                                withBlock.ScanNumberMinimum = intScanNumber;
-                            }
-                            else
-                            {
-                                if (intScanNumber < withBlock.ScanNumberMinimum)
-                                {
-                                    withBlock.ScanNumberMinimum = intScanNumber;
-                                }
 
-                                if (intScanNumber > withBlock.ScanNumberMaximum)
-                                {
-                                    withBlock.ScanNumberMaximum = intScanNumber;
-                                }
+                        mInputFileStats.ScanCount = mCachedSpectrumCount;
+                        var intScanNumber = objSpectrumInfo.ScanNumber;
+                        if (mInputFileStats.ScanCount == 1)
+                        {
+                            mInputFileStats.ScanNumberMaximum = intScanNumber;
+                            mInputFileStats.ScanNumberMinimum = intScanNumber;
+                        }
+                        else
+                        {
+                            if (intScanNumber < mInputFileStats.ScanNumberMinimum)
+                            {
+                                mInputFileStats.ScanNumberMinimum = intScanNumber;
+                            }
+
+                            if (intScanNumber > mInputFileStats.ScanNumberMaximum)
+                            {
+                                mInputFileStats.ScanNumberMaximum = intScanNumber;
                             }
                         }
                     }
@@ -884,25 +880,22 @@ namespace MSDataFileReader
 
         protected void UpdateFileStats(int intScanCount, int intScanNumber)
         {
+            mInputFileStats.ScanCount = intScanCount;
+            if (intScanCount <= 1)
             {
-                ref var withBlock = ref mInputFileStats;
-                withBlock.ScanCount = intScanCount;
-                if (intScanCount <= 1)
+                mInputFileStats.ScanNumberMinimum = intScanNumber;
+                mInputFileStats.ScanNumberMaximum = intScanNumber;
+            }
+            else
+            {
+                if (intScanNumber < mInputFileStats.ScanNumberMinimum)
                 {
-                    withBlock.ScanNumberMinimum = intScanNumber;
-                    withBlock.ScanNumberMaximum = intScanNumber;
+                    mInputFileStats.ScanNumberMinimum = intScanNumber;
                 }
-                else
-                {
-                    if (intScanNumber < withBlock.ScanNumberMinimum)
-                    {
-                        withBlock.ScanNumberMinimum = intScanNumber;
-                    }
 
-                    if (intScanNumber > withBlock.ScanNumberMaximum)
-                    {
-                        withBlock.ScanNumberMaximum = intScanNumber;
-                    }
+                if (intScanNumber > mInputFileStats.ScanNumberMaximum)
+                {
+                    mInputFileStats.ScanNumberMaximum = intScanNumber;
                 }
             }
         }

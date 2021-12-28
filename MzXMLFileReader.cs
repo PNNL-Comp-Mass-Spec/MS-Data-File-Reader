@@ -229,12 +229,10 @@ namespace MSDataFileReader
             base.InitializeLocalVariables();
             mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.UnknownFile;
             mScanDepth = 0;
-            {
-                ref var withBlock = ref mInputFileStatsAddnl;
-                withBlock.StartTimeMin = 0f;
-                withBlock.EndTimeMin = 0f;
-                withBlock.IsCentroid = false;
-            }
+
+            mInputFileStatsAddnl.StartTimeMin = 0f;
+            mInputFileStatsAddnl.EndTimeMin = 0f;
+            mInputFileStatsAddnl.IsCentroid = false;
         }
 
         public override bool OpenFile(string strInputFilePath)
@@ -261,12 +259,9 @@ namespace MSDataFileReader
             var blnSuccess = false;
             if (strMSMSDataBase64Encoded is null || strMSMSDataBase64Encoded.Length == 0)
             {
-                {
-                    ref var withBlock = ref mCurrentSpectrum;
-                    withBlock.DataCount = 0;
-                    withBlock.MZList = new double[0];
-                    withBlock.IntensityList = new float[0];
-                }
+                mCurrentSpectrum.DataCount = 0;
+                mCurrentSpectrum.MZList = new double[0];
+                mCurrentSpectrum.IntensityList = new float[0];
             }
             else
             {
@@ -293,28 +288,26 @@ namespace MSDataFileReader
                                     // sngDataArray now contains pairs of singles, either m/z and intensity or intensity and m/z
                                     // Need to split this apart into two arrays
 
+                                    mCurrentSpectrum.MZList = new double[((int)Math.Round(sngDataArray.Length / 2d))];
+                                    mCurrentSpectrum.IntensityList = new float[((int)Math.Round(sngDataArray.Length / 2d))];
+
+                                    if ((mCurrentSpectrum.PeaksPairOrder ?? "") == clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ)
                                     {
-                                        ref var withBlock1 = ref mCurrentSpectrum;
-                                        withBlock1.MZList = new double[((int)Math.Round(sngDataArray.Length / 2d))];
-                                        withBlock1.IntensityList = new float[((int)Math.Round(sngDataArray.Length / 2d))];
-                                        if ((mCurrentSpectrum.PeaksPairOrder ?? "") == clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ)
+                                        var loopTo = sngDataArray.Length - 1;
+                                        for (intIndex = 0; intIndex <= loopTo; intIndex += 2)
                                         {
-                                            var loopTo = sngDataArray.Length - 1;
-                                            for (intIndex = 0; intIndex <= loopTo; intIndex += 2)
-                                            {
-                                                withBlock1.IntensityList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex];
-                                                withBlock1.MZList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex + 1];
-                                            }
+                                            mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex];
+                                            mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex + 1];
                                         }
-                                        else
+                                    }
+                                    else
+                                    {
+                                        // Assume PairOrderTypes.MZandIntensity
+                                        var loopTo1 = sngDataArray.Length - 1;
+                                        for (intIndex = 0; intIndex <= loopTo1; intIndex += 2)
                                         {
-                                            // Assume PairOrderTypes.MZandIntensity
-                                            var loopTo1 = sngDataArray.Length - 1;
-                                            for (intIndex = 0; intIndex <= loopTo1; intIndex += 2)
-                                            {
-                                                withBlock1.MZList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex];
-                                                withBlock1.IntensityList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex + 1];
-                                            }
+                                            mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex];
+                                            mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex + 1];
                                         }
                                     }
 
@@ -332,28 +325,25 @@ namespace MSDataFileReader
                                     // dblDataArray now contains pairs of doubles, either m/z and intensity or intensity and m/z
                                     // Need to split this apart into two arrays
 
+                                    mCurrentSpectrum.MZList = new double[((int)Math.Round(dblDataArray.Length / 2d))];
+                                    mCurrentSpectrum.IntensityList = new float[((int)Math.Round(dblDataArray.Length / 2d))];
+                                    if ((mCurrentSpectrum.PeaksPairOrder ?? "") == clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ)
                                     {
-                                        ref var withBlock2 = ref mCurrentSpectrum;
-                                        withBlock2.MZList = new double[((int)Math.Round(dblDataArray.Length / 2d))];
-                                        withBlock2.IntensityList = new float[((int)Math.Round(dblDataArray.Length / 2d))];
-                                        if ((mCurrentSpectrum.PeaksPairOrder ?? "") == clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ)
+                                        var loopTo2 = dblDataArray.Length - 1;
+                                        for (intIndex = 0; intIndex <= loopTo2; intIndex += 2)
                                         {
-                                            var loopTo2 = dblDataArray.Length - 1;
-                                            for (intIndex = 0; intIndex <= loopTo2; intIndex += 2)
-                                            {
-                                                withBlock2.IntensityList[(int)Math.Round(intIndex / 2d)] = (float)dblDataArray[intIndex];
-                                                withBlock2.MZList[(int)Math.Round(intIndex / 2d)] = dblDataArray[intIndex + 1];
-                                            }
+                                            mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = (float)dblDataArray[intIndex];
+                                            mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = dblDataArray[intIndex + 1];
                                         }
-                                        else
+                                    }
+                                    else
+                                    {
+                                        // Assume PairOrderTypes.MZandIntensity
+                                        var loopTo3 = dblDataArray.Length - 1;
+                                        for (intIndex = 0; intIndex <= loopTo3; intIndex += 2)
                                         {
-                                            // Assume PairOrderTypes.MZandIntensity
-                                            var loopTo3 = dblDataArray.Length - 1;
-                                            for (intIndex = 0; intIndex <= loopTo3; intIndex += 2)
-                                            {
-                                                withBlock2.MZList[(int)Math.Round(intIndex / 2d)] = dblDataArray[intIndex];
-                                                withBlock2.IntensityList[(int)Math.Round(intIndex / 2d)] = (float)dblDataArray[intIndex + 1];
-                                            }
+                                            mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = dblDataArray[intIndex];
+                                            mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = (float)dblDataArray[intIndex + 1];
                                         }
                                     }
 
@@ -370,36 +360,32 @@ namespace MSDataFileReader
                             // Invalid numeric precision
                     }
 
-                    if (blnSuccess)
+                    if (blnSuccess && mCurrentSpectrum.MZList.Length != mCurrentSpectrum.DataCount)
                     {
+                        if (mCurrentSpectrum.DataCount == 0 && mCurrentSpectrum.MZList.Length > 0 && Math.Abs(mCurrentSpectrum.MZList[0] - 0d) < float.Epsilon &&
+                            Math.Abs(mCurrentSpectrum.IntensityList[0] - 0f) < float.Epsilon)
                         {
-                            ref var withBlock3 = ref mCurrentSpectrum;
-                            if (withBlock3.MZList.Length != withBlock3.DataCount)
+                            // Leave .PeaksCount at 0
+                        }
+                        else
+                        {
+                            if (mCurrentSpectrum.MZList.Length > 1 && mCurrentSpectrum.IntensityList.Length > 1)
                             {
-                                if (withBlock3.DataCount == 0 && withBlock3.MZList.Length > 0 && Math.Abs(withBlock3.MZList[0] - 0d) < float.Epsilon && Math.Abs(withBlock3.IntensityList[0] - 0f) < float.Epsilon)
+                                // Check whether the last entry has a mass and intensity of 0
+                                if (Math.Abs(mCurrentSpectrum.MZList[mCurrentSpectrum.MZList.Length - 1]) < float.Epsilon &&
+                                    Math.Abs(mCurrentSpectrum.IntensityList[mCurrentSpectrum.MZList.Length - 1]) < float.Epsilon)
                                 {
+                                    // Remove the final entry
+                                    Array.Resize(ref mCurrentSpectrum.MZList, mCurrentSpectrum.MZList.Length - 2 + 1);
+                                    Array.Resize(ref mCurrentSpectrum.IntensityList, mCurrentSpectrum.IntensityList.Length - 2 + 1);
                                 }
-                                // Leave .PeaksCount at 0
-                                else
-                                {
-                                    if (withBlock3.MZList.Length > 1 && withBlock3.IntensityList.Length > 1)
-                                    {
-                                        // Check whether the last entry has a mass and intensity of 0
-                                        if (Math.Abs(withBlock3.MZList[withBlock3.MZList.Length - 1]) < float.Epsilon && Math.Abs(withBlock3.IntensityList[withBlock3.MZList.Length - 1]) < float.Epsilon)
-                                        {
-                                            // Remove the final entry
-                                            Array.Resize(ref withBlock3.MZList, withBlock3.MZList.Length - 2 + 1);
-                                            Array.Resize(ref withBlock3.IntensityList, withBlock3.IntensityList.Length - 2 + 1);
-                                        }
-                                    }
+                            }
 
-                                    if (withBlock3.MZList.Length != withBlock3.DataCount)
-                                    {
-                                        // This shouldn't normally be necessary
-                                        OnErrorEvent("Unexpected condition in ParseBinaryData: .MZList.Length <> .DataCount and .DataCount > 0");
-                                        withBlock3.DataCount = withBlock3.MZList.Length;
-                                    }
-                                }
+                            if (mCurrentSpectrum.MZList.Length != mCurrentSpectrum.DataCount)
+                            {
+                                // This shouldn't normally be necessary
+                                OnErrorEvent("Unexpected condition in ParseBinaryData: .MZList.Length <> .DataCount and .DataCount > 0");
+                                mCurrentSpectrum.DataCount = mCurrentSpectrum.MZList.Length;
                             }
                         }
                     }
@@ -553,33 +539,32 @@ namespace MSDataFileReader
                             {
                                 blnAttributeMissing = false;
                                 {
-                                    ref var withBlock = ref mCurrentSpectrum;
-                                    withBlock.ScanCount = 1;
-                                    withBlock.ScanNumberEnd = withBlock.ScanNumber;
-                                    withBlock.MSLevel = GetAttribValue(ScanAttributeNames.msLevel, 1);
+                                    mCurrentSpectrum.ScanCount = 1;
+                                    mCurrentSpectrum.ScanNumberEnd = mCurrentSpectrum.ScanNumber;
+                                    mCurrentSpectrum.MSLevel = GetAttribValue(ScanAttributeNames.msLevel, 1);
                                     if (GetAttribValue(ScanAttributeNames.centroided, 0) == 0)
                                     {
-                                        withBlock.Centroided = false;
+                                        mCurrentSpectrum.Centroided = false;
                                     }
                                     else
                                     {
-                                        withBlock.Centroided = true;
+                                        mCurrentSpectrum.Centroided = true;
                                     }
 
                                     // ReSharper disable once UnusedVariable
                                     var intInstrumentID = GetAttribValue(ScanAttributeNames.msInstrumentID, 1);
-                                    withBlock.DataCount = GetAttribValue(ScanAttributeNames.peaksCount, 0);
-                                    withBlock.Polarity = GetAttribValue(ScanAttributeNames.polarity, "+");
-                                    withBlock.RetentionTimeMin = GetAttribTimeValueMinutes(ScanAttributeNames.retentionTime);
-                                    withBlock.ScanType = GetAttribValue(ScanAttributeNames.scanType, "");
-                                    withBlock.FilterLine = GetAttribValue(ScanAttributeNames.filterLine, "");
-                                    withBlock.StartMZ = GetAttribValue(ScanAttributeNames.startMz, 0);
-                                    withBlock.EndMZ = GetAttribValue(ScanAttributeNames.endMz, 0);
-                                    withBlock.mzRangeStart = GetAttribValue(ScanAttributeNames.lowMz, 0);
-                                    withBlock.mzRangeEnd = GetAttribValue(ScanAttributeNames.highMz, 0);
-                                    withBlock.BasePeakMZ = GetAttribValue(ScanAttributeNames.basePeakMz, 0);
-                                    withBlock.BasePeakIntensity = GetAttribValue(ScanAttributeNames.basePeakIntensity, 0);
-                                    withBlock.TotalIonCurrent = GetAttribValue(ScanAttributeNames.totIonCurrent, 0);
+                                    mCurrentSpectrum.DataCount = GetAttribValue(ScanAttributeNames.peaksCount, 0);
+                                    mCurrentSpectrum.Polarity = GetAttribValue(ScanAttributeNames.polarity, "+");
+                                    mCurrentSpectrum.RetentionTimeMin = GetAttribTimeValueMinutes(ScanAttributeNames.retentionTime);
+                                    mCurrentSpectrum.ScanType = GetAttribValue(ScanAttributeNames.scanType, "");
+                                    mCurrentSpectrum.FilterLine = GetAttribValue(ScanAttributeNames.filterLine, "");
+                                    mCurrentSpectrum.StartMZ = GetAttribValue(ScanAttributeNames.startMz, 0);
+                                    mCurrentSpectrum.EndMZ = GetAttribValue(ScanAttributeNames.endMz, 0);
+                                    mCurrentSpectrum.mzRangeStart = GetAttribValue(ScanAttributeNames.lowMz, 0);
+                                    mCurrentSpectrum.mzRangeEnd = GetAttribValue(ScanAttributeNames.highMz, 0);
+                                    mCurrentSpectrum.BasePeakMZ = GetAttribValue(ScanAttributeNames.basePeakMz, 0);
+                                    mCurrentSpectrum.BasePeakIntensity = GetAttribValue(ScanAttributeNames.basePeakIntensity, 0);
+                                    mCurrentSpectrum.TotalIonCurrent = GetAttribValue(ScanAttributeNames.totIonCurrent, 0);
                                 }
                             }
                         }
@@ -611,29 +596,31 @@ namespace MSDataFileReader
                     {
                         if (mXMLReader.HasAttributes)
                         {
+                            // mzXML 3.x files will have a contentType attribute
+                            // Earlier versions will have a pairOrder attribute
+
+                            mCurrentSpectrum.PeaksPairOrder = GetAttribValue(PeaksAttributeNames.contentType, string.Empty);
+                            if (!string.IsNullOrEmpty(mCurrentSpectrum.PeaksPairOrder))
                             {
-                                ref var withBlock1 = ref mCurrentSpectrum;
-                                // mzXML 3.x files will have a contentType attribute
-                                // Earlier versions will have a pairOrder attribute
+                                // mzXML v3.x
+                                mCurrentSpectrum.CompressionType = GetAttribValue(PeaksAttributeNames.compressionType,
+                                    clsSpectrumInfoMzXML.CompressionTypes.none);
 
-                                withBlock1.PeaksPairOrder = GetAttribValue(PeaksAttributeNames.contentType, string.Empty);
-                                if (!string.IsNullOrEmpty(withBlock1.PeaksPairOrder))
-                                {
-                                    // mzXML v3.x
-                                    withBlock1.CompressionType = GetAttribValue(PeaksAttributeNames.compressionType, clsSpectrumInfoMzXML.CompressionTypes.none);
-                                    withBlock1.CompressedLen = GetAttribValue(PeaksAttributeNames.compressedLen, 0);
-                                }
-                                else
-                                {
-                                    // mzXML v1.x or v2.x
-                                    withBlock1.PeaksPairOrder = GetAttribValue(PeaksAttributeNames.pairOrder, clsSpectrumInfoMzXML.PairOrderTypes.MZandIntensity);
-                                    withBlock1.CompressionType = clsSpectrumInfoMzXML.CompressionTypes.none;
-                                    withBlock1.CompressedLen = 0;
-                                }
-
-                                withBlock1.NumericPrecisionOfData = GetAttribValue(PeaksAttributeNames.precision, 32);
-                                withBlock1.PeaksByteOrder = GetAttribValue(PeaksAttributeNames.byteOrder, clsSpectrumInfoMzXML.ByteOrderTypes.network);
+                                mCurrentSpectrum.CompressedLen = GetAttribValue(PeaksAttributeNames.compressedLen, 0);
                             }
+                            else
+                            {
+                                // mzXML v1.x or v2.x
+                                mCurrentSpectrum.PeaksPairOrder = GetAttribValue(PeaksAttributeNames.pairOrder,
+                                    clsSpectrumInfoMzXML.PairOrderTypes.MZandIntensity);
+
+                                mCurrentSpectrum.CompressionType = clsSpectrumInfoMzXML.CompressionTypes.none;
+                                mCurrentSpectrum.CompressedLen = 0;
+                            }
+
+                            mCurrentSpectrum.NumericPrecisionOfData = GetAttribValue(PeaksAttributeNames.precision, 32);
+                            mCurrentSpectrum.PeaksByteOrder =
+                                GetAttribValue(PeaksAttributeNames.byteOrder, clsSpectrumInfoMzXML.ByteOrderTypes.network);
                         }
 
                         break;
@@ -674,22 +661,19 @@ namespace MSDataFileReader
                         if (mXMLReader.HasAttributes)
                         {
                             mInputFileStats.ScanCount = GetAttribValue(MSRunAttributeNames.scanCount, 0);
-                            {
-                                ref var withBlock2 = ref mInputFileStatsAddnl;
-                                withBlock2.StartTimeMin = GetAttribTimeValueMinutes(MSRunAttributeNames.startTime);
-                                withBlock2.EndTimeMin = GetAttribTimeValueMinutes(MSRunAttributeNames.endTime);
+                            mInputFileStatsAddnl.StartTimeMin = GetAttribTimeValueMinutes(MSRunAttributeNames.startTime);
+                            mInputFileStatsAddnl.EndTimeMin = GetAttribTimeValueMinutes(MSRunAttributeNames.endTime);
 
-                                // Note: A bug in the ReAdW software we use to create mzXML files records the .StartTime and .EndTime values in minutes but labels them as seconds
-                                // Check for this by computing the average seconds/scan
-                                // If too low, multiply the start and end times by 60
-                                if (mInputFileStats.ScanCount > 0)
+                            // Note: A bug in the ReAdW software we use to create mzXML files records the .StartTime and .EndTime values in minutes but labels them as seconds
+                            // Check for this by computing the average seconds/scan
+                            // If too low, multiply the start and end times by 60
+                            if (mInputFileStats.ScanCount > 0)
+                            {
+                                if ((mInputFileStatsAddnl.EndTimeMin - mInputFileStatsAddnl.StartTimeMin) / mInputFileStats.ScanCount * 60f < 0.1d)
                                 {
-                                    if ((withBlock2.EndTimeMin - withBlock2.StartTimeMin) / mInputFileStats.ScanCount * 60f < 0.1d)
-                                    {
-                                        // Less than 0.1 sec/scan; this is unlikely
-                                        withBlock2.StartTimeMin = withBlock2.StartTimeMin * 60f;
-                                        withBlock2.EndTimeMin = withBlock2.EndTimeMin * 60f;
-                                    }
+                                    // Less than 0.1 sec/scan; this is unlikely
+                                    mInputFileStatsAddnl.StartTimeMin = mInputFileStatsAddnl.StartTimeMin * 60f;
+                                    mInputFileStatsAddnl.EndTimeMin = mInputFileStatsAddnl.EndTimeMin * 60f;
                                 }
                             }
                         }
