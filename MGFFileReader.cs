@@ -52,11 +52,6 @@ namespace MSDataFileReader
             mScanNumberStartSaved = 0;
         }
 
-        protected override void LogErrors(string strCallingFunction, string strErrorDescription)
-        {
-            base.LogErrors("clsMGFFileReader." + strCallingFunction, strErrorDescription);
-        }
-
         /// <summary>
     /// Parse out a scan number or scan number range from strData
     /// </summary>
@@ -510,7 +505,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ReadNextSpectrum", ex.Message);
+                OnErrorEvent("Error in ReadNextSpectrum", ex);
                 objSpectrumInfo = new clsSpectrumInfoMsMsText();
             }
 

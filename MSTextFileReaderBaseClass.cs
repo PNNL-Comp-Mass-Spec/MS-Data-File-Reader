@@ -330,7 +330,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ExtractScanInfoFromDtaHeader", ex.Message);
+                OnErrorEvent("Error in ExtractScanInfoFromDtaHeader", ex);
             }
 
             return blnScanNumberFound;

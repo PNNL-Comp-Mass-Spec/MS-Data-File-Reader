@@ -260,7 +260,7 @@ namespace MSDataFileReader
                             default:
                                 {
                                     // Unknown mode
-                                    LogErrors("AdvanceFileReaders", "Unknown mode for eElementMatchMode: " + eElementMatchMode.ToString());
+                                    OnErrorEvent("Unknown mode for eElementMatchMode in AdvanceFileReaders: {0}", eElementMatchMode);
                                     return false;
                                 }
                         }
@@ -309,7 +309,7 @@ namespace MSDataFileReader
                                 if (intCharIndex >= mInFileCurrentLineText.Length)
                                 {
                                     // This shouldn't happen
-                                    LogErrors("AdvanceFileReaders", "Unexpected condition: intCharIndex >= mInFileCurrentLineText.Length");
+                                    OnErrorEvent("Unexpected condition in AdvanceFileReaders: intCharIndex >= mInFileCurrentLineText.Length");
                                     intCharIndex = mInFileCurrentLineText.Length - 1;
                                 }
                             }
@@ -341,7 +341,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("AdvanceFileReaders", ex.Message);
+                OnErrorEvent("Error in AdvanceFileReaders", ex);
                 blnMatchFound = false;
             }
 
@@ -421,7 +421,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("GetSpectrumByIndexWork", ex.Message);
+                OnErrorEvent("Error in GetSpectrumByIndexWork", ex);
             }
 
             return blnSuccess;
@@ -489,7 +489,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("GetSpectrumBySpectrumID", ex.Message);
+                OnErrorEvent("Error in GetSpectrumBySpectrumID", ex);
             }
 
             return blnSuccess;
@@ -536,7 +536,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("GetSpectrumIDList", ex.Message);
+                OnErrorEvent("Error in GetSpectrumIDList", ex);
                 SpectrumIDList = new int[0];
             }
 
@@ -587,11 +587,6 @@ namespace MSDataFileReader
             return false;
         }
 
-        protected override void LogErrors(string strCallingFunction, string strErrorDescription)
-        {
-            base.LogErrors("clsMzDataFileAccessor." + strCallingFunction, strErrorDescription);
-        }
-
         public override bool ReadAndCacheEntireFile()
         {
             // Indexes the location of each of the spectra in the input file
@@ -634,7 +629,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ReadAndCacheEntireFile", ex.Message);
+                OnErrorEvent("Error in ReadAndCacheEntireFile", ex);
                 blnSuccess = false;
             }
             finally
@@ -680,7 +675,7 @@ namespace MSDataFileReader
                         {
                             // This shouldn't normally happen
                             lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart;
-                            LogErrors("ReadMZDataFile", "Unexpected condition: mInFileCurrentCharIndex < 0");
+                            OnErrorEvent("Unexpected condition in ReadMZDataFile: mInFileCurrentCharIndex < 0");
                         }
                         else
                         {
@@ -706,7 +701,7 @@ namespace MSDataFileReader
                         // Make sure mAddNewLinesToHeader is now false
                         if (mAddNewLinesToHeader)
                         {
-                            LogErrors("ReadMZDataFile", "Unexpected condition: mAddNewLinesToHeader was True; changing to False");
+                            OnErrorEvent("Unexpected condition in ReadMZDataFile: mAddNewLinesToHeader was True; changing to False");
                             mAddNewLinesToHeader = false;
                         }
 
@@ -740,7 +735,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ReadMZDataFile", ex.Message);
+                OnErrorEvent("Error in ReadMZDataFile", ex);
                 blnSuccess = false;
             }
 

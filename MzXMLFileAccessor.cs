@@ -222,7 +222,7 @@ namespace MSDataFileReader
                             default:
                                 {
                                     // Unknown mode
-                                    LogErrors("AdvanceFileReaders", "Unknown mode for eElementMatchMode: " + eElementMatchMode.ToString());
+                                    OnErrorEvent("Unknown mode for eElementMatchMode in AdvanceFileReaders: {0}", eElementMatchMode);
                                     return false;
                                 }
                         }
@@ -271,7 +271,7 @@ namespace MSDataFileReader
                                 if (intCharIndex >= mInFileCurrentLineText.Length)
                                 {
                                     // This shouldn't happen
-                                    LogErrors("AdvanceFileReaders", "Unexpected condition: intCharIndex >= mInFileCurrentLineText.Length");
+                                    OnErrorEvent("Unexpected condition in AdvanceFileReaders: intCharIndex >= mInFileCurrentLineText.Length");
                                     intCharIndex = mInFileCurrentLineText.Length - 1;
                                 }
                             }
@@ -303,7 +303,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("AdvanceFileReaders", ex.Message);
+                OnErrorEvent("Error in AdvanceFileReaders", ex);
                 blnMatchFound = false;
             }
 
@@ -393,7 +393,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ExtractIndexOffsetFromTextStream", ex.Message);
+                OnErrorEvent("Error in ExtractIndexOffsetFromTextStream", ex);
                 lngIndexOffset = 0L;
             }
 
@@ -556,7 +556,7 @@ namespace MSDataFileReader
                         {
                             if (!clsMzXMLFileReader.ExtractMzXmlFileVersion(mXmlFileHeader, out mFileVersion))
                             {
-                                LogErrors("ValidateMZXmlFileVersion", "Unknown mzXML file version; expected text not found in mXmlFileHeader");
+                                OnErrorEvent("Unknown mzXML file version; expected text not found in mXmlFileHeader");
                             }
                         }
                     }
@@ -568,7 +568,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("GetSpectrumByIndexWork", ex.Message);
+                OnErrorEvent("Error in GetSpectrumByIndexWork", ex);
             }
 
             return blnSuccess;
@@ -778,7 +778,7 @@ namespace MSDataFileReader
 
                             if (mErrorMessage is object && mErrorMessage.Length > 0)
                             {
-                                LogErrors("LoadExistingIndex", mErrorMessage);
+                                OnErrorEvent("Error in LoadExistingIndex: {0}", mErrorMessage);
                             }
 
                             if (mIndexedSpectrumInfoCount > 0)
@@ -795,16 +795,11 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("LoadExistingIndex", ex.Message);
+                OnErrorEvent("Error in LoadExistingIndex", ex);
                 blnIndexLoaded = false;
             }
 
             return blnIndexLoaded;
-        }
-
-        protected override void LogErrors(string strCallingFunction, string strErrorDescription)
-        {
-            base.LogErrors("clsMzXMLFileAccessor." + strCallingFunction, strErrorDescription);
         }
 
         private bool ParseMzXMLOffsetIndex(string strTextStream)
@@ -923,7 +918,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ParseMzXMLOffsetIndex", ex.Message);
+                OnErrorEvent("Error in ParseMzXMLOffsetIndex", ex);
                 blnIndexLoaded = false;
             }
 
@@ -974,7 +969,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ReadAndCacheEntireFile", ex.Message);
+                OnErrorEvent("Error in ReadAndCacheEntireFile", ex);
                 blnSuccess = false;
             }
             finally
@@ -1020,7 +1015,7 @@ namespace MSDataFileReader
                         {
                             // This shouldn't normally happen
                             lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart;
-                            LogErrors("ReadMZXmlFile", "Unexpected condition: mInFileCurrentCharIndex < 0");
+                            OnErrorEvent("Unexpected condition in ReadMZXmlFile: mInFileCurrentCharIndex < 0");
                         }
                         else
                         {
@@ -1046,7 +1041,7 @@ namespace MSDataFileReader
                         // Make sure mAddNewLinesToHeader is now false
                         if (mAddNewLinesToHeader)
                         {
-                            LogErrors("ReadMZXmlFile", "Unexpected condition: mAddNewLinesToHeader was True; changing to False");
+                            OnErrorEvent("Unexpected condition in ReadMZXmlFile: mAddNewLinesToHeader was True; changing to False");
                             mAddNewLinesToHeader = false;
                         }
 
@@ -1069,7 +1064,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ReadMZXmlFile", ex.Message);
+                OnErrorEvent("Error in ReadMZXmlFile", ex);
                 blnSuccess = false;
             }
 

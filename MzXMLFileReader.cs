@@ -238,11 +238,6 @@ namespace MSDataFileReader
             }
         }
 
-        protected override void LogErrors(string strCallingFunction, string strErrorDescription)
-        {
-            base.LogErrors("clsMzXMLFileReader." + strCallingFunction, strErrorDescription);
-        }
-
         public override bool OpenFile(string strInputFilePath)
         {
             bool blnSuccess;
@@ -401,7 +396,7 @@ namespace MSDataFileReader
                                     if (withBlock3.MZList.Length != withBlock3.DataCount)
                                     {
                                         // This shouldn't normally be necessary
-                                        LogErrors("ParseBinaryData", "Unexpected condition: .MZList.Length <> .DataCount and .DataCount > 0");
+                                        OnErrorEvent("Unexpected condition in ParseBinaryData: .MZList.Length <> .DataCount and .DataCount > 0");
                                         withBlock3.DataCount = withBlock3.MZList.Length;
                                     }
                                 }
@@ -411,7 +406,7 @@ namespace MSDataFileReader
                 }
                 catch (Exception ex)
                 {
-                    LogErrors("ParseBinaryData", ex.Message);
+                    OnErrorEvent("Error in ParseBinaryData", ex);
                 }
             }
 
@@ -469,7 +464,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ParseElementContent", ex.Message);
+                OnErrorEvent("Error in ParseElementContent", ex);
             }
         }
 
@@ -494,7 +489,7 @@ namespace MSDataFileReader
                     if (mScanDepth < 0)
                     {
                         // This shouldn't happen
-                        LogErrors("ParseEndElement", "Unexpected condition: mScanDepth < 0");
+                        OnErrorEvent("Unexpected condition in ParseEndElement: mScanDepth < 0");
                         mScanDepth = 0;
                     }
                 }
@@ -506,7 +501,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ParseEndElement", ex.Message);
+                OnErrorEvent("Error in ParseEndElement", ex);
             }
         }
 
@@ -593,7 +588,7 @@ namespace MSDataFileReader
                         if (blnAttributeMissing)
                         {
                             mCurrentSpectrum.ScanNumber = 0;
-                            LogErrors("ParseStartElement", "Unable to read the \"num\" attribute for the current scan since it is missing");
+                            OnErrorEvent("Unable to read the 'num' attribute for the current scan since it is missing");
                         }
 
                         break;
@@ -789,7 +784,7 @@ namespace MSDataFileReader
                         strMessage += "; aborting read";
                     }
 
-                    LogErrors("ValidateMZXmlFileVersion", strMessage);
+                    OnErrorEvent(strMessage);
                     return;
                 }
 
@@ -811,13 +806,13 @@ namespace MSDataFileReader
                             strMessage += "; aborting read";
                         }
 
-                        LogErrors("ValidateMZXmlFileVersion", strMessage);
+                        OnErrorEvent(strMessage);
                     }
                 }
             }
             catch (Exception ex)
             {
-                LogErrors("ValidateMZXmlFileVersion", ex.Message);
+                OnErrorEvent("Error in ValidateMZXmlFileVersion", ex);
                 mFileVersion = string.Empty;
             }
         }

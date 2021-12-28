@@ -315,11 +315,6 @@ namespace MSDataFileReader
             mMostRecentSurveyScanSpectra = new Queue();
         }
 
-        protected override void LogErrors(string strCallingFunction, string strErrorDescription)
-        {
-            base.LogErrors("clsMzDataFileReader." + strCallingFunction, strErrorDescription);
-        }
-
         public override bool OpenFile(string strInputFilePath)
         {
             bool blnSuccess;
@@ -396,7 +391,7 @@ namespace MSDataFileReader
                                 else if (blnUpdatePeaksCountIfInconsistent)
                                 {
                                     // This shouldn't normally be necessary
-                                    LogErrors("ParseBinaryData (Single Precision)", "Unexpected condition: sngValues.Length <> .DataCount and .DataCount > 0");
+                                    OnErrorEvent("Unexpected condition in ParseBinaryData: sngValues.Length <> .DataCount and .DataCount > 0");
                                     withBlock.DataCount = sngValues.Length;
                                 }
                             }
@@ -405,7 +400,7 @@ namespace MSDataFileReader
                 }
                 catch (Exception ex)
                 {
-                    LogErrors("ParseBinaryData (Single Precision)", ex.Message);
+                    OnErrorEvent("Error in ParseBinaryData", ex);
                 }
             }
 
@@ -477,7 +472,7 @@ namespace MSDataFileReader
                                 else if (blnUpdatePeaksCountIfInconsistent)
                                 {
                                     // This shouldn't normally be necessary
-                                    LogErrors("ParseBinaryData (Double Precision)", "Unexpected condition: sngValues.Length <> .DataCount and .DataCount > 0");
+                                    OnErrorEvent("Unexpected condition in ParseBinaryData: sngValues.Length <> .DataCount and .DataCount > 0");
                                     withBlock.DataCount = dblValues.Length;
                                 }
                             }
@@ -486,7 +481,7 @@ namespace MSDataFileReader
                 }
                 catch (Exception ex)
                 {
-                    LogErrors("ParseBinaryData (Double Precision)", ex.Message);
+                    OnErrorEvent("Error in ParseBinaryData", ex);
                 }
             }
 
@@ -553,7 +548,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ParseElementContent", ex.Message);
+                OnErrorEvent("Error in ParseElementContent", ex);
             }
         }
 
@@ -579,7 +574,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ParseEndElement", ex.Message);
+                OnErrorEvent("Error in ParseEndElement", ex);
             }
         }
 
@@ -1037,13 +1032,13 @@ namespace MSDataFileReader
                             strMessage += "; aborting read";
                         }
 
-                        LogErrors("ValidateMZDataFileVersion", strMessage);
+                        OnErrorEvent("Error in ValidateMZDataFileVersion: {0}", strMessage);
                     }
                 }
             }
             catch (Exception ex)
             {
-                LogErrors("ValidateMZDataFileVersion", ex.Message);
+                OnErrorEvent("Error in ValidateMZDataFileVersion", ex);
                 mFileVersion = string.Empty;
             }
         }

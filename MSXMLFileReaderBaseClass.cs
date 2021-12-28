@@ -3,6 +3,7 @@ using System.Collections;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
+using PRISM;
 
 namespace MSDataFileReader
 {
@@ -643,7 +644,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ReadNextSpectrum", ex.Message);
+                OnErrorEvent("Error in ReadNextSpectrum", ex);
                 objSpectrumInfo = new clsSpectrumInfo();
             }
 

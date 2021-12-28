@@ -1,6 +1,7 @@
 ﻿using System;
 using System.IO;
 using System.Text;
+using PRISM;
 
 namespace MSDataFileReader
 {
@@ -43,7 +44,7 @@ namespace MSDataFileReader
     // this computer software.
     // 
 
-    public class clsBinaryTextReader
+    public class clsBinaryTextReader : EventNotifier
     {
         public clsBinaryTextReader()
         {
@@ -389,121 +390,7 @@ namespace MSDataFileReader
             mCurrentLineTextSaved = string.Empty;
             InitializeCurrentLine();
         }
-
-        private void LogErrors(string strCallingFunction, string strErrorDescription)
-        {
-            ;
-#error Cannot convert LocalDeclarationStatementSyntax - see comment for details
-            /* Cannot convert LocalDeclarationStatementSyntax, System.NotSupportedException: StaticKeyword not supported!
-               at ICSharpCode.CodeConverter.CSharp.SyntaxKindExtensions.ConvertToken(SyntaxKind t, TokenContext context)
-               at ICSharpCode.CodeConverter.CSharp.CommonConversions.ConvertModifier(SyntaxToken m, TokenContext context)
-               at ICSharpCode.CodeConverter.CSharp.CommonConversions.<ConvertModifiersCore>d__49.MoveNext()
-               at System.Linq.Enumerable.<ConcatIterator>d__59`1.MoveNext()
-               at System.Linq.Enumerable.WhereEnumerableIterator`1.MoveNext()
-               at System.Linq.Buffer`1..ctor(IEnumerable`1 source)
-               at System.Linq.OrderedEnumerable`1.<GetEnumerator>d__1.MoveNext()
-               at Microsoft.CodeAnalysis.SyntaxTokenList.CreateNode(IEnumerable`1 tokens)
-               at ICSharpCode.CodeConverter.CSharp.CommonConversions.ConvertModifiers(SyntaxNode node, IReadOnlyCollection`1 modifiers, TokenContext context, Boolean isVariableOrConst, SyntaxKind[] extraCsModifierKinds)
-               at ICSharpCode.CodeConverter.CSharp.MethodBodyExecutableStatementVisitor.<VisitLocalDeclarationStatement>d__31.MoveNext()
-            --- End of stack trace from previous location where exception was thrown ---
-               at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
-               at ICSharpCode.CodeConverter.CSharp.HoistedNodeStateVisitor.<AddLocalVariablesAsync>d__6.MoveNext()
-            --- End of stack trace from previous location where exception was thrown ---
-               at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
-               at ICSharpCode.CodeConverter.CSharp.CommentConvertingMethodBodyVisitor.<DefaultVisitInnerAsync>d__3.MoveNext()
-
-            Input:
-
-                    Static LastCallingFunction As String
-
-             */
-            ;
-#error Cannot convert LocalDeclarationStatementSyntax - see comment for details
-            /* Cannot convert LocalDeclarationStatementSyntax, System.NotSupportedException: StaticKeyword not supported!
-               at ICSharpCode.CodeConverter.CSharp.SyntaxKindExtensions.ConvertToken(SyntaxKind t, TokenContext context)
-               at ICSharpCode.CodeConverter.CSharp.CommonConversions.ConvertModifier(SyntaxToken m, TokenContext context)
-               at ICSharpCode.CodeConverter.CSharp.CommonConversions.<ConvertModifiersCore>d__49.MoveNext()
-               at System.Linq.Enumerable.<ConcatIterator>d__59`1.MoveNext()
-               at System.Linq.Enumerable.WhereEnumerableIterator`1.MoveNext()
-               at System.Linq.Buffer`1..ctor(IEnumerable`1 source)
-               at System.Linq.OrderedEnumerable`1.<GetEnumerator>d__1.MoveNext()
-               at Microsoft.CodeAnalysis.SyntaxTokenList.CreateNode(IEnumerable`1 tokens)
-               at ICSharpCode.CodeConverter.CSharp.CommonConversions.ConvertModifiers(SyntaxNode node, IReadOnlyCollection`1 modifiers, TokenContext context, Boolean isVariableOrConst, SyntaxKind[] extraCsModifierKinds)
-               at ICSharpCode.CodeConverter.CSharp.MethodBodyExecutableStatementVisitor.<VisitLocalDeclarationStatement>d__31.MoveNext()
-            --- End of stack trace from previous location where exception was thrown ---
-               at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
-               at ICSharpCode.CodeConverter.CSharp.HoistedNodeStateVisitor.<AddLocalVariablesAsync>d__6.MoveNext()
-            --- End of stack trace from previous location where exception was thrown ---
-               at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
-               at ICSharpCode.CodeConverter.CSharp.CommentConvertingMethodBodyVisitor.<DefaultVisitInnerAsync>d__3.MoveNext()
-
-            Input:
-                    Static LastErrorMessage As String
-
-             */
-            ;
-#error Cannot convert LocalDeclarationStatementSyntax - see comment for details
-            /* Cannot convert LocalDeclarationStatementSyntax, System.NotSupportedException: StaticKeyword not supported!
-               at ICSharpCode.CodeConverter.CSharp.SyntaxKindExtensions.ConvertToken(SyntaxKind t, TokenContext context)
-               at ICSharpCode.CodeConverter.CSharp.CommonConversions.ConvertModifier(SyntaxToken m, TokenContext context)
-               at ICSharpCode.CodeConverter.CSharp.CommonConversions.<ConvertModifiersCore>d__49.MoveNext()
-               at System.Linq.Enumerable.<ConcatIterator>d__59`1.MoveNext()
-               at System.Linq.Enumerable.WhereEnumerableIterator`1.MoveNext()
-               at System.Linq.Buffer`1..ctor(IEnumerable`1 source)
-               at System.Linq.OrderedEnumerable`1.<GetEnumerator>d__1.MoveNext()
-               at Microsoft.CodeAnalysis.SyntaxTokenList.CreateNode(IEnumerable`1 tokens)
-               at ICSharpCode.CodeConverter.CSharp.CommonConversions.ConvertModifiers(SyntaxNode node, IReadOnlyCollection`1 modifiers, TokenContext context, Boolean isVariableOrConst, SyntaxKind[] extraCsModifierKinds)
-               at ICSharpCode.CodeConverter.CSharp.MethodBodyExecutableStatementVisitor.<VisitLocalDeclarationStatement>d__31.MoveNext()
-            --- End of stack trace from previous location where exception was thrown ---
-               at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
-               at ICSharpCode.CodeConverter.CSharp.HoistedNodeStateVisitor.<AddLocalVariablesAsync>d__6.MoveNext()
-            --- End of stack trace from previous location where exception was thrown ---
-               at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
-               at ICSharpCode.CodeConverter.CSharp.CommentConvertingMethodBodyVisitor.<DefaultVisitInnerAsync>d__3.MoveNext()
-
-            Input:
-                    Static LastSaveTime As Global.System.DateTime
-
-             */
-            try
-            {
-                if (strErrorDescription is object)
-                {
-                    mErrorMessage = string.Copy(strErrorDescription);
-                }
-                else
-                {
-                    mErrorMessage = "Unknown error";
-                }
-
-                if (LastCallingFunction is object)
-                {
-                    if ((LastCallingFunction ?? "") == (strCallingFunction ?? "") && (LastErrorMessage ?? "") == (strErrorDescription ?? ""))
-                    {
-                        if (DateTime.UtcNow.Subtract(LastSaveTime).TotalSeconds < 0.5d)
-                        {
-                            // Duplicate message, less than 500 milliseconds since the last save
-                            // Do not update the log file
-                            return;
-                        }
-                    }
-                }
-
-                LastCallingFunction = string.Copy(strCallingFunction);
-                LastErrorMessage = string.Copy(strErrorDescription);
-                LastSaveTime = DateTime.UtcNow;
-                string strLogFilePath = "MSDataFileReader_ErrorLog.txt";
-                using (var swErrorLog = new StreamWriter(new FileStream(strLogFilePath, FileMode.Append, FileAccess.Write, FileShare.ReadWrite)))
-                {
-                    swErrorLog.WriteLine(Conversions.ToString(DateTime.Now) + ControlChars.Tab + strCallingFunction + ControlChars.Tab + mErrorMessage);
-                }
-            }
-            catch (Exception ex)
-            {
-                // Ignore errors that occur while logging errors
-            }
-        }
-
+        
         public void MoveToByteOffset(long lngByteOffset)
         {
             int intBytesRead;
@@ -588,7 +475,7 @@ namespace MSDataFileReader
             {
                 if (mInputFilePath is null)
                     mInputFilePath = string.Empty;
-                LogErrors("MoveToByteOffset", "Error moving to byte offset " + lngByteOffset.ToString() + " in file " + mInputFilePath + "; " + ex.Message);
+                OnErrorEvent(string.Format("Error moving to byte offset {0} in file {1}", lngByteOffset, mInputFilePath), ex);
             }
         }
 
@@ -699,7 +586,7 @@ namespace MSDataFileReader
             {
                 if (mInputFilePath is null)
                     mInputFilePath = string.Empty;
-                LogErrors("MoveToBeginning", "Error moving to beginning of file " + mInputFilePath + "; " + ex.Message);
+                OnErrorEvent("Error moving to beginning of file " + mInputFilePath, ex);
             }
         }
 
@@ -716,7 +603,7 @@ namespace MSDataFileReader
             {
                 if (mInputFilePath is null)
                     mInputFilePath = string.Empty;
-                LogErrors("MoveToEnd", "Error moving to end of file " + mInputFilePath + "; " + ex.Message);
+                OnErrorEvent("Error moving to end of file " + mInputFilePath, ex);
             }
         }
 
@@ -771,7 +658,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("OpenFile", "Error opening file: " + InputFilePath + "; " + ex.Message);
+                OnErrorEvent("Error opening file " + InputFilePath, ex);
                 blnSuccess = false;
             }
 
@@ -1330,7 +1217,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ReadLine", ex.Message);
+                OnErrorEvent("Error reading data line", ex);
                 blnMatchFound = false;
             }
 

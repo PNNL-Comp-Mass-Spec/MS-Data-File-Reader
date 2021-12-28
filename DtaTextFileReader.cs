@@ -71,11 +71,6 @@ namespace MSDataFileReader
             mHeaderSaved = string.Empty;
         }
 
-        protected override void LogErrors(string strCallingFunction, string strErrorDescription)
-        {
-            base.LogErrors("clsDtaTextFileReader." + strCallingFunction, strErrorDescription);
-        }
-
         public override bool ReadNextSpectrum(out clsSpectrumInfo objSpectrumInfo)
         {
             // Reads the next spectrum from a _Dta.txt file
@@ -273,7 +268,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ReadNextSpectrum", ex.Message);
+                OnErrorEvent("Error in ReadNextSpectrum", ex);
                 objSpectrumInfo = new clsSpectrumInfo();
             }
 
@@ -352,7 +347,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ReadSingleDtaFile", ex.Message);
+                OnErrorEvent("Error in ReadSingleDtaFile", ex);
                 objSpectrumInfoMsMsText = new clsSpectrumInfoMsMsText();
                 strMsMsDataList = new string[1];
             }

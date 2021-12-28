@@ -199,7 +199,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ExtractXMLText", ex.Message);
+                OnErrorEvent("Error in ExtractXMLText", ex);
             }
 
             // If we get here, then no match was found, so return an empty string
@@ -230,7 +230,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("ExtractTextFromFile", ex.Message);
+                OnErrorEvent("Error in ExtractTextFromFile", ex);
                 strExtractedText = string.Empty;
             }
 
@@ -292,7 +292,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("GetScanNumberList", ex.Message);
+                OnErrorEvent("Error in GetScanNumberList", ex);
                 ScanNumberList = new int[0];
             }
 
@@ -348,7 +348,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("GetSourceXMLByIndex", ex.Message);
+                OnErrorEvent("Error in GetSourceXMLByIndex", ex);
             }
 
             return blnSuccess;
@@ -405,7 +405,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("GetSourceXMLByScanNumber", ex.Message);
+                OnErrorEvent("Error in GetSourceXMLByScanNumber", ex);
             }
 
             return blnSuccess;
@@ -436,7 +436,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("GetSpectrumByIndex", ex.Message);
+                OnErrorEvent("Error in GetSpectrumByIndex", ex);
                 objSpectrumInfo = null;
             }
 
@@ -506,7 +506,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                LogErrors("GetSpectrumByScanNumberWork", ex.Message);
+                OnErrorEvent("Error in GetSpectrumByScanNumberWork", ex);
             }
 
             return blnSuccess;
@@ -586,11 +586,6 @@ namespace MSDataFileReader
         // This function should be defined to look for an existing byte offset index and, if found,
         // populate mIndexedSpectrumInfo() and set mIndexingComplete = True
         protected abstract bool LoadExistingIndex();
-
-        protected override void LogErrors(string strCallingFunction, string strErrorDescription)
-        {
-            base.LogErrors("clsMSDataFileAccessorBaseClass." + strCallingFunction, strErrorDescription);
-        }
 
         public override bool OpenFile(string strInputFilePath)
         {
