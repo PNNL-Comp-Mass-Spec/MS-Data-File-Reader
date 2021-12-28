@@ -154,7 +154,7 @@ namespace MSDataFileReader
                     {
                         if (blnAppendingText)
                         {
-                            strInFileCurrentLineSubstring += ControlChars.NewLine + mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1);
+                            strInFileCurrentLineSubstring += Environment.NewLine + mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1);
                         }
                         else
                         {
@@ -182,12 +182,12 @@ namespace MSDataFileReader
                             else
                             {
                                 // Append mInFileCurrentLineText to mXmlFileHeader
-                                mXmlFileHeader += mInFileCurrentLineText + ControlChars.NewLine;
+                                mXmlFileHeader += mInFileCurrentLineText + Environment.NewLine;
                             }
                         }
                         else if (blnLookForScanCountOnNextRead)
                         {
-                            strScanCountSearchText += ControlChars.NewLine + strInFileCurrentLineSubstring;
+                            strScanCountSearchText += Environment.NewLine + strInFileCurrentLineSubstring;
                         }
 
                         if (blnLookForScanCountOnNextRead)
@@ -220,7 +220,7 @@ namespace MSDataFileReader
 
                         if (eElementMatchMode == emmElementMatchModeConstants.EndElement && !blnAcqNumberFound)
                         {
-                            strAcqNumberSearchText += ControlChars.NewLine + strInFileCurrentLineSubstring;
+                            strAcqNumberSearchText += Environment.NewLine + strInFileCurrentLineSubstring;
 
                             // Look for the acquisition number
                             // Because strAcqNumberSearchText contains all of the text from <spectrum on (i.e. not just the text for the current line)
@@ -352,7 +352,7 @@ namespace MSDataFileReader
         [Obsolete("No longer used")]
         public override string GetSourceXMLFooter()
         {
-            return SPECTRUM_LIST_END_ELEMENT + ControlChars.NewLine + MZDATA_END_ELEMENT + ControlChars.NewLine;
+            return SPECTRUM_LIST_END_ELEMENT + Environment.NewLine + MZDATA_END_ELEMENT + Environment.NewLine;
         }
 
         [Obsolete("No longer used")]
@@ -365,13 +365,13 @@ namespace MSDataFileReader
             strHeaderText = string.Copy(mXmlFileHeader);
             if (strHeaderText.Length == 0)
             {
-                strHeaderText = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + ControlChars.NewLine + MZDATA_START_ELEMENT + " version=\"1.05\" accessionNumber=\"psi-ms:100\"" + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" + ControlChars.NewLine;
+                strHeaderText = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + Environment.NewLine + MZDATA_START_ELEMENT + " version=\"1.05\" accessionNumber=\"psi-ms:100\"" + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" + Environment.NewLine;
             }
 
             intAsciiValue = Convert.ToInt32(strHeaderText[strHeaderText.Length - 1]);
             if (!(intAsciiValue == 10 || intAsciiValue == 13 || intAsciiValue == 9 || intAsciiValue == 32))
             {
-                strHeaderText += ControlChars.NewLine;
+                strHeaderText += Environment.NewLine;
             }
 
             return strHeaderText + " " + SPECTRUM_LIST_START_ELEMENT + " count=\"" + intScanCountTotal + "\">";

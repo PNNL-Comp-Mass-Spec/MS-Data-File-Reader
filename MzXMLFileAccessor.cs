@@ -145,7 +145,7 @@ namespace MSDataFileReader
                     {
                         if (blnAppendingText)
                         {
-                            strInFileCurrentLineSubstring += ControlChars.NewLine + mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1);
+                            strInFileCurrentLineSubstring += Environment.NewLine + mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1);
                         }
                         else
                         {
@@ -173,7 +173,7 @@ namespace MSDataFileReader
                             else
                             {
                                 // Append mInFileCurrentLineText to mXmlFileHeader
-                                mXmlFileHeader += mInFileCurrentLineText + ControlChars.NewLine;
+                                mXmlFileHeader += mInFileCurrentLineText + Environment.NewLine;
                             }
                         }
 
@@ -435,7 +435,7 @@ namespace MSDataFileReader
                     intAsciiValue = Convert.ToInt32(strExtractedText[strExtractedText.Length - 1]);
                     if (!(intAsciiValue == 10 || intAsciiValue == 13 || intAsciiValue == 9 || intAsciiValue == 32))
                     {
-                        strExtractedText += ControlChars.NewLine + SCAN_END_ELEMENT;
+                        strExtractedText += Environment.NewLine + SCAN_END_ELEMENT;
                     }
                     else
                     {
@@ -443,7 +443,7 @@ namespace MSDataFileReader
                     }
                 }
 
-                strExtractedText += ControlChars.NewLine;
+                strExtractedText += Environment.NewLine;
             }
 
             return strExtractedText;
@@ -452,7 +452,7 @@ namespace MSDataFileReader
         [Obsolete("No longer used")]
         public override string GetSourceXMLFooter()
         {
-            return MSRUN_END_ELEMENT + ControlChars.NewLine + MZXML_END_ELEMENT + ControlChars.NewLine;
+            return MSRUN_END_ELEMENT + Environment.NewLine + MZXML_END_ELEMENT + Environment.NewLine;
         }
 
         [Obsolete("No longer used")]
@@ -474,7 +474,7 @@ namespace MSDataFileReader
                 strEndTimeSOAP = clsMSXMLFileReaderBaseClass.ConvertTimeFromTimespanToXmlDuration(new TimeSpan((long)Math.Round(sngEndTimeMinutesAllScans * TimeSpan.TicksPerMinute)), true);
                 if (strHeaderText.Length == 0)
                 {
-                    strHeaderText = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>" + ControlChars.NewLine + MZXML_START_ELEMENT + " xmlns=\"http://sashimi.sourceforge.net/schema_revision/mzXML_2.0\"" + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" + " xsi:schemaLocation=\"http://sashimi.sourceforge.net/schema_revision/mzXML_2.0" + " http://sashimi.sourceforge.net/schema_revision/mzXML_2.0/mzXML_idx_2.0.xsd\">" + ControlChars.NewLine + MSRUN_START_ELEMENT + " scanCount=\"" + intScanCountTotal.ToString() + "\"" + " startTime = \"" + strStartTimeSOAP + "\"" + " endTime = \"" + strEndTimeSOAP + "\">" + ControlChars.NewLine;
+                    strHeaderText = "<?xml version=\"1.0\" encoding=\"ISO-8859-1\"?>" + Environment.NewLine + MZXML_START_ELEMENT + " xmlns=\"http://sashimi.sourceforge.net/schema_revision/mzXML_2.0\"" + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\"" + " xsi:schemaLocation=\"http://sashimi.sourceforge.net/schema_revision/mzXML_2.0" + " http://sashimi.sourceforge.net/schema_revision/mzXML_2.0/mzXML_idx_2.0.xsd\">" + Environment.NewLine + MSRUN_START_ELEMENT + " scanCount=\"" + intScanCountTotal.ToString() + "\"" + " startTime = \"" + strStartTimeSOAP + "\"" + " endTime = \"" + strEndTimeSOAP + "\">" + Environment.NewLine;
                 }
                 else
                 {
@@ -501,7 +501,7 @@ namespace MSDataFileReader
                 intAsciiValue = Convert.ToInt32(strHeaderText[strHeaderText.Length - 1]);
                 if (!(intAsciiValue == 10 || intAsciiValue == 13 || intAsciiValue == 9 || intAsciiValue == 32))
                 {
-                    strHeaderText += ControlChars.NewLine;
+                    strHeaderText += Environment.NewLine;
                 }
             }
             catch (Exception ex)
@@ -666,7 +666,7 @@ namespace MSDataFileReader
                                 // Verify that strCurrentLine contains "<index"
                                 if (strCurrentLine.IndexOf(INDEX_START_ELEMENT, StringComparison.Ordinal) >= 0)
                                 {
-                                    strCurrentLine = MZXML_START_ELEMENT + ">" + ControlChars.NewLine + strCurrentLine;
+                                    strCurrentLine = MZXML_START_ELEMENT + ">" + Environment.NewLine + strCurrentLine;
                                     blnExtractTextToEOF = true;
                                 }
                                 else

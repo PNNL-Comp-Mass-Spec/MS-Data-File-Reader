@@ -122,7 +122,7 @@ namespace MSDataFileReader
             string strLineIn;
             string strTemp;
             string[] strSplitLine;
-            var strSepChars = new char[] { ' ', ControlChars.Tab };
+            var strSepChars = new char[] { ' ', '\t' };
             int intIndex;
             int charIndex;
             int intLastProgressUpdateLine;

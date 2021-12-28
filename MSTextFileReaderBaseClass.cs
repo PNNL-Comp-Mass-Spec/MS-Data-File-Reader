@@ -157,8 +157,8 @@ namespace MSDataFileReader
                 strCommentIn = strCommentIn.TrimEnd(strCommentChar).Trim();
                 if (blnRemoveQuoteMarks)
                 {
-                    strCommentIn = strCommentIn.TrimStart(ControlChars.Quote);
-                    strCommentIn = strCommentIn.TrimEnd(ControlChars.Quote);
+                    strCommentIn = strCommentIn.TrimStart('"');
+                    strCommentIn = strCommentIn.TrimEnd('"');
                 }
 
                 strCommentIn = strCommentIn.Trim();
@@ -177,9 +177,9 @@ namespace MSDataFileReader
 
             if (blnAddCrLfIfNeeded)
             {
-                if (!(strNewText.EndsWith(Conversions.ToString(ControlChars.Cr)) | strNewText.EndsWith(Conversions.ToString(ControlChars.Lf))))
+                if (!(strNewText.EndsWith("\r") || strNewText.EndsWith("\n")))
                 {
-                    strNewText += ControlChars.NewLine;
+                    strNewText += Environment.NewLine;
                 }
             }
 

@@ -226,7 +226,7 @@ namespace MSDataFileReader
             var blnSuccess = default(bool);
             try
             {
-                strExtractedText = GetSourceXMLHeader(intScanCountTotal, sngStartTimeMinutesAllScans, sngEndTimeMinutesAllScans) + ControlChars.NewLine + ExtractTextBetweenOffsets(strFilePath, lngStartByteOffset, lngEndByteOffset) + ControlChars.NewLine + GetSourceXMLFooter();
+                strExtractedText = GetSourceXMLHeader(intScanCountTotal, sngStartTimeMinutesAllScans, sngEndTimeMinutesAllScans) + Environment.NewLine + ExtractTextBetweenOffsets(strFilePath, lngStartByteOffset, lngEndByteOffset) + Environment.NewLine + GetSourceXMLFooter();
                 blnSuccess = true;
             }
             catch (Exception ex)
