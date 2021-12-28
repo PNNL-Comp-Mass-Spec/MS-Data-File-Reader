@@ -256,141 +256,137 @@ namespace MSDataFileReader
                 return false;
             }
 
-            var blnSuccess = false;
             if (strMSMSDataBase64Encoded is null || strMSMSDataBase64Encoded.Length == 0)
             {
                 mCurrentSpectrum.DataCount = 0;
                 mCurrentSpectrum.MZList = new double[0];
                 mCurrentSpectrum.IntensityList = new float[0];
+                return false;
             }
-            else
+
+            try
             {
-                try
+                var zLibCompressed = strCompressionType.Equals(clsSpectrumInfoMzXML.CompressionTypes.zlib);
+
+                int intIndex;
+                var success = false;
+
+                switch (mCurrentSpectrum.NumericPrecisionOfData)
                 {
-                    var zLibCompressed = false;
-                    if ((strCompressionType ?? "") == clsSpectrumInfoMzXML.CompressionTypes.zlib)
-                    {
-                        zLibCompressed = true;
-                    }
-                    else
-                    {
-                        zLibCompressed = false;
-                    }
-
-                    int intIndex;
-                    switch (mCurrentSpectrum.NumericPrecisionOfData)
-                    {
-                        case 32:
-                            float[] sngDataArray = null;
-                            if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out sngDataArray, zLibCompressed, eEndianMode))
-                            {
-                                // sngDataArray now contains pairs of singles, either m/z and intensity or intensity and m/z
-                                // Need to split this apart into two arrays
-
-                                mCurrentSpectrum.MZList = new double[(int)Math.Round(sngDataArray.Length / 2d)];
-                                mCurrentSpectrum.IntensityList = new float[(int)Math.Round(sngDataArray.Length / 2d)];
-
-                                if ((mCurrentSpectrum.PeaksPairOrder ?? "") == clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ)
-                                {
-                                    var loopTo = sngDataArray.Length - 1;
-                                    for (intIndex = 0; intIndex <= loopTo; intIndex += 2)
-                                    {
-                                        mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex];
-                                        mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex + 1];
-                                    }
-                                }
-                                else
-                                {
-                                    // Assume PairOrderTypes.MZandIntensity
-                                    var loopTo1 = sngDataArray.Length - 1;
-                                    for (intIndex = 0; intIndex <= loopTo1; intIndex += 2)
-                                    {
-                                        mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex];
-                                        mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex + 1];
-                                    }
-                                }
-
-                                blnSuccess = true;
-                            }
-
-                            break;
-
-                        case 64:
-                            double[] dblDataArray = null;
-                            if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out dblDataArray, zLibCompressed, eEndianMode))
-                            {
-                                // dblDataArray now contains pairs of doubles, either m/z and intensity or intensity and m/z
-                                // Need to split this apart into two arrays
-
-                                mCurrentSpectrum.MZList = new double[(int)Math.Round(dblDataArray.Length / 2d)];
-                                mCurrentSpectrum.IntensityList = new float[(int)Math.Round(dblDataArray.Length / 2d)];
-                                if ((mCurrentSpectrum.PeaksPairOrder ?? "") == clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ)
-                                {
-                                    var loopTo2 = dblDataArray.Length - 1;
-                                    for (intIndex = 0; intIndex <= loopTo2; intIndex += 2)
-                                    {
-                                        mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = (float)dblDataArray[intIndex];
-                                        mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = dblDataArray[intIndex + 1];
-                                    }
-                                }
-                                else
-                                {
-                                    // Assume PairOrderTypes.MZandIntensity
-                                    var loopTo3 = dblDataArray.Length - 1;
-                                    for (intIndex = 0; intIndex <= loopTo3; intIndex += 2)
-                                    {
-                                        mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = dblDataArray[intIndex];
-                                        mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = (float)dblDataArray[intIndex + 1];
-                                    }
-                                }
-
-                                blnSuccess = true;
-                            }
-
-                            break;
-
-                        default:
-                            break;
-                            // Invalid numeric precision
-                    }
-
-                    if (blnSuccess && mCurrentSpectrum.MZList.Length != mCurrentSpectrum.DataCount)
-                    {
-                        if (mCurrentSpectrum.DataCount == 0 && mCurrentSpectrum.MZList.Length > 0 && Math.Abs(mCurrentSpectrum.MZList[0] - 0d) < float.Epsilon &&
-                            Math.Abs(mCurrentSpectrum.IntensityList[0] - 0f) < float.Epsilon)
+                    case 32:
+                        if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
                         {
-                            // Leave .PeaksCount at 0
-                        }
-                        else
-                        {
-                            if (mCurrentSpectrum.MZList.Length > 1 && mCurrentSpectrum.IntensityList.Length > 1)
+                            // sngDataArray now contains pairs of singles, either m/z and intensity or intensity and m/z
+                            // Need to split this apart into two arrays
+
+                            mCurrentSpectrum.MZList = new double[(int)Math.Round(sngDataArray.Length / 2d)];
+                            mCurrentSpectrum.IntensityList = new float[(int)Math.Round(sngDataArray.Length / 2d)];
+
+                            if ((mCurrentSpectrum.PeaksPairOrder ?? "") == clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ)
                             {
-                                // Check whether the last entry has a mass and intensity of 0
-                                if (Math.Abs(mCurrentSpectrum.MZList[mCurrentSpectrum.MZList.Length - 1]) < float.Epsilon &&
-                                    Math.Abs(mCurrentSpectrum.IntensityList[mCurrentSpectrum.MZList.Length - 1]) < float.Epsilon)
+                                var loopTo = sngDataArray.Length - 1;
+                                for (intIndex = 0; intIndex <= loopTo; intIndex += 2)
                                 {
-                                    // Remove the final entry
-                                    Array.Resize(ref mCurrentSpectrum.MZList, mCurrentSpectrum.MZList.Length - 2 + 1);
-                                    Array.Resize(ref mCurrentSpectrum.IntensityList, mCurrentSpectrum.IntensityList.Length - 2 + 1);
+                                    mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex];
+                                    mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex + 1];
+                                }
+                            }
+                            else
+                            {
+                                // Assume PairOrderTypes.MZandIntensity
+                                var loopTo1 = sngDataArray.Length - 1;
+                                for (intIndex = 0; intIndex <= loopTo1; intIndex += 2)
+                                {
+                                    mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex];
+                                    mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex + 1];
                                 }
                             }
 
-                            if (mCurrentSpectrum.MZList.Length != mCurrentSpectrum.DataCount)
-                            {
-                                // This shouldn't normally be necessary
-                                OnErrorEvent("Unexpected condition in ParseBinaryData: .MZList.Length <> .DataCount and .DataCount > 0");
-                                mCurrentSpectrum.DataCount = mCurrentSpectrum.MZList.Length;
-                            }
+                            success = true;
                         }
+
+                        break;
+
+                    case 64:
+                        if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
+                        {
+                            // dblDataArray now contains pairs of doubles, either m/z and intensity or intensity and m/z
+                            // Need to split this apart into two arrays
+
+                            mCurrentSpectrum.MZList = new double[(int)Math.Round(dblDataArray.Length / 2d)];
+                            mCurrentSpectrum.IntensityList = new float[(int)Math.Round(dblDataArray.Length / 2d)];
+                            if ((mCurrentSpectrum.PeaksPairOrder ?? "") == clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ)
+                            {
+                                var loopTo2 = dblDataArray.Length - 1;
+                                for (intIndex = 0; intIndex <= loopTo2; intIndex += 2)
+                                {
+                                    mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = (float)dblDataArray[intIndex];
+                                    mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = dblDataArray[intIndex + 1];
+                                }
+                            }
+                            else
+                            {
+                                // Assume PairOrderTypes.MZandIntensity
+                                var loopTo3 = dblDataArray.Length - 1;
+                                for (intIndex = 0; intIndex <= loopTo3; intIndex += 2)
+                                {
+                                    mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = dblDataArray[intIndex];
+                                    mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = (float)dblDataArray[intIndex + 1];
+                                }
+                            }
+
+                            success = true;
+                        }
+
+                        break;
+
+                    default:
+                        // Invalid numeric precision
+                        break;
+                }
+
+                if (!success)
+                    return false;
+
+                if (mCurrentSpectrum.MZList.Length == mCurrentSpectrum.DataCount)
+                {
+                    return true;
+                }
+
+                if (mCurrentSpectrum.DataCount == 0 && mCurrentSpectrum.MZList.Length > 0 &&
+                    Math.Abs(mCurrentSpectrum.MZList[0] - 0d) < float.Epsilon &&
+                    Math.Abs(mCurrentSpectrum.IntensityList[0] - 0f) < float.Epsilon)
+                {
+                    // Leave .PeaksCount at 0
+                    return true;
+                }
+
+                if (mCurrentSpectrum.MZList.Length > 1 && mCurrentSpectrum.IntensityList.Length > 1)
+                {
+                    // Check whether the last entry has a mass and intensity of 0
+                    if (Math.Abs(mCurrentSpectrum.MZList[mCurrentSpectrum.MZList.Length - 1]) < float.Epsilon &&
+                        Math.Abs(mCurrentSpectrum.IntensityList[mCurrentSpectrum.MZList.Length - 1]) < float.Epsilon)
+                    {
+                        // Remove the final entry
+                        Array.Resize(ref mCurrentSpectrum.MZList, mCurrentSpectrum.MZList.Length - 2 + 1);
+                        Array.Resize(ref mCurrentSpectrum.IntensityList, mCurrentSpectrum.IntensityList.Length - 2 + 1);
                     }
                 }
-                catch (Exception ex)
+
+                if (mCurrentSpectrum.MZList.Length != mCurrentSpectrum.DataCount)
                 {
-                    OnErrorEvent("Error in ParseBinaryData", ex);
+                    // This shouldn't normally be necessary
+                    OnErrorEvent("Unexpected condition in ParseBinaryData: .MZList.Length <> .DataCount and .DataCount > 0");
+                    mCurrentSpectrum.DataCount = mCurrentSpectrum.MZList.Length;
                 }
+
+                return true;
             }
-
-            return blnSuccess;
+            catch (Exception ex)
+            {
+                OnErrorEvent("Error in ParseBinaryData", ex);
+                return false;
+            }
         }
 
         protected override void ParseElementContent()
@@ -428,9 +424,6 @@ namespace MSDataFileReader
                             if (!mSkipBinaryData)
                             {
                                 ParseBinaryData(XMLTextReaderGetInnerText(), mCurrentSpectrum.CompressionType);
-                            }
-                            else
-                            {
                             }
 
                             break;

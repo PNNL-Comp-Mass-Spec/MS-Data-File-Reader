@@ -343,54 +343,58 @@ namespace MSDataFileReader
 
         protected override bool GetSpectrumByIndexWork(int intSpectrumIndex, out clsSpectrumInfo objCurrentSpectrumInfo, bool blnHeaderInfoOnly)
         {
-            var blnSuccess = default(bool);
             objCurrentSpectrumInfo = null;
 
             try
             {
-                blnSuccess = false;
-                if (GetSpectrumReadyStatus(true))
+                if (!GetSpectrumReadyStatus(true))
                 {
-                    if (mXmlFileReader is null)
-                    {
-                        mXmlFileReader = new clsMzDataFileReader() { ParseFilesWithUnknownVersion = mParseFilesWithUnknownVersion };
-                    }
-
-                    if (mIndexedSpectrumInfoCount == 0)
-                    {
-                        mErrorMessage = "Indexed data not in memory";
-                    }
-                    else if (intSpectrumIndex >= 0 && intSpectrumIndex < mIndexedSpectrumInfoCount)
-                    {
-                        // Move the binary file reader to .ByteOffsetStart and instantiate an XMLReader at that position
-                        mBinaryReader.Position = mIndexedSpectrumInfo[intSpectrumIndex].ByteOffsetStart;
-                        UpdateProgress(mBinaryReader.Position / (double)mBinaryReader.Length * 100.0d);
-
-                        // Create a new XmlTextReader
-                        using (var reader = XmlReader.Create(mBinaryReader, mXMLReaderSettings))
-                        {
-                            reader.MoveToContent();
-                            mXmlFileReader.SetXMLReaderForSpectrum(reader.ReadSubtree());
-                            blnSuccess = mXmlFileReader.ReadNextSpectrum(out objCurrentSpectrumInfo);
-                        }
-
-                        if (!string.IsNullOrWhiteSpace(mXmlFileReader.FileVersion))
-                        {
-                            mFileVersion = mXmlFileReader.FileVersion;
-                        }
-                    }
-                    else
-                    {
-                        mErrorMessage = "Invalid spectrum index: " + intSpectrumIndex.ToString();
-                    }
+                    return false;
                 }
+
+                if (mXmlFileReader is null)
+                {
+                    mXmlFileReader = new clsMzDataFileReader() { ParseFilesWithUnknownVersion = mParseFilesWithUnknownVersion };
+                }
+
+                if (mIndexedSpectrumInfoCount == 0)
+                {
+                    mErrorMessage = "Indexed data not in memory";
+                    return false;
+                }
+
+                if (intSpectrumIndex < 0 || intSpectrumIndex >= mIndexedSpectrumInfoCount)
+                {
+                    mErrorMessage = "Invalid spectrum index: " + intSpectrumIndex;
+                    return false;
+                }
+
+                // Move the binary file reader to .ByteOffsetStart and instantiate an XMLReader at that position
+                mBinaryReader.Position = mIndexedSpectrumInfo[intSpectrumIndex].ByteOffsetStart;
+                UpdateProgress(mBinaryReader.Position / (double)mBinaryReader.Length * 100.0d);
+
+                bool success;
+
+                // Create a new XmlTextReader
+                using (var reader = XmlReader.Create(mBinaryReader, mXMLReaderSettings))
+                {
+                    reader.MoveToContent();
+                    mXmlFileReader.SetXMLReaderForSpectrum(reader.ReadSubtree());
+                    success = mXmlFileReader.ReadNextSpectrum(out objCurrentSpectrumInfo);
+                }
+
+                if (!string.IsNullOrWhiteSpace(mXmlFileReader.FileVersion))
+                {
+                    mFileVersion = mXmlFileReader.FileVersion;
+                }
+
+                return success;
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in GetSpectrumByIndexWork", ex);
+                return false;
             }
-
-            return blnSuccess;
         }
 
         /// <summary>
@@ -419,57 +423,61 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error or invalid spectrum ID</returns>
         private bool GetSpectrumBySpectrumIDWork(int intSpectrumID, out clsSpectrumInfo objSpectrumInfo, bool blnHeaderInfoOnly)
         {
-            var blnSuccess = default(bool);
             objSpectrumInfo = null;
 
             try
             {
-                blnSuccess = false;
                 mErrorMessage = string.Empty;
                 if (mDataReaderMode == drmDataReaderModeConstants.Cached)
                 {
                     mErrorMessage = "Cannot obtain spectrum by spectrum ID when data is cached in memory; only valid when the data is indexed";
+                    return false;
                 }
-                else if (mDataReaderMode == drmDataReaderModeConstants.Indexed)
-                {
-                    if (GetSpectrumReadyStatus(true))
-                    {
-                        if (mIndexedSpectraSpectrumIDToIndex.Count == 0)
-                        {
-                            var loopTo = mIndexedSpectrumInfoCount - 1;
-                            for (var intSpectrumIndex = 0; intSpectrumIndex <= loopTo; intSpectrumIndex++)
-                            {
-                                if (mIndexedSpectrumInfo[intSpectrumIndex].SpectrumID == intSpectrumID)
-                                {
-                                    blnSuccess = GetSpectrumByIndexWork(intSpectrumIndex, out objSpectrumInfo, blnHeaderInfoOnly);
-                                    break;
-                                }
-                            }
-                        }
-                        else
-                        {
-                            // Look for intSpectrumID in mIndexedSpectraSpectrumIDToIndex
-                            var index = mIndexedSpectraSpectrumIDToIndex[intSpectrumID];
-                            blnSuccess = GetSpectrumByIndexWork(index, out objSpectrumInfo, blnHeaderInfoOnly);
-                        }
 
-                        if (!blnSuccess && mErrorMessage.Length == 0)
+                if (mDataReaderMode != drmDataReaderModeConstants.Indexed)
+                {
+                    mErrorMessage = "Cached or indexed data not in memory";
+                    return false;
+                }
+
+                if (!GetSpectrumReadyStatus(true))
+                {
+                    return false;
+                }
+
+                var success = false;
+
+                if (mIndexedSpectraSpectrumIDToIndex.Count == 0)
+                {
+                    var loopTo = mIndexedSpectrumInfoCount - 1;
+                    for (var intSpectrumIndex = 0; intSpectrumIndex <= loopTo; intSpectrumIndex++)
+                    {
+                        if (mIndexedSpectrumInfo[intSpectrumIndex].SpectrumID == intSpectrumID)
                         {
-                            mErrorMessage = "Invalid spectrum ID: " + intSpectrumID.ToString();
+                            success = GetSpectrumByIndexWork(intSpectrumIndex, out objSpectrumInfo, blnHeaderInfoOnly);
+                            break;
                         }
                     }
                 }
                 else
                 {
-                    mErrorMessage = "Cached or indexed data not in memory";
+                    // Look for intSpectrumID in mIndexedSpectraSpectrumIDToIndex
+                    var index = mIndexedSpectraSpectrumIDToIndex[intSpectrumID];
+                    success = GetSpectrumByIndexWork(index, out objSpectrumInfo, blnHeaderInfoOnly);
                 }
+
+                if (!success && string.IsNullOrWhiteSpace(mErrorMessage))
+                {
+                    mErrorMessage = "Invalid spectrum ID: " + intSpectrumID.ToString();
+                }
+
+                return success;
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in GetSpectrumBySpectrumID", ex);
+                return false;
             }
-
-            return blnSuccess;
         }
 
         public bool GetSpectrumHeaderInfoBySpectrumID(int intSpectrumID, out clsSpectrumInfo objSpectrumInfo)
@@ -484,11 +492,8 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         public bool GetSpectrumIDList(out int[] SpectrumIDList)
         {
-            var blnSuccess = default(bool);
-
             try
             {
-                blnSuccess = false;
                 if (mDataReaderMode == drmDataReaderModeConstants.Cached)
                 {
                     // Cannot get the spectrum ID list when mDataReaderMode = Cached
@@ -510,7 +515,7 @@ namespace MSDataFileReader
                             SpectrumIDList[intSpectrumIndex] = mIndexedSpectrumInfo[intSpectrumIndex].SpectrumID;
                         }
 
-                        blnSuccess = true;
+                        return true;
                     }
                 }
                 else
@@ -524,7 +529,7 @@ namespace MSDataFileReader
                 SpectrumIDList = new int[0];
             }
 
-            return blnSuccess;
+            return false;
         }
 
         protected override void InitializeLocalVariables()
@@ -575,13 +580,11 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         public override bool ReadAndCacheEntireFile()
         {
-            bool blnSuccess;
-
             try
             {
                 if (mBinaryTextReader is null)
                 {
-                    blnSuccess = false;
+                    return false;
                 }
                 else
                 {
@@ -594,35 +597,36 @@ namespace MSDataFileReader
                     // b) The start and end byte offset of each spectrum
                     // (text between "<spectrum" and "</spectrum>")
 
-                    blnSuccess = ReadMZDataFile();
+                    var success = ReadMZDataFile();
                     mBinaryTextReader.Close();
                     mBinaryTextReader = null;
-                    if (blnSuccess)
+
+                    if (!success)
+                        return false;
+
+                    // Note: Even if we aborted reading the data mid-file, the cached information is still valid
+                    if (mAbortProcessing)
                     {
-                        // Note: Even if we aborted reading the data mid-file, the cached information is still valid
-                        if (mAbortProcessing)
-                        {
-                            mErrorMessage = "Aborted processing";
-                        }
-                        else
-                        {
-                            UpdateProgress(100f);
-                            OperationComplete();
-                        }
+                        mErrorMessage = "Aborted processing";
                     }
+                    else
+                    {
+                        UpdateProgress(100f);
+                        OperationComplete();
+                    }
+
+                    return true;
                 }
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in ReadAndCacheEntireFile", ex);
-                blnSuccess = false;
+                return false;
             }
             finally
             {
                 mReadingAndStoringSpectra = false;
             }
-
-            return blnSuccess;
         }
 
         /// <summary>
@@ -636,7 +640,6 @@ namespace MSDataFileReader
         {
             var lngCurrentSpectrumByteOffsetStart = default(long);
             var lngCurrentSpectrumByteOffsetEnd = default(long);
-            bool blnSuccess;
 
             try
             {
@@ -720,15 +723,14 @@ namespace MSDataFileReader
                     }
                 }
                 while (blnSpectrumFound);
-                blnSuccess = true;
+
+                return true;
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in ReadMZDataFile", ex);
-                blnSuccess = false;
+                return false;
             }
-
-            return blnSuccess;
         }
 
         private void UpdateFileStats(int intScanCount, int intScanNumber, int intSpectrumID)

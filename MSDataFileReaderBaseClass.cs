@@ -567,11 +567,8 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error or no cached spectra</returns>
         public virtual bool GetScanNumberList(out int[] ScanNumberList)
         {
-            var blnSuccess = default(bool);
-
             try
             {
-                blnSuccess = false;
                 if (mDataReaderMode == drmDataReaderModeConstants.Cached && mCachedSpectra != null)
                 {
                     ScanNumberList = new int[mCachedSpectrumCount];
@@ -582,20 +579,18 @@ namespace MSDataFileReader
                         ScanNumberList[intSpectrumIndex] = mCachedSpectra[intSpectrumIndex].ScanNumber;
                     }
 
-                    blnSuccess = true;
+                    return true;
                 }
-                else
-                {
-                    ScanNumberList = new int[0];
-                }
+
+                ScanNumberList = new int[0];
+                return false;
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in GetScanNumberList", ex);
                 ScanNumberList = new int[0];
+                return false;
             }
-
-            return blnSuccess;
         }
 
         /// <summary>
@@ -609,20 +604,16 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         public virtual bool GetSpectrumByIndex(int intSpectrumIndex, out clsSpectrumInfo objSpectrumInfo)
         {
-            var blnSuccess = false;
-
             if (mDataReaderMode == drmDataReaderModeConstants.Cached && mCachedSpectrumCount > 0)
             {
                 if (intSpectrumIndex >= 0 && intSpectrumIndex < mCachedSpectrumCount && mCachedSpectra != null)
                 {
                     objSpectrumInfo = mCachedSpectra[intSpectrumIndex];
-                    blnSuccess = true;
+                    return true;
                 }
-                else
-                {
-                    mErrorMessage = "Invalid spectrum index: " + intSpectrumIndex.ToString();
-                    objSpectrumInfo = null;
-                }
+
+                mErrorMessage = "Invalid spectrum index: " + intSpectrumIndex.ToString();
+                objSpectrumInfo = null;
             }
             else
             {
@@ -630,7 +621,7 @@ namespace MSDataFileReader
                 objSpectrumInfo = null;
             }
 
-            return blnSuccess;
+            return false;
         }
 
         /// <summary>
@@ -645,13 +636,12 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error or invalid scan number</returns>
         public virtual bool GetSpectrumByScanNumber(int intScanNumber, out clsSpectrumInfo objSpectrumInfo)
         {
-            var blnSuccess = default(bool);
             objSpectrumInfo = null;
 
             try
             {
-                blnSuccess = false;
                 mErrorMessage = string.Empty;
+
                 if (mDataReaderMode == drmDataReaderModeConstants.Cached)
                 {
                     if (mCachedSpectraScanToIndex.Count == 0)
@@ -661,8 +651,7 @@ namespace MSDataFileReader
                             if (mCachedSpectra[intSpectrumIndex].ScanNumber == intScanNumber)
                             {
                                 objSpectrumInfo = mCachedSpectra[intSpectrumIndex];
-                                blnSuccess = true;
-                                break;
+                                return true;
                             }
                         }
                     }
@@ -670,25 +659,26 @@ namespace MSDataFileReader
                     {
                         var index = mCachedSpectraScanToIndex[intScanNumber];
                         objSpectrumInfo = mCachedSpectra[index];
-                        blnSuccess = true;
+                        return true;
                     }
 
-                    if (!blnSuccess && mErrorMessage.Length == 0)
+                    if (string.IsNullOrWhiteSpace(mErrorMessage))
                     {
-                        mErrorMessage = "Invalid scan number: " + intScanNumber.ToString();
+                        mErrorMessage = "Invalid scan number: " + intScanNumber;
                     }
                 }
                 else
                 {
                     mErrorMessage = "Cached data not in memory";
                 }
+
+                return false;
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in GetSpectrumByScanNumber", ex);
+                return false;
             }
-
-            return blnSuccess;
         }
 
         protected virtual void InitializeLocalVariables()
@@ -764,11 +754,9 @@ namespace MSDataFileReader
         /// <summary>
         /// Cache the entire file in memory
         /// </summary>
-        /// <returns></returns>
+        /// <returns>True if successful, false if an error</returns>
         public virtual bool ReadAndCacheEntireFile()
         {
-            bool blnSuccess;
-
             try
             {
                 mDataReaderMode = drmDataReaderModeConstants.Cached;
@@ -820,19 +808,17 @@ namespace MSDataFileReader
                     OperationComplete();
                 }
 
-                blnSuccess = true;
+                return true;
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in ReadAndCacheEntireFile", ex);
-                blnSuccess = false;
+                return false;
             }
             finally
             {
                 mReadingAndStoringSpectra = false;
             }
-
-            return blnSuccess;
         }
 
         protected void ResetProgress()

@@ -327,74 +327,75 @@ namespace MSDataFileReader
         private bool ParseBinaryData(string strMSMSDataBase64Encoded, ref float[] sngValues, int NumericPrecisionOfData, string PeaksEndianMode, bool blnUpdatePeaksCountIfInconsistent)
         {
             var zLibCompressed = false;
-            var blnSuccess = false;
 
             if (strMSMSDataBase64Encoded is null || strMSMSDataBase64Encoded.Length == 0)
             {
                 sngValues = new float[0];
+                return false;
             }
-            else
+
+            try
             {
-                try
+                var eEndianMode = mCurrentSpectrum.GetEndianModeValue(PeaksEndianMode);
+                var success = false;
+
+                switch (NumericPrecisionOfData)
                 {
-                    var eEndianMode = mCurrentSpectrum.GetEndianModeValue(PeaksEndianMode);
-                    switch (NumericPrecisionOfData)
-                    {
-                        case 32:
-                            if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
-                            {
-                                sngValues = new float[sngDataArray.Length];
-                                sngDataArray.CopyTo(sngValues, 0);
-                                blnSuccess = true;
-                            }
-
-                            break;
-
-                        case 64:
-                            if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
-                            {
-                                sngValues = new float[dblDataArray.Length];
-                                var loopTo = dblDataArray.Length - 1;
-                                int intIndex;
-                                for (intIndex = 0; intIndex <= loopTo; intIndex++)
-                                {
-                                    sngValues[intIndex] = (float)dblDataArray[intIndex];
-                                }
-
-                                blnSuccess = true;
-                            }
-
-                            break;
-
-                        default:
-                            break;
-                            // Invalid numeric precision
-                    }
-
-                    if (blnSuccess)
-                    {
-                        if (sngValues.Length != mCurrentSpectrum.DataCount)
+                    case 32:
+                        if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
                         {
-                            if (mCurrentSpectrum.DataCount == 0 && sngValues.Length > 0 && Math.Abs(sngValues[0]) < float.Epsilon)
-                            {
-                            }
-                            // Leave .PeaksCount at 0
-                            else if (blnUpdatePeaksCountIfInconsistent)
-                            {
-                                // This shouldn't normally be necessary
-                                OnErrorEvent("Unexpected condition in ParseBinaryData: sngValues.Length <> .DataCount and .DataCount > 0");
-                                mCurrentSpectrum.DataCount = sngValues.Length;
-                            }
+                            sngValues = new float[sngDataArray.Length];
+                            sngDataArray.CopyTo(sngValues, 0);
+                            success = true;
                         }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    OnErrorEvent("Error in ParseBinaryData", ex);
-                }
-            }
 
-            return blnSuccess;
+                        break;
+
+                    case 64:
+                        if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
+                        {
+                            sngValues = new float[dblDataArray.Length];
+                            var loopTo = dblDataArray.Length - 1;
+                            int intIndex;
+                            for (intIndex = 0; intIndex <= loopTo; intIndex++)
+                            {
+                                sngValues[intIndex] = (float)dblDataArray[intIndex];
+                            }
+
+                            success = true;
+                        }
+
+                        break;
+
+                    default:
+                        // Invalid numeric precision
+                        break;
+                }
+
+                if (!success)
+                    return false;
+
+                if (sngValues.Length == mCurrentSpectrum.DataCount)
+                    return true;
+
+                if (mCurrentSpectrum.DataCount == 0 && sngValues.Length > 0 && Math.Abs(sngValues[0]) < float.Epsilon)
+                {
+                    // Leave .PeaksCount at 0
+                }
+                else if (blnUpdatePeaksCountIfInconsistent)
+                {
+                    // This shouldn't normally be necessary
+                    OnErrorEvent("Unexpected condition in ParseBinaryData: sngValues.Length <> .DataCount and .DataCount > 0");
+                    mCurrentSpectrum.DataCount = sngValues.Length;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                OnErrorEvent("Error in ParseBinaryData", ex);
+                return false;
+            }
         }
 
         /// <summary>
@@ -409,68 +410,69 @@ namespace MSDataFileReader
         private bool ParseBinaryData(string strMSMSDataBase64Encoded, ref double[] dblValues, int NumericPrecisionOfData, string PeaksEndianMode, bool blnUpdatePeaksCountIfInconsistent)
         {
             var zLibCompressed = false;
-            var blnSuccess = false;
 
             if (strMSMSDataBase64Encoded is null || strMSMSDataBase64Encoded.Length == 0)
             {
                 dblValues = new double[0];
+                return false;
             }
-            else
+
+            try
             {
-                try
+                var eEndianMode = mCurrentSpectrum.GetEndianModeValue(PeaksEndianMode);
+                var success = false;
+
+                switch (NumericPrecisionOfData)
                 {
-                    var eEndianMode = mCurrentSpectrum.GetEndianModeValue(PeaksEndianMode);
-                    switch (NumericPrecisionOfData)
-                    {
-                        case 32:
-                            if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
-                            {
-                                dblValues = new double[sngDataArray.Length];
-                                sngDataArray.CopyTo(dblValues, 0);
-                                blnSuccess = true;
-                            }
-
-                            break;
-
-                        case 64:
-                            if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
-                            {
-                                dblValues = new double[dblDataArray.Length];
-                                dblDataArray.CopyTo(dblValues, 0);
-                                blnSuccess = true;
-                            }
-
-                            break;
-
-                        default:
-                            break;
-                            // Invalid numeric precision
-                    }
-
-                    if (blnSuccess)
-                    {
-                        if (dblValues.Length != mCurrentSpectrum.DataCount)
+                    case 32:
+                        if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
                         {
-                            if (mCurrentSpectrum.DataCount == 0 && dblValues.Length > 0 && Math.Abs(dblValues[0]) < float.Epsilon)
-                            {
-                            }
-                            // Leave .PeaksCount at 0
-                            else if (blnUpdatePeaksCountIfInconsistent)
-                            {
-                                // This shouldn't normally be necessary
-                                OnErrorEvent("Unexpected condition in ParseBinaryData: sngValues.Length <> .DataCount and .DataCount > 0");
-                                mCurrentSpectrum.DataCount = dblValues.Length;
-                            }
+                            dblValues = new double[sngDataArray.Length];
+                            sngDataArray.CopyTo(dblValues, 0);
+                            success = true;
                         }
-                    }
-                }
-                catch (Exception ex)
-                {
-                    OnErrorEvent("Error in ParseBinaryData", ex);
-                }
-            }
 
-            return blnSuccess;
+                        break;
+
+                    case 64:
+                        if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
+                        {
+                            dblValues = new double[dblDataArray.Length];
+                            dblDataArray.CopyTo(dblValues, 0);
+                            success = true;
+                        }
+
+                        break;
+
+                    default:
+                        // Invalid numeric precision
+                        break;
+                }
+
+                if (!success)
+                    return false;
+
+                if (dblValues.Length == mCurrentSpectrum.DataCount)
+                    return true;
+
+                if (mCurrentSpectrum.DataCount == 0 && dblValues.Length > 0 && Math.Abs(dblValues[0]) < float.Epsilon)
+                {
+                    // Leave .PeaksCount at 0
+                }
+                else if (blnUpdatePeaksCountIfInconsistent)
+                {
+                    // This shouldn't normally be necessary
+                    OnErrorEvent("Unexpected condition in ParseBinaryData: sngValues.Length <> .DataCount and .DataCount > 0");
+                    mCurrentSpectrum.DataCount = dblValues.Length;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                OnErrorEvent("Error in ParseBinaryData", ex);
+                return false;
+            }
         }
 
         protected override void ParseElementContent()
@@ -485,49 +487,41 @@ namespace MSDataFileReader
             {
                 // Check the last element name sent to startElement to determine
                 // what to do with the data we just received
-                if ((mCurrentElement ?? "") == ScanSectionNames.ArrayData)
+                if ((mCurrentElement ?? "") != ScanSectionNames.ArrayData)
+                    return;
+
+                // Note: We could use GetParentElement() to determine whether this base-64 encoded data
+                // belongs to mzArrayBinary or intenArrayBinary, but it is faster to use mCurrentXMLDataFileSection
+
+                switch (mCurrentXMLDataFileSection)
                 {
-                    // Note: We could use GetParentElement() to determine whether this base-64 encoded data
-                    // belongs to mzArrayBinary or intenArrayBinary, but it is faster to use mCurrentXMLDataFileSection
-                    bool blnSuccess;
-                    switch (mCurrentXMLDataFileSection)
-                    {
-                        case eCurrentMZDataFileSectionConstants.SpectrumDataArrayMZ:
-                            if (!mSkipBinaryData)
-                            {
-                                blnSuccess = ParseBinaryData(XMLTextReaderGetInnerText(), ref mCurrentSpectrum.MZList,
-                                    mCurrentSpectrum.NumericPrecisionOfDataMZ, mCurrentSpectrum.PeaksEndianModeMZ, true);
+                    case eCurrentMZDataFileSectionConstants.SpectrumDataArrayMZ:
+                        if (!mSkipBinaryData)
+                        {
+                            var success = ParseBinaryData(XMLTextReaderGetInnerText(), ref mCurrentSpectrum.MZList,
+                                mCurrentSpectrum.NumericPrecisionOfDataMZ, mCurrentSpectrum.PeaksEndianModeMZ, true);
 
-                                if (!blnSuccess)
-                                {
-                                    mCurrentSpectrum.DataCount = 0;
-                                }
-                            }
-                            else
+                            if (!success)
                             {
-                                blnSuccess = true;
+                                mCurrentSpectrum.DataCount = 0;
                             }
+                        }
 
-                            break;
+                        break;
 
-                        case eCurrentMZDataFileSectionConstants.SpectrumDataArrayIntensity:
-                            if (!mSkipBinaryData)
-                            {
-                                blnSuccess = ParseBinaryData(
-                                    XMLTextReaderGetInnerText(),
-                                    ref mCurrentSpectrum.IntensityList,
-                                    mCurrentSpectrum.NumericPrecisionOfDataIntensity,
-                                    mCurrentSpectrum.PeaksEndianModeIntensity,
-                                    false);
-                                // Note: Not calling .ComputeBasePeakAndTIC() here since it will be called when the spectrum is Validated
-                            }
-                            else
-                            {
-                                blnSuccess = true;
-                            }
+                    case eCurrentMZDataFileSectionConstants.SpectrumDataArrayIntensity:
+                        if (!mSkipBinaryData)
+                        {
+                            ParseBinaryData(
+                                XMLTextReaderGetInnerText(),
+                                ref mCurrentSpectrum.IntensityList,
+                                mCurrentSpectrum.NumericPrecisionOfDataIntensity,
+                                mCurrentSpectrum.PeaksEndianModeIntensity,
+                                false);
+                            // Note: Not calling .ComputeBasePeakAndTIC() here since it will be called when the spectrum is Validated
+                        }
 
-                            break;
-                    }
+                        break;
                 }
             }
             catch (Exception ex)

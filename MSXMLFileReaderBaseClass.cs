@@ -469,12 +469,10 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         public override bool OpenFile(string strInputFilePath)
         {
-            bool blnSuccess;
-
             try
             {
-                blnSuccess = OpenFileInit(strInputFilePath);
-                if (!blnSuccess)
+                var success = OpenFileInit(strInputFilePath);
+                if (!success)
                     return false;
 
                 // Initialize the stream reader and the XML Text Reader (set to skip all whitespace)
@@ -484,15 +482,13 @@ namespace MSDataFileReader
                 mErrorMessage = string.Empty;
                 InitializeLocalVariables();
                 ResetProgress("Parsing " + Path.GetFileName(strInputFilePath));
-                blnSuccess = true;
+                return true;
             }
             catch (Exception ex)
             {
                 mErrorMessage = "Error opening file: " + strInputFilePath + "; " + ex.Message;
-                blnSuccess = false;
+                return false;
             }
-
-            return blnSuccess;
         }
 
         /// <summary>
@@ -502,8 +498,6 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         public override bool OpenTextStream(string strTextStream)
         {
-            bool blnSuccess;
-
             // Make sure any open file or text stream is closed
             CloseFile();
 
@@ -518,15 +512,14 @@ namespace MSDataFileReader
                 mErrorMessage = string.Empty;
                 InitializeLocalVariables();
                 ResetProgress("Parsing text stream");
-                blnSuccess = true;
+                return true;
             }
             catch (Exception ex)
             {
                 mErrorMessage = "Error opening text stream";
-                blnSuccess = false;
+                OnErrorEvent(mErrorMessage, ex);
+                return false;
             }
-
-            return blnSuccess;
         }
 
         protected string ParentElementStackRemove()
@@ -611,9 +604,9 @@ namespace MSDataFileReader
                         }
                     }
 
-                    var blnReadSuccessful = true;
+                    var validData = true;
 
-                    while (!mSpectrumFound && blnReadSuccessful && !mAbortProcessing && mXMLReader.ReadState == ReadState.Initial || mXMLReader.ReadState == ReadState.Interactive)
+                    while (!mSpectrumFound && validData && !mAbortProcessing && mXMLReader.ReadState == ReadState.Initial || mXMLReader.ReadState == ReadState.Interactive)
                     {
                         mSpectrumFound = false;
                         if (mSkipNextReaderAdvance)
@@ -632,16 +625,16 @@ namespace MSDataFileReader
                                 // Ignore Errors Here
                             }
 
-                            blnReadSuccessful = true;
+                            validData = true;
                         }
                         else
                         {
                             mSkippedStartElementAdvance = false;
-                            blnReadSuccessful = mXMLReader.Read();
+                            validData = mXMLReader.Read();
                             XMLTextReaderSkipWhitespace();
                         }
 
-                        if (blnReadSuccessful && mXMLReader.ReadState == ReadState.Interactive)
+                        if (validData && mXMLReader.ReadState == ReadState.Interactive)
                         {
                             if (mXMLReader.NodeType == XmlNodeType.Element)
                             {
@@ -678,24 +671,24 @@ namespace MSDataFileReader
 
         protected string XMLTextReaderGetInnerText()
         {
-            var strValue = string.Empty;
-            bool blnSuccess;
+            bool success;
+
             if (mXMLReader.NodeType == XmlNodeType.Element)
             {
                 // Advance the reader so that we can read the value
-                blnSuccess = mXMLReader.Read();
+                success = mXMLReader.Read();
             }
             else
             {
-                blnSuccess = true;
+                success = true;
             }
 
-            if (blnSuccess && !(mXMLReader.NodeType == XmlNodeType.Whitespace) && mXMLReader.HasValue)
+            if (success && mXMLReader.NodeType != XmlNodeType.Whitespace && mXMLReader.HasValue)
             {
-                strValue = mXMLReader.Value;
+                return mXMLReader.Value;
             }
 
-            return strValue;
+            return string.Empty;
         }
 
         private void XMLTextReaderSkipWhitespace()

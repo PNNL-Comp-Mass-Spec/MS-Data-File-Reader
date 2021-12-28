@@ -639,7 +639,6 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         public bool OpenFile(string dataFilePath, FileShare share)
         {
-            bool blnSuccess;
             mErrorMessage = string.Empty;
 
             // Make sure any open file or text stream is closed
@@ -647,7 +646,6 @@ namespace MSDataFileReader
 
             try
             {
-                blnSuccess = false;
                 if (string.IsNullOrEmpty(dataFilePath))
                 {
                     mErrorMessage = "Error opening file: input file path is blank";
@@ -668,25 +666,22 @@ namespace MSDataFileReader
 
                 // Initialize the binary reader
                 mBinaryReader = new FileStream(mInputFilePath, FileMode.Open, FileAccess.Read, share);
+
                 if (mBinaryReader.Length == 0L)
                 {
                     Close();
                     mErrorMessage = "File is zero-length";
-                    blnSuccess = false;
+                    return false;
                 }
-                else
-                {
-                    MoveToBeginning();
-                    blnSuccess = true;
-                }
+
+                MoveToBeginning();
+                return true;
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error opening file " + InputFilePath, ex);
-                blnSuccess = false;
+                return false;
             }
-
-            return blnSuccess;
         }
 
         public bool ReadLine()

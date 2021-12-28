@@ -396,61 +396,65 @@ namespace MSDataFileReader
 
         protected override bool GetSpectrumByIndexWork(int intSpectrumIndex, out clsSpectrumInfo objCurrentSpectrumInfo, bool blnHeaderInfoOnly)
         {
-            var blnSuccess = default(bool);
             objCurrentSpectrumInfo = null;
 
             try
             {
-                blnSuccess = false;
-                if (GetSpectrumReadyStatus(true))
+                if (!GetSpectrumReadyStatus(true))
                 {
-                    if (mXmlFileReader is null)
-                    {
-                        mXmlFileReader = new clsMzXMLFileReader() { ParseFilesWithUnknownVersion = mParseFilesWithUnknownVersion };
-                    }
+                    return false;
+                }
 
-                    if (mIndexedSpectrumInfoCount == 0)
-                    {
-                        mErrorMessage = "Indexed data not in memory";
-                    }
-                    else if (intSpectrumIndex >= 0 && intSpectrumIndex < mIndexedSpectrumInfoCount)
-                    {
-                        // Move the binary file reader to .ByteOffsetStart and instantiate an XMLReader at that position
-                        mBinaryReader.Position = mIndexedSpectrumInfo[intSpectrumIndex].ByteOffsetStart;
-                        UpdateProgress(mBinaryReader.Position / (double)mBinaryReader.Length * 100.0d);
+                if (mXmlFileReader is null)
+                {
+                    mXmlFileReader = new clsMzXMLFileReader() { ParseFilesWithUnknownVersion = mParseFilesWithUnknownVersion };
+                }
 
-                        // Create a new XmlTextReader
-                        using (var reader = XmlReader.Create(mBinaryReader, mXMLReaderSettings))
-                        {
-                            reader.MoveToContent();
-                            mXmlFileReader.SetXMLReaderForSpectrum(reader.ReadSubtree());
-                            blnSuccess = mXmlFileReader.ReadNextSpectrum(out objCurrentSpectrumInfo);
-                        }
+                if (mIndexedSpectrumInfoCount == 0)
+                {
+                    mErrorMessage = "Indexed data not in memory";
+                    return false;
+                }
 
-                        if (!string.IsNullOrWhiteSpace(mXmlFileReader.FileVersion))
-                        {
-                            mFileVersion = mXmlFileReader.FileVersion;
-                        }
-                        else if (string.IsNullOrWhiteSpace(mFileVersion) && !string.IsNullOrWhiteSpace(mXmlFileHeader))
-                        {
-                            if (!clsMzXMLFileReader.ExtractMzXmlFileVersion(mXmlFileHeader, out mFileVersion))
-                            {
-                                OnErrorEvent("Unknown mzXML file version; expected text not found in mXmlFileHeader");
-                            }
-                        }
-                    }
-                    else
+                if (intSpectrumIndex < 0 || intSpectrumIndex >= mIndexedSpectrumInfoCount)
+                {
+                    mErrorMessage = "Invalid spectrum index: " + intSpectrumIndex.ToString();
+                    return false;
+                }
+
+                // Move the binary file reader to .ByteOffsetStart and instantiate an XMLReader at that position
+                mBinaryReader.Position = mIndexedSpectrumInfo[intSpectrumIndex].ByteOffsetStart;
+                UpdateProgress(mBinaryReader.Position / (double)mBinaryReader.Length * 100.0d);
+
+                bool success;
+
+                // Create a new XmlTextReader
+                using (var reader = XmlReader.Create(mBinaryReader, mXMLReaderSettings))
+                {
+                    reader.MoveToContent();
+                    mXmlFileReader.SetXMLReaderForSpectrum(reader.ReadSubtree());
+                    success = mXmlFileReader.ReadNextSpectrum(out objCurrentSpectrumInfo);
+                }
+
+                if (!string.IsNullOrWhiteSpace(mXmlFileReader.FileVersion))
+                {
+                    mFileVersion = mXmlFileReader.FileVersion;
+                }
+                else if (string.IsNullOrWhiteSpace(mFileVersion) && !string.IsNullOrWhiteSpace(mXmlFileHeader))
+                {
+                    if (!clsMzXMLFileReader.ExtractMzXmlFileVersion(mXmlFileHeader, out mFileVersion))
                     {
-                        mErrorMessage = "Invalid spectrum index: " + intSpectrumIndex.ToString();
+                        OnErrorEvent("Unknown mzXML file version; expected text not found in mXmlFileHeader");
                     }
                 }
+
+                return success;
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in GetSpectrumByIndexWork", ex);
+                return false;
             }
-
-            return blnSuccess;
         }
 
         protected override void InitializeLocalVariables()
@@ -487,7 +491,7 @@ namespace MSDataFileReader
         /// <returns>True if index elements are successfully loaded, otherwise false</returns>
         protected override bool LoadExistingIndex()
         {
-            var blnExtractTextToEOF = default(bool);
+            var blnExtractTextToEOF = false;
             bool blnIndexLoaded;
 
             try
@@ -696,12 +700,12 @@ namespace MSDataFileReader
                 {
                     // Skip all whitespace
                     objXMLReader.WhitespaceHandling = WhitespaceHandling.None;
-                    var blnReadSuccessful = true;
+                    var validData = true;
 
-                    while (blnReadSuccessful && objXMLReader.ReadState == ReadState.Initial || objXMLReader.ReadState == ReadState.Interactive)
+                    while (validData && objXMLReader.ReadState == ReadState.Initial || objXMLReader.ReadState == ReadState.Interactive)
                     {
-                        blnReadSuccessful = objXMLReader.Read();
-                        if (blnReadSuccessful && objXMLReader.ReadState == ReadState.Interactive)
+                        validData = objXMLReader.Read();
+                        if (validData && objXMLReader.ReadState == ReadState.Interactive)
                         {
                             if (objXMLReader.NodeType == XmlNodeType.Element)
                             {
@@ -772,7 +776,7 @@ namespace MSDataFileReader
                             {
                                 if (blnParseIndexValues && (strCurrentElement ?? "") == OFFSET_ELEMENT_NAME)
                                 {
-                                    if (!(objXMLReader.NodeType == XmlNodeType.Whitespace) && objXMLReader.HasValue)
+                                    if (objXMLReader.NodeType != XmlNodeType.Whitespace && objXMLReader.HasValue)
                                     {
                                         try
                                         {
@@ -814,13 +818,11 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         public override bool ReadAndCacheEntireFile()
         {
-            bool blnSuccess;
-
             try
             {
                 if (mBinaryTextReader is null)
                 {
-                    blnSuccess = mIndexingComplete;
+                    return mIndexingComplete;
                 }
                 else
                 {
@@ -833,37 +835,37 @@ namespace MSDataFileReader
                     // b) The start and end byte offset of each spectrum
                     // (text between "<scan" and "</peaks>")
 
-                    blnSuccess = ReadMZXmlFile();
+                    var success = ReadMZXmlFile();
                     mBinaryTextReader.Close();
                     mBinaryTextReader = null;
-                    if (blnSuccess)
-                    {
-                        // Note: Even if we aborted reading the data mid-file, the cached information is still valid
-                        if (mAbortProcessing)
-                        {
-                            mErrorMessage = "Aborted processing";
-                        }
-                        else
-                        {
-                            UpdateProgress(100f);
-                            OperationComplete();
-                        }
 
-                        mIndexingComplete = true;
+                    if (!success)
+                        return false;
+
+                    // Note: Even if we aborted reading the data mid-file, the cached information is still valid
+                    if (mAbortProcessing)
+                    {
+                        mErrorMessage = "Aborted processing";
                     }
+                    else
+                    {
+                        UpdateProgress(100f);
+                        OperationComplete();
+                    }
+
+                    mIndexingComplete = true;
+                    return true;
                 }
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in ReadAndCacheEntireFile", ex);
-                blnSuccess = false;
+                return false;
             }
             finally
             {
                 mReadingAndStoringSpectra = false;
             }
-
-            return blnSuccess;
         }
 
         /// <summary>
@@ -877,7 +879,6 @@ namespace MSDataFileReader
         {
             var lngCurrentSpectrumByteOffsetStart = default(long);
             var lngCurrentSpectrumByteOffsetEnd = default(long);
-            bool blnSuccess;
 
             try
             {
@@ -950,15 +951,13 @@ namespace MSDataFileReader
                     }
                 }
                 while (blnSpectrumFound);
-                blnSuccess = true;
+                return true;
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in ReadMZXmlFile", ex);
-                blnSuccess = false;
+                return false;
             }
-
-            return blnSuccess;
         }
 
         /// <summary>

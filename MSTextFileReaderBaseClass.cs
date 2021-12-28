@@ -524,27 +524,24 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         public override bool OpenFile(string strInputFilePath)
         {
-            bool blnSuccess;
-
             try
             {
-                blnSuccess = OpenFileInit(strInputFilePath);
-                if (!blnSuccess)
+                var success = OpenFileInit(strInputFilePath);
+                if (!success)
                     return false;
+
                 var objStreamReader = new System.IO.StreamReader(new System.IO.FileStream(strInputFilePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite));
                 mInFileStreamLength = objStreamReader.BaseStream.Length;
                 mFileReader = objStreamReader;
                 InitializeLocalVariables();
                 ResetProgress("Parsing " + System.IO.Path.GetFileName(strInputFilePath));
-                blnSuccess = true;
+                return true;
             }
             catch (Exception ex)
             {
                 mErrorMessage = "Error opening file: " + strInputFilePath + "; " + ex.Message;
-                blnSuccess = false;
+                return false;
             }
-
-            return blnSuccess;
         }
 
         /// <summary>
@@ -554,8 +551,6 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         public override bool OpenTextStream(string strTextStream)
         {
-            bool blnSuccess;
-
             // Make sure any open file or text stream is closed
             CloseFile();
 
@@ -566,15 +561,13 @@ namespace MSDataFileReader
                 mInFileStreamLength = strTextStream.Length;
                 InitializeLocalVariables();
                 ResetProgress("Parsing text stream");
-                blnSuccess = true;
+                return true;
             }
             catch (Exception ex)
             {
                 mErrorMessage = "Error opening text stream";
-                blnSuccess = false;
+                return false;
             }
-
-            return blnSuccess;
         }
 
         public int ParseMsMsDataList(string[] strMSMSData, int intMsMsDataCount, out double[] dblMasses, out float[] sngIntensities, bool blnShrinkDataArrays)
