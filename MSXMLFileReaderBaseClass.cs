@@ -163,117 +163,128 @@ namespace MSDataFileReader
 
             const string ZERO_SOAP_DURATION_FULL = "P0Y0M0DT0H0M0S";
             const string ZERO_SOAP_DURATION_SHORT = "PT0S";
-            string strXMLDuration = string.Empty;
-            int intCharIndex;
-            int intCharIndex2;
-            int intDateIndex;
-            int intTimeIndex;
-            var blnReturnZero = default(bool);
-            double dblSeconds;
-            Regex reSecondsRegEx;
-            Match objMatch;
+
+            var success = ConvertTimeFromTimespanToXmlDuration(
+                dtTimeSpan, blnTrimLeadingZeroValues, bytSecondsValueDigitsAfterDecimal, out var strXMLDuration, out var isZero);
+
+            if (!success || isZero)
+            {
+                if (blnTrimLeadingZeroValues)
+                {
+                    return ZERO_SOAP_DURATION_SHORT;
+                }
+                else
+                {
+                    return ZERO_SOAP_DURATION_FULL;
+                }
+            }
+
+            return strXMLDuration;
+        }
+
+        private static bool ConvertTimeFromTimespanToXmlDuration(
+            TimeSpan dtTimeSpan,
+            bool blnTrimLeadingZeroValues,
+            byte bytSecondsValueDigitsAfterDecimal,
+            out string strXMLDuration,
+            out bool isZero)
+        {
+            isZero = false;
+
             try
             {
                 if (dtTimeSpan.Equals(TimeSpan.Zero))
                 {
-                    blnReturnZero = true;
+                    isZero = true;
+                    strXMLDuration = string.Empty;
+                    return true;
                 }
-                else
+
+                strXMLDuration = System.Runtime.Remoting.Metadata.W3cXsd2001.SoapDuration.ToString(dtTimeSpan);
+                if (strXMLDuration.Length == 0)
                 {
-                    strXMLDuration = System.Runtime.Remoting.Metadata.W3cXsd2001.SoapDuration.ToString(dtTimeSpan);
-                    if (strXMLDuration.Length == 0)
-                    {
-                        blnReturnZero = true;
-                        break;
-                    }
+                    isZero = true;
+                    return true;
+                }
 
-                    if (strXMLDuration[0] == '-')
-                    {
-                        strXMLDuration = strXMLDuration.Substring(1);
-                    }
+                if (strXMLDuration[0] == '-')
+                {
+                    strXMLDuration = strXMLDuration.Substring(1);
+                }
 
-                    if (bytSecondsValueDigitsAfterDecimal < 9)
+                if (bytSecondsValueDigitsAfterDecimal < 9)
+                {
+                    // Look for "M\.\d+S"
+                    var reSecondsRegEx = new Regex(@"M(\d+\.\d+)S");
+                    var objMatch = reSecondsRegEx.Match(strXMLDuration);
+                    if (objMatch.Success)
                     {
-                        // Look for "M\.\d+S"
-                        reSecondsRegEx = new Regex(@"M(\d+\.\d+)S");
-                        objMatch = reSecondsRegEx.Match(strXMLDuration);
-                        if (objMatch.Success)
+                        if (objMatch.Groups.Count > 1)
                         {
-                            if (objMatch.Groups.Count > 1)
                             {
+                                var withBlock = objMatch.Groups[1];
+                                if (IsNumber(withBlock.Captures[0].Value))
                                 {
-                                    var withBlock = objMatch.Groups[1];
-                                    if (IsNumber(withBlock.Captures[0].Value))
-                                    {
-                                        dblSeconds = Conversions.ToDouble(withBlock.Captures[0].Value);
-                                        strXMLDuration = strXMLDuration.Substring(0, withBlock.Index) + Math.Round(dblSeconds, bytSecondsValueDigitsAfterDecimal).ToString() + "S";
-                                    }
+                                    var dblSeconds = double.Parse(withBlock.Captures[0].Value);
+                                    strXMLDuration = strXMLDuration.Substring(0, withBlock.Index) + Math.Round(dblSeconds, bytSecondsValueDigitsAfterDecimal).ToString() + "S";
                                 }
                             }
                         }
                     }
+                }
 
-                    if (blnTrimLeadingZeroValues)
+                if (blnTrimLeadingZeroValues)
+                {
+                    var intDateIndex = strXMLDuration.IndexOf('P');
+                    var intTimeIndex = strXMLDuration.IndexOf('T');
+                    var intCharIndex = strXMLDuration.IndexOf("P0Y", StringComparison.Ordinal);
+
+                    if (intCharIndex >= 0 && intCharIndex < intTimeIndex)
                     {
-                        intDateIndex = strXMLDuration.IndexOf('P');
-                        intTimeIndex = strXMLDuration.IndexOf('T');
-                        intCharIndex = strXMLDuration.IndexOf("P0Y", StringComparison.Ordinal);
-                        if (intCharIndex >= 0 && intCharIndex < intTimeIndex)
+                        intCharIndex += 1;
+                        var intCharIndex2 = strXMLDuration.IndexOf("Y0M", intCharIndex, StringComparison.Ordinal);
+
+                        if (intCharIndex2 > 0 && intCharIndex < intTimeIndex)
                         {
-                            intCharIndex += 1;
-                            intCharIndex2 = strXMLDuration.IndexOf("Y0M", intCharIndex, StringComparison.Ordinal);
+                            intCharIndex = intCharIndex2 + 1;
+                            intCharIndex2 = strXMLDuration.IndexOf("M0D", intCharIndex, StringComparison.Ordinal);
                             if (intCharIndex2 > 0 && intCharIndex < intTimeIndex)
                             {
                                 intCharIndex = intCharIndex2 + 1;
-                                intCharIndex2 = strXMLDuration.IndexOf("M0D", intCharIndex, StringComparison.Ordinal);
-                                if (intCharIndex2 > 0 && intCharIndex < intTimeIndex)
-                                {
-                                    intCharIndex = intCharIndex2 + 1;
-                                }
+                            }
+                        }
+                    }
+
+                    if (intCharIndex > 0)
+                    {
+                        strXMLDuration = strXMLDuration.Substring(0, intDateIndex + 1) + strXMLDuration.Substring(intCharIndex + 2);
+                        intTimeIndex = strXMLDuration.IndexOf('T');
+                        intCharIndex = strXMLDuration.IndexOf("T0H", intTimeIndex, StringComparison.Ordinal);
+                        if (intCharIndex > 0)
+                        {
+                            intCharIndex += 1;
+                            var intCharIndex2 = strXMLDuration.IndexOf("H0M", intCharIndex, StringComparison.Ordinal);
+                            if (intCharIndex2 > 0)
+                            {
+                                intCharIndex = intCharIndex2 + 1;
                             }
                         }
 
                         if (intCharIndex > 0)
                         {
-                            strXMLDuration = strXMLDuration.Substring(0, intDateIndex + 1) + strXMLDuration.Substring(intCharIndex + 2);
-                            intTimeIndex = strXMLDuration.IndexOf('T');
-                            intCharIndex = strXMLDuration.IndexOf("T0H", intTimeIndex, StringComparison.Ordinal);
-                            if (intCharIndex > 0)
-                            {
-                                intCharIndex += 1;
-                                intCharIndex2 = strXMLDuration.IndexOf("H0M", intCharIndex, StringComparison.Ordinal);
-                                if (intCharIndex2 > 0)
-                                {
-                                    intCharIndex = intCharIndex2 + 1;
-                                }
-                            }
-
-                            if (intCharIndex > 0)
-                            {
-                                strXMLDuration = strXMLDuration.Substring(0, intTimeIndex + 1) + strXMLDuration.Substring(intCharIndex + 2);
-                            }
+                            strXMLDuration = strXMLDuration.Substring(0, intTimeIndex + 1) + strXMLDuration.Substring(intCharIndex + 2);
                         }
                     }
                 }
+
+                return true;
             }
             catch (Exception ex)
             {
-                blnReturnZero = true;
+                ConsoleMsgUtils.ShowWarning("Error in ConvertTimeFromTimespanToXmlDuration: {0}", ex.Message);
+                strXMLDuration = string.Empty;
+                return false;
             }
-
-            if (blnReturnZero)
-            {
-                if (blnTrimLeadingZeroValues)
-                {
-                    strXMLDuration = ZERO_SOAP_DURATION_SHORT;
-                }
-                else
-                {
-                    strXMLDuration = ZERO_SOAP_DURATION_FULL;
-                }
-            }
-
-            return strXMLDuration;
         }
 
         public static TimeSpan ConvertTimeFromXmlDurationToTimespan(string strTime, TimeSpan dtDefaultTimeSpan)
