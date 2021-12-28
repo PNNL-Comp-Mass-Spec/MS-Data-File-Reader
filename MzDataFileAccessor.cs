@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -77,9 +78,9 @@ namespace MSDataFileReader
         private Regex mAcquisitionNumberRegEx;
         private Regex mSpectrumIDRegEx;
 
-        // This hash table maps spectrum ID to index in mCachedSpectra()
+        // This dictionary maps spectrum ID to index in mCachedSpectra()
         // If more than one spectrum has the same spectrum ID, then tracks the first one read
-        private Hashtable mIndexedSpectraSpectrumIDToIndex;
+        private readonly Dictionary<int, int> mIndexedSpectraSpectrumIDToIndex = new();
         private XmlReaderSettings mXMLReaderSettings;
 
         #endregion
@@ -453,7 +454,7 @@ namespace MSDataFileReader
                 {
                     if (GetSpectrumReadyStatus(true))
                     {
-                        if (mIndexedSpectraSpectrumIDToIndex is null || mIndexedSpectraSpectrumIDToIndex.Count == 0)
+                        if (mIndexedSpectraSpectrumIDToIndex.Count == 0)
                         {
                             var loopTo = mIndexedSpectrumInfoCount - 1;
                             for (intSpectrumIndex = 0; intSpectrumIndex <= loopTo; intSpectrumIndex++)
@@ -468,12 +469,8 @@ namespace MSDataFileReader
                         else
                         {
                             // Look for intSpectrumID in mIndexedSpectraSpectrumIDToIndex
-                            var objIndex = mIndexedSpectraSpectrumIDToIndex[intSpectrumID];
-                            if (objIndex is object)
-                            {
-                                intSpectrumIndex = Conversions.ToInteger(objIndex);
-                                blnSuccess = GetSpectrumByIndexWork(intSpectrumIndex, out objSpectrumInfo, blnHeaderInfoOnly);
-                            }
+                            var index = mIndexedSpectraSpectrumIDToIndex[intSpectrumID];
+                            blnSuccess = GetSpectrumByIndexWork(index, out objSpectrumInfo, blnHeaderInfoOnly);
                         }
 
                         if (!blnSuccess && mErrorMessage.Length == 0)
@@ -550,14 +547,7 @@ namespace MSDataFileReader
             mInputFileStatsSpectrumIDMaximum = 0;
             mXmlFileHeader = string.Empty;
             mAddNewLinesToHeader = true;
-            if (mIndexedSpectraSpectrumIDToIndex is null)
-            {
-                mIndexedSpectraSpectrumIDToIndex = new Hashtable();
-            }
-            else
-            {
-                mIndexedSpectraSpectrumIDToIndex.Clear();
-            }
+            mIndexedSpectraSpectrumIDToIndex.Clear();
         }
 
         private void InitializeObjectVariables()
@@ -712,7 +702,7 @@ namespace MSDataFileReader
                             ref var withBlock = ref mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1];
                             withBlock.SpectrumID = mCurrentSpectrumInfo.SpectrumID;
                             UpdateFileStats(mIndexedSpectrumInfoCount, withBlock.ScanNumber, withBlock.SpectrumID);
-                            if (!mIndexedSpectraSpectrumIDToIndex.Contains(withBlock.SpectrumID))
+                            if (!mIndexedSpectraSpectrumIDToIndex.ContainsKey(withBlock.SpectrumID))
                             {
                                 mIndexedSpectraSpectrumIDToIndex.Add(withBlock.SpectrumID, mIndexedSpectrumInfoCount - 1);
                             }

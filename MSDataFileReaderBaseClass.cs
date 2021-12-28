@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using PRISM;
 
@@ -97,9 +98,10 @@ namespace MSDataFileReader
         protected int mCachedSpectrumCount;
         protected clsSpectrumInfo[] mCachedSpectra;
 
-        // This hash table maps scan number to index in mCachedSpectra()
+        // This dictionary maps scan number to index in mCachedSpectra()
         // If more than one spectrum comes from the same scan, then tracks the first one read
-        protected Hashtable mCachedSpectraScanToIndex;
+        protected readonly Dictionary<int, int> mCachedSpectraScanToIndex = new();
+
         protected bool mAutoShrinkDataLists;
 
         #endregion
@@ -642,7 +644,7 @@ namespace MSDataFileReader
                 mErrorMessage = string.Empty;
                 if (mDataReaderMode == drmDataReaderModeConstants.Cached)
                 {
-                    if (mCachedSpectraScanToIndex is null || mCachedSpectraScanToIndex.Count == 0)
+                    if (mCachedSpectraScanToIndex.Count == 0)
                     {
                         for (int intSpectrumIndex = 0, loopTo = mCachedSpectrumCount - 1; intSpectrumIndex <= loopTo; intSpectrumIndex++)
                         {
@@ -656,12 +658,9 @@ namespace MSDataFileReader
                     }
                     else
                     {
-                        var objIndex = mCachedSpectraScanToIndex[intScanNumber];
-                        if (objIndex is object)
-                        {
-                            objSpectrumInfo = mCachedSpectra[Conversions.ToInteger(objIndex)];
-                            blnSuccess = true;
-                        }
+                        var index = mCachedSpectraScanToIndex[intScanNumber];
+                        objSpectrumInfo = mCachedSpectra[index];
+                        blnSuccess = true;
                     }
 
                     if (!blnSuccess && mErrorMessage.Length == 0)
@@ -698,14 +697,7 @@ namespace MSDataFileReader
                 withBlock.ScanNumberMaximum = 0;
             }
 
-            if (mCachedSpectraScanToIndex is null)
-            {
-                mCachedSpectraScanToIndex = new Hashtable();
-            }
-            else
-            {
-                mCachedSpectraScanToIndex.Clear();
-            }
+            mCachedSpectraScanToIndex.Clear();
 
             mAbortProcessing = false;
             mAutoShrinkDataLists = true;
@@ -783,7 +775,7 @@ namespace MSDataFileReader
                     if (objSpectrumInfo is object)
                     {
                         mCachedSpectra[mCachedSpectrumCount] = objSpectrumInfo;
-                        if (!mCachedSpectraScanToIndex.Contains(objSpectrumInfo.ScanNumber))
+                        if (!mCachedSpectraScanToIndex.ContainsKey(objSpectrumInfo.ScanNumber))
                         {
                             mCachedSpectraScanToIndex.Add(objSpectrumInfo.ScanNumber, mCachedSpectrumCount);
                         }

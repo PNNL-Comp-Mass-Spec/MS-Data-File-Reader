@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -94,9 +95,9 @@ namespace MSDataFileReader
         protected string mInFileCurrentLineText;
         protected int mInFileCurrentCharIndex;
 
-        // This hash table maps scan number to index in mIndexedSpectrumInfo()
+        // This dictionary maps scan number to index in mIndexedSpectrumInfo()
         // If more than one spectrum comes from the same scan, then tracks the first one read
-        protected Hashtable mIndexedSpectraScanToIndex;
+        protected readonly Dictionary<int, int> mIndexedSpectraScanToIndex = new();
         protected int mLastSpectrumIndexRead;
 
         // These variables are used when mDataReaderMode = Indexed
@@ -370,7 +371,7 @@ namespace MSDataFileReader
                 {
                     if (GetSpectrumReadyStatus(true))
                     {
-                        if (mIndexedSpectraScanToIndex is null || mIndexedSpectraScanToIndex.Count == 0)
+                        if (mIndexedSpectraScanToIndex.Count == 0)
                         {
                             for (int intSpectrumIndex = 0, loopTo = mIndexedSpectrumInfoCount - 1; intSpectrumIndex <= loopTo; intSpectrumIndex++)
                             {
@@ -384,12 +385,8 @@ namespace MSDataFileReader
                         else
                         {
                             // Look for intScanNumber in mIndexedSpectraScanToIndex
-                            var objIndex = mIndexedSpectraScanToIndex[intScanNumber];
-                            if (objIndex is object)
-                            {
-                                int intSpectrumIndex = Conversions.ToInteger(objIndex);
-                                blnSuccess = GetSourceXMLByIndex(intSpectrumIndex, out strSourceXML);
-                            }
+                            var index = mIndexedSpectraScanToIndex[intScanNumber];
+                            blnSuccess = GetSourceXMLByIndex(index, out strSourceXML);
                         }
 
                         if (!blnSuccess && mErrorMessage.Length == 0)
@@ -471,7 +468,7 @@ namespace MSDataFileReader
                 {
                     if (GetSpectrumReadyStatus(true))
                     {
-                        if (mIndexedSpectraScanToIndex is null || mIndexedSpectraScanToIndex.Count == 0)
+                        if (mIndexedSpectraScanToIndex.Count == 0)
                         {
                             for (int intSpectrumIndex = 0, loopTo = mIndexedSpectrumInfoCount - 1; intSpectrumIndex <= loopTo; intSpectrumIndex++)
                             {
@@ -485,12 +482,8 @@ namespace MSDataFileReader
                         else
                         {
                             // Look for intScanNumber in mIndexedSpectraScanToIndex
-                            var objIndex = mIndexedSpectraScanToIndex[intScanNumber];
-                            if (objIndex is object)
-                            {
-                                int intSpectrumIndex = Conversions.ToInteger(objIndex);
-                                blnSuccess = GetSpectrumByIndexWork(intSpectrumIndex, out objSpectrumInfo, blnHeaderInfoOnly);
-                            }
+                            var index = mIndexedSpectraScanToIndex[intScanNumber];
+                            blnSuccess = GetSpectrumByIndexWork(index, out objSpectrumInfo, blnHeaderInfoOnly);
                         }
 
                         if (!blnSuccess && mErrorMessage.Length == 0)
@@ -557,14 +550,7 @@ namespace MSDataFileReader
             // Reset the indexed spectrum info
             mIndexedSpectrumInfoCount = 0;
             mIndexedSpectrumInfo = new udtIndexedSpectrumInfoType[1000];
-            if (mIndexedSpectraScanToIndex is null)
-            {
-                mIndexedSpectraScanToIndex = new Hashtable();
-            }
-            else
-            {
-                mIndexedSpectraScanToIndex.Clear();
-            }
+            mIndexedSpectraScanToIndex.Clear();
         }
 
         protected override void InitializeLocalVariables()
@@ -695,7 +681,7 @@ namespace MSDataFileReader
                 withBlock.ByteOffsetStart = lngByteOffsetStart;
                 withBlock.ByteOffsetEnd = lngByteOffsetEnd;
                 UpdateFileStats(mIndexedSpectrumInfoCount + 1, withBlock.ScanNumber);
-                if (!mIndexedSpectraScanToIndex.Contains(withBlock.ScanNumber))
+                if (!mIndexedSpectraScanToIndex.ContainsKey(withBlock.ScanNumber))
                 {
                     mIndexedSpectraScanToIndex.Add(withBlock.ScanNumber, mIndexedSpectrumInfoCount);
                 }
