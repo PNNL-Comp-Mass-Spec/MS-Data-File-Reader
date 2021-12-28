@@ -603,7 +603,10 @@ namespace MSDataFileReader
                     ScanNumberList = new int[mCachedSpectrumCount];
                     var loopTo = ScanNumberList.Length - 1;
                     for (intSpectrumIndex = 0; intSpectrumIndex <= loopTo; intSpectrumIndex++)
+                    {
                         ScanNumberList[intSpectrumIndex] = mCachedSpectra[intSpectrumIndex].ScanNumber;
+                    }
+
                     blnSuccess = true;
                 }
                 else

@@ -369,7 +369,10 @@ namespace MSDataFileReader
                                     sngValues = new float[dblDataArray.Length];
                                     var loopTo = dblDataArray.Length - 1;
                                     for (intIndex = 0; intIndex <= loopTo; intIndex++)
+                                    {
                                         sngValues[intIndex] = (float)dblDataArray[intIndex];
+                                    }
+
                                     blnSuccess = true;
                                 }
 

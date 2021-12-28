@@ -283,7 +283,10 @@ namespace MSDataFileReader
                         ScanNumberList = new int[mIndexedSpectrumInfoCount];
                         var loopTo = ScanNumberList.Length - 1;
                         for (intSpectrumIndex = 0; intSpectrumIndex <= loopTo; intSpectrumIndex++)
+                        {
                             ScanNumberList[intSpectrumIndex] = mIndexedSpectrumInfo[intSpectrumIndex].ScanNumber;
+                        }
+
                         blnSuccess = true;
                     }
                 }

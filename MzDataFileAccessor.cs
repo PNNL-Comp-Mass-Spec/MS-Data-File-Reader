@@ -540,7 +540,10 @@ namespace MSDataFileReader
                         SpectrumIDList = new int[mIndexedSpectrumInfoCount];
                         var loopTo = SpectrumIDList.Length - 1;
                         for (intSpectrumIndex = 0; intSpectrumIndex <= loopTo; intSpectrumIndex++)
+                        {
                             SpectrumIDList[intSpectrumIndex] = mIndexedSpectrumInfo[intSpectrumIndex].SpectrumID;
+                        }
+
                         blnSuccess = true;
                     }
                 }

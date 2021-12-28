@@ -426,8 +426,10 @@ namespace MSDataFileReader
                     {
                         // Need to slide the buffer window backward
                         do
+                        {
                             mByteBufferFileOffsetStart -= mByteBuffer.Length;
-                        while (lngByteOffset < mByteBufferFileOffsetStart);
+                        } while (lngByteOffset < mByteBufferFileOffsetStart);
+
                         if (mByteBufferFileOffsetStart < 0L)
                         {
                             mByteBufferFileOffsetStart = 0L;
@@ -448,7 +450,10 @@ namespace MSDataFileReader
                             // Possibly slide the buffer window forward (note that if
                             // mByteBufferCount < mByteBuffer.Length then we may not need to update mByteBufferFileOffsetStart)
                             while (lngByteOffset > mByteBufferFileOffsetStart + mByteBuffer.Length)
+                            {
                                 mByteBufferFileOffsetStart += mByteBuffer.Length;
+                            }
+
                             if (mByteBufferFileOffsetStart >= mBinaryReader.Length)
                             {
                                 // This shouldn't normally happen
@@ -1151,7 +1156,10 @@ namespace MSDataFileReader
                                     // First, shift all of the data so that element mByteBufferNextLineStartIndex moves to element 0
                                     var loopTo = mByteBufferCount - 1;
                                     for (intIndex = mByteBufferNextLineStartIndex; intIndex <= loopTo; intIndex++)
+                                    {
                                         mByteBuffer[intIndex - mByteBufferNextLineStartIndex] = mByteBuffer[intIndex];
+                                    }
+
                                     mByteBufferCount -= mByteBufferNextLineStartIndex;
                                     mByteBufferFileOffsetStart += mByteBufferNextLineStartIndex;
                                     intSearchIndexStartOffset = mByteBufferCount;
@@ -1226,7 +1234,9 @@ namespace MSDataFileReader
 
                                 // Shift the data
                                 for (intIndex = mByteBufferCount - intShiftIncrement - 1; intIndex >= 0; intIndex -= 1)
+                                {
                                     mByteBuffer[intShiftIncrement + intIndex] = mByteBuffer[intIndex];
+                                }
 
                                 // Update the tracking variables
                                 mByteBufferFileOffsetStart -= intShiftIncrement;

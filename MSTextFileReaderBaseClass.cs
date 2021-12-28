@@ -502,7 +502,9 @@ namespace MSDataFileReader
 
                     var loopTo = intChargeEnd - intChargeStart;
                     for (intChargeIndex = 0; intChargeIndex <= loopTo; intChargeIndex++)
+                    {
                         objSpectrumInfo.AddOrUpdateChargeList(intChargeStart + intChargeIndex, true);
+                    }
                 }
             }
         }
@@ -582,7 +584,10 @@ namespace MSDataFileReader
         {
             var lstMSMSData = new List<string>();
             for (int intIndex = 0, loopTo = intMsMsDataCount - 1; intIndex <= loopTo; intIndex++)
+            {
                 lstMSMSData.Add(strMSMSData[intIndex]);
+            }
+
             return ParseMsMsDataList(lstMSMSData, out dblMasses, out sngIntensities, blnShrinkDataArrays);
         }
 
