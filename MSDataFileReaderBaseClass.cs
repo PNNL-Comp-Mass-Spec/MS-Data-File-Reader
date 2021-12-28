@@ -227,7 +227,7 @@ namespace MSDataFileReader
         {
             get
             {
-                return Conversions.ToSingle(Math.Round(mProgressPercentComplete, 2));
+                return (float)Math.Round(mProgressPercentComplete, 2);
             }
         }
 
