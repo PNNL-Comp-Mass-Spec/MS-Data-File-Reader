@@ -1,4 +1,5 @@
 ﻿using System;
+using System.IO;
 
 namespace MSDataFileReader
 {
@@ -274,22 +275,21 @@ namespace MSDataFileReader
 
         protected static byte[] DecompressZLib(string strBase64EncodedText)
         {
-            System.IO.MemoryStream msCompressed;
-            msCompressed = new System.IO.MemoryStream(Convert.FromBase64String(strBase64EncodedText));
+            var msCompressed = new System.IO.MemoryStream(Convert.FromBase64String(strBase64EncodedText));
             var msInflated = new System.IO.MemoryStream(strBase64EncodedText.Length * 2);
 
             // We must skip the first two bytes
             // See http://george.chiramattel.com/blog/2007/09/deflatestream-block-length-does-not-match.html
             msCompressed.ReadByte();
             msCompressed.ReadByte();
+
             using (var inflater = new System.IO.Compression.DeflateStream(msCompressed, System.IO.Compression.CompressionMode.Decompress))
             {
-                byte[] bytBuffer;
-                int intBytesRead;
-                bytBuffer = new byte[4096];
+                var bytBuffer = new byte[4096];
+
                 while (inflater.CanRead)
                 {
-                    intBytesRead = inflater.Read(bytBuffer, 0, bytBuffer.Length);
+                    var intBytesRead = inflater.Read(bytBuffer, 0, bytBuffer.Length);
                     if (intBytesRead == 0)
                         break;
                     msInflated.Write(bytBuffer, 0, intBytesRead);
@@ -299,7 +299,7 @@ namespace MSDataFileReader
             }
 
             byte[] bytArray;
-            int intTotalBytesDecompressed = (int)msInflated.Length;
+            var intTotalBytesDecompressed = (int)msInflated.Length;
             if (intTotalBytesDecompressed > 0)
             {
                 bytArray = new byte[intTotalBytesDecompressed];
@@ -351,10 +351,7 @@ namespace MSDataFileReader
         {
             const int DATA_TYPE_PRECISION_BYTES = 2;
             const string DATA_TYPE_NAME = "int";
-            byte[] bytArray;
-            var bytNewBytes = new byte[2];
-            int intIndex;
-            int intBaseIndex;
+
             intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
             strDataTypeNameReturn = DATA_TYPE_NAME;
             if (dataArray is null || dataArray.Length == -1)
@@ -363,12 +360,13 @@ namespace MSDataFileReader
             }
             else
             {
-                bytArray = new byte[(dataArray.Length * DATA_TYPE_PRECISION_BYTES)];
+                var bytArray = new byte[(dataArray.Length * DATA_TYPE_PRECISION_BYTES)];
                 var loopTo = dataArray.Length - 1;
+                int intIndex;
                 for (intIndex = 0; intIndex <= loopTo; intIndex++)
                 {
-                    intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
-                    bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
+                    var intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
+                    var bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
 
                     // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                     // What I do know is that mzXML works with what I'm calling emBigEndian
@@ -404,10 +402,6 @@ namespace MSDataFileReader
         {
             const int DATA_TYPE_PRECISION_BYTES = 4;
             const string DATA_TYPE_NAME = "int";
-            byte[] bytArray;
-            var bytNewBytes = new byte[4];
-            int intIndex;
-            int intBaseIndex;
             intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
             strDataTypeNameReturn = DATA_TYPE_NAME;
             if (dataArray is null || dataArray.Length == -1)
@@ -416,12 +410,13 @@ namespace MSDataFileReader
             }
             else
             {
-                bytArray = new byte[(dataArray.Length * DATA_TYPE_PRECISION_BYTES)];
+                var bytArray = new byte[(dataArray.Length * DATA_TYPE_PRECISION_BYTES)];
                 var loopTo = dataArray.Length - 1;
+                int intIndex;
                 for (intIndex = 0; intIndex <= loopTo; intIndex++)
                 {
-                    intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
-                    bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
+                    var intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
+                    var bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
 
                     // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                     // What I do know is that mzXML works with what I'm calling emBigEndian
@@ -459,10 +454,6 @@ namespace MSDataFileReader
         {
             const int DATA_TYPE_PRECISION_BYTES = 4;
             const string DATA_TYPE_NAME = "float";
-            byte[] bytArray;
-            var bytNewBytes = new byte[4];
-            int intIndex;
-            int intBaseIndex;
             intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
             strDataTypeNameReturn = DATA_TYPE_NAME;
             if (dataArray is null || dataArray.Length == -1)
@@ -471,12 +462,13 @@ namespace MSDataFileReader
             }
             else
             {
-                bytArray = new byte[(dataArray.Length * DATA_TYPE_PRECISION_BYTES)];
+                var bytArray = new byte[(dataArray.Length * DATA_TYPE_PRECISION_BYTES)];
                 var loopTo = dataArray.Length - 1;
+                int intIndex;
                 for (intIndex = 0; intIndex <= loopTo; intIndex++)
                 {
-                    intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
-                    bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
+                    var intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
+                    var bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
 
                     // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                     // What I do know is that mzXML works with what I'm calling emBigEndian
@@ -514,10 +506,6 @@ namespace MSDataFileReader
         {
             const int DATA_TYPE_PRECISION_BYTES = 8;
             const string DATA_TYPE_NAME = "float";
-            byte[] bytArray;
-            var bytNewBytes = new byte[8];
-            int intIndex;
-            int intBaseIndex;
             intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
             strDataTypeNameReturn = DATA_TYPE_NAME;
             if (dataArray is null || dataArray.Length == -1)
@@ -526,12 +514,13 @@ namespace MSDataFileReader
             }
             else
             {
-                bytArray = new byte[(dataArray.Length * DATA_TYPE_PRECISION_BYTES)];
+                var bytArray = new byte[(dataArray.Length * DATA_TYPE_PRECISION_BYTES)];
                 var loopTo = dataArray.Length - 1;
+                int intIndex;
                 for (intIndex = 0; intIndex <= loopTo; intIndex++)
                 {
-                    intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
-                    bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
+                    var intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
+                    var bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
 
                     // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                     // What I do know is that mzXML works with what I'm calling emBigEndian

@@ -153,17 +153,15 @@ namespace MSDataFileReader
         /// <remarks></remarks>
         protected virtual string ExtractTextBetweenOffsets(string strFilePath, long lngStartByteOffset, long lngEndByteOffset)
         {
-            byte[] bytData;
-            int intBytesToRead;
             try
             {
                 if (mBinaryReader != null && mBinaryReader.CanRead)
                 {
                     mBinaryReader.Seek(lngStartByteOffset, SeekOrigin.Begin);
-                    intBytesToRead = (int)(lngEndByteOffset - lngStartByteOffset + 1L);
+                    var intBytesToRead = (int)(lngEndByteOffset - lngStartByteOffset + 1L);
                     if (intBytesToRead > 0)
                     {
-                        bytData = new byte[intBytesToRead];
+                        var bytData = new byte[intBytesToRead];
                         intBytesToRead = mBinaryReader.Read(bytData, 0, intBytesToRead);
                         switch (mInputFileEncoding)
                         {
@@ -325,6 +323,7 @@ namespace MSDataFileReader
         {
             var blnSuccess = default(bool);
             strSourceXML = string.Empty;
+
             try
             {
                 blnSuccess = false;
@@ -387,6 +386,7 @@ namespace MSDataFileReader
         {
             var blnSuccess = default(bool);
             strSourceXML = string.Empty;
+
             try
             {
                 blnSuccess = false;
@@ -444,6 +444,7 @@ namespace MSDataFileReader
         public override bool GetSpectrumByIndex(int intSpectrumIndex, out clsSpectrumInfo objSpectrumInfo)
         {
             var blnSuccess = default(bool);
+
             try
             {
                 if (mDataReaderMode == drmDataReaderModeConstants.Cached)
@@ -491,6 +492,7 @@ namespace MSDataFileReader
         {
             var blnSuccess = default(bool);
             objSpectrumInfo = null;
+
             try
             {
                 blnSuccess = false;
@@ -623,6 +625,7 @@ namespace MSDataFileReader
         public override bool OpenFile(string strInputFilePath)
         {
             bool blnSuccess;
+
             try
             {
                 blnSuccess = OpenFileInit(strInputFilePath);

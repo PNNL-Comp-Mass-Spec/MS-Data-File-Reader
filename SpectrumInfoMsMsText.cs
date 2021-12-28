@@ -132,8 +132,6 @@ namespace MSDataFileReader
         /// <param name="blnAddToExistingChargeList"></param>
         public void AddOrUpdateChargeList(int intNewCharge, bool blnAddToExistingChargeList)
         {
-            int intIndex, intCopyIndex;
-            bool blnChargeAdded;
             try
             {
                 if (blnAddToExistingChargeList)
@@ -143,8 +141,9 @@ namespace MSDataFileReader
                     if (ParentIonChargeCount < MAX_CHARGE_COUNT)
                     {
                         // Insert intNewCharge into ParentIonCharges() in the appropriate slot
-                        blnChargeAdded = false;
+                        var blnChargeAdded = false;
                         var loopTo = ParentIonChargeCount - 1;
+                        int intIndex;
                         for (intIndex = 0; intIndex <= loopTo; intIndex++)
                         {
                             if (ParentIonCharges[intIndex] == intNewCharge)
@@ -157,6 +156,7 @@ namespace MSDataFileReader
                             {
                                 // Need to shift each of the existing charges up one
                                 var loopTo1 = intIndex + 1;
+                                int intCopyIndex;
                                 for (intCopyIndex = ParentIonChargeCount; intCopyIndex >= loopTo1; intCopyIndex -= 1)
                                 {
                                     ParentIonCharges[intCopyIndex] = ParentIonCharges[intCopyIndex - 1];
@@ -196,7 +196,7 @@ namespace MSDataFileReader
         public new clsSpectrumInfoMsMsText Clone()
         {
             // First create a shallow copy of this object
-            clsSpectrumInfoMsMsText objTarget = (clsSpectrumInfoMsMsText)MemberwiseClone();
+            var objTarget = (clsSpectrumInfoMsMsText)MemberwiseClone();
 
             // Next, manually copy the array objects and any other objects
             // Duplicate code from the base class
@@ -233,7 +233,7 @@ namespace MSDataFileReader
 
             return objTarget;
         }
-        
+
         public void CopyTo(out clsSpectrumInfoMsMsText objTarget)
         {
             objTarget = Clone();

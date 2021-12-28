@@ -239,10 +239,8 @@ namespace MSDataFileReader
 
         public override bool OpenFile(string strInputFilePath)
         {
-            bool blnSuccess;
             InitializeLocalVariables();
-            blnSuccess = base.OpenFile(strInputFilePath);
-            return blnSuccess;
+            return base.OpenFile(strInputFilePath);
         }
 
         /// <summary>
@@ -253,18 +251,14 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         private bool ParseBinaryData(string strMSMSDataBase64Encoded, string strCompressionType)
         {
-            float[] sngDataArray = null;
-            double[] dblDataArray = null;
-            bool zLibCompressed = false;
             var eEndianMode = clsBase64EncodeDecode.eEndianTypeConstants.BigEndian;
-            int intIndex;
-            bool blnSuccess;
+
             if (mCurrentSpectrum is null)
             {
                 return false;
             }
 
-            blnSuccess = false;
+            var blnSuccess = false;
             if (strMSMSDataBase64Encoded is null || strMSMSDataBase64Encoded.Length == 0)
             {
                 {
@@ -278,6 +272,7 @@ namespace MSDataFileReader
             {
                 try
                 {
+                    var zLibCompressed = false;
                     if ((strCompressionType ?? "") == clsSpectrumInfoMzXML.CompressionTypes.zlib)
                     {
                         zLibCompressed = true;
@@ -287,10 +282,12 @@ namespace MSDataFileReader
                         zLibCompressed = false;
                     }
 
+                    int intIndex;
                     switch (mCurrentSpectrum.NumericPrecisionOfData)
                     {
                         case 32:
                             {
+                                float[] sngDataArray = null;
                                 if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out sngDataArray, zLibCompressed, eEndianMode))
                                 {
                                     // sngDataArray now contains pairs of singles, either m/z and intensity or intensity and m/z
@@ -329,6 +326,7 @@ namespace MSDataFileReader
 
                         case 64:
                             {
+                                double[] dblDataArray = null;
                                 if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out dblDataArray, zLibCompressed, eEndianMode))
                                 {
                                     // dblDataArray now contains pairs of doubles, either m/z and intensity or intensity and m/z
@@ -417,11 +415,11 @@ namespace MSDataFileReader
 
         protected override void ParseElementContent()
         {
-            bool blnSuccess;
             if (mAbortProcessing)
                 return;
             if (mCurrentSpectrum is null)
                 return;
+
             try
             {
                 // Skip the element if we aren't parsing a scan (inside a scan element)
@@ -452,11 +450,10 @@ namespace MSDataFileReader
                             {
                                 if (!mSkipBinaryData)
                                 {
-                                    blnSuccess = ParseBinaryData(XMLTextReaderGetInnerText(), mCurrentSpectrum.CompressionType);
+                                    ParseBinaryData(XMLTextReaderGetInnerText(), mCurrentSpectrum.CompressionType);
                                 }
                                 else
                                 {
-                                    blnSuccess = true;
                                 }
 
                                 break;
@@ -476,6 +473,7 @@ namespace MSDataFileReader
                 return;
             if (mCurrentSpectrum is null)
                 return;
+
             try
             {
                 // If we just moved out of a scan element, finalize the current scan
@@ -509,9 +507,6 @@ namespace MSDataFileReader
 
         protected override void ParseStartElement()
         {
-            string strValue;
-            bool blnAttributeMissing;
-            int intInstrumentID;
             if (mAbortProcessing)
                 return;
             if (mCurrentSpectrum is null)
@@ -542,6 +537,7 @@ namespace MSDataFileReader
 
                         mCurrentSpectrum.Clear();
                         mScanDepth += 1;
+                        bool blnAttributeMissing;
                         if (!mXMLReader.HasAttributes)
                         {
                             blnAttributeMissing = true;
@@ -570,7 +566,8 @@ namespace MSDataFileReader
                                         withBlock.Centroided = true;
                                     }
 
-                                    intInstrumentID = GetAttribValue(ScanAttributeNames.msInstrumentID, 1);
+                                    // ReSharper disable once UnusedVariable
+                                    var intInstrumentID = GetAttribValue(ScanAttributeNames.msInstrumentID, 1);
                                     withBlock.DataCount = GetAttribValue(ScanAttributeNames.peaksCount, 0);
                                     withBlock.Polarity = GetAttribValue(ScanAttributeNames.polarity, "+");
                                     withBlock.RetentionTimeMin = GetAttribTimeValueMinutes(ScanAttributeNames.retentionTime);
@@ -648,7 +645,7 @@ namespace MSDataFileReader
                         if (mXMLReader.HasAttributes)
                         {
                             // First look for attribute xlmns
-                            strValue = GetAttribValue(mzXMLRootAttrbuteNames.xmlns, string.Empty);
+                            var strValue = GetAttribValue(mzXMLRootAttrbuteNames.xmlns, string.Empty);
                             if (strValue is null || strValue.Length == 0)
                             {
                                 // Attribute not found; look for attribute xsi:schemaLocation
@@ -774,10 +771,11 @@ namespace MSDataFileReader
 
         private void ValidateMZXmlFileVersion(string xmlWithFileVersion)
         {
-            string strMessage;
             try
             {
                 mFileVersion = string.Empty;
+                string strMessage;
+
                 if (!ExtractMzXmlFileVersion(xmlWithFileVersion, out mFileVersion))
                 {
                     strMessage = "Unknown mzXML file version; expected text not found in xmlWithFileVersion";

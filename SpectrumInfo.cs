@@ -419,7 +419,7 @@ namespace MSDataFileReader
         public clsSpectrumInfo Clone()
         {
             // First create a shallow copy of this object
-            clsSpectrumInfo objTarget = (clsSpectrumInfo)MemberwiseClone();
+            var objTarget = (clsSpectrumInfo)MemberwiseClone();
 
             // Next, manually copy the array objects and any other objects
             // Note: Since Clone() methods in the derived classes hide this method,
@@ -454,8 +454,9 @@ namespace MSDataFileReader
 
         public void UpdateMZRange()
         {
-            float sngMzRangeStart = 0f;
-            float sngMzRangeEnd = 0f;
+            var sngMzRangeStart = 0f;
+            var sngMzRangeEnd = 0f;
+
             try
             {
                 if (DataCount > 0 && MZList != null)
@@ -477,10 +478,10 @@ namespace MSDataFileReader
 
         public void ComputeBasePeakAndTIC()
         {
-            int intIndex;
             var dblTotalIonCurrent = default(double);
             var dblBasePeakMZ = default(double);
             var sngBasePeakIntensity = default(float);
+
             try
             {
                 dblTotalIonCurrent = 0d;
@@ -492,6 +493,7 @@ namespace MSDataFileReader
                     sngBasePeakIntensity = IntensityList[0];
                     dblTotalIonCurrent = IntensityList[0];
                     var loopTo = DataCount - 1;
+                    int intIndex;
                     for (intIndex = 1; intIndex <= loopTo; intIndex++)
                     {
                         dblTotalIonCurrent += IntensityList[intIndex];
@@ -525,23 +527,22 @@ namespace MSDataFileReader
         public float LookupIonIntensityByMZ(double dblMZToFind, float sngIntensityIfNotFound, float sngMatchTolerance = 0.05f)
         {
             float sngIntensityMatch;
-            double dblMZMinimum;
-            double dblMZDifference;
-            int intIndex;
+
             try
             {
                 // Define the minimum MZ value to consider
-                dblMZMinimum = dblMZToFind - sngMatchTolerance;
+                var dblMZMinimum = dblMZToFind - sngMatchTolerance;
                 sngIntensityMatch = sngIntensityIfNotFound;
                 if (!(MZList is null || IntensityList is null))
                 {
+                    int intIndex;
                     for (intIndex = DataCount - 1; intIndex >= 0; intIndex -= 1)
                     {
                         if (intIndex < MZList.Length && intIndex < IntensityList.Length)
                         {
                             if (MZList[intIndex] >= dblMZMinimum)
                             {
-                                dblMZDifference = dblMZToFind - MZList[intIndex];
+                                var dblMZDifference = dblMZToFind - MZList[intIndex];
                                 if (Math.Abs(dblMZDifference) <= sngMatchTolerance)
                                 {
                                     if (IntensityList[intIndex] > sngIntensityMatch)

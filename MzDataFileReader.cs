@@ -220,16 +220,15 @@ namespace MSDataFileReader
 
         private float FindIonIntensityInRecentSpectra(int intSpectrumIDToFind, double dblMZToFind)
         {
-            float sngIntensityMatch;
-            IEnumerator objEnumerator;
-            clsSpectrumInfoMzData objSpectrum;
-            sngIntensityMatch = 0f;
+            var sngIntensityMatch = 0f;
+
             if (mMostRecentSurveyScanSpectra != null)
             {
-                objEnumerator = mMostRecentSurveyScanSpectra.GetEnumerator();
+                var objEnumerator = mMostRecentSurveyScanSpectra.GetEnumerator();
+
                 while (objEnumerator.MoveNext())
                 {
-                    objSpectrum = (clsSpectrumInfoMzData)objEnumerator.Current;
+                    var objSpectrum = (clsSpectrumInfoMzData)objEnumerator.Current;
                     if (objSpectrum.SpectrumID == intSpectrumIDToFind)
                     {
                         sngIntensityMatch = objSpectrum.LookupIonIntensityByMZ(dblMZToFind, 0f);
@@ -269,7 +268,6 @@ namespace MSDataFileReader
 
         protected override void InitializeCurrentSpectrum(bool blnAutoShrinkDataLists)
         {
-            clsSpectrumInfoMzData objSpectrumCopy = null;
             if (mCurrentSpectrum != null)
             {
                 if (mCurrentSpectrum.MSLevel == 1)
@@ -280,6 +278,7 @@ namespace MSDataFileReader
                     }
 
                     // Add mCurrentSpectrum to mMostRecentSurveyScanSpectra
+                    clsSpectrumInfoMzData objSpectrumCopy = null;
                     mCurrentSpectrum.CopyTo(out objSpectrumCopy);
                     mMostRecentSurveyScanSpectra.Enqueue(objSpectrumCopy);
                 }
@@ -315,10 +314,8 @@ namespace MSDataFileReader
 
         public override bool OpenFile(string strInputFilePath)
         {
-            bool blnSuccess;
             InitializeLocalVariables();
-            blnSuccess = base.OpenFile(strInputFilePath);
-            return blnSuccess;
+            return base.OpenFile(strInputFilePath);
         }
 
         /// <summary>
@@ -332,13 +329,9 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         private bool ParseBinaryData(string strMSMSDataBase64Encoded, ref float[] sngValues, int NumericPrecisionOfData, string PeaksEndianMode, bool blnUpdatePeaksCountIfInconsistent)
         {
-            float[] sngDataArray = null;
-            double[] dblDataArray = null;
-            bool zLibCompressed = false;
-            clsBase64EncodeDecode.eEndianTypeConstants eEndianMode;
-            int intIndex;
-            bool blnSuccess;
-            blnSuccess = false;
+            var zLibCompressed = false;
+            var blnSuccess = false;
+
             if (strMSMSDataBase64Encoded is null || strMSMSDataBase64Encoded.Length == 0)
             {
                 sngValues = new float[0];
@@ -347,12 +340,12 @@ namespace MSDataFileReader
             {
                 try
                 {
-                    eEndianMode = mCurrentSpectrum.GetEndianModeValue(PeaksEndianMode);
+                    var eEndianMode = mCurrentSpectrum.GetEndianModeValue(PeaksEndianMode);
                     switch (NumericPrecisionOfData)
                     {
                         case 32:
                             {
-                                if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out sngDataArray, zLibCompressed, eEndianMode))
+                                if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
                                 {
                                     sngValues = new float[sngDataArray.Length];
                                     sngDataArray.CopyTo(sngValues, 0);
@@ -364,10 +357,11 @@ namespace MSDataFileReader
 
                         case 64:
                             {
-                                if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out dblDataArray, zLibCompressed, eEndianMode))
+                                if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
                                 {
                                     sngValues = new float[dblDataArray.Length];
                                     var loopTo = dblDataArray.Length - 1;
+                                    int intIndex;
                                     for (intIndex = 0; intIndex <= loopTo; intIndex++)
                                     {
                                         sngValues[intIndex] = (float)dblDataArray[intIndex];
@@ -426,12 +420,9 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         private bool ParseBinaryData(string strMSMSDataBase64Encoded, ref double[] dblValues, int NumericPrecisionOfData, string PeaksEndianMode, bool blnUpdatePeaksCountIfInconsistent)
         {
-            float[] sngDataArray = null;
-            double[] dblDataArray = null;
-            bool zLibCompressed = false;
-            clsBase64EncodeDecode.eEndianTypeConstants eEndianMode;
-            bool blnSuccess;
-            blnSuccess = false;
+            var zLibCompressed = false;
+            var blnSuccess = false;
+
             if (strMSMSDataBase64Encoded is null || strMSMSDataBase64Encoded.Length == 0)
             {
                 dblValues = new double[0];
@@ -440,12 +431,12 @@ namespace MSDataFileReader
             {
                 try
                 {
-                    eEndianMode = mCurrentSpectrum.GetEndianModeValue(PeaksEndianMode);
+                    var eEndianMode = mCurrentSpectrum.GetEndianModeValue(PeaksEndianMode);
                     switch (NumericPrecisionOfData)
                     {
                         case 32:
                             {
-                                if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out sngDataArray, zLibCompressed, eEndianMode))
+                                if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
                                 {
                                     dblValues = new double[sngDataArray.Length];
                                     sngDataArray.CopyTo(dblValues, 0);
@@ -457,7 +448,7 @@ namespace MSDataFileReader
 
                         case 64:
                             {
-                                if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out dblDataArray, zLibCompressed, eEndianMode))
+                                if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
                                 {
                                     dblValues = new double[dblDataArray.Length];
                                     dblDataArray.CopyTo(dblValues, 0);
@@ -505,11 +496,12 @@ namespace MSDataFileReader
 
         protected override void ParseElementContent()
         {
-            bool blnSuccess;
             if (mAbortProcessing)
                 return;
+
             if (mCurrentSpectrum is null)
                 return;
+
             try
             {
                 // Check the last element name sent to startElement to determine
@@ -518,6 +510,7 @@ namespace MSDataFileReader
                 {
                     // Note: We could use GetParentElement() to determine whether this base-64 encoded data
                     // belongs to mzArrayBinary or intenArrayBinary, but it is faster to use mCurrentXMLDataFileSection
+                    bool blnSuccess;
                     switch (mCurrentXMLDataFileSection)
                     {
                         case eCurrentMZDataFileSectionConstants.SpectrumDataArrayMZ:
@@ -573,6 +566,7 @@ namespace MSDataFileReader
                 return;
             if (mCurrentSpectrum is null)
                 return;
+
             try
             {
                 // If we just moved out of a spectrum element, finalize the current scan
@@ -595,12 +589,12 @@ namespace MSDataFileReader
 
         protected override void ParseStartElement()
         {
-            string strCVName = string.Empty;
-            string strValue = string.Empty;
             if (mAbortProcessing)
                 return;
+
             if (mCurrentSpectrum is null)
                 return;
+
             if (!mSkippedStartElementAdvance)
             {
                 // Add mXMLReader.Name to mParentElementStack
@@ -613,6 +607,8 @@ namespace MSDataFileReader
             {
                 case XMLSectionNames.CVParam:
                     {
+                        string strCVName;
+                        string strValue;
                         switch (mCurrentXMLDataFileSection)
                         {
                             case eCurrentMZDataFileSectionConstants.DataProcessingMethod:
@@ -1015,26 +1011,23 @@ namespace MSDataFileReader
 
         private void ValidateMZDataFileVersion(string strFileVersion)
         {
-            System.Text.RegularExpressions.Regex objFileVersionRegEx;
-            System.Text.RegularExpressions.Match objMatch;
-            string strMessage;
             try
             {
                 mFileVersion = string.Empty;
 
                 // Currently, the only version supported is 1.x (typically 1.05)
-                objFileVersionRegEx = new System.Text.RegularExpressions.Regex(@"1\.[0-9]+", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                var objFileVersionRegEx = new System.Text.RegularExpressions.Regex(@"1\.[0-9]+", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
                 // Validate the mzData file version
                 if (!string.IsNullOrWhiteSpace(strFileVersion))
                 {
                     mFileVersion = string.Copy(strFileVersion);
-                    objMatch = objFileVersionRegEx.Match(strFileVersion);
+                    var objMatch = objFileVersionRegEx.Match(strFileVersion);
                     if (!objMatch.Success)
                     {
                         // Unknown version
                         // Log error and abort if mParseFilesWithUnknownVersion = False
-                        strMessage = "Unknown mzData file version: " + mFileVersion;
+                        var strMessage = "Unknown mzData file version: " + mFileVersion;
                         if (mParseFilesWithUnknownVersion)
                         {
                             strMessage += "; attempting to parse since ParseFilesWithUnknownVersion = True";

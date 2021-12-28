@@ -127,15 +127,10 @@ namespace MSDataFileReader
         protected override bool AdvanceFileReaders(emmElementMatchModeConstants eElementMatchMode)
         {
             bool blnMatchFound;
-            bool blnAppendingText;
             var lngByteOffsetForRewind = default(long);
             var blnLookForScanCountOnNextRead = default(bool);
-            string strScanCountSearchText = string.Empty;
-            int intCharIndex;
-            string strAcqNumberSearchText;
-            bool blnAcqNumberFound;
-            string strInFileCurrentLineSubstring;
-            Match objMatch;
+            var strScanCountSearchText = string.Empty;
+
             try
             {
                 if (mInFileCurrentLineText is null)
@@ -143,11 +138,12 @@ namespace MSDataFileReader
                     mInFileCurrentLineText = string.Empty;
                 }
 
-                strInFileCurrentLineSubstring = string.Empty;
-                blnAppendingText = false;
-                strAcqNumberSearchText = string.Empty;
-                blnAcqNumberFound = false;
+                var strInFileCurrentLineSubstring = string.Empty;
+                var blnAppendingText = false;
+                var strAcqNumberSearchText = string.Empty;
+                var blnAcqNumberFound = false;
                 blnMatchFound = false;
+
                 while (!(blnMatchFound || mAbortProcessing))
                 {
                     if (mInFileCurrentCharIndex + 1 < mInFileCurrentLineText.Length)
@@ -161,6 +157,7 @@ namespace MSDataFileReader
                             strInFileCurrentLineSubstring = mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1);
                         }
 
+                        int intCharIndex;
                         if (mAddNewLinesToHeader)
                         {
                             // We haven't yet found the first scan; look for "<spectrumList"
@@ -190,6 +187,7 @@ namespace MSDataFileReader
                             strScanCountSearchText += Environment.NewLine + strInFileCurrentLineSubstring;
                         }
 
+                        Match objMatch;
                         if (blnLookForScanCountOnNextRead)
                         {
                             // Look for the Scan Count value in strScanCountSearchText
@@ -381,6 +379,7 @@ namespace MSDataFileReader
         {
             var blnSuccess = default(bool);
             objCurrentSpectrumInfo = null;
+
             try
             {
                 blnSuccess = false;
@@ -519,8 +518,8 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         public bool GetSpectrumIDList(out int[] SpectrumIDList)
         {
-            int intSpectrumIndex;
             var blnSuccess = default(bool);
+
             try
             {
                 blnSuccess = false;
@@ -539,6 +538,7 @@ namespace MSDataFileReader
                     {
                         SpectrumIDList = new int[mIndexedSpectrumInfoCount];
                         var loopTo = SpectrumIDList.Length - 1;
+                        int intSpectrumIndex;
                         for (intSpectrumIndex = 0; intSpectrumIndex <= loopTo; intSpectrumIndex++)
                         {
                             SpectrumIDList[intSpectrumIndex] = mIndexedSpectrumInfo[intSpectrumIndex].SpectrumID;
@@ -610,6 +610,7 @@ namespace MSDataFileReader
         public override bool ReadAndCacheEntireFile()
         {
             bool blnSuccess;
+
             try
             {
                 if (mBinaryTextReader is null)
@@ -670,7 +671,7 @@ namespace MSDataFileReader
             var lngCurrentSpectrumByteOffsetStart = default(long);
             var lngCurrentSpectrumByteOffsetEnd = default(long);
             bool blnSuccess;
-            bool blnSpectrumFound;
+
             try
             {
                 if (mIndexingComplete)
@@ -678,6 +679,7 @@ namespace MSDataFileReader
                     return true;
                 }
 
+                bool blnSpectrumFound;
                 do
                 {
                     if (mCurrentSpectrumInfo is null)

@@ -221,9 +221,9 @@ namespace MSDataFileReader
         protected void ComputePercentageDataAboveThreshold(int intDataCount, double[] dblMZList, float[] sngIntensityList, double dblThresholdMZ, out float sngPctByCount, out float sngPctByIntensity)
         {
             int intIndex;
-            int intCountAboveThreshold = 0;
-            double dblIntensitySumAboveThreshold = 0d;
-            double dblTotalIntensitySum = 0d;
+            var intCountAboveThreshold = 0;
+            var dblIntensitySumAboveThreshold = 0d;
+            var dblTotalIntensitySum = 0d;
             var loopTo = intDataCount - 1;
             for (intIndex = 0; intIndex <= loopTo; intIndex++)
             {
@@ -249,8 +249,7 @@ namespace MSDataFileReader
 
         public bool ExtractScanInfoFromDtaHeader(string strSpectrumHeader, out int intScanNumberStart, out int intScanNumberEnd, out int intScanCount)
         {
-            int argintCharge = 0;
-            return ExtractScanInfoFromDtaHeader(strSpectrumHeader, out intScanNumberStart, out intScanNumberEnd, out intScanCount, out argintCharge);
+            return ExtractScanInfoFromDtaHeader(strSpectrumHeader, out intScanNumberStart, out intScanNumberEnd, out intScanCount, out _);
         }
 
         /// <summary>
@@ -271,11 +270,11 @@ namespace MSDataFileReader
         public bool ExtractScanInfoFromDtaHeader(string strSpectrumHeader, out int intScanNumberStart, out int intScanNumberEnd, out int intScanCount, out int intCharge)
         {
             var blnScanNumberFound = default(bool);
-            Match reMatch;
             intScanNumberStart = 0;
             intScanNumberEnd = 0;
             intScanCount = 0;
             intCharge = 0;
+
             try
             {
                 blnScanNumberFound = false;
@@ -289,7 +288,7 @@ namespace MSDataFileReader
                     }
 
                     // Extract the scans and charge using a RegEx
-                    reMatch = mDtaHeaderScanAndCharge.Match(strSpectrumHeader);
+                    var reMatch = mDtaHeaderScanAndCharge.Match(strSpectrumHeader);
                     if (reMatch.Success)
                     {
                         if (int.TryParse(reMatch.Groups[1].Value, out intScanNumberStart))
@@ -420,12 +419,6 @@ namespace MSDataFileReader
             // % above 700 by intensity sum:	21%
             // % above 700 by data point count:	33%
 
-            float sngPctByCount;
-            float sngPctByIntensity;
-            int intChargeStart;
-            int intChargeEnd;
-            int intChargeIndex;
-            double dblParentIonMH;
             if (objSpectrumInfo.DataCount <= 0 || objSpectrumInfo.MZList is null)
             {
                 // This shouldn't happen, but we'll handle it anyway
@@ -443,7 +436,8 @@ namespace MSDataFileReader
             {
                 // Find percentage of data with m/z values greater than the Parent Ion m/z
                 // Compute this number using both raw data point counts and sum of intensity values
-                ComputePercentageDataAboveThreshold(objSpectrumInfo, out sngPctByCount, out sngPctByIntensity);
+                ComputePercentageDataAboveThreshold(objSpectrumInfo, out var sngPctByCount, out var sngPctByIntensity);
+
                 if (sngPctByCount < mThresholdIonPctForSingleCharge && sngPctByIntensity < mThresholdIonPctForSingleCharge)
                 {
                     // Both percentages are less than the threshold for definitively single charge
@@ -451,6 +445,7 @@ namespace MSDataFileReader
                 }
                 else
                 {
+                    int intChargeStart;
                     if (sngPctByCount >= mThresholdIonPctForDoubleCharge && sngPctByIntensity >= mThresholdIonPctForDoubleCharge)
                     {
                         // Both percentages are above the threshold for definitively double charge (or higher)
@@ -461,12 +456,12 @@ namespace MSDataFileReader
                         intChargeStart = 1;
                     }
 
-                    intChargeEnd = 3;
+                    var intChargeEnd = 3;
 
                     // Determine whether intChargeEnd should be higher than 3+
                     do
                     {
-                        dblParentIonMH = ConvoluteMass(objSpectrumInfo.ParentIonMZ, intChargeEnd, 1);
+                        var dblParentIonMH = ConvoluteMass(objSpectrumInfo.ParentIonMZ, intChargeEnd, 1);
                         if (dblParentIonMH < objSpectrumInfo.MZList[objSpectrumInfo.DataCount - 1] + 3d)
                         {
                             intChargeEnd += 1;
@@ -501,6 +496,7 @@ namespace MSDataFileReader
                     }
 
                     var loopTo = intChargeEnd - intChargeStart;
+                    int intChargeIndex;
                     for (intChargeIndex = 0; intChargeIndex <= loopTo; intChargeIndex++)
                     {
                         objSpectrumInfo.AddOrUpdateChargeList(intChargeStart + intChargeIndex, true);
@@ -529,13 +525,13 @@ namespace MSDataFileReader
         public override bool OpenFile(string strInputFilePath)
         {
             bool blnSuccess;
-            System.IO.StreamReader objStreamReader;
+
             try
             {
                 blnSuccess = OpenFileInit(strInputFilePath);
                 if (!blnSuccess)
                     return false;
-                objStreamReader = new System.IO.StreamReader(new System.IO.FileStream(strInputFilePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite));
+                var objStreamReader = new System.IO.StreamReader(new System.IO.FileStream(strInputFilePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite));
                 mInFileStreamLength = objStreamReader.BaseStream.Length;
                 mFileReader = objStreamReader;
                 InitializeLocalVariables();
@@ -562,6 +558,7 @@ namespace MSDataFileReader
 
             // Make sure any open file or text stream is closed
             CloseFile();
+
             try
             {
                 mInputFilePath = "TextStream";
@@ -601,7 +598,6 @@ namespace MSDataFileReader
         /// <returns>The number of data points in the output arrays</returns>
         public int ParseMsMsDataList(List<string> lstMSMSData, out double[] dblMasses, out float[] sngIntensities, bool blnShrinkDataArrays)
         {
-            string[] strSplitLine;
             int intDataCount;
             var strSepChars = new char[] { ' ', '\t' };
             if (lstMSMSData != null && lstMSMSData.Count > 0)
@@ -609,12 +605,12 @@ namespace MSDataFileReader
                 dblMasses = new double[lstMSMSData.Count];
                 sngIntensities = new float[lstMSMSData.Count];
                 intDataCount = 0;
-                foreach (string strItem in lstMSMSData)
+                foreach (var strItem in lstMSMSData)
                 {
                     // Each line in strMSMSData should contain a mass and intensity pair, separated by a space or Tab
                     // MGF files sometimes contain a third number, the charge of the ion
                     // Use .Split() to parse the numbers in the line to extract the mass and intensity, and ignore the charge (if present)
-                    strSplitLine = strItem.Split(strSepChars);
+                    var strSplitLine = strItem.Split(strSepChars);
                     if (strSplitLine.Length >= 2)
                     {
                         if (IsNumber(strSplitLine[0]) && IsNumber(strSplitLine[1]))

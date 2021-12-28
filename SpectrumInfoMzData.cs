@@ -260,7 +260,7 @@ namespace MSDataFileReader
         public new clsSpectrumInfoMzData Clone()
         {
             // First create a shallow copy of this object
-            clsSpectrumInfoMzData objTarget = (clsSpectrumInfoMzData)MemberwiseClone();
+            var objTarget = (clsSpectrumInfoMzData)MemberwiseClone();
 
             // Next, manually copy the array objects and any other objects
             // Duplicate code from the base class

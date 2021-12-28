@@ -413,10 +413,9 @@ namespace MSDataFileReader
         /// <returns>True if a known file type, otherwise false</returns>
         public static bool DetermineFileType(string strFileNameOrPath, out dftDataFileTypeConstants eFileType)
         {
-            string strFileExtension;
-            string strFileName;
             bool blnKnownType;
             eFileType = dftDataFileTypeConstants.Unknown;
+
             try
             {
                 if (string.IsNullOrWhiteSpace(strFileNameOrPath))
@@ -424,8 +423,8 @@ namespace MSDataFileReader
                     return false;
                 }
 
-                strFileName = Path.GetFileName(strFileNameOrPath.ToUpper());
-                strFileExtension = Path.GetExtension(strFileName);
+                var strFileName = Path.GetFileName(strFileNameOrPath.ToUpper());
+                var strFileExtension = Path.GetExtension(strFileName);
                 if (string.IsNullOrWhiteSpace(strFileExtension))
                 {
                     return false;
@@ -498,9 +497,9 @@ namespace MSDataFileReader
         /// <returns>An MS File reader, or null if an error or unknown file extension</returns>
         public static clsMSDataFileReaderBaseClass GetFileReaderBasedOnFileType(string strFileNameOrPath)
         {
-            dftDataFileTypeConstants eFileType;
             clsMSDataFileReaderBaseClass objFileReader = null;
-            if (DetermineFileType(strFileNameOrPath, out eFileType))
+
+            if (DetermineFileType(strFileNameOrPath, out var eFileType))
             {
                 switch (eFileType)
                 {
@@ -549,9 +548,9 @@ namespace MSDataFileReader
         /// <returns>An MS file accessor, or null if an error or unknown file extension</returns>
         public static clsMSDataFileAccessorBaseClass GetFileAccessorBasedOnFileType(string strFileNameOrPath)
         {
-            dftDataFileTypeConstants eFileType;
             clsMSDataFileAccessorBaseClass objFileAccessor = null;
-            if (DetermineFileType(strFileNameOrPath, out eFileType))
+
+            if (DetermineFileType(strFileNameOrPath, out var eFileType))
             {
                 switch (eFileType)
                 {
@@ -594,7 +593,7 @@ namespace MSDataFileReader
         public virtual bool GetScanNumberList(out int[] ScanNumberList)
         {
             var blnSuccess = default(bool);
-            int intSpectrumIndex;
+
             try
             {
                 blnSuccess = false;
@@ -602,6 +601,7 @@ namespace MSDataFileReader
                 {
                     ScanNumberList = new int[mCachedSpectrumCount];
                     var loopTo = ScanNumberList.Length - 1;
+                    int intSpectrumIndex;
                     for (intSpectrumIndex = 0; intSpectrumIndex <= loopTo; intSpectrumIndex++)
                     {
                         ScanNumberList[intSpectrumIndex] = mCachedSpectra[intSpectrumIndex].ScanNumber;
@@ -634,8 +634,8 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         public virtual bool GetSpectrumByIndex(int intSpectrumIndex, out clsSpectrumInfo objSpectrumInfo)
         {
-            bool blnSuccess;
-            blnSuccess = false;
+            var blnSuccess = false;
+
             if (mDataReaderMode == drmDataReaderModeConstants.Cached && mCachedSpectrumCount > 0)
             {
                 if (intSpectrumIndex >= 0 && intSpectrumIndex < mCachedSpectrumCount && mCachedSpectra != null)
@@ -672,6 +672,7 @@ namespace MSDataFileReader
         {
             var blnSuccess = default(bool);
             objSpectrumInfo = null;
+
             try
             {
                 blnSuccess = false;
@@ -741,8 +742,7 @@ namespace MSDataFileReader
         {
             try
             {
-                double argresult = 0d;
-                return double.TryParse(strValue, out argresult);
+                return double.TryParse(strValue, out _);
             }
             catch (Exception ex)
             {
@@ -795,14 +795,15 @@ namespace MSDataFileReader
         public virtual bool ReadAndCacheEntireFile()
         {
             bool blnSuccess;
+
             try
             {
                 mDataReaderMode = drmDataReaderModeConstants.Cached;
-                clsSpectrumInfo objSpectrumInfo = null;
                 AutoShrinkDataLists = false;
                 mReadingAndStoringSpectra = true;
                 ResetProgress();
-                while (ReadNextSpectrum(out objSpectrumInfo) && !mAbortProcessing)
+
+                while (ReadNextSpectrum(out var objSpectrumInfo) && !mAbortProcessing)
                 {
                     if (mCachedSpectrumCount >= mCachedSpectra.Length)
                     {
@@ -821,7 +822,7 @@ namespace MSDataFileReader
                         {
                             ref var withBlock = ref mInputFileStats;
                             withBlock.ScanCount = mCachedSpectrumCount;
-                            int intScanNumber = objSpectrumInfo.ScanNumber;
+                            var intScanNumber = objSpectrumInfo.ScanNumber;
                             if (withBlock.ScanCount == 1)
                             {
                                 withBlock.ScanNumberMaximum = intScanNumber;

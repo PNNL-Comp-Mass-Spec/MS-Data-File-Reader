@@ -80,11 +80,9 @@ namespace MSDataFileReader
         /// <returns>True if a spectrum is found, otherwise false</returns>
         public override bool ReadNextSpectrum(out clsSpectrumInfo objSpectrumInfo)
         {
-            string strLineIn;
-            string strMostRecentLineIn = string.Empty;
-            int intLastProgressUpdateLine;
-            string strCompareTitle;
+            var strMostRecentLineIn = string.Empty;
             var blnSpectrumFound = default(bool);
+
             try
             {
                 if (ReadingAndStoringSpectra || mCurrentSpectrum is null)
@@ -106,9 +104,11 @@ namespace MSDataFileReader
                 else
                 {
                     AddNewRecentFileText(string.Empty, true, false);
-                    intLastProgressUpdateLine = mInFileLineNumber;
+                    var intLastProgressUpdateLine = mInFileLineNumber;
+
                     while (!blnSpectrumFound && mFileReader.Peek() > -1 && !mAbortProcessing)
                     {
+                        string strLineIn;
                         if (mHeaderSaved.Length > 0)
                         {
                             strLineIn = string.Copy(mHeaderSaved);
@@ -130,9 +130,9 @@ namespace MSDataFileReader
                                 ref var withBlock = ref mCurrentSpectrum;
                                 withBlock.SpectrumTitleWithCommentChars = strLineIn;
                                 withBlock.SpectrumTitle = CleanupComment(strLineIn, mCommentLineStartChar, true);
-                                int argintScanNumberStart = withBlock.ScanNumber;
-                                int argintScanNumberEnd = withBlock.ScanNumberEnd;
-                                int argintScanCount = withBlock.ScanCount;
+                                var argintScanNumberStart = withBlock.ScanNumber;
+                                var argintScanNumberEnd = withBlock.ScanNumberEnd;
+                                var argintScanCount = withBlock.ScanCount;
                                 ExtractScanInfoFromDtaHeader(withBlock.SpectrumTitle, out argintScanNumberStart, out argintScanNumberEnd, out argintScanCount);
                                 withBlock.ScanNumber = argintScanNumberStart;
                                 withBlock.ScanNumberEnd = argintScanNumberEnd;
@@ -176,6 +176,7 @@ namespace MSDataFileReader
                                     {
                                         {
                                             ref var withBlock1 = ref mCurrentSpectrum;
+
                                             try
                                             {
                                                 withBlock1.DataCount = ParseMsMsDataList(mCurrentMsMsDataList, out withBlock1.MZList, out withBlock1.IntensityList, withBlock1.AutoShrinkDataLists);
@@ -208,7 +209,7 @@ namespace MSDataFileReader
                                     if (strLineIn != null && strLineIn.StartsWith(mCommentLineStartChar.ToString()))
                                     {
                                         mHeaderSaved = string.Copy(strLineIn);
-                                        strCompareTitle = CleanupComment(mHeaderSaved, mCommentLineStartChar, true);
+                                        var strCompareTitle = CleanupComment(mHeaderSaved, mCommentLineStartChar, true);
                                         if (strCompareTitle.ToLower().EndsWith("3.dta"))
                                         {
                                             if (string.Equals(mCurrentSpectrum.SpectrumTitle.Substring(0, mCurrentSpectrum.SpectrumTitle.Length - 5), strCompareTitle.Substring(0, strCompareTitle.Length - 5), StringComparison.InvariantCultureIgnoreCase))
@@ -289,12 +290,11 @@ namespace MSDataFileReader
         /// <returns>True if the file was successfully opened and a spectrum was read</returns>
         public bool ReadSingleDtaFile(string strInputFilePath, out string[] strMsMsDataList, out int intMsMsDataCount, out clsSpectrumInfoMsMsText objSpectrumInfoMsMsText)
         {
-            int intLastProgressUpdateLine;
-            string strLineIn;
             var blnSpectrumFound = default(bool);
             var lstMsMsDataList = new List<string>();
             intMsMsDataCount = 0;
             objSpectrumInfoMsMsText = new clsSpectrumInfoMsMsText();
+
             try
             {
                 using (var fileReader = new StreamReader(strInputFilePath))
@@ -302,10 +302,11 @@ namespace MSDataFileReader
                     mTotalBytesRead = 0L;
                     ResetProgress("Parsing " + Path.GetFileName(strInputFilePath));
                     mInFileLineNumber = 0;
-                    intLastProgressUpdateLine = mInFileLineNumber;
+                    var intLastProgressUpdateLine = mInFileLineNumber;
+
                     while (!fileReader.EndOfStream && !mAbortProcessing)
                     {
-                        strLineIn = fileReader.ReadLine();
+                        var strLineIn = fileReader.ReadLine();
                         mInFileLineNumber += 1;
                         if (strLineIn != null)
                             mTotalBytesRead += strLineIn.Length + 2;
@@ -313,7 +314,7 @@ namespace MSDataFileReader
                         {
                             if (char.IsDigit(strLineIn.Trim(), 0))
                             {
-                                string argstrMostRecentLineIn = "";
+                                var argstrMostRecentLineIn = "";
                                 blnSpectrumFound = ReadSingleSpectrum(fileReader, strLineIn, out lstMsMsDataList, objSpectrumInfoMsMsText, ref mInFileLineNumber, ref intLastProgressUpdateLine, strMostRecentLineIn: ref argstrMostRecentLineIn);
                                 break;
                             }
@@ -332,9 +333,9 @@ namespace MSDataFileReader
                         // Try to determine the scan numbers by parsing strInputFilePath
                         {
                             ref var withBlock = ref objSpectrumInfoMsMsText;
-                            int argintScanNumberStart = withBlock.ScanNumber;
-                            int argintScanNumberEnd = withBlock.ScanNumberEnd;
-                            int argintScanCount = withBlock.ScanCount;
+                            var argintScanNumberStart = withBlock.ScanNumber;
+                            var argintScanNumberEnd = withBlock.ScanNumberEnd;
+                            var argintScanCount = withBlock.ScanCount;
                             ExtractScanInfoFromDtaHeader(Path.GetFileName(strInputFilePath), out argintScanNumberStart, out argintScanNumberEnd, out argintScanCount);
                             withBlock.ScanNumber = argintScanNumberStart;
                             withBlock.ScanNumberEnd = argintScanNumberEnd;
@@ -378,21 +379,17 @@ namespace MSDataFileReader
         /// <returns>if a valid spectrum is found, otherwise, false</returns>
         private bool ReadSingleSpectrum(TextReader srReader, string strParentIonLineText, out List<string> lstMsMsDataList, clsSpectrumInfoMsMsText objSpectrumInfoMsMsText, ref int intLinesRead, ref int intLastProgressUpdateLine, [Optional, DefaultParameterValue("")] ref string strMostRecentLineIn)
         {
-            int intCharIndex;
-            string strLineIn;
-            string strValue;
-            double dblValue;
             var blnSpectrumFound = default(bool);
-            int intCharge;
             objSpectrumInfoMsMsText.ParentIonLineText = string.Copy(strParentIonLineText);
             strParentIonLineText = strParentIonLineText.Trim();
 
             // Look for the first space
-            intCharIndex = strParentIonLineText.IndexOf(' ');
+            var intCharIndex = strParentIonLineText.IndexOf(' ');
             if (intCharIndex >= 1)
             {
-                strValue = strParentIonLineText.Substring(0, intCharIndex);
-                if (double.TryParse(strValue, out dblValue))
+                var strValue = strParentIonLineText.Substring(0, intCharIndex);
+
+                if (double.TryParse(strValue, out var dblValue))
                 {
                     objSpectrumInfoMsMsText.ParentIonMH = dblValue;
                     strValue = strParentIonLineText.Substring(intCharIndex + 1);
@@ -404,7 +401,7 @@ namespace MSDataFileReader
                         strValue = strValue.Substring(0, intCharIndex);
                     }
 
-                    if (int.TryParse(strValue, out intCharge))
+                    if (int.TryParse(strValue, out var intCharge))
                     {
                         objSpectrumInfoMsMsText.ParentIonChargeCount = 1;
                         objSpectrumInfoMsMsText.ParentIonCharges[0] = intCharge;
@@ -434,7 +431,7 @@ namespace MSDataFileReader
 
                 while (srReader.Peek() > -1)
                 {
-                    strLineIn = srReader.ReadLine();
+                    var strLineIn = srReader.ReadLine();
                     intLinesRead += 1;
 
                     // See if strLineIn is blank

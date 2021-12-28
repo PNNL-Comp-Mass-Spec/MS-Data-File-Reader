@@ -311,6 +311,7 @@ namespace MSDataFileReader
             // P1Y2M3DT4H5M6.7S is one year, two months, three days, four hours, five minutes, and 6.7 seconds.
 
             TimeSpan dtTimeSpan;
+
             try
             {
                 dtTimeSpan = System.Runtime.Remoting.Metadata.W3cXsd2001.SoapDuration.Parse(strTime);
@@ -325,10 +326,9 @@ namespace MSDataFileReader
 
         protected float GetAttribTimeValueMinutes(string strAttributeName)
         {
-            TimeSpan dtTimeSpan;
             try
             {
-                dtTimeSpan = ConvertTimeFromXmlDurationToTimespan(GetAttribValue(strAttributeName, "PT0S"), new TimeSpan(0L));
+                var dtTimeSpan = ConvertTimeFromXmlDurationToTimespan(GetAttribValue(strAttributeName, "PT0S"), new TimeSpan(0L));
                 return (float)dtTimeSpan.TotalMinutes;
             }
             catch (Exception ex)
@@ -339,9 +339,9 @@ namespace MSDataFileReader
 
         protected string GetAttribValue(string strAttributeName, string DefaultValue)
         {
-            string strValue;
             try
             {
+                string strValue;
                 if (mXMLReader.HasAttributes)
                 {
                     strValue = mXMLReader.GetAttribute(strAttributeName);
@@ -420,7 +420,6 @@ namespace MSDataFileReader
         /// <param name="intElementDepth"></param>
         protected string GetParentElement(int intElementDepth = 0)
         {
-            udtElementInfoType udtElementInfo;
             if (intElementDepth == 0)
             {
                 intElementDepth = mParentElementStack.Count;
@@ -430,7 +429,7 @@ namespace MSDataFileReader
             {
                 try
                 {
-                    udtElementInfo = (udtElementInfoType)mParentElementStack.ToArray()[mParentElementStack.Count - intElementDepth + 1];
+                    var udtElementInfo = (udtElementInfoType)mParentElementStack.ToArray()[mParentElementStack.Count - intElementDepth + 1];
                     return udtElementInfo.Name;
                 }
                 catch (Exception ex)
@@ -479,6 +478,7 @@ namespace MSDataFileReader
         public override bool OpenFile(string strInputFilePath)
         {
             bool blnSuccess;
+
             try
             {
                 blnSuccess = OpenFileInit(strInputFilePath);
@@ -514,6 +514,7 @@ namespace MSDataFileReader
 
             // Make sure any open file or text stream is closed
             CloseFile();
+
             try
             {
                 mInputFilePath = "TextStream";
@@ -538,8 +539,6 @@ namespace MSDataFileReader
 
         protected string ParentElementStackRemove()
         {
-            udtElementInfoType udtElementInfo;
-
             // Removes the most recent entry from mParentElementStack and returns it
             if (mParentElementStack.Count == 0)
             {
@@ -547,7 +546,7 @@ namespace MSDataFileReader
             }
             else
             {
-                udtElementInfo = (udtElementInfoType)mParentElementStack.Pop();
+                var udtElementInfo = (udtElementInfoType)mParentElementStack.Pop();
                 return udtElementInfo.Name;
             }
         }
@@ -590,7 +589,6 @@ namespace MSDataFileReader
         /// <returns>True if a spectrum is found, otherwise, returns False</returns>
         public override bool ReadNextSpectrum(out clsSpectrumInfo objSpectrumInfo)
         {
-            bool blnReadSuccessful;
             try
             {
                 InitializeCurrentSpectrum(mAutoShrinkDataLists);
@@ -621,13 +619,15 @@ namespace MSDataFileReader
                         }
                     }
 
-                    blnReadSuccessful = true;
+                    var blnReadSuccessful = true;
+
                     while (!mSpectrumFound && blnReadSuccessful && !mAbortProcessing && mXMLReader.ReadState == ReadState.Initial || mXMLReader.ReadState == ReadState.Interactive)
                     {
                         mSpectrumFound = false;
                         if (mSkipNextReaderAdvance)
                         {
                             mSkipNextReaderAdvance = false;
+
                             try
                             {
                                 if (mXMLReader.NodeType == XmlNodeType.Element)
@@ -686,7 +686,7 @@ namespace MSDataFileReader
 
         protected string XMLTextReaderGetInnerText()
         {
-            string strValue = string.Empty;
+            var strValue = string.Empty;
             bool blnSuccess;
             if (mXMLReader.NodeType == XmlNodeType.Element)
             {

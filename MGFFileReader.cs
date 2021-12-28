@@ -59,12 +59,12 @@ namespace MSDataFileReader
         /// <returns>True if the scan number was found, otherwise false</returns>
         private bool ExtractScanRange(string strData, clsSpectrumInfo spectrumInfo)
         {
-            bool scanNumberFound = false;
-            int charIndex = strData.IndexOf('-');
+            var scanNumberFound = false;
+            var charIndex = strData.IndexOf('-');
             if (charIndex > 0)
             {
                 // strData contains a dash, and thus a range of scans
-                string strRemaining = strData.Substring(charIndex + 1).Trim();
+                var strRemaining = strData.Substring(charIndex + 1).Trim();
                 strData = strData.Substring(0, charIndex).Trim();
                 if (IsNumber(strData))
                 {
@@ -120,16 +120,9 @@ namespace MSDataFileReader
         /// <returns>True if a spectrum is found, otherwise false</returns>
         public override bool ReadNextSpectrum(out clsSpectrumInfo objSpectrumInfo)
         {
-            string strLineIn;
-            string strTemp;
-            string[] strSplitLine;
             var strSepChars = new char[] { ' ', '\t' };
-            int intIndex;
-            int charIndex;
-            int intLastProgressUpdateLine;
-            bool blnScanNumberFound;
-            bool blnParentIonFound;
             var blnSpectrumFound = default(bool);
+
             try
             {
                 if (ReadingAndStoringSpectra || mCurrentSpectrum is null)
@@ -143,7 +136,7 @@ namespace MSDataFileReader
 
                 mCurrentSpectrum.AutoShrinkDataLists = AutoShrinkDataLists;
                 blnSpectrumFound = false;
-                blnScanNumberFound = false;
+                var blnScanNumberFound = false;
 
                 // Initialize mCurrentMsMsDataList
                 if (mCurrentMsMsDataList is null)
@@ -170,10 +163,11 @@ namespace MSDataFileReader
                         withBlock.MSLevel = 2;
                     }
 
-                    intLastProgressUpdateLine = mInFileLineNumber;
+                    var intLastProgressUpdateLine = mInFileLineNumber;
+
                     while (!blnSpectrumFound && mFileReader.Peek() > -1 && !mAbortProcessing)
                     {
-                        strLineIn = mFileReader.ReadLine();
+                        var strLineIn = mFileReader.ReadLine();
                         if (strLineIn != null)
                             mTotalBytesRead += strLineIn.Length + 2;
 
@@ -207,9 +201,10 @@ namespace MSDataFileReader
                                     // ###MS: 4458/4486/
                                     // ###MSMS: 4459/4488/
                                     // The / sign is used to indicate that several MS/MS scans were combined to make the given spectrum; we'll just keep the first one
-                                    charIndex = strLineIn.IndexOf('/');
+                                    var charIndex = strLineIn.IndexOf('/');
                                     if (charIndex > 0)
                                     {
+                                        string strTemp;
                                         if (charIndex < strLineIn.Length - 1)
                                         {
                                             strTemp = strLineIn.Substring(charIndex + 1).Trim();
@@ -269,7 +264,7 @@ namespace MSDataFileReader
                                     mCurrentSpectrum.ScanCount = 1;
                                 }
 
-                                blnParentIonFound = false;
+                                var blnParentIonFound = false;
 
                                 // We have found an MS/MS scan
                                 // Look for LINE_START_PEPMASS and LINE_START_CHARGE to determine the parent ion m/z and charge
@@ -284,6 +279,7 @@ namespace MSDataFileReader
                                         if (strLineIn.Trim().Length > 0)
                                         {
                                             strLineIn = strLineIn.Trim();
+                                            string[] strSplitLine;
                                             if (strLineIn.ToUpper().StartsWith(LINE_START_PEPMASS))
                                             {
                                                 // This line defines the peptide mass as an m/z value
@@ -319,6 +315,7 @@ namespace MSDataFileReader
                                                     // Multiple charges may be present
                                                     strSplitLine = strLineIn.Split(strSepChars);
                                                     var loopTo = strSplitLine.Length - 1;
+                                                    int intIndex;
                                                     for (intIndex = 0; intIndex <= loopTo; intIndex++)
                                                     {
                                                         // Step through the split line and add any numbers to the charge list
@@ -356,9 +353,9 @@ namespace MSDataFileReader
                                                     // Attempt to extract out the scan numbers from the Title
                                                     {
                                                         ref var withBlock3 = ref mCurrentSpectrum;
-                                                        int argintScanNumberStart = withBlock3.ScanNumber;
-                                                        int argintScanNumberEnd = withBlock3.ScanNumberEnd;
-                                                        int argintScanCount = withBlock3.ScanCount;
+                                                        var argintScanNumberStart = withBlock3.ScanNumber;
+                                                        var argintScanNumberEnd = withBlock3.ScanNumberEnd;
+                                                        var argintScanCount = withBlock3.ScanCount;
                                                         ExtractScanInfoFromDtaHeader(strLineIn, out argintScanNumberStart, out argintScanNumberEnd, out argintScanCount);
                                                         withBlock3.ScanNumber = argintScanNumberStart;
                                                         withBlock3.ScanNumberEnd = argintScanNumberEnd;
@@ -461,6 +458,7 @@ namespace MSDataFileReader
                                     {
                                         {
                                             ref var withBlock5 = ref mCurrentSpectrum;
+
                                             try
                                             {
                                                 withBlock5.DataCount = ParseMsMsDataList(mCurrentMsMsDataList, out withBlock5.MZList, out withBlock5.IntensityList, withBlock5.AutoShrinkDataLists);
