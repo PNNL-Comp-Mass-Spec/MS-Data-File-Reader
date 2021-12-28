@@ -13,6 +13,7 @@
 //
 
 using System.Collections.Generic;
+using System.IO;
 using System.Text.RegularExpressions;
 
 namespace MSDataFileReader
@@ -47,6 +48,8 @@ namespace MSDataFileReader
         #endregion
 
         #region Classwide Variables
+
+        private readonly Regex mDtaHeaderScanAndCharge = new Regex(@".+\.(\d+)\.(\d+)\.(\d*)$", RegexOptions.Compiled);
 
         // Number between 0 and 100; if the percentage of ions greater than the parent ion m/z is less than this number, then the charge is definitely 1+
         protected float mThresholdIonPctForSingleCharge;
@@ -260,38 +263,6 @@ namespace MSDataFileReader
         /// <returns>True if the scan numbers are found in the header</returns>
         public bool ExtractScanInfoFromDtaHeader(string strSpectrumHeader, out int intScanNumberStart, out int intScanNumberEnd, out int intScanCount, out int intCharge)
         {
-            ;
-#error Cannot convert LocalDeclarationStatementSyntax - see comment for details
-            /* Cannot convert LocalDeclarationStatementSyntax, System.NotSupportedException: StaticKeyword not supported!
-               at ICSharpCode.CodeConverter.CSharp.SyntaxKindExtensions.ConvertToken(SyntaxKind t, TokenContext context)
-               at ICSharpCode.CodeConverter.CSharp.CommonConversions.ConvertModifier(SyntaxToken m, TokenContext context)
-               at ICSharpCode.CodeConverter.CSharp.CommonConversions.<ConvertModifiersCore>d__49.MoveNext()
-               at System.Linq.Enumerable.<ConcatIterator>d__59`1.MoveNext()
-               at System.Linq.Enumerable.WhereEnumerableIterator`1.MoveNext()
-               at System.Linq.Buffer`1..ctor(IEnumerable`1 source)
-               at System.Linq.OrderedEnumerable`1.<GetEnumerator>d__1.MoveNext()
-               at Microsoft.CodeAnalysis.SyntaxTokenList.CreateNode(IEnumerable`1 tokens)
-               at ICSharpCode.CodeConverter.CSharp.CommonConversions.ConvertModifiers(SyntaxNode node, IReadOnlyCollection`1 modifiers, TokenContext context, Boolean isVariableOrConst, SyntaxKind[] extraCsModifierKinds)
-               at ICSharpCode.CodeConverter.CSharp.MethodBodyExecutableStatementVisitor.<VisitLocalDeclarationStatement>d__31.MoveNext()
-            --- End of stack trace from previous location where exception was thrown ---
-               at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
-               at ICSharpCode.CodeConverter.CSharp.HoistedNodeStateVisitor.<AddLocalVariablesAsync>d__6.MoveNext()
-            --- End of stack trace from previous location where exception was thrown ---
-               at System.Runtime.ExceptionServices.ExceptionDispatchInfo.Throw()
-               at ICSharpCode.CodeConverter.CSharp.CommentConvertingMethodBodyVisitor.<DefaultVisitInnerAsync>d__3.MoveNext()
-
-            Input:
-
-                    ' The header should be similar to one of the following
-                    '   FileName.1234.1234.2.dta
-                    '   FileName.1234.1234.2      (StartScan.EndScan.Charge)
-                    '   FileName.1234.1234.       (Proteowizard uses this format to indicate unknown charge)
-                    ' Returns True if the scan numbers are found in the header
-
-                    ' ReSharper disable once UseImplicitlyTypedVariableEvident
-                    Static reDtaHeaderScanAndCharge As Global.System.Text.RegularExpressions.Regex = New Global.System.Text.RegularExpressions.Regex(".+\.(\d+)\.(\d+)\.(\d*)$", Global.System.Text.RegularExpressions.RegexOptions.Compiled)
-
-             */
             var blnScanNumberFound = default(bool);
             Match reMatch;
             intScanNumberStart = 0;
@@ -311,7 +282,7 @@ namespace MSDataFileReader
                     }
 
                     // Extract the scans and charge using a RegEx
-                    reMatch = reDtaHeaderScanAndCharge.Match(strSpectrumHeader);
+                    reMatch = mDtaHeaderScanAndCharge.Match(strSpectrumHeader);
                     if (reMatch.Success)
                     {
                         if (int.TryParse(reMatch.Groups[1].Value, out intScanNumberStart))
