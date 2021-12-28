@@ -439,9 +439,9 @@ namespace MSDataFileReader
             // Returns True if success, False if failure
             // Only valid if we have Indexed data in memory
 
-            int intSpectrumIndex;
             var blnSuccess = default(bool);
             objSpectrumInfo = null;
+
             try
             {
                 blnSuccess = false;
@@ -457,7 +457,7 @@ namespace MSDataFileReader
                         if (mIndexedSpectraSpectrumIDToIndex.Count == 0)
                         {
                             var loopTo = mIndexedSpectrumInfoCount - 1;
-                            for (intSpectrumIndex = 0; intSpectrumIndex <= loopTo; intSpectrumIndex++)
+                            for (var intSpectrumIndex = 0; intSpectrumIndex <= loopTo; intSpectrumIndex++)
                             {
                                 if (mIndexedSpectrumInfo[intSpectrumIndex].SpectrumID == intSpectrumID)
                                 {
