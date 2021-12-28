@@ -690,7 +690,7 @@ namespace MSDataFileReader
                 blnSuccess = true;
             }
 
-            if ((blnSuccess && !(mXMLReader.NodeType == XmlNodeType.Whitespace)) && mXMLReader.HasValue)
+            if (blnSuccess && !(mXMLReader.NodeType == XmlNodeType.Whitespace) && mXMLReader.HasValue)
             {
                 strValue = mXMLReader.Value;
             }

@@ -287,8 +287,8 @@ namespace MSDataFileReader
                                 // sngDataArray now contains pairs of singles, either m/z and intensity or intensity and m/z
                                 // Need to split this apart into two arrays
 
-                                mCurrentSpectrum.MZList = new double[((int)Math.Round(sngDataArray.Length / 2d))];
-                                mCurrentSpectrum.IntensityList = new float[((int)Math.Round(sngDataArray.Length / 2d))];
+                                mCurrentSpectrum.MZList = new double[(int)Math.Round(sngDataArray.Length / 2d)];
+                                mCurrentSpectrum.IntensityList = new float[(int)Math.Round(sngDataArray.Length / 2d)];
 
                                 if ((mCurrentSpectrum.PeaksPairOrder ?? "") == clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ)
                                 {
@@ -322,8 +322,8 @@ namespace MSDataFileReader
                                 // dblDataArray now contains pairs of doubles, either m/z and intensity or intensity and m/z
                                 // Need to split this apart into two arrays
 
-                                mCurrentSpectrum.MZList = new double[((int)Math.Round(dblDataArray.Length / 2d))];
-                                mCurrentSpectrum.IntensityList = new float[((int)Math.Round(dblDataArray.Length / 2d))];
+                                mCurrentSpectrum.MZList = new double[(int)Math.Round(dblDataArray.Length / 2d)];
+                                mCurrentSpectrum.IntensityList = new float[(int)Math.Round(dblDataArray.Length / 2d)];
                                 if ((mCurrentSpectrum.PeaksPairOrder ?? "") == clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ)
                                 {
                                     var loopTo2 = dblDataArray.Length - 1;

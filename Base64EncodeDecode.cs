@@ -66,7 +66,7 @@ namespace MSDataFileReader
                 throw new Exception("Array length of the Byte Array returned by " + conversionSource + " is not divisible by " + DATA_TYPE_PRECISION_BYTES + " bytes;" + " not the correct length for an encoded array of 16-bit integers");
             }
 
-            dataArray = new short[((int)Math.Round(bytArray.Length / (double)DATA_TYPE_PRECISION_BYTES))];
+            dataArray = new short[(int)Math.Round(bytArray.Length / (double)DATA_TYPE_PRECISION_BYTES)];
             var loopTo = bytArray.Length - 1;
             for (intIndex = 0; intIndex <= loopTo; intIndex += DATA_TYPE_PRECISION_BYTES)
             {
@@ -123,7 +123,7 @@ namespace MSDataFileReader
                 throw new Exception("Array length of the Byte Array returned by " + conversionSource + " is not divisible by " + DATA_TYPE_PRECISION_BYTES + " bytes;" + " not the correct length for an encoded array of 32-bit integers");
             }
 
-            dataArray = new int[((int)Math.Round(bytArray.Length / (double)DATA_TYPE_PRECISION_BYTES))];
+            dataArray = new int[(int)Math.Round(bytArray.Length / (double)DATA_TYPE_PRECISION_BYTES)];
             var loopTo = bytArray.Length - 1;
             for (intIndex = 0; intIndex <= loopTo; intIndex += DATA_TYPE_PRECISION_BYTES)
             {
@@ -182,7 +182,7 @@ namespace MSDataFileReader
                 throw new Exception("Array length of the Byte Array returned by " + conversionSource + " is not divisible by " + DATA_TYPE_PRECISION_BYTES + " bytes;" + " not the correct length for an encoded array of floats (aka singles)");
             }
 
-            dataArray = new float[((int)Math.Round(bytArray.Length / (double)DATA_TYPE_PRECISION_BYTES))];
+            dataArray = new float[(int)Math.Round(bytArray.Length / (double)DATA_TYPE_PRECISION_BYTES)];
             var loopTo = bytArray.Length - 1;
             for (intIndex = 0; intIndex <= loopTo; intIndex += DATA_TYPE_PRECISION_BYTES)
             {
@@ -241,7 +241,7 @@ namespace MSDataFileReader
                 throw new Exception("Array length of the Byte Array returned by " + conversionSource + " is not divisible by " + DATA_TYPE_PRECISION_BYTES + " bytes;" + " not the correct length for an encoded array of doubles");
             }
 
-            dataArray = new double[((int)Math.Round(bytArray.Length / (double)DATA_TYPE_PRECISION_BYTES))];
+            dataArray = new double[(int)Math.Round(bytArray.Length / (double)DATA_TYPE_PRECISION_BYTES)];
             var loopTo = bytArray.Length - 1;
             for (intIndex = 0; intIndex <= loopTo; intIndex += DATA_TYPE_PRECISION_BYTES)
             {
@@ -360,7 +360,7 @@ namespace MSDataFileReader
             }
             else
             {
-                var bytArray = new byte[(dataArray.Length * DATA_TYPE_PRECISION_BYTES)];
+                var bytArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
                 var loopTo = dataArray.Length - 1;
                 int intIndex;
                 for (intIndex = 0; intIndex <= loopTo; intIndex++)
@@ -410,7 +410,7 @@ namespace MSDataFileReader
             }
             else
             {
-                var bytArray = new byte[(dataArray.Length * DATA_TYPE_PRECISION_BYTES)];
+                var bytArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
                 var loopTo = dataArray.Length - 1;
                 int intIndex;
                 for (intIndex = 0; intIndex <= loopTo; intIndex++)
@@ -462,7 +462,7 @@ namespace MSDataFileReader
             }
             else
             {
-                var bytArray = new byte[(dataArray.Length * DATA_TYPE_PRECISION_BYTES)];
+                var bytArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
                 var loopTo = dataArray.Length - 1;
                 int intIndex;
                 for (intIndex = 0; intIndex <= loopTo; intIndex++)
@@ -514,7 +514,7 @@ namespace MSDataFileReader
             }
             else
             {
-                var bytArray = new byte[(dataArray.Length * DATA_TYPE_PRECISION_BYTES)];
+                var bytArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
                 var loopTo = dataArray.Length - 1;
                 int intIndex;
                 for (intIndex = 0; intIndex <= loopTo; intIndex++)
