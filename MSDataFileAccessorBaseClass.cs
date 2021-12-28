@@ -146,13 +146,13 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// Extracts the text between lngStartByteOffset and lngEndByteOffset in strFilePath and returns it
-    /// </summary>
-    /// <param name="strFilePath"></param>
-    /// <param name="lngStartByteOffset"></param>
-    /// <param name="lngEndByteOffset"></param>
-    /// <returns></returns>
-    /// <remarks></remarks>
+        /// Extracts the text between lngStartByteOffset and lngEndByteOffset in strFilePath and returns it
+        /// </summary>
+        /// <param name="strFilePath"></param>
+        /// <param name="lngStartByteOffset"></param>
+        /// <param name="lngEndByteOffset"></param>
+        /// <returns></returns>
+        /// <remarks></remarks>
         protected virtual string ExtractTextBetweenOffsets(string strFilePath, long lngStartByteOffset, long lngEndByteOffset)
         {
             byte[] bytData;
@@ -208,18 +208,18 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// Extract the text between lngStartByteOffset and lngEndByteOffset in strFilePath, then append it to
-    /// mXmlFileHeader, add the closing element tags, and return ByRef in strExtractedText
-    /// </summary>
-    /// <param name="strFilePath"></param>
-    /// <param name="lngStartByteOffset"></param>
-    /// <param name="lngEndByteOffset"></param>
-    /// <param name="strExtractedText"></param>
-    /// <param name="intScanCountTotal"></param>
-    /// <param name="sngStartTimeMinutesAllScans"></param>
-    /// <param name="sngEndTimeMinutesAllScans"></param>
-    /// <returns></returns>
-    /// <remarks>Note that sngStartTimeMinutesAllScans and sngEndTimeMinutesAllScans are really only appropriate for mzXML files</remarks>
+        /// Extract the text between lngStartByteOffset and lngEndByteOffset in strFilePath, then append it to
+        /// mXmlFileHeader, add the closing element tags, and return ByRef in strExtractedText
+        /// </summary>
+        /// <param name="strFilePath"></param>
+        /// <param name="lngStartByteOffset"></param>
+        /// <param name="lngEndByteOffset"></param>
+        /// <param name="strExtractedText"></param>
+        /// <param name="intScanCountTotal"></param>
+        /// <param name="sngStartTimeMinutesAllScans"></param>
+        /// <param name="sngEndTimeMinutesAllScans"></param>
+        /// <returns></returns>
+        /// <remarks>Note that sngStartTimeMinutesAllScans and sngEndTimeMinutesAllScans are really only appropriate for mzXML files</remarks>
         [Obsolete("Superseded by wrapping mBinaryReader with an XmlTextReader; see GetSpectrumByIndexWork")]
         protected bool ExtractTextFromFile(string strFilePath, long lngStartByteOffset, long lngEndByteOffset, out string strExtractedText, int intScanCountTotal, float sngStartTimeMinutesAllScans, float sngEndTimeMinutesAllScans)
         {
@@ -627,11 +627,11 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-    /// This reading mode is not appropriate for the MS Data File Accessor
-    /// </summary>
-    /// <param name="strTextStream"></param>
-    /// <returns>Always returns false</returns>
-    /// <remarks></remarks>
+        /// This reading mode is not appropriate for the MS Data File Accessor
+        /// </summary>
+        /// <param name="strTextStream"></param>
+        /// <returns>Always returns false</returns>
+        /// <remarks></remarks>
         public override bool OpenTextStream(string strTextStream)
         {
             mErrorMessage = "The OpenTextStream method is not valid for clsMSDataFileAccessorBaseClass";

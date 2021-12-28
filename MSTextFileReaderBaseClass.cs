@@ -137,12 +137,12 @@ namespace MSDataFileReader
         #endregion
 
         /// <summary>
-    /// Remove any instance of strCommentChar from the beginning and end of strCommentIn
-    /// </summary>
-    /// <param name="strCommentIn"></param>
-    /// <param name="strCommentChar"></param>
-    /// <param name="blnRemoveQuoteMarks">When True, also look for double quotation marks at the beginning and end</param>
-    /// <returns></returns>
+        /// Remove any instance of strCommentChar from the beginning and end of strCommentIn
+        /// </summary>
+        /// <param name="strCommentIn"></param>
+        /// <param name="strCommentChar"></param>
+        /// <param name="blnRemoveQuoteMarks">When True, also look for double quotation marks at the beginning and end</param>
+        /// <returns></returns>
         protected string CleanupComment(string strCommentIn, char strCommentChar, bool blnRemoveQuoteMarks)
         {
 
@@ -243,13 +243,21 @@ namespace MSDataFileReader
             return ExtractScanInfoFromDtaHeader(strSpectrumHeader, out intScanNumberStart, out intScanNumberEnd, out intScanCount, out argintCharge);
         }
 
-        // The header should be similar to one of the following
-        // FileName.1234.1234.2.dta
-        // FileName.1234.1234.2      (StartScan.EndScan.Charge)
-        // FileName.1234.1234.       (Proteowizard uses this format to indicate unknown charge)
-        // Returns True if the scan numbers are found in the header
-
-        // ReSharper disable once UseImplicitlyTypedVariableEvident
+        /// <summary>
+        /// Extract Scan Info from DTA header
+        /// </summary>
+        /// <remarks>
+        /// The header should be similar to one of the following
+        /// FileName.1234.1234.2.dta
+        /// FileName.1234.1234.2      (StartScan.EndScan.Charge)
+        /// FileName.1234.1234.       (ProteoWizard uses this format to indicate unknown charge)
+        /// </remarks>
+        /// <param name="strSpectrumHeader"></param>
+        /// <param name="intScanNumberStart"></param>
+        /// <param name="intScanNumberEnd"></param>
+        /// <param name="intScanCount"></param>
+        /// <param name="intCharge"></param>
+        /// <returns>True if the scan numbers are found in the header</returns>
         public bool ExtractScanInfoFromDtaHeader(string strSpectrumHeader, out int intScanNumberStart, out int intScanNumberEnd, out int intScanCount, out int intCharge)
         {
             ;
@@ -384,16 +392,16 @@ namespace MSDataFileReader
         {
 
             // Guesstimate the parent ion charge based on its m/z and the ions in the fragmentation spectrum
-            // 
+            //
             // Strategy:
             // 1) If all frag peaks have m/z values less than the parent ion m/z, then definitely assume a
             // 1+ parent ion
-            // 
+            //
             // 2) If less than mThresholdIonPctForSingleCharge percent of the data's m/z values are greater
             // than the parent ion, then definitely assume 1+ parent ion
             // When determining percentage, use both # of data points and the sum of the ion intensities.
             // Both values must be less than mThresholdIonPctForSingleCharge percent to declare 1+
-            // 
+            //
             // 3) If mThresholdIonPctForSingleCharge percent to mThresholdIonPctForDoubleCharge percent
             // of the data's m/z values are greater than the parent ion, then declare 1+, 2+, 3+ ...
             // up to the charge that gives a deconvoluted parent ion that matches the above test (#2)
@@ -406,7 +414,7 @@ namespace MSDataFileReader
             // 476*4-3 = 1902: this is less than 1922
             // 476*5-4 = 2376: this is greater than 1922
             // Thus, assign charges 2+ to 5+
-            // 
+            //
             // 4) Otherwise, if both test 2 and test 3 fail, then assume 2+, 3+, ... up to the charge that
             // gives a deconvoluted parent ion that matches the above test (#2)
             // The same tests as outlined in step 3 will be performed to determine the maximum charge

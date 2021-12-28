@@ -9,31 +9,31 @@ namespace MSDataFileReader
     // This class can be used to open a Text file and read each of the lines from the file,
     // where a line of text ends with CRLF or simply LF
     // In addition, the byte offset at the start and end of the line is also returned
-    // 
+    //
     // Note that this class is compatible with UTF-16 Unicode files; it looks for byte order mark
     // FF FE or FE FF in the first two bytes of the file to determine if a file is Unicode
     // (though you can override this using the InputFileEncoding property after calling .OpenFile()
     // This class will also look for the byte order mark for UTF-8 files (EF BB BF) though it may not
     // properly decode UTF-8 characters (not fully tested)
-    // 
+    //
     // You can change the expected line terminator character using Property FileSystemMode
     // If FileSystemMode = FileSystemModeConstants.Windows, then the Line Terminator = LF, optionally preceded by CR
     // If FileSystemMode = FileSystemModeConstants.Unix, then the Line Terminator = LF, optionally preceded by CR
     // If FileSystemMode = FileSystemModeConstants.Macintosh, then the Line Terminator = CR, previous character is not considered
-    // 
+    //
     // -------------------------------------------------------------------------------
     // Written by Matthew Monroe for the Department of Energy (PNNL, Richland, WA)
     // Copyright 2006, Battelle Memorial Institute.  All Rights Reserved.
     // Program started April 18, 2006
-    // 
+    //
     // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
     // Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
     // -------------------------------------------------------------------------------
-    // 
+    //
     // Licensed under the Apache License, Version 2.0; you may not use this file except
     // in compliance with the License.  You may obtain a copy of the License at
     // http://www.apache.org/licenses/LICENSE-2.0
-    // 
+    //
     // Notice: This computer software was prepared by Battelle Memorial Institute,
     // hereinafter the Contractor, under Contract No. DE-AC05-76RL0 1830 with the
     // Department of Energy (DOE).  All rights in the computer software are reserved
@@ -42,7 +42,7 @@ namespace MSDataFileReader
     // WARRANTY, EXPRESS OR IMPLIED, OR ASSUMES ANY LIABILITY FOR THE USE OF THIS
     // SOFTWARE.  This notice including this sentence must appear on any copies of
     // this computer software.
-    // 
+    //
 
     public class clsBinaryTextReader : EventNotifier
     {
