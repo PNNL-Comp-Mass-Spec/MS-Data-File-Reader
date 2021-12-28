@@ -69,12 +69,12 @@ namespace MSDataFileReader
                 strData = strData.Substring(0, charIndex).Trim();
                 if (IsNumber(strData))
                 {
-                    spectrumInfo.ScanNumber = Conversions.ToInteger(strData);
+                    spectrumInfo.ScanNumber = int.Parse(strData);
                     if (IsNumber(strRemaining))
                     {
                         if (spectrumInfo.ScanNumberEnd == 0)
                         {
-                            spectrumInfo.ScanNumberEnd = Conversions.ToInteger(strRemaining);
+                            spectrumInfo.ScanNumberEnd = int.Parse(strRemaining);
                         }
                     }
                     else
@@ -87,7 +87,7 @@ namespace MSDataFileReader
             }
             else if (IsNumber(strData))
             {
-                spectrumInfo.ScanNumber = Conversions.ToInteger(strData);
+                spectrumInfo.ScanNumber = int.Parse(strData);
                 if (spectrumInfo.ScanNumberEnd == 0)
                 {
                     spectrumInfo.ScanNumberEnd = spectrumInfo.ScanNumber;
@@ -246,7 +246,7 @@ namespace MSDataFileReader
                                             while (true);
                                             if (IsNumber(strTemp))
                                             {
-                                                mCurrentSpectrum.ScanNumberEnd = Conversions.ToInteger(strTemp);
+                                                mCurrentSpectrum.ScanNumberEnd = int.Parse(strTemp);
                                             }
                                         }
                                     }
@@ -293,7 +293,7 @@ namespace MSDataFileReader
                                                 strSplitLine = strLineIn.Split(strSepChars);
                                                 if (strSplitLine.Length > 0 && IsNumber(strSplitLine[0]))
                                                 {
-                                                    mCurrentSpectrum.ParentIonMZ = Conversions.ToDouble(strSplitLine[0]);
+                                                    mCurrentSpectrum.ParentIonMZ = double.Parse(strSplitLine[0]);
                                                     blnParentIonFound = true;
                                                 }
                                                 else
@@ -328,7 +328,7 @@ namespace MSDataFileReader
                                                                 ref var withBlock1 = ref mCurrentSpectrum;
                                                                 if (withBlock1.ParentIonChargeCount < clsSpectrumInfoMsMsText.MAX_CHARGE_COUNT)
                                                                 {
-                                                                    withBlock1.ParentIonCharges[withBlock1.ParentIonChargeCount] = Conversions.ToInteger(strSplitLine[intIndex].Trim());
+                                                                    withBlock1.ParentIonCharges[withBlock1.ParentIonChargeCount] = int.Parse(strSplitLine[intIndex].Trim());
                                                                     withBlock1.ParentIonChargeCount += 1;
                                                                 }
                                                             }
@@ -340,7 +340,7 @@ namespace MSDataFileReader
                                                     {
                                                         ref var withBlock2 = ref mCurrentSpectrum;
                                                         withBlock2.ParentIonChargeCount = 1;
-                                                        withBlock2.ParentIonCharges[0] = Conversions.ToInteger(strLineIn);
+                                                        withBlock2.ParentIonCharges[0] = int.Parse(strLineIn);
                                                     }
                                                 }
                                             }

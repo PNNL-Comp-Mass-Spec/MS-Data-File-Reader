@@ -436,7 +436,7 @@ namespace MSDataFileReader
                             {
                                 try
                                 {
-                                    mCurrentSpectrum.ParentIonMZ = Conversions.ToDouble(XMLTextReaderGetInnerText());
+                                    mCurrentSpectrum.ParentIonMZ = double.Parse(XMLTextReaderGetInnerText());
                                 }
                                 catch (Exception ex)
                                 {

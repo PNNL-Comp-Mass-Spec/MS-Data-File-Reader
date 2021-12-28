@@ -188,7 +188,7 @@ namespace MSDataFileReader
                                 {
                                     try
                                     {
-                                        mInputFileStats.ScanCount = Conversions.ToInteger(objMatch.Groups[1].Captures[0].Value);
+                                        mInputFileStats.ScanCount = int.Parse(objMatch.Groups[1].Captures[0].Value);
                                     }
                                     catch (Exception ex)
                                     {
@@ -239,7 +239,7 @@ namespace MSDataFileReader
                                     {
                                         try
                                         {
-                                            mCurrentSpectrumInfo.ScanNumber = Conversions.ToInteger(objMatch.Groups[1].Captures[0].Value);
+                                            mCurrentSpectrumInfo.ScanNumber = int.Parse(objMatch.Groups[1].Captures[0].Value);
                                         }
                                         catch (Exception ex)
                                         {
@@ -861,7 +861,7 @@ namespace MSDataFileReader
                                         try
                                         {
                                             intPreviousScanNumber = intCurrentScanNumber;
-                                            intCurrentScanNumber = Conversions.ToInteger(objXMLReader.GetAttribute(OFFSET_ATTRIBUTE_ID));
+                                            intCurrentScanNumber = int.Parse(objXMLReader.GetAttribute(OFFSET_ATTRIBUTE_ID));
                                         }
                                         catch (Exception ex)
                                         {
@@ -894,7 +894,7 @@ namespace MSDataFileReader
                                         try
                                         {
                                             lngPreviousScanByteOffsetStart = lngCurrentScanByteOffsetStart;
-                                            lngCurrentScanByteOffsetStart = Conversions.ToLong(objXMLReader.Value);
+                                            lngCurrentScanByteOffsetStart = long.Parse(objXMLReader.Value);
                                             if (lngPreviousScanByteOffsetStart >= 0L && intCurrentScanNumber >= 0)
                                             {
                                                 // Store the previous scan info

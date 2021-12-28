@@ -201,7 +201,7 @@ namespace MSDataFileReader
                                 {
                                     try
                                     {
-                                        mInputFileStats.ScanCount = Conversions.ToInteger(objMatch.Groups[1].Captures[0].Value);
+                                        mInputFileStats.ScanCount = int.Parse(objMatch.Groups[1].Captures[0].Value);
                                     }
                                     catch (Exception ex)
                                     {
@@ -234,7 +234,7 @@ namespace MSDataFileReader
                                     try
                                     {
                                         blnAcqNumberFound = true;
-                                        mCurrentSpectrumInfo.ScanNumber = Conversions.ToInteger(objMatch.Groups[1].Captures[0].Value);
+                                        mCurrentSpectrumInfo.ScanNumber = int.Parse(objMatch.Groups[1].Captures[0].Value);
                                     }
                                     catch (Exception ex)
                                     {
@@ -281,7 +281,7 @@ namespace MSDataFileReader
                                     {
                                         try
                                         {
-                                            mCurrentSpectrumInfo.SpectrumID = Conversions.ToInteger(objMatch.Groups[1].Captures[0].Value);
+                                            mCurrentSpectrumInfo.SpectrumID = int.Parse(objMatch.Groups[1].Captures[0].Value);
                                         }
                                         catch (Exception ex)
                                         {

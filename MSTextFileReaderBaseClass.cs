@@ -617,8 +617,8 @@ namespace MSDataFileReader
                     {
                         if (IsNumber(strSplitLine[0]) & IsNumber(strSplitLine[1]))
                         {
-                            dblMasses[intDataCount] = Conversions.ToDouble(strSplitLine[0]);
-                            sngIntensities[intDataCount] = Conversions.ToSingle(strSplitLine[1]);
+                            dblMasses[intDataCount] = double.Parse(strSplitLine[0]);
+                            sngIntensities[intDataCount] = float.Parse(strSplitLine[1]);
                             intDataCount += 1;
                         }
                     }
