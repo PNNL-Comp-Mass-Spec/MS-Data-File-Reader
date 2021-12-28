@@ -429,37 +429,37 @@ namespace MSDataFileReader
 
             strMostRecentLineIn = string.Empty;
             lstMsMsDataList = new List<string>();
-            if (blnSpectrumFound)
+
+            if (!blnSpectrumFound)
+                return false;
+
+            // Read all of the MS/MS spectrum ions up to the next blank line or up to the next line starting with COMMENT_LINE_START_CHAR
+            while (srReader.Peek() > -1)
             {
-                // Read all of the MS/MS spectrum ions up to the next blank line or up to the next line starting with COMMENT_LINE_START_CHAR
+                var strLineIn = srReader.ReadLine();
+                intLinesRead += 1;
 
-                while (srReader.Peek() > -1)
+                // See if strLineIn is blank
+                if (strLineIn != null)
                 {
-                    var strLineIn = srReader.ReadLine();
-                    intLinesRead += 1;
-
-                    // See if strLineIn is blank
-                    if (strLineIn != null)
+                    mTotalBytesRead += strLineIn.Length + 2;
+                    strMostRecentLineIn = string.Copy(strLineIn);
+                    if (strLineIn.Trim().Length == 0 || strLineIn.StartsWith(COMMENT_LINE_START_CHAR.ToString()))
                     {
-                        mTotalBytesRead += strLineIn.Length + 2;
-                        strMostRecentLineIn = string.Copy(strLineIn);
-                        if (strLineIn.Trim().Length == 0 || strLineIn.StartsWith(COMMENT_LINE_START_CHAR.ToString()))
-                        {
-                            break;
-                        }
-                        else
-                        {
-                            // Add to MS/MS data string list
-                            lstMsMsDataList.Add(strLineIn.Trim());
-                            AddNewRecentFileText(strLineIn);
-                        }
+                        break;
                     }
-
-                    if (intLinesRead - intLastProgressUpdateLine >= 250)
+                    else
                     {
-                        intLastProgressUpdateLine = intLinesRead;
-                        UpdateStreamReaderProgress();
+                        // Add to MS/MS data string list
+                        lstMsMsDataList.Add(strLineIn.Trim());
+                        AddNewRecentFileText(strLineIn);
                     }
+                }
+
+                if (intLinesRead - intLastProgressUpdateLine >= 250)
+                {
+                    intLastProgressUpdateLine = intLinesRead;
+                    UpdateStreamReaderProgress();
                 }
             }
 

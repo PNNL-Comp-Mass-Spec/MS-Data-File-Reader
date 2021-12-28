@@ -700,14 +700,15 @@ namespace MSDataFileReader
         public bool ReadLine(ReadDirectionConstants eDirection)
         {
             var intStartIndexShiftIncrement = default(int);
-            bool blnMatchFound;
+            var blnMatchFound = false;
 
             try
             {
-                blnMatchFound = false;
                 var blnTerminatorFound = false;
                 var intStartIndexShiftCount = 0;
                 InitializeCurrentLine();
+
+                // ReSharper disable once MergeIntoPattern
                 if (mBinaryReader != null && mBinaryReader.CanRead)
                 {
                     switch (mInputFileEncoding)
@@ -738,7 +739,7 @@ namespace MSDataFileReader
                     if (eDirection == ReadDirectionConstants.Forward)
                     {
                         intSearchIndexStartOffset = 0;
-                        if (ByteAtEOF(mByteBufferFileOffsetStart + mByteBufferNextLineStartIndex + intSearchIndexStartOffset))
+                        if (ByteAtEOF(mByteBufferFileOffsetStart + mByteBufferNextLineStartIndex))
                         {
                             mCurrentLineByteOffsetStart = mBinaryReader.Length;
                             mCurrentLineByteOffsetEnd = mBinaryReader.Length;
@@ -776,7 +777,8 @@ namespace MSDataFileReader
                         var intTerminatorCheckCount = 0;
                         var intTerminatorCheckCountValueZero = 0;
                         var blnStartIndexShifted = false;
-                        if (eDirection == ReadDirectionConstants.Reverse && intIndex >= intIndexMinimum || eDirection == ReadDirectionConstants.Forward && intIndex <= intIndexMaximum)
+                        if (eDirection == ReadDirectionConstants.Reverse && intIndex >= intIndexMinimum ||
+                            eDirection == ReadDirectionConstants.Forward && intIndex <= intIndexMaximum)
                         {
                             do
                             {
@@ -788,7 +790,6 @@ namespace MSDataFileReader
                                         if (mByteBuffer[intIndex] == mLineTerminator2Code)
                                         {
                                             blnTerminatorFound = true;
-                                            break;
                                         }
 
                                         break;
@@ -832,6 +833,7 @@ namespace MSDataFileReader
                                     }
                                     else
                                     {
+                                        // Exit the TerminatorFound loop
                                         break;
                                     }
                                 }
@@ -841,6 +843,7 @@ namespace MSDataFileReader
                                 }
                                 else
                                 {
+                                    // Exit the TerminatorFound loop
                                     break;
                                 }
                             }
@@ -1044,7 +1047,6 @@ namespace MSDataFileReader
                                     // Unknown/unsupported encoding
                                     mCurrentLineText = string.Empty;
                                     intLineTerminatorLength = 0;
-                                    blnMatchFound = false;
                                     break;
                             }
 
@@ -1095,123 +1097,126 @@ namespace MSDataFileReader
                                 blnMatchFound = true;
                             }
 
+                            // Exit the while loop
                             break;
                         }
 
-                        if (!blnMatchFound && !blnStartIndexShifted)
+                        if (blnMatchFound || blnStartIndexShifted)
+                            continue;
+
+                        // Need to add more data to the buffer (or shift the data in the buffer)
+                        int intBytesRead;
+                        if (eDirection == ReadDirectionConstants.Forward)
                         {
-                            // Need to add more data to the buffer (or shift the data in the buffer)
-                            int intBytesRead;
-                            if (eDirection == ReadDirectionConstants.Forward)
+                            if (mBinaryReader.Position >= mBinaryReader.Length)
                             {
-                                if (mBinaryReader.Position >= mBinaryReader.Length)
+                                // Already at the end of the file; cannot move forward
+                                // Exit the while loop
+                                break;
+                            }
+
+                            if (mByteBufferNextLineStartIndex > 0)
+                            {
+                                // First, shift all of the data so that element mByteBufferNextLineStartIndex moves to element 0
+                                var loopTo = mByteBufferCount - 1;
+                                for (intIndex = mByteBufferNextLineStartIndex; intIndex <= loopTo; intIndex++)
                                 {
-                                    // Already at the end of the file; cannot move forward
-                                    break;
+                                    mByteBuffer[intIndex - mByteBufferNextLineStartIndex] = mByteBuffer[intIndex];
                                 }
 
-                                if (mByteBufferNextLineStartIndex > 0)
+                                mByteBufferCount -= mByteBufferNextLineStartIndex;
+                                mByteBufferFileOffsetStart += mByteBufferNextLineStartIndex;
+                                intSearchIndexStartOffset = mByteBufferCount;
+                                mByteBufferNextLineStartIndex = 0;
+                                if (mByteBufferFileOffsetStart + mByteBufferCount != mBinaryReader.Position)
                                 {
-                                    // First, shift all of the data so that element mByteBufferNextLineStartIndex moves to element 0
-                                    var loopTo = mByteBufferCount - 1;
-                                    for (intIndex = mByteBufferNextLineStartIndex; intIndex <= loopTo; intIndex++)
-                                    {
-                                        mByteBuffer[intIndex - mByteBufferNextLineStartIndex] = mByteBuffer[intIndex];
-                                    }
-
-                                    mByteBufferCount -= mByteBufferNextLineStartIndex;
-                                    mByteBufferFileOffsetStart += mByteBufferNextLineStartIndex;
-                                    intSearchIndexStartOffset = mByteBufferCount;
-                                    mByteBufferNextLineStartIndex = 0;
-                                    if (mByteBufferFileOffsetStart + mByteBufferCount != mBinaryReader.Position)
-                                    {
-                                        // The file read-position is out-of-sync with mByteBufferFileOffsetStart; this can happen
-                                        // if we used MoveToByteOffset, read backward, and are now reading forward
-                                        mBinaryReader.Seek(mByteBufferFileOffsetStart + mByteBufferCount, SeekOrigin.Begin);
-                                    }
-                                }
-                                else
-                                {
-                                    intSearchIndexStartOffset = mByteBufferCount;
-                                    if (mByteBufferCount >= mByteBuffer.Length)
-                                    {
-                                        // Need to expand the buffer
-                                        // In order to support Unicode files, it is important that the buffer length always be a power of 2
-                                        Array.Resize(ref mByteBuffer, mByteBuffer.Length * 2);
-                                    }
-                                }
-
-                                intBytesRead = mBinaryReader.Read(mByteBuffer, intSearchIndexStartOffset, mByteBuffer.Length - intSearchIndexStartOffset);
-                                if (intBytesRead == 0)
-                                {
-                                    // No data could be read; exit the loop
-                                    break;
-                                }
-                                else
-                                {
-                                    mByteBufferCount += intBytesRead;
+                                    // The file read-position is out-of-sync with mByteBufferFileOffsetStart; this can happen
+                                    // if we used MoveToByteOffset, read backward, and are now reading forward
+                                    mBinaryReader.Seek(mByteBufferFileOffsetStart + mByteBufferCount, SeekOrigin.Begin);
                                 }
                             }
                             else
                             {
-                                if (mByteBufferFileOffsetStart <= mByteOrderMarkLength || mBinaryReader.Position <= 0L)
+                                intSearchIndexStartOffset = mByteBufferCount;
+                                if (mByteBufferCount >= mByteBuffer.Length)
                                 {
-                                    // Already at the beginning of the file; cannot move backward
-                                    break;
-                                }
-
-                                if (mByteBufferCount >= mByteBuffer.Length && mByteBufferNextLineStartIndex >= mByteBuffer.Length)
-                                {
-                                    // The byte buffer is full and mByteBufferNextLineStartIndex is past the end of the buffer
-                                    // Need to double its size, shift the data from the first half to the second half, and
-                                    // populate the first half
-
-                                    // Expand the buffer
+                                    // Need to expand the buffer
                                     // In order to support Unicode files, it is important that the buffer length always be a power of 2
                                     Array.Resize(ref mByteBuffer, mByteBuffer.Length * 2);
                                 }
+                            }
 
-                                int intShiftIncrement;
-                                if (mByteBufferCount < mByteBuffer.Length)
-                                {
-                                    intShiftIncrement = mByteBuffer.Length - mByteBufferCount;
-                                }
-                                else
-                                {
-                                    intShiftIncrement = mByteBuffer.Length - mByteBufferNextLineStartIndex;
-                                }
+                            intBytesRead = mBinaryReader.Read(mByteBuffer, intSearchIndexStartOffset, mByteBuffer.Length - intSearchIndexStartOffset);
+                            if (intBytesRead == 0)
+                            {
+                                // No data could be read; exit the while loop
+                                break;
+                            }
 
-                                if (mByteBufferFileOffsetStart - intShiftIncrement < mByteOrderMarkLength)
-                                {
-                                    intShiftIncrement = (int)mByteBufferFileOffsetStart - mByteOrderMarkLength;
-                                }
+                            mByteBufferCount += intBytesRead;
+                        }
+                        else
+                        {
+                            if (mByteBufferFileOffsetStart <= mByteOrderMarkLength || mBinaryReader.Position <= 0L)
+                            {
+                                // Already at the beginning of the file; cannot move backward
+                                // Exit the while loop
+                                break;
+                            }
 
-                                // Possibly update mByteBufferCount
-                                if (mByteBufferCount < mByteBuffer.Length)
-                                {
-                                    mByteBufferCount += intShiftIncrement;
-                                }
+                            if (mByteBufferCount >= mByteBuffer.Length && mByteBufferNextLineStartIndex >= mByteBuffer.Length)
+                            {
+                                // The byte buffer is full and mByteBufferNextLineStartIndex is past the end of the buffer
+                                // Need to double its size, shift the data from the first half to the second half, and
+                                // populate the first half
 
-                                // Shift the data
-                                for (intIndex = mByteBufferCount - intShiftIncrement - 1; intIndex >= 0; intIndex -= 1)
-                                {
-                                    mByteBuffer[intShiftIncrement + intIndex] = mByteBuffer[intIndex];
-                                }
+                                // Expand the buffer
+                                // In order to support Unicode files, it is important that the buffer length always be a power of 2
+                                Array.Resize(ref mByteBuffer, mByteBuffer.Length * 2);
+                            }
 
-                                // Update the tracking variables
-                                mByteBufferFileOffsetStart -= intShiftIncrement;
-                                mByteBufferNextLineStartIndex += intShiftIncrement;
+                            int intShiftIncrement;
+                            if (mByteBufferCount < mByteBuffer.Length)
+                            {
+                                intShiftIncrement = mByteBuffer.Length - mByteBufferCount;
+                            }
+                            else
+                            {
+                                intShiftIncrement = mByteBuffer.Length - mByteBufferNextLineStartIndex;
+                            }
 
-                                // Populate the first portion of the byte buffer with new data
-                                mBinaryReader.Seek(mByteBufferFileOffsetStart, SeekOrigin.Begin);
-                                intBytesRead = mBinaryReader.Read(mByteBuffer, 0, intShiftIncrement);
-                                if (intBytesRead == 0)
-                                {
-                                    // No data could be read; this shouldn't ever happen
-                                    // Move to the beginning of the file and re-populate mByteBuffer
-                                    MoveToBeginning();
-                                    break;
-                                }
+                            if (mByteBufferFileOffsetStart - intShiftIncrement < mByteOrderMarkLength)
+                            {
+                                intShiftIncrement = (int)mByteBufferFileOffsetStart - mByteOrderMarkLength;
+                            }
+
+                            // Possibly update mByteBufferCount
+                            if (mByteBufferCount < mByteBuffer.Length)
+                            {
+                                mByteBufferCount += intShiftIncrement;
+                            }
+
+                            // Shift the data
+                            for (intIndex = mByteBufferCount - intShiftIncrement - 1; intIndex >= 0; intIndex -= 1)
+                            {
+                                mByteBuffer[intShiftIncrement + intIndex] = mByteBuffer[intIndex];
+                            }
+
+                            // Update the tracking variables
+                            mByteBufferFileOffsetStart -= intShiftIncrement;
+                            mByteBufferNextLineStartIndex += intShiftIncrement;
+
+                            // Populate the first portion of the byte buffer with new data
+                            mBinaryReader.Seek(mByteBufferFileOffsetStart, SeekOrigin.Begin);
+                            intBytesRead = mBinaryReader.Read(mByteBuffer, 0, intShiftIncrement);
+                            if (intBytesRead == 0)
+                            {
+                                // No data could be read; this shouldn't ever happen
+                                // Move to the beginning of the file and re-populate mByteBuffer
+                                MoveToBeginning();
+
+                                // Exit the while loop
+                                break;
                             }
                         }
                     }
@@ -1228,15 +1233,13 @@ namespace MSDataFileReader
                 mReadLineDirectionSaved = eDirection;
                 mCurrentLineByteOffsetStartSaved = mCurrentLineByteOffsetStart;
                 mCurrentLineTextSaved = string.Copy(mCurrentLineText);
-            }
-            else
-            {
-                mReadLineDirectionSaved = eDirection;
-                mCurrentLineByteOffsetStartSaved = -1;
-                mCurrentLineTextSaved = string.Empty;
+                return true;
             }
 
-            return blnMatchFound;
+            mReadLineDirectionSaved = eDirection;
+            mCurrentLineByteOffsetStartSaved = -1;
+            mCurrentLineTextSaved = string.Empty;
+            return false;
         }
 
         private void SetInputFileEncoding(InputFileEncodingConstants EncodingMode)

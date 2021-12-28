@@ -688,38 +688,38 @@ namespace MSDataFileReader
                         }
                     }
 
-                    if (blnSpectrumFound)
+                    if (!blnSpectrumFound)
+                        continue;
+
+                    // Make sure mAddNewLinesToHeader is now false
+                    if (mAddNewLinesToHeader)
                     {
-                        // Make sure mAddNewLinesToHeader is now false
-                        if (mAddNewLinesToHeader)
-                        {
-                            OnErrorEvent("Unexpected condition in ReadMZDataFile: mAddNewLinesToHeader was True; changing to False");
-                            mAddNewLinesToHeader = false;
-                        }
+                        OnErrorEvent("Unexpected condition in ReadMZDataFile: mAddNewLinesToHeader was True; changing to False");
+                        mAddNewLinesToHeader = false;
+                    }
 
-                        StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, lngCurrentSpectrumByteOffsetStart, lngCurrentSpectrumByteOffsetEnd);
+                    StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, lngCurrentSpectrumByteOffsetStart, lngCurrentSpectrumByteOffsetEnd);
 
-                        // Note that StoreIndexEntry will have incremented mIndexedSpectrumInfoCount
-                        mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].SpectrumID = mCurrentSpectrumInfo.SpectrumID;
-                        UpdateFileStats(mIndexedSpectrumInfoCount, mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].ScanNumber,
-                            mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].SpectrumID);
+                    // Note that StoreIndexEntry will have incremented mIndexedSpectrumInfoCount
+                    mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].SpectrumID = mCurrentSpectrumInfo.SpectrumID;
+                    UpdateFileStats(mIndexedSpectrumInfoCount, mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].ScanNumber,
+                        mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].SpectrumID);
 
-                        if (!mIndexedSpectraSpectrumIDToIndex.ContainsKey(mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].SpectrumID))
-                        {
-                            mIndexedSpectraSpectrumIDToIndex.Add(mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].SpectrumID,
-                                mIndexedSpectrumInfoCount - 1);
-                        }
+                    if (!mIndexedSpectraSpectrumIDToIndex.ContainsKey(mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].SpectrumID))
+                    {
+                        mIndexedSpectraSpectrumIDToIndex.Add(mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].SpectrumID,
+                            mIndexedSpectrumInfoCount - 1);
+                    }
 
-                        // Update the progress
-                        if (mBinaryTextReader.FileLengthBytes > 0L)
-                        {
-                            UpdateProgress(mBinaryTextReader.CurrentLineByteOffsetEnd / (double)mBinaryTextReader.FileLengthBytes * 100d);
-                        }
+                    // Update the progress
+                    if (mBinaryTextReader.FileLengthBytes > 0L)
+                    {
+                        UpdateProgress(mBinaryTextReader.CurrentLineByteOffsetEnd / (double)mBinaryTextReader.FileLengthBytes * 100d);
+                    }
 
-                        if (mAbortProcessing)
-                        {
-                            break;
-                        }
+                    if (mAbortProcessing)
+                    {
+                        break;
                     }
                 }
                 while (blnSpectrumFound);

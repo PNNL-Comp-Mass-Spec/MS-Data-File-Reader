@@ -737,11 +737,9 @@ namespace MSDataFileReader
                 mErrorMessage = "File not found: " + strInputFilePath;
                 return false;
             }
-            else
-            {
-                mInputFilePath = strInputFilePath;
-                return true;
-            }
+
+            mInputFilePath = strInputFilePath;
+            return true;
         }
 
         protected void OperationComplete()
