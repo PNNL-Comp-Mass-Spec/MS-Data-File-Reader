@@ -184,7 +184,7 @@ namespace MSDataFileReader
                                     return new string(Encoding.Unicode.GetChars(bytData, 0, intBytesToRead));
                                 }
 
-                            case var @case when @case == clsBinaryTextReader.InputFileEncodingConstants.UnicodeNormal:
+                            case clsBinaryTextReader.InputFileEncodingConstants.UnicodeBigEndian:
                                 {
                                     return new string(Encoding.BigEndianUnicode.GetChars(bytData, 0, intBytesToRead));
                                 }
