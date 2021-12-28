@@ -276,8 +276,7 @@ namespace MSDataFileReader
                     return defaultValue;
                 }
 
-                double dblValue;
-                if (double.TryParse(strValue, out dblValue))
+                if (double.TryParse(strValue, out var dblValue))
                 {
                     if (Math.Abs(dblValue) < float.Epsilon)
                     {
@@ -289,8 +288,7 @@ namespace MSDataFileReader
                     }
                 }
 
-                bool blnValue;
-                if (bool.TryParse(strValue, out blnValue))
+                if (bool.TryParse(strValue, out var blnValue))
                 {
                     return blnValue;
                 }

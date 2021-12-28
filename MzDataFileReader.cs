@@ -278,8 +278,7 @@ namespace MSDataFileReader
                     }
 
                     // Add mCurrentSpectrum to mMostRecentSurveyScanSpectra
-                    clsSpectrumInfoMzData objSpectrumCopy = null;
-                    mCurrentSpectrum.CopyTo(out objSpectrumCopy);
+                    mCurrentSpectrum.CopyTo(out var objSpectrumCopy);
                     mMostRecentSurveyScanSpectra.Enqueue(objSpectrumCopy);
                 }
             }
