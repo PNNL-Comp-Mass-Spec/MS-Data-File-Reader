@@ -347,34 +347,6 @@ namespace MSDataFileReader
             return blnMatchFound;
         }
 
-        [Obsolete("No longer used")]
-        public override string GetSourceXMLFooter()
-        {
-            return SPECTRUM_LIST_END_ELEMENT + Environment.NewLine + MZDATA_END_ELEMENT + Environment.NewLine;
-        }
-
-        [Obsolete("No longer used")]
-        public override string GetSourceXMLHeader(int intScanCountTotal, float sngStartTimeMinutesAllScans, float sngEndTimeMinutesAllScans)
-        {
-            string strHeaderText;
-            int intAsciiValue;
-            if (mXmlFileHeader is null)
-                mXmlFileHeader = string.Empty;
-            strHeaderText = string.Copy(mXmlFileHeader);
-            if (strHeaderText.Length == 0)
-            {
-                strHeaderText = "<?xml version=\"1.0\" encoding=\"UTF-8\"?>" + Environment.NewLine + MZDATA_START_ELEMENT + " version=\"1.05\" accessionNumber=\"psi-ms:100\"" + " xmlns:xsi=\"http://www.w3.org/2001/XMLSchema-instance\">" + Environment.NewLine;
-            }
-
-            intAsciiValue = Convert.ToInt32(strHeaderText[strHeaderText.Length - 1]);
-            if (!(intAsciiValue == 10 || intAsciiValue == 13 || intAsciiValue == 9 || intAsciiValue == 32))
-            {
-                strHeaderText += Environment.NewLine;
-            }
-
-            return strHeaderText + " " + SPECTRUM_LIST_START_ELEMENT + " count=\"" + intScanCountTotal + "\">";
-        }
-
         protected override bool GetSpectrumByIndexWork(int intSpectrumIndex, out clsSpectrumInfo objCurrentSpectrumInfo, bool blnHeaderInfoOnly)
         {
             var blnSuccess = default(bool);

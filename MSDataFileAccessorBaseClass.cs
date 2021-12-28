@@ -149,9 +149,8 @@ namespace MSDataFileReader
         /// <param name="strFilePath"></param>
         /// <param name="lngStartByteOffset"></param>
         /// <param name="lngEndByteOffset"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
-        protected virtual string ExtractTextBetweenOffsets(string strFilePath, long lngStartByteOffset, long lngEndByteOffset)
+        /// <returns>Extracted text</returns>
+        protected string ExtractTextBetweenOffsets(string strFilePath, long lngStartByteOffset, long lngEndByteOffset)
         {
             try
             {
@@ -203,37 +202,6 @@ namespace MSDataFileReader
             return string.Empty;
         }
 
-        /// <summary>
-        /// Extract the text between lngStartByteOffset and lngEndByteOffset in strFilePath, append it to
-        /// mXmlFileHeader, add the closing element tags, and return ByRef in strExtractedText
-        /// </summary>
-        /// <param name="strFilePath"></param>
-        /// <param name="lngStartByteOffset"></param>
-        /// <param name="lngEndByteOffset"></param>
-        /// <param name="strExtractedText"></param>
-        /// <param name="intScanCountTotal"></param>
-        /// <param name="sngStartTimeMinutesAllScans"></param>
-        /// <param name="sngEndTimeMinutesAllScans"></param>
-        /// <returns></returns>
-        /// <remarks>Note that sngStartTimeMinutesAllScans and sngEndTimeMinutesAllScans are really only appropriate for mzXML files</remarks>
-        [Obsolete("Superseded by wrapping mBinaryReader with an XmlTextReader; see GetSpectrumByIndexWork")]
-        protected bool ExtractTextFromFile(string strFilePath, long lngStartByteOffset, long lngEndByteOffset, out string strExtractedText, int intScanCountTotal, float sngStartTimeMinutesAllScans, float sngEndTimeMinutesAllScans)
-        {
-            var blnSuccess = default(bool);
-            try
-            {
-                strExtractedText = GetSourceXMLHeader(intScanCountTotal, sngStartTimeMinutesAllScans, sngEndTimeMinutesAllScans) + Environment.NewLine + ExtractTextBetweenOffsets(strFilePath, lngStartByteOffset, lngEndByteOffset) + Environment.NewLine + GetSourceXMLFooter();
-                blnSuccess = true;
-            }
-            catch (Exception ex)
-            {
-                OnErrorEvent("Error in ExtractTextFromFile", ex);
-                strExtractedText = string.Empty;
-            }
-
-            return blnSuccess;
-        }
-
         protected override string GetInputFileLocation()
         {
             try
@@ -263,6 +231,7 @@ namespace MSDataFileReader
         {
             int intSpectrumIndex;
             var blnSuccess = default(bool);
+
             try
             {
                 blnSuccess = false;
@@ -301,9 +270,6 @@ namespace MSDataFileReader
 
             return blnSuccess;
         }
-
-        public abstract string GetSourceXMLFooter();
-        public abstract string GetSourceXMLHeader(int intScanCountTotal, float sngStartTimeMinutesAllScans, float sngEndTimeMinutesAllScans);
 
         /// <summary>
         /// Obtain the source XML for the given spectrum index
