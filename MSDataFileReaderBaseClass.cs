@@ -18,6 +18,8 @@ namespace MSDataFileReader
     /// </summary>
     public abstract class clsMSDataFileReaderBaseClass : EventNotifier
     {
+        // Ignore Spelling: accessor
+
         public event ProgressResetEventHandler ProgressReset;
 
         public delegate void ProgressResetEventHandler();
@@ -43,7 +45,7 @@ namespace MSDataFileReader
 
         #region Constants and Enums
 
-        public const string PROGRAM_DATE = "July 8, 2016";
+        public const string PROGRAM_DATE = "December 28, 2021";
         public const double CHARGE_CARRIER_MASS_AVG = 1.00739d;
         public const double CHARGE_CARRIER_MASS_MONOISO = 1.00727649d;
         public const double MASS_HYDROGEN = 1.0078246d;
