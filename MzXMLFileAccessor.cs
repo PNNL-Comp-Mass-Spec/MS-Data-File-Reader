@@ -205,25 +205,19 @@ namespace MSDataFileReader
                         switch (eElementMatchMode)
                         {
                             case emmElementMatchModeConstants.StartElement:
-                                {
-                                    objMatch = mScanStartElementRegEx.Match(strInFileCurrentLineSubstring);
-                                    break;
-                                }
+                                objMatch = mScanStartElementRegEx.Match(strInFileCurrentLineSubstring);
+                                break;
 
                             case emmElementMatchModeConstants.EndElement:
-                                {
-                                    // Since mzXml files can have scans embedded within another scan, we'll look for </peaks>
-                                    // rather than looking for </scan>
-                                    objMatch = mPeaksEndElementRegEx.Match(strInFileCurrentLineSubstring);
-                                    break;
-                                }
+                                // Since mzXml files can have scans embedded within another scan, we'll look for </peaks>
+                                // rather than looking for </scan>
+                                objMatch = mPeaksEndElementRegEx.Match(strInFileCurrentLineSubstring);
+                                break;
 
                             default:
-                                {
-                                    // Unknown mode
-                                    OnErrorEvent("Unknown mode for eElementMatchMode in AdvanceFileReaders: {0}", eElementMatchMode);
-                                    return false;
-                                }
+                                // Unknown mode
+                                OnErrorEvent("Unknown mode for eElementMatchMode in AdvanceFileReaders: {0}", eElementMatchMode);
+                                return false;
                         }
 
                         if (objMatch.Success)

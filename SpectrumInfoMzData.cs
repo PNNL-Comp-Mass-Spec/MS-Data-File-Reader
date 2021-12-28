@@ -236,20 +236,14 @@ namespace MSDataFileReader
             switch (strEndianModeText ?? "")
             {
                 case EndianModes.bigEndian:
-                    {
-                        return clsBase64EncodeDecode.eEndianTypeConstants.BigEndian;
-                    }
+                    return clsBase64EncodeDecode.eEndianTypeConstants.BigEndian;
 
                 case EndianModes.littleEndian:
-                    {
-                        return clsBase64EncodeDecode.eEndianTypeConstants.LittleEndian;
-                    }
+                    return clsBase64EncodeDecode.eEndianTypeConstants.LittleEndian;
 
                 default:
-                    {
-                        // Assume littleEndian
-                        return clsBase64EncodeDecode.eEndianTypeConstants.LittleEndian;
-                    }
+                    // Assume littleEndian
+                    return clsBase64EncodeDecode.eEndianTypeConstants.LittleEndian;
             }
         }
 

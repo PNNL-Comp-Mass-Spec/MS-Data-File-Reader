@@ -165,30 +165,20 @@ namespace MSDataFileReader
                         switch (mInputFileEncoding)
                         {
                             case clsBinaryTextReader.InputFileEncodingConstants.ASCII:
-                                {
-                                    return new string(Encoding.ASCII.GetChars(bytData, 0, intBytesToRead));
-                                }
+                                return new string(Encoding.ASCII.GetChars(bytData, 0, intBytesToRead));
 
                             case clsBinaryTextReader.InputFileEncodingConstants.UTF8:
-                                {
-                                    return new string(Encoding.UTF8.GetChars(bytData, 0, intBytesToRead));
-                                }
+                                return new string(Encoding.UTF8.GetChars(bytData, 0, intBytesToRead));
 
                             case clsBinaryTextReader.InputFileEncodingConstants.UnicodeNormal:
-                                {
-                                    return new string(Encoding.Unicode.GetChars(bytData, 0, intBytesToRead));
-                                }
+                                return new string(Encoding.Unicode.GetChars(bytData, 0, intBytesToRead));
 
                             case clsBinaryTextReader.InputFileEncodingConstants.UnicodeBigEndian:
-                                {
-                                    return new string(Encoding.BigEndianUnicode.GetChars(bytData, 0, intBytesToRead));
-                                }
+                                return new string(Encoding.BigEndianUnicode.GetChars(bytData, 0, intBytesToRead));
 
                             default:
-                                {
-                                    // Unknown encoding
-                                    return string.Empty;
-                                }
+                                // Unknown encoding
+                                return string.Empty;
                         }
                     }
                 }

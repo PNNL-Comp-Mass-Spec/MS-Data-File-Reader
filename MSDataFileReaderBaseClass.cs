@@ -440,46 +440,38 @@ namespace MSDataFileReader
                 switch (strFileExtension ?? "")
                 {
                     case clsMzDataFileReader.MZDATA_FILE_EXTENSION:
-                        {
-                            eFileType = dftDataFileTypeConstants.mzData;
-                            break;
-                        }
+                        eFileType = dftDataFileTypeConstants.mzData;
+                        break;
 
                     case clsMzXMLFileReader.MZXML_FILE_EXTENSION:
-                        {
-                            eFileType = dftDataFileTypeConstants.mzXML;
-                            break;
-                        }
+                        eFileType = dftDataFileTypeConstants.mzXML;
+                        break;
 
                     case clsMGFFileReader.MGF_FILE_EXTENSION:
-                        {
-                            eFileType = dftDataFileTypeConstants.MGF;
-                            break;
-                        }
+                        eFileType = dftDataFileTypeConstants.MGF;
+                        break;
 
                     default:
+                        // See if the filename ends with MZDATA_FILE_EXTENSION_XML or MZXML_FILE_EXTENSION_XML
+                        if (strFileName.EndsWith(clsMzDataFileReader.MZDATA_FILE_EXTENSION_XML))
                         {
-                            // See if the filename ends with MZDATA_FILE_EXTENSION_XML or MZXML_FILE_EXTENSION_XML
-                            if (strFileName.EndsWith(clsMzDataFileReader.MZDATA_FILE_EXTENSION_XML))
-                            {
-                                eFileType = dftDataFileTypeConstants.mzData;
-                            }
-                            else if (strFileName.EndsWith(clsMzXMLFileReader.MZXML_FILE_EXTENSION_XML))
-                            {
-                                eFileType = dftDataFileTypeConstants.mzXML;
-                            }
-                            else if (strFileName.EndsWith(clsDtaTextFileReader.DTA_TEXT_FILE_EXTENSION))
-                            {
-                                eFileType = dftDataFileTypeConstants.DtaText;
-                            }
-                            else
-                            {
-                                // Unknown file type
-                                blnKnownType = false;
-                            }
-
-                            break;
+                            eFileType = dftDataFileTypeConstants.mzData;
                         }
+                        else if (strFileName.EndsWith(clsMzXMLFileReader.MZXML_FILE_EXTENSION_XML))
+                        {
+                            eFileType = dftDataFileTypeConstants.mzXML;
+                        }
+                        else if (strFileName.EndsWith(clsDtaTextFileReader.DTA_TEXT_FILE_EXTENSION))
+                        {
+                            eFileType = dftDataFileTypeConstants.DtaText;
+                        }
+                        else
+                        {
+                            // Unknown file type
+                            blnKnownType = false;
+                        }
+
+                        break;
                 }
             }
             catch (Exception ex)
@@ -504,33 +496,23 @@ namespace MSDataFileReader
                 switch (eFileType)
                 {
                     case dftDataFileTypeConstants.DtaText:
-                        {
-                            objFileReader = new clsDtaTextFileReader();
-                            break;
-                        }
+                        objFileReader = new clsDtaTextFileReader();
+                        break;
 
                     case dftDataFileTypeConstants.MGF:
-                        {
-                            objFileReader = new clsMGFFileReader();
-                            break;
-                        }
+                        objFileReader = new clsMGFFileReader();
+                        break;
 
                     case dftDataFileTypeConstants.mzData:
-                        {
-                            objFileReader = new clsMzDataFileReader();
-                            break;
-                        }
+                        objFileReader = new clsMzDataFileReader();
+                        break;
 
                     case dftDataFileTypeConstants.mzXML:
-                        {
-                            objFileReader = new clsMzXMLFileReader();
-                            break;
-                        }
+                        objFileReader = new clsMzXMLFileReader();
+                        break;
 
                     default:
-                        {
-                            break;
-                        }
+                        break;
                         // Unknown file type
                 }
             }
@@ -555,27 +537,20 @@ namespace MSDataFileReader
                 switch (eFileType)
                 {
                     case dftDataFileTypeConstants.mzData:
-                        {
-                            objFileAccessor = new clsMzDataFileAccessor();
-                            break;
-                        }
+                        objFileAccessor = new clsMzDataFileAccessor();
+                        break;
 
                     case dftDataFileTypeConstants.mzXML:
-                        {
-                            objFileAccessor = new clsMzXMLFileAccessor();
-                            break;
-                        }
+                        objFileAccessor = new clsMzXMLFileAccessor();
+                        break;
+
                     // These file types do not have file accessors
                     case dftDataFileTypeConstants.DtaText:
                     case dftDataFileTypeConstants.MGF:
-                        {
-                            break;
-                        }
+                        break;
 
                     default:
-                        {
-                            break;
-                        }
+                        break;
                         // Unknown file type
                 }
             }

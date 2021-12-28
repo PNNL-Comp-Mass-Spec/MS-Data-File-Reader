@@ -270,19 +270,15 @@ namespace MSDataFileReader
                 {
                     case FileSystemModeConstants.Windows:
                     case FileSystemModeConstants.Unix:
-                        {
-                            // Normally present for Windows; normally not present for Unix
-                            mLineTerminator1Code = LINE_TERMINATOR_CODE_CR;
-                            mLineTerminator2Code = LINE_TERMINATOR_CODE_LF;
-                            break;
-                        }
+                        // Normally present for Windows; normally not present for Unix
+                        mLineTerminator1Code = LINE_TERMINATOR_CODE_CR;
+                        mLineTerminator2Code = LINE_TERMINATOR_CODE_LF;
+                        break;
 
                     case FileSystemModeConstants.Macintosh:
-                        {
-                            mLineTerminator1Code = 0;
-                            mLineTerminator2Code = LINE_TERMINATOR_CODE_CR;
-                            break;
-                        }
+                        mLineTerminator1Code = 0;
+                        mLineTerminator2Code = LINE_TERMINATOR_CODE_CR;
+                        break;
                 }
             }
         }
@@ -723,32 +719,24 @@ namespace MSDataFileReader
                     {
                         case InputFileEncodingConstants.ASCII:
                         case InputFileEncodingConstants.UTF8:
-                            {
-                                // ASCII or UTF-8 encoding; Assure mCharSize = 1
-                                mCharSize = 1;
-                                break;
-                            }
+                            // ASCII or UTF-8 encoding; Assure mCharSize = 1
+                            mCharSize = 1;
+                            break;
 
                         case InputFileEncodingConstants.UnicodeNormal:
-                            {
-                                // Unicode (Little Endian) encoding; Assure mCharSize = 2
-                                mCharSize = 2;
-                                break;
-                            }
+                            // Unicode (Little Endian) encoding; Assure mCharSize = 2
+                            mCharSize = 2;
+                            break;
 
                         case InputFileEncodingConstants.UnicodeBigEndian:
-                            {
-                                // Unicode (Big Endian) encoding; Assure mCharSize = 2
-                                mCharSize = 2;
-                                break;
-                            }
+                            // Unicode (Big Endian) encoding; Assure mCharSize = 2
+                            mCharSize = 2;
+                            break;
 
                         default:
-                            {
-                                // Unknown encoding
-                                mCurrentLineText = string.Empty;
-                                return false;
-                            }
+                            // Unknown encoding
+                            mCurrentLineText = string.Empty;
+                            return false;
                     }
 
                     int intSearchIndexStartOffset;
@@ -801,50 +789,44 @@ namespace MSDataFileReader
                                 {
                                     case InputFileEncodingConstants.ASCII:
                                     case InputFileEncodingConstants.UTF8:
+                                        // ASCII or UTF-8 encoding; Assure mCharSize = 1
+                                        if (mByteBuffer[intIndex] == mLineTerminator2Code)
                                         {
-                                            // ASCII or UTF-8 encoding; Assure mCharSize = 1
-                                            if (mByteBuffer[intIndex] == mLineTerminator2Code)
-                                            {
-                                                blnTerminatorFound = true;
-                                                break;
-                                            }
-
+                                            blnTerminatorFound = true;
                                             break;
                                         }
+
+                                        break;
 
                                     case InputFileEncodingConstants.UnicodeNormal:
+                                        // Look for the LF symbol followed by a byte with value 0 in mByteBuffer
+                                        if (mByteBuffer[intIndex] == mLineTerminator2Code && mByteBuffer[intIndex + 1] == 0)
                                         {
-                                            // Look for the LF symbol followed by a byte with value 0 in mByteBuffer
-                                            if (mByteBuffer[intIndex] == mLineTerminator2Code && mByteBuffer[intIndex + 1] == 0)
-                                            {
-                                                blnTerminatorFound = true;
-                                                break;
-                                            }
-                                            else if (mByteBuffer[intIndex] == 0)
-                                            {
-                                                intTerminatorCheckCountValueZero += 1;
-                                            }
-
-                                            intTerminatorCheckCount += 1;
+                                            blnTerminatorFound = true;
                                             break;
                                         }
+                                        else if (mByteBuffer[intIndex] == 0)
+                                        {
+                                            intTerminatorCheckCountValueZero += 1;
+                                        }
+
+                                        intTerminatorCheckCount += 1;
+                                        break;
 
                                     case InputFileEncodingConstants.UnicodeBigEndian:
+                                        // Unicode (Big Endian) encoding; Assure mCharSize = 2
+                                        if (mByteBuffer[intIndex] == 0 && mByteBuffer[intIndex + 1] == mLineTerminator2Code)
                                         {
-                                            // Unicode (Big Endian) encoding; Assure mCharSize = 2
-                                            if (mByteBuffer[intIndex] == 0 && mByteBuffer[intIndex + 1] == mLineTerminator2Code)
-                                            {
-                                                blnTerminatorFound = true;
-                                                break;
-                                            }
-                                            else if (mByteBuffer[intIndex + 1] == 0)
-                                            {
-                                                intTerminatorCheckCountValueZero += 1;
-                                            }
-
-                                            intTerminatorCheckCount += 1;
+                                            blnTerminatorFound = true;
                                             break;
                                         }
+                                        else if (mByteBuffer[intIndex + 1] == 0)
+                                        {
+                                            intTerminatorCheckCountValueZero += 1;
+                                        }
+
+                                        intTerminatorCheckCount += 1;
+                                        break;
                                 }
 
                                 if (eDirection == ReadDirectionConstants.Forward)
@@ -960,123 +942,115 @@ namespace MSDataFileReader
                             {
                                 case InputFileEncodingConstants.ASCII:
                                 case InputFileEncodingConstants.UTF8:
+                                    // ASCII encoding
+                                    if (mLineTerminator1Code != 0 && intMatchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize] == mLineTerminator1Code)
                                     {
-                                        // ASCII encoding
-                                        if (mLineTerminator1Code != 0 && intMatchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize] == mLineTerminator1Code)
-                                        {
-                                            intLineTerminatorLength = 2;
-                                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd - mCharSize]).ToString() + Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]);
-                                        }
-                                        else if (mByteBuffer[intMatchingTextIndexEnd] == mLineTerminator2Code)
-                                        {
-                                            intLineTerminatorLength = 1;
-                                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]).ToString();
-                                        }
-                                        else
-                                        {
-                                            // No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
-                                            intLineTerminatorLength = 0;
-                                            mCurrentLineTerminator = string.Empty;
-                                        }
-
-                                        intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart - mCharSize * (intLineTerminatorLength - 1);
-                                        if (intBytesToRead <= 0)
-                                        {
-                                            // Blank line
-                                            mCurrentLineText = string.Empty;
-                                        }
-                                        else if (mInputFileEncoding == InputFileEncodingConstants.UTF8)
-                                        {
-                                            // Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
-                                            mCurrentLineText = new string(Encoding.UTF8.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead));
-                                        }
-                                        else
-                                        {
-                                            // Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
-                                            mCurrentLineText = new string(Encoding.ASCII.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead));
-                                        }
-
-                                        break;
+                                        intLineTerminatorLength = 2;
+                                        mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd - mCharSize]).ToString() + Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]);
                                     }
+                                    else if (mByteBuffer[intMatchingTextIndexEnd] == mLineTerminator2Code)
+                                    {
+                                        intLineTerminatorLength = 1;
+                                        mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]).ToString();
+                                    }
+                                    else
+                                    {
+                                        // No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
+                                        intLineTerminatorLength = 0;
+                                        mCurrentLineTerminator = string.Empty;
+                                    }
+
+                                    intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart - mCharSize * (intLineTerminatorLength - 1);
+                                    if (intBytesToRead <= 0)
+                                    {
+                                        // Blank line
+                                        mCurrentLineText = string.Empty;
+                                    }
+                                    else if (mInputFileEncoding == InputFileEncodingConstants.UTF8)
+                                    {
+                                        // Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
+                                        mCurrentLineText = new string(Encoding.UTF8.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead));
+                                    }
+                                    else
+                                    {
+                                        // Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
+                                        mCurrentLineText = new string(Encoding.ASCII.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead));
+                                    }
+
+                                    break;
 
                                 case InputFileEncodingConstants.UnicodeNormal:
+                                    // Unicode (Little Endian) encoding
+                                    if (mLineTerminator1Code != 0 && intMatchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize] == mLineTerminator1Code && mByteBuffer[intMatchingTextIndexEnd - mCharSize + 1] == 0)
                                     {
-                                        // Unicode (Little Endian) encoding
-                                        if (mLineTerminator1Code != 0 && intMatchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize] == mLineTerminator1Code && mByteBuffer[intMatchingTextIndexEnd - mCharSize + 1] == 0)
-                                        {
-                                            intLineTerminatorLength = 2;
-                                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd - mCharSize]).ToString() + Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]);
-                                        }
-                                        else if (mByteBuffer[intMatchingTextIndexEnd] == mLineTerminator2Code && intMatchingTextIndexEnd + 1 < mByteBufferCount && mByteBuffer[intMatchingTextIndexEnd + 1] == 0)
-                                        {
-                                            intLineTerminatorLength = 1;
-                                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]).ToString();
-                                        }
-                                        else
-                                        {
-                                            // No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
-                                            intLineTerminatorLength = 0;
-                                            mCurrentLineTerminator = string.Empty;
-                                        }
-
-                                        // Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
-                                        intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart - mCharSize * (intLineTerminatorLength - 1);
-                                        if (intBytesToRead <= 0)
-                                        {
-                                            // Blank line
-                                            mCurrentLineText = string.Empty;
-                                        }
-                                        else
-                                        {
-                                            mCurrentLineText = new string(Encoding.Unicode.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead));
-                                        }
-
-                                        break;
+                                        intLineTerminatorLength = 2;
+                                        mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd - mCharSize]).ToString() + Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]);
                                     }
+                                    else if (mByteBuffer[intMatchingTextIndexEnd] == mLineTerminator2Code && intMatchingTextIndexEnd + 1 < mByteBufferCount && mByteBuffer[intMatchingTextIndexEnd + 1] == 0)
+                                    {
+                                        intLineTerminatorLength = 1;
+                                        mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd]).ToString();
+                                    }
+                                    else
+                                    {
+                                        // No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
+                                        intLineTerminatorLength = 0;
+                                        mCurrentLineTerminator = string.Empty;
+                                    }
+
+                                    // Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
+                                    intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart - mCharSize * (intLineTerminatorLength - 1);
+                                    if (intBytesToRead <= 0)
+                                    {
+                                        // Blank line
+                                        mCurrentLineText = string.Empty;
+                                    }
+                                    else
+                                    {
+                                        mCurrentLineText = new string(Encoding.Unicode.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead));
+                                    }
+
+                                    break;
 
                                 case InputFileEncodingConstants.UnicodeBigEndian:
+                                    // Unicode (Big Endian) encoding
+                                    if (mLineTerminator1Code != 0 && intMatchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize] == 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize + 1] == mLineTerminator1Code)
                                     {
-                                        // Unicode (Big Endian) encoding
-                                        if (mLineTerminator1Code != 0 && intMatchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize] == 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize + 1] == mLineTerminator1Code)
-                                        {
-                                            intLineTerminatorLength = 2;
-                                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd - mCharSize + 1]).ToString() + Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd + 1]);
-                                        }
-                                        else if (mByteBuffer[intMatchingTextIndexEnd] == 0 && intMatchingTextIndexEnd + 1 < mByteBufferCount && mByteBuffer[intMatchingTextIndexEnd + 1] == mLineTerminator2Code)
-                                        {
-                                            intLineTerminatorLength = 1;
-                                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd + 1]).ToString();
-                                        }
-                                        else
-                                        {
-                                            // No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
-                                            intLineTerminatorLength = 0;
-                                            mCurrentLineTerminator = string.Empty;
-                                        }
-
-                                        // Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
-                                        intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart - mCharSize * (intLineTerminatorLength - 1);
-                                        if (intBytesToRead <= 0)
-                                        {
-                                            // Blank line
-                                            mCurrentLineText = string.Empty;
-                                        }
-                                        else
-                                        {
-                                            mCurrentLineText = new string(Encoding.BigEndianUnicode.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead));
-                                        }
-
-                                        break;
+                                        intLineTerminatorLength = 2;
+                                        mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd - mCharSize + 1]).ToString() + Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd + 1]);
                                     }
+                                    else if (mByteBuffer[intMatchingTextIndexEnd] == 0 && intMatchingTextIndexEnd + 1 < mByteBufferCount && mByteBuffer[intMatchingTextIndexEnd + 1] == mLineTerminator2Code)
+                                    {
+                                        intLineTerminatorLength = 1;
+                                        mCurrentLineTerminator = Convert.ToChar(mByteBuffer[intMatchingTextIndexEnd + 1]).ToString();
+                                    }
+                                    else
+                                    {
+                                        // No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
+                                        intLineTerminatorLength = 0;
+                                        mCurrentLineTerminator = string.Empty;
+                                    }
+
+                                    // Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
+                                    intBytesToRead = intMatchingTextIndexEnd - intMatchingTextIndexStart - mCharSize * (intLineTerminatorLength - 1);
+                                    if (intBytesToRead <= 0)
+                                    {
+                                        // Blank line
+                                        mCurrentLineText = string.Empty;
+                                    }
+                                    else
+                                    {
+                                        mCurrentLineText = new string(Encoding.BigEndianUnicode.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead));
+                                    }
+
+                                    break;
 
                                 default:
-                                    {
-                                        // Unknown/unsupported encoding
-                                        mCurrentLineText = string.Empty;
-                                        intLineTerminatorLength = 0;
-                                        blnMatchFound = false;
-                                        break;
-                                    }
+                                    // Unknown/unsupported encoding
+                                    mCurrentLineText = string.Empty;
+                                    intLineTerminatorLength = 0;
+                                    blnMatchFound = false;
+                                    break;
                             }
 
                             if (mCharSize > 1 && !ByteAtEOF(mByteBufferFileOffsetStart + intMatchingTextIndexEnd))
@@ -1277,29 +1251,21 @@ namespace MSDataFileReader
             {
                 case InputFileEncodingConstants.ASCII:
                 case InputFileEncodingConstants.UTF8:
-                    {
-                        mCharSize = 1;
-                        break;
-                    }
+                    mCharSize = 1;
+                    break;
 
                 case InputFileEncodingConstants.UnicodeNormal:
-                    {
-                        mCharSize = 2;
-                        break;
-                    }
+                    mCharSize = 2;
+                    break;
 
                 case InputFileEncodingConstants.UnicodeBigEndian:
-                    {
-                        mCharSize = 2;
-                        break;
-                    }
+                    mCharSize = 2;
+                    break;
 
                 default:
-                    {
-                        // Unknown mode; assume mCharSize = 1
-                        mCharSize = 1;
-                        break;
-                    }
+                    // Unknown mode; assume mCharSize = 1
+                    mCharSize = 1;
+                    break;
             }
         }
     }

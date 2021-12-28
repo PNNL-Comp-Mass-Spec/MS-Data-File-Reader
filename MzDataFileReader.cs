@@ -341,39 +341,33 @@ namespace MSDataFileReader
                     switch (NumericPrecisionOfData)
                     {
                         case 32:
+                            if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
                             {
-                                if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
-                                {
-                                    sngValues = new float[sngDataArray.Length];
-                                    sngDataArray.CopyTo(sngValues, 0);
-                                    blnSuccess = true;
-                                }
-
-                                break;
+                                sngValues = new float[sngDataArray.Length];
+                                sngDataArray.CopyTo(sngValues, 0);
+                                blnSuccess = true;
                             }
+
+                            break;
 
                         case 64:
+                            if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
                             {
-                                if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
+                                sngValues = new float[dblDataArray.Length];
+                                var loopTo = dblDataArray.Length - 1;
+                                int intIndex;
+                                for (intIndex = 0; intIndex <= loopTo; intIndex++)
                                 {
-                                    sngValues = new float[dblDataArray.Length];
-                                    var loopTo = dblDataArray.Length - 1;
-                                    int intIndex;
-                                    for (intIndex = 0; intIndex <= loopTo; intIndex++)
-                                    {
-                                        sngValues[intIndex] = (float)dblDataArray[intIndex];
-                                    }
-
-                                    blnSuccess = true;
+                                    sngValues[intIndex] = (float)dblDataArray[intIndex];
                                 }
 
-                                break;
+                                blnSuccess = true;
                             }
 
+                            break;
+
                         default:
-                            {
-                                break;
-                            }
+                            break;
                             // Invalid numeric precision
                     }
 
@@ -429,33 +423,27 @@ namespace MSDataFileReader
                     switch (NumericPrecisionOfData)
                     {
                         case 32:
+                            if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
                             {
-                                if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
-                                {
-                                    dblValues = new double[sngDataArray.Length];
-                                    sngDataArray.CopyTo(dblValues, 0);
-                                    blnSuccess = true;
-                                }
-
-                                break;
+                                dblValues = new double[sngDataArray.Length];
+                                sngDataArray.CopyTo(dblValues, 0);
+                                blnSuccess = true;
                             }
+
+                            break;
 
                         case 64:
+                            if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
                             {
-                                if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
-                                {
-                                    dblValues = new double[dblDataArray.Length];
-                                    dblDataArray.CopyTo(dblValues, 0);
-                                    blnSuccess = true;
-                                }
-
-                                break;
+                                dblValues = new double[dblDataArray.Length];
+                                dblDataArray.CopyTo(dblValues, 0);
+                                blnSuccess = true;
                             }
+
+                            break;
 
                         default:
-                            {
-                                break;
-                            }
+                            break;
                             // Invalid numeric precision
                     }
 
@@ -505,44 +493,40 @@ namespace MSDataFileReader
                     switch (mCurrentXMLDataFileSection)
                     {
                         case eCurrentMZDataFileSectionConstants.SpectrumDataArrayMZ:
+                            if (!mSkipBinaryData)
                             {
-                                if (!mSkipBinaryData)
-                                {
-                                    blnSuccess = ParseBinaryData(XMLTextReaderGetInnerText(), ref mCurrentSpectrum.MZList,
-                                        mCurrentSpectrum.NumericPrecisionOfDataMZ, mCurrentSpectrum.PeaksEndianModeMZ, true);
+                                blnSuccess = ParseBinaryData(XMLTextReaderGetInnerText(), ref mCurrentSpectrum.MZList,
+                                    mCurrentSpectrum.NumericPrecisionOfDataMZ, mCurrentSpectrum.PeaksEndianModeMZ, true);
 
-                                    if (!blnSuccess)
-                                    {
-                                        mCurrentSpectrum.DataCount = 0;
-                                    }
-                                }
-                                else
+                                if (!blnSuccess)
                                 {
-                                    blnSuccess = true;
+                                    mCurrentSpectrum.DataCount = 0;
                                 }
-
-                                break;
                             }
+                            else
+                            {
+                                blnSuccess = true;
+                            }
+
+                            break;
 
                         case eCurrentMZDataFileSectionConstants.SpectrumDataArrayIntensity:
+                            if (!mSkipBinaryData)
                             {
-                                if (!mSkipBinaryData)
-                                {
-                                    blnSuccess = ParseBinaryData(
-                                        XMLTextReaderGetInnerText(),
-                                        ref mCurrentSpectrum.IntensityList,
-                                        mCurrentSpectrum.NumericPrecisionOfDataIntensity,
-                                        mCurrentSpectrum.PeaksEndianModeIntensity,
-                                        false);
-                                    // Note: Not calling .ComputeBasePeakAndTIC() here since it will be called when the spectrum is Validated
-                                }
-                                else
-                                {
-                                    blnSuccess = true;
-                                }
-
-                                break;
+                                blnSuccess = ParseBinaryData(
+                                    XMLTextReaderGetInnerText(),
+                                    ref mCurrentSpectrum.IntensityList,
+                                    mCurrentSpectrum.NumericPrecisionOfDataIntensity,
+                                    mCurrentSpectrum.PeaksEndianModeIntensity,
+                                    false);
+                                // Note: Not calling .ComputeBasePeakAndTIC() here since it will be called when the spectrum is Validated
                             }
+                            else
+                            {
+                                blnSuccess = true;
+                            }
+
+                            break;
                     }
                 }
             }
@@ -598,372 +582,332 @@ namespace MSDataFileReader
             switch (mXMLReader.Name ?? "")
             {
                 case XMLSectionNames.CVParam:
+                    string strCVName;
+                    string strValue;
+                    switch (mCurrentXMLDataFileSection)
                     {
-                        string strCVName;
-                        string strValue;
-                        switch (mCurrentXMLDataFileSection)
-                        {
-                            case eCurrentMZDataFileSectionConstants.DataProcessingMethod:
+                        case eCurrentMZDataFileSectionConstants.DataProcessingMethod:
+                            {
+                                if (GetCVNameAndValue(out strCVName, out strValue))
                                 {
-                                    if (GetCVNameAndValue(out strCVName, out strValue))
+                                    switch (strCVName ?? "")
                                     {
-                                        switch (strCVName ?? "")
-                                        {
-                                            case ProcessingMethodCVParamNames.Deisotoping:
+                                        case ProcessingMethodCVParamNames.Deisotoping:
+                                            {
+                                                mInputFileStatsAddnl.IsDeisotoped = CBoolSafe(strValue, false);
+                                                break;
+                                            }
+
+                                        case ProcessingMethodCVParamNames.ChargeDeconvolution:
+                                            {
+                                                mInputFileStatsAddnl.HasChargeDeconvolution = CBoolSafe(strValue, false);
+                                                break;
+                                            }
+
+                                        case ProcessingMethodCVParamNames.PeakProcessing:
+                                            {
+                                                mInputFileStatsAddnl.PeakProcessing = strValue;
+                                                if (strValue.ToLower().IndexOf("centroid", StringComparison.Ordinal) >= 0)
                                                 {
-                                                    mInputFileStatsAddnl.IsDeisotoped = CBoolSafe(strValue, false);
-                                                    break;
+                                                    mInputFileStatsAddnl.IsCentroid = true;
                                                 }
-
-                                            case ProcessingMethodCVParamNames.ChargeDeconvolution:
+                                                else
                                                 {
-                                                    mInputFileStatsAddnl.HasChargeDeconvolution = CBoolSafe(strValue, false);
-                                                    break;
+                                                    mInputFileStatsAddnl.IsCentroid = false;
                                                 }
-
-                                            case ProcessingMethodCVParamNames.PeakProcessing:
-                                                {
-                                                    mInputFileStatsAddnl.PeakProcessing = strValue;
-                                                    if (strValue.ToLower().IndexOf("centroid", StringComparison.Ordinal) >= 0)
-                                                    {
-                                                        mInputFileStatsAddnl.IsCentroid = true;
-                                                    }
-                                                    else
-                                                    {
-                                                        mInputFileStatsAddnl.IsCentroid = false;
-                                                    }
-
-                                                    break;
-                                                }
-                                        }
-                                    }
-
-                                    break;
-                                }
-
-                            case eCurrentMZDataFileSectionConstants.SpectrumInstrument:
-                                {
-                                    if (GetCVNameAndValue(out strCVName, out strValue))
-                                    {
-                                        switch (strCVName ?? "")
-                                        {
-                                            case SpectrumInstrumentCVParamNames.ScanMode:
-                                                {
-                                                    mCurrentSpectrum.ScanMode = strValue;
-                                                    break;
-                                                }
-
-                                            case SpectrumInstrumentCVParamNames.Polarity:
-                                                {
-                                                    mCurrentSpectrum.Polarity = strValue;
-                                                    break;
-                                                }
-
-                                            case SpectrumInstrumentCVParamNames.TimeInMinutes:
-                                                {
-                                                    mCurrentSpectrum.RetentionTimeMin = CSngSafe(strValue, 0f);
-                                                    break;
-                                                }
-                                        }
-                                    }
-
-                                    break;
-                                }
-
-                            case eCurrentMZDataFileSectionConstants.PrecursorIonSelection:
-                                {
-                                    if (GetCVNameAndValue(out strCVName, out strValue))
-                                    {
-                                        switch (strCVName ?? "")
-                                        {
-                                            case PrecursorIonSelectionCVParamNames.MassToChargeRatio:
-                                                mCurrentSpectrum.ParentIonMZ = CDblSafe(strValue, 0d);
-                                                mCurrentSpectrum.ParentIonIntensity =
-                                                    FindIonIntensityInRecentSpectra(mCurrentSpectrum.ParentIonSpectrumID,
-                                                        mCurrentSpectrum.ParentIonMZ);
 
                                                 break;
-
-                                            case PrecursorIonSelectionCVParamNames.ChargeState:
-                                                mCurrentSpectrum.ParentIonCharge = CIntSafe(strValue, 0);
-                                                break;
-                                        }
+                                            }
                                     }
-
-                                    break;
                                 }
 
-                            case eCurrentMZDataFileSectionConstants.PrecursorActivation:
+                                break;
+                            }
+
+                        case eCurrentMZDataFileSectionConstants.SpectrumInstrument:
+                            {
+                                if (GetCVNameAndValue(out strCVName, out strValue))
                                 {
-                                    if (GetCVNameAndValue(out strCVName, out strValue))
+                                    switch (strCVName ?? "")
                                     {
-                                        switch (strCVName ?? "")
-                                        {
-                                            case PrecursorActivationCVParamNames.Method:
-                                                {
-                                                    mCurrentSpectrum.CollisionMethod = strValue;
-                                                    break;
-                                                }
+                                        case SpectrumInstrumentCVParamNames.ScanMode:
+                                            {
+                                                mCurrentSpectrum.ScanMode = strValue;
+                                                break;
+                                            }
 
-                                            case PrecursorActivationCVParamNames.CollisionEnergy:
-                                                {
-                                                    mCurrentSpectrum.CollisionEnergy = CSngSafe(strValue, 0f);
-                                                    break;
-                                                }
+                                        case SpectrumInstrumentCVParamNames.Polarity:
+                                            {
+                                                mCurrentSpectrum.Polarity = strValue;
+                                                break;
+                                            }
 
-                                            case PrecursorActivationCVParamNames.EnergyUnits:
-                                                {
-                                                    mCurrentSpectrum.CollisionEnergyUnits = strValue;
-                                                    break;
-                                                }
-                                        }
+                                        case SpectrumInstrumentCVParamNames.TimeInMinutes:
+                                            {
+                                                mCurrentSpectrum.RetentionTimeMin = CSngSafe(strValue, 0f);
+                                                break;
+                                            }
                                     }
-
-                                    break;
                                 }
-                        }
 
-                        break;
+                                break;
+                            }
+
+                        case eCurrentMZDataFileSectionConstants.PrecursorIonSelection:
+                            {
+                                if (GetCVNameAndValue(out strCVName, out strValue))
+                                {
+                                    switch (strCVName ?? "")
+                                    {
+                                        case PrecursorIonSelectionCVParamNames.MassToChargeRatio:
+                                            mCurrentSpectrum.ParentIonMZ = CDblSafe(strValue, 0d);
+                                            mCurrentSpectrum.ParentIonIntensity =
+                                                FindIonIntensityInRecentSpectra(mCurrentSpectrum.ParentIonSpectrumID,
+                                                    mCurrentSpectrum.ParentIonMZ);
+
+                                            break;
+
+                                        case PrecursorIonSelectionCVParamNames.ChargeState:
+                                            mCurrentSpectrum.ParentIonCharge = CIntSafe(strValue, 0);
+                                            break;
+                                    }
+                                }
+
+                                break;
+                            }
+
+                        case eCurrentMZDataFileSectionConstants.PrecursorActivation:
+                            {
+                                if (GetCVNameAndValue(out strCVName, out strValue))
+                                {
+                                    switch (strCVName ?? "")
+                                    {
+                                        case PrecursorActivationCVParamNames.Method:
+                                            {
+                                                mCurrentSpectrum.CollisionMethod = strValue;
+                                                break;
+                                            }
+
+                                        case PrecursorActivationCVParamNames.CollisionEnergy:
+                                            {
+                                                mCurrentSpectrum.CollisionEnergy = CSngSafe(strValue, 0f);
+                                                break;
+                                            }
+
+                                        case PrecursorActivationCVParamNames.EnergyUnits:
+                                            {
+                                                mCurrentSpectrum.CollisionEnergyUnits = strValue;
+                                                break;
+                                            }
+                                    }
+                                }
+
+                                break;
+                            }
                     }
+
+                    break;
 
                 case ScanSectionNames.spectrumList:
+                    if ((GetParentElement() ?? "") == XMLSectionNames.RootName)
                     {
-                        if ((GetParentElement() ?? "") == XMLSectionNames.RootName)
-                        {
-                            mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumList;
-                            if (mXMLReader.HasAttributes)
-                            {
-                                mInputFileStats.ScanCount = GetAttribValue(SpectrumListAttributeNames.count, 1);
-                            }
-                            else
-                            {
-                                mInputFileStats.ScanCount = 0;
-                            }
-                        }
-
-                        break;
-                    }
-
-                case ScanSectionNames.spectrum:
-                    {
-                        if ((GetParentElement() ?? "") == ScanSectionNames.spectrumList)
-                        {
-                            mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumList;
-                            mCurrentSpectrum.Clear();
-                            if (mXMLReader.HasAttributes)
-                            {
-                                mCurrentSpectrum.SpectrumID = GetAttribValue(SpectrumAttributeNames.id, int.MinValue);
-                                if (mCurrentSpectrum.SpectrumID == int.MinValue)
-                                {
-                                    mCurrentSpectrum.SpectrumID = 0;
-                                    mErrorMessage = "Unable to read the \"id\" attribute for the current spectrum since it is missing";
-                                }
-                            }
-                        }
-
-                        break;
-                    }
-
-                case ScanSectionNames.spectrumSettings:
-                    {
-                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumSettings;
-                        break;
-                    }
-
-                case ScanSectionNames.acqSpecification:
-                    {
-                        if ((GetParentElement() ?? "") == ScanSectionNames.spectrumSettings)
-                        {
-                            mCurrentSpectrum.SpectrumType = GetAttribValue(AcqSpecificationAttributeNames.spectrumType,
-                                clsSpectrumInfo.SpectrumTypeNames.discrete);
-
-                            mCurrentSpectrum.SpectrumCombinationMethod =
-                                GetAttribValue(AcqSpecificationAttributeNames.methodOfCombination, string.Empty);
-
-                            mCurrentSpectrum.ScanCount = GetAttribValue(AcqSpecificationAttributeNames.count, 1);
-
-                            mAcquisitionElementCount = 0;
-                        }
-
-                        break;
-                    }
-
-                case ScanSectionNames.acquisition:
-                    {
-                        if ((GetParentElement() ?? "") == ScanSectionNames.acqSpecification)
-                        {
-                            // Only update mCurrentSpectrum.ScanNumber if mCurrentSpectrum.ScanCount = 1 or
-                            // mAcquisitionElementCount = 1
-                            mAcquisitionElementCount += 1;
-                            if (mAcquisitionElementCount == 1 || mCurrentSpectrum.ScanCount == 1)
-                            {
-                                mCurrentSpectrum.ScanNumber = GetAttribValue(AcquisitionAttributeNames.acqNumber, 0);
-                            }
-                        }
-
-                        break;
-                    }
-
-                case ScanSectionNames.spectrumInstrument:
-                    {
-                        if ((GetParentElement() ?? "") == ScanSectionNames.spectrumSettings)
-                        {
-                            mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumInstrument;
-                            mCurrentSpectrum.MSLevel = GetAttribValue(SpectrumInstrumentAttributeNames.msLevel, 1);
-                            mCurrentSpectrum.mzRangeStart = GetAttribValue(SpectrumInstrumentAttributeNames.mzRangeStart, 0);
-                            mCurrentSpectrum.mzRangeEnd = GetAttribValue(SpectrumInstrumentAttributeNames.mzRangeStop, 0);
-                        }
-
-                        break;
-                    }
-
-                case ScanSectionNames.precursorList:
-                    {
-                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.PrecursorList;
-                        break;
-                    }
-
-                case ScanSectionNames.precursor:
-                    {
-                        if ((GetParentElement() ?? "") == ScanSectionNames.precursorList)
-                        {
-                            mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.PrecursorEntry;
-                            mCurrentSpectrum.ParentIonSpectrumMSLevel = GetAttribValue(PrecursorAttributeNames.msLevel, 0);
-                            mCurrentSpectrum.ParentIonSpectrumID = GetAttribValue(PrecursorAttributeNames.spectrumRef, 0);
-                        }
-
-                        break;
-                    }
-
-                case ScanSectionNames.ionSelection:
-                    {
-                        if ((GetParentElement() ?? "") == ScanSectionNames.precursor)
-                        {
-                            if ((GetParentElement(mParentElementStack.Count - 1) ?? "") == ScanSectionNames.precursorList)
-                            {
-                                mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.PrecursorIonSelection;
-                            }
-                        }
-
-                        break;
-                    }
-
-                case ScanSectionNames.activation:
-                    {
-                        if ((GetParentElement() ?? "") == ScanSectionNames.precursor)
-                        {
-                            if ((GetParentElement(mParentElementStack.Count - 1) ?? "") == ScanSectionNames.precursorList)
-                            {
-                                mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.PrecursorActivation;
-                            }
-                        }
-
-                        break;
-                    }
-
-                case ScanSectionNames.mzArrayBinary:
-                    {
-                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumDataArrayMZ;
-                        break;
-                    }
-
-                case ScanSectionNames.intenArrayBinary:
-                    {
-                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumDataArrayIntensity;
-                        break;
-                    }
-
-                case ScanSectionNames.ArrayData:
-                    {
-                        switch (mCurrentXMLDataFileSection)
-                        {
-                            case eCurrentMZDataFileSectionConstants.SpectrumDataArrayMZ:
-                                {
-                                    mCurrentSpectrum.NumericPrecisionOfDataMZ = GetAttribValue(BinaryDataAttributeNames.precision, 32);
-                                    mCurrentSpectrum.PeaksEndianModeMZ = GetAttribValue(BinaryDataAttributeNames.endian, clsSpectrumInfoMzData.EndianModes.littleEndian);
-                                    mCurrentSpectrum.DataCount = GetAttribValue(BinaryDataAttributeNames.length, 0);
-
-                                    break;
-                                }
-
-                            case eCurrentMZDataFileSectionConstants.SpectrumDataArrayIntensity:
-                                {
-                                    mCurrentSpectrum.NumericPrecisionOfDataIntensity = GetAttribValue(BinaryDataAttributeNames.precision, 32);
-                                    mCurrentSpectrum.PeaksEndianModeIntensity = GetAttribValue(BinaryDataAttributeNames.endian, clsSpectrumInfoMzData.EndianModes.littleEndian);
-
-                                    // Only update .DataCount if it is currently 0
-                                    if (mCurrentSpectrum.DataCount == 0)
-                                    {
-                                        mCurrentSpectrum.DataCount = GetAttribValue(BinaryDataAttributeNames.length, 0);
-                                    }
-
-                                    break;
-                                }
-                        }
-
-                        break;
-                    }
-
-                case XMLSectionNames.RootName:
-                    {
-                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.Start;
+                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumList;
                         if (mXMLReader.HasAttributes)
                         {
-                            ValidateMZDataFileVersion(GetAttribValue(mzDataRootAttrbuteNames.version, ""));
+                            mInputFileStats.ScanCount = GetAttribValue(SpectrumListAttributeNames.count, 1);
                         }
-
-                        break;
+                        else
+                        {
+                            mInputFileStats.ScanCount = 0;
+                        }
                     }
+
+                    break;
+
+                case ScanSectionNames.spectrum:
+                    if ((GetParentElement() ?? "") == ScanSectionNames.spectrumList)
+                    {
+                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumList;
+                        mCurrentSpectrum.Clear();
+                        if (mXMLReader.HasAttributes)
+                        {
+                            mCurrentSpectrum.SpectrumID = GetAttribValue(SpectrumAttributeNames.id, int.MinValue);
+                            if (mCurrentSpectrum.SpectrumID == int.MinValue)
+                            {
+                                mCurrentSpectrum.SpectrumID = 0;
+                                mErrorMessage = "Unable to read the \"id\" attribute for the current spectrum since it is missing";
+                            }
+                        }
+                    }
+
+                    break;
+
+                case ScanSectionNames.spectrumSettings:
+                    mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumSettings;
+                    break;
+
+                case ScanSectionNames.acqSpecification:
+                    if ((GetParentElement() ?? "") == ScanSectionNames.spectrumSettings)
+                    {
+                        mCurrentSpectrum.SpectrumType = GetAttribValue(AcqSpecificationAttributeNames.spectrumType,
+                            clsSpectrumInfo.SpectrumTypeNames.discrete);
+
+                        mCurrentSpectrum.SpectrumCombinationMethod =
+                            GetAttribValue(AcqSpecificationAttributeNames.methodOfCombination, string.Empty);
+
+                        mCurrentSpectrum.ScanCount = GetAttribValue(AcqSpecificationAttributeNames.count, 1);
+
+                        mAcquisitionElementCount = 0;
+                    }
+
+                    break;
+
+                case ScanSectionNames.acquisition:
+                    if ((GetParentElement() ?? "") == ScanSectionNames.acqSpecification)
+                    {
+                        // Only update mCurrentSpectrum.ScanNumber if mCurrentSpectrum.ScanCount = 1 or
+                        // mAcquisitionElementCount = 1
+                        mAcquisitionElementCount += 1;
+                        if (mAcquisitionElementCount == 1 || mCurrentSpectrum.ScanCount == 1)
+                        {
+                            mCurrentSpectrum.ScanNumber = GetAttribValue(AcquisitionAttributeNames.acqNumber, 0);
+                        }
+                    }
+
+                    break;
+
+                case ScanSectionNames.spectrumInstrument:
+                    if ((GetParentElement() ?? "") == ScanSectionNames.spectrumSettings)
+                    {
+                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumInstrument;
+                        mCurrentSpectrum.MSLevel = GetAttribValue(SpectrumInstrumentAttributeNames.msLevel, 1);
+                        mCurrentSpectrum.mzRangeStart = GetAttribValue(SpectrumInstrumentAttributeNames.mzRangeStart, 0);
+                        mCurrentSpectrum.mzRangeEnd = GetAttribValue(SpectrumInstrumentAttributeNames.mzRangeStop, 0);
+                    }
+
+                    break;
+
+                case ScanSectionNames.precursorList:
+                    mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.PrecursorList;
+                    break;
+
+                case ScanSectionNames.precursor:
+                    if ((GetParentElement() ?? "") == ScanSectionNames.precursorList)
+                    {
+                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.PrecursorEntry;
+                        mCurrentSpectrum.ParentIonSpectrumMSLevel = GetAttribValue(PrecursorAttributeNames.msLevel, 0);
+                        mCurrentSpectrum.ParentIonSpectrumID = GetAttribValue(PrecursorAttributeNames.spectrumRef, 0);
+                    }
+
+                    break;
+
+                case ScanSectionNames.ionSelection:
+                    if ((GetParentElement() ?? "") == ScanSectionNames.precursor)
+                    {
+                        if ((GetParentElement(mParentElementStack.Count - 1) ?? "") == ScanSectionNames.precursorList)
+                        {
+                            mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.PrecursorIonSelection;
+                        }
+                    }
+
+                    break;
+
+                case ScanSectionNames.activation:
+                    if ((GetParentElement() ?? "") == ScanSectionNames.precursor)
+                    {
+                        if ((GetParentElement(mParentElementStack.Count - 1) ?? "") == ScanSectionNames.precursorList)
+                        {
+                            mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.PrecursorActivation;
+                        }
+                    }
+
+                    break;
+
+                case ScanSectionNames.mzArrayBinary:
+                    mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumDataArrayMZ;
+                    break;
+
+                case ScanSectionNames.intenArrayBinary:
+                    mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumDataArrayIntensity;
+                    break;
+
+                case ScanSectionNames.ArrayData:
+                    switch (mCurrentXMLDataFileSection)
+                    {
+                        case eCurrentMZDataFileSectionConstants.SpectrumDataArrayMZ:
+                            {
+                                mCurrentSpectrum.NumericPrecisionOfDataMZ = GetAttribValue(BinaryDataAttributeNames.precision, 32);
+                                mCurrentSpectrum.PeaksEndianModeMZ = GetAttribValue(BinaryDataAttributeNames.endian, clsSpectrumInfoMzData.EndianModes.littleEndian);
+                                mCurrentSpectrum.DataCount = GetAttribValue(BinaryDataAttributeNames.length, 0);
+
+                                break;
+                            }
+
+                        case eCurrentMZDataFileSectionConstants.SpectrumDataArrayIntensity:
+                            {
+                                mCurrentSpectrum.NumericPrecisionOfDataIntensity = GetAttribValue(BinaryDataAttributeNames.precision, 32);
+                                mCurrentSpectrum.PeaksEndianModeIntensity = GetAttribValue(BinaryDataAttributeNames.endian, clsSpectrumInfoMzData.EndianModes.littleEndian);
+
+                                // Only update .DataCount if it is currently 0
+                                if (mCurrentSpectrum.DataCount == 0)
+                                {
+                                    mCurrentSpectrum.DataCount = GetAttribValue(BinaryDataAttributeNames.length, 0);
+                                }
+
+                                break;
+                            }
+                    }
+
+                    break;
+
+                case XMLSectionNames.RootName:
+                    mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.Start;
+                    if (mXMLReader.HasAttributes)
+                    {
+                        ValidateMZDataFileVersion(GetAttribValue(mzDataRootAttrbuteNames.version, ""));
+                    }
+
+                    break;
 
                 case HeaderSectionNames.Description:
+                    if ((GetParentElement() ?? "") == XMLSectionNames.RootName)
                     {
-                        if ((GetParentElement() ?? "") == XMLSectionNames.RootName)
-                        {
-                            mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.Headers;
-                        }
-
-                        break;
+                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.Headers;
                     }
+
+                    break;
 
                 case HeaderSectionNames.admin:
+                    if ((GetParentElement() ?? "") == HeaderSectionNames.Description)
                     {
-                        if ((GetParentElement() ?? "") == HeaderSectionNames.Description)
-                        {
-                            mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.Admin;
-                        }
-
-                        break;
+                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.Admin;
                     }
+
+                    break;
 
                 case HeaderSectionNames.instrument:
+                    if ((GetParentElement() ?? "") == HeaderSectionNames.Description)
                     {
-                        if ((GetParentElement() ?? "") == HeaderSectionNames.Description)
-                        {
-                            mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.Instrument;
-                        }
-
-                        break;
+                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.Instrument;
                     }
+
+                    break;
 
                 case HeaderSectionNames.dataProcessing:
+                    if ((GetParentElement() ?? "") == HeaderSectionNames.Description)
                     {
-                        if ((GetParentElement() ?? "") == HeaderSectionNames.Description)
-                        {
-                            mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.DataProcessing;
-                        }
-
-                        break;
+                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.DataProcessing;
                     }
+
+                    break;
 
                 case HeaderSectionNames.processingMethod:
+                    if ((GetParentElement() ?? "") == HeaderSectionNames.dataProcessing)
                     {
-                        if ((GetParentElement() ?? "") == HeaderSectionNames.dataProcessing)
-                        {
-                            mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.DataProcessingMethod;
-                        }
-
-                        break;
+                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.DataProcessingMethod;
                     }
+
+                    break;
             }
 
             mSkippedStartElementAdvance = false;

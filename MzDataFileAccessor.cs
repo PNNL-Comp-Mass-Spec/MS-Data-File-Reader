@@ -245,23 +245,17 @@ namespace MSDataFileReader
                         switch (eElementMatchMode)
                         {
                             case emmElementMatchModeConstants.StartElement:
-                                {
-                                    objMatch = mSpectrumStartElementRegEx.Match(strInFileCurrentLineSubstring);
-                                    break;
-                                }
+                                objMatch = mSpectrumStartElementRegEx.Match(strInFileCurrentLineSubstring);
+                                break;
 
                             case emmElementMatchModeConstants.EndElement:
-                                {
-                                    objMatch = mSpectrumEndElementRegEx.Match(strInFileCurrentLineSubstring);
-                                    break;
-                                }
+                                objMatch = mSpectrumEndElementRegEx.Match(strInFileCurrentLineSubstring);
+                                break;
 
                             default:
-                                {
-                                    // Unknown mode
-                                    OnErrorEvent("Unknown mode for eElementMatchMode in AdvanceFileReaders: {0}", eElementMatchMode);
-                                    return false;
-                                }
+                                // Unknown mode
+                                OnErrorEvent("Unknown mode for eElementMatchMode in AdvanceFileReaders: {0}", eElementMatchMode);
+                                return false;
                         }
 
                         if (objMatch.Success)
