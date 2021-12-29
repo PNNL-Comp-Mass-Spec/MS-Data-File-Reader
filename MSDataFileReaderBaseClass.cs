@@ -42,6 +42,7 @@ namespace MSDataFileReader
 
         protected MsDataFileReaderBaseClass()
         {
+            mCachedSpectra = new List<SpectrumInfo>();
             InitializeLocalVariables();
         }
 
@@ -114,10 +115,13 @@ namespace MSDataFileReader
 
         protected FileStatsType mInputFileStats;
 
-        // These variables are used when mDataReaderMode = Cached
-        protected int mCachedSpectrumCount;
-
-        protected SpectrumInfo[] mCachedSpectra;
+        /// <summary>
+        /// Cached spectra
+        /// </summary>
+        /// <remarks>
+        /// Used when mDataReaderMode is Cached
+        /// </remarks>
+        protected readonly List<SpectrumInfo> mCachedSpectra;
 
         // This dictionary maps scan number to index in mCachedSpectra()
         // If more than one spectrum comes from the same scan, tracks the first one read
@@ -140,7 +144,7 @@ namespace MSDataFileReader
             set => mAutoShrinkDataLists = value;
         }
 
-        public virtual int CachedSpectrumCount => mDataReaderMode == DataReaderMode.Cached ? mCachedSpectrumCount : 0;
+        public virtual int CachedSpectrumCount => mDataReaderMode == DataReaderMode.Cached ? mCachedSpectra.Count : 0;
 
         public int CachedSpectraScanNumberMinimum => mInputFileStats.ScanNumberMinimum;
 
@@ -482,9 +486,9 @@ namespace MSDataFileReader
         {
             try
             {
-                if (mDataReaderMode == DataReaderMode.Cached && mCachedSpectra != null)
+                if (mDataReaderMode == DataReaderMode.Cached)
                 {
-                    ScanNumberList = new int[mCachedSpectrumCount];
+                    ScanNumberList = new int[mCachedSpectra.Count];
                     var indexEnd = ScanNumberList.Length - 1;
 
                     for (var spectrumIndex = 0; spectrumIndex <= indexEnd; spectrumIndex++)
@@ -517,9 +521,9 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         public virtual bool GetSpectrumByIndex(int spectrumIndex, out SpectrumInfo spectrumInfo)
         {
-            if (mDataReaderMode == DataReaderMode.Cached && mCachedSpectrumCount > 0)
+            if (mDataReaderMode == DataReaderMode.Cached && mCachedSpectra.Count > 0)
             {
-                if (spectrumIndex >= 0 && spectrumIndex < mCachedSpectrumCount && mCachedSpectra != null)
+                if (spectrumIndex >= 0 && spectrumIndex < mCachedSpectra.Count && mCachedSpectra != null)
                 {
                     spectrumInfo = mCachedSpectra[spectrumIndex];
                     return true;
@@ -559,7 +563,7 @@ namespace MSDataFileReader
                 {
                     if (mCachedSpectraScanToIndex.Count == 0)
                     {
-                        var indexEnd = mCachedSpectrumCount - 1;
+                        var indexEnd = mCachedSpectra.Count - 1;
 
                         for (var spectrumIndex = 0; spectrumIndex <= indexEnd; spectrumIndex++)
                         {
@@ -603,8 +607,7 @@ namespace MSDataFileReader
             mFileVersion = string.Empty;
             mProgressStepDescription = string.Empty;
             mProgressPercentComplete = 0f;
-            mCachedSpectrumCount = 0;
-            mCachedSpectra = new SpectrumInfo[500];
+            mCachedSpectra.Clear();
 
             mInputFileStats.ScanCount = 0;
             mInputFileStats.ScanNumberMinimum = 0;
@@ -682,41 +685,34 @@ namespace MSDataFileReader
 
                 while (ReadNextSpectrum(out var spectrumInfo) && !mAbortProcessing)
                 {
-                    if (mCachedSpectrumCount >= mCachedSpectra.Length)
+                    if (spectrumInfo == null)
+                        continue;
+
+                    mCachedSpectra.Add(spectrumInfo);
+
+                    if (!mCachedSpectraScanToIndex.ContainsKey(spectrumInfo.ScanNumber))
                     {
-                        Array.Resize(ref mCachedSpectra, mCachedSpectra.Length * 2);
+                        mCachedSpectraScanToIndex.Add(spectrumInfo.ScanNumber, mCachedSpectra.Count - 1);
                     }
 
-                    if (spectrumInfo != null)
+                    mInputFileStats.ScanCount = mCachedSpectra.Count;
+                    var scanNumber = spectrumInfo.ScanNumber;
+
+                    if (mInputFileStats.ScanCount == 1)
                     {
-                        mCachedSpectra[mCachedSpectrumCount] = spectrumInfo;
-
-                        if (!mCachedSpectraScanToIndex.ContainsKey(spectrumInfo.ScanNumber))
+                        mInputFileStats.ScanNumberMaximum = scanNumber;
+                        mInputFileStats.ScanNumberMinimum = scanNumber;
+                    }
+                    else
+                    {
+                        if (scanNumber < mInputFileStats.ScanNumberMinimum)
                         {
-                            mCachedSpectraScanToIndex.Add(spectrumInfo.ScanNumber, mCachedSpectrumCount);
-                        }
-
-                        mCachedSpectrumCount++;
-
-                        mInputFileStats.ScanCount = mCachedSpectrumCount;
-                        var scanNumber = spectrumInfo.ScanNumber;
-
-                        if (mInputFileStats.ScanCount == 1)
-                        {
-                            mInputFileStats.ScanNumberMaximum = scanNumber;
                             mInputFileStats.ScanNumberMinimum = scanNumber;
                         }
-                        else
-                        {
-                            if (scanNumber < mInputFileStats.ScanNumberMinimum)
-                            {
-                                mInputFileStats.ScanNumberMinimum = scanNumber;
-                            }
 
-                            if (scanNumber > mInputFileStats.ScanNumberMaximum)
-                            {
-                                mInputFileStats.ScanNumberMaximum = scanNumber;
-                            }
+                        if (scanNumber > mInputFileStats.ScanNumberMaximum)
+                        {
+                            mInputFileStats.ScanNumberMaximum = scanNumber;
                         }
                     }
                 }

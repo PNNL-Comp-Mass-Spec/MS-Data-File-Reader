@@ -43,6 +43,8 @@ namespace MSDataFileReader
 
         protected MsDataFileAccessorBaseClass()
         {
+            mIndexedSpectrumInfo = new List<IndexedSpectrumInfo>();
+
             // ReSharper disable once VirtualMemberCallInConstructor
             InitializeLocalVariables();
         }
@@ -85,10 +87,13 @@ namespace MSDataFileReader
 
         protected int mLastSpectrumIndexRead;
 
-        // These variables are used when mDataReaderMode = Indexed
-        protected int mIndexedSpectrumInfoCount;
-
-        protected IndexedSpectrumInfoType[] mIndexedSpectrumInfo;
+        /// <summary>
+        /// Indexed spectrum info
+        /// </summary>
+        /// <remarks>
+        /// Used when mDataReaderMode is Indexed
+        /// </remarks>
+        protected readonly List<IndexedSpectrumInfo> mIndexedSpectrumInfo;
 
         public override int CachedSpectrumCount
         {
@@ -99,7 +104,7 @@ namespace MSDataFileReader
                     return base.CachedSpectrumCount;
                 }
 
-                return mIndexedSpectrumInfoCount;
+                return mIndexedSpectrumInfo.Count;
             }
         }
 
@@ -202,13 +207,13 @@ namespace MSDataFileReader
                     return false;
                 }
 
-                if (mIndexedSpectrumInfo is null || mIndexedSpectrumInfoCount == 0)
+                if (mIndexedSpectrumInfo is null || mIndexedSpectrumInfo.Count == 0)
                 {
                     ScanNumberList = Array.Empty<int>();
                     return false;
                 }
 
-                ScanNumberList = new int[mIndexedSpectrumInfoCount];
+                ScanNumberList = new int[mIndexedSpectrumInfo.Count];
                 var indexEnd = ScanNumberList.Length - 1;
 
                 for (var spectrumIndex = 0; spectrumIndex <= indexEnd; spectrumIndex++)
@@ -259,13 +264,13 @@ namespace MSDataFileReader
                     return false;
                 }
 
-                if (mIndexedSpectrumInfoCount == 0)
+                if (mIndexedSpectrumInfo.Count == 0)
                 {
                     mErrorMessage = "Indexed data not in memory";
                     return false;
                 }
 
-                if (spectrumIndex < 0 || spectrumIndex >= mIndexedSpectrumInfoCount)
+                if (spectrumIndex < 0 || spectrumIndex >= mIndexedSpectrumInfo.Count)
                 {
                     mErrorMessage = "Invalid spectrum index: " + spectrumIndex;
                     return false;
@@ -319,7 +324,7 @@ namespace MSDataFileReader
 
                 if (mIndexedSpectraScanToIndex.Count == 0)
                 {
-                    var indexEnd = mIndexedSpectrumInfoCount - 1;
+                    var indexEnd = mIndexedSpectrumInfo.Count - 1;
 
                     for (var spectrumIndex = 0; spectrumIndex <= indexEnd; spectrumIndex++)
                     {
@@ -431,7 +436,7 @@ namespace MSDataFileReader
 
                 if (mIndexedSpectraScanToIndex.Count == 0)
                 {
-                    var indexEnd = mIndexedSpectrumInfoCount - 1;
+                    var indexEnd = mIndexedSpectrumInfo.Count - 1;
 
                     for (var spectrumIndex = 0; spectrumIndex <= indexEnd; spectrumIndex++)
                     {
@@ -507,8 +512,7 @@ namespace MSDataFileReader
             mInFileCurrentCharIndex = -1;
 
             // Reset the indexed spectrum info
-            mIndexedSpectrumInfoCount = 0;
-            mIndexedSpectrumInfo = new IndexedSpectrumInfoType[1000];
+            mIndexedSpectrumInfo.Clear();
             mIndexedSpectraScanToIndex.Clear();
         }
 
@@ -623,7 +627,7 @@ namespace MSDataFileReader
 
         public override bool ReadNextSpectrum(out SpectrumInfo spectrumInfo)
         {
-            if (GetSpectrumReadyStatus(false) && mLastSpectrumIndexRead < mIndexedSpectrumInfoCount)
+            if (GetSpectrumReadyStatus(false) && mLastSpectrumIndexRead < mIndexedSpectrumInfo.Count)
             {
                 mLastSpectrumIndexRead++;
                 return GetSpectrumByIndex(mLastSpectrumIndexRead, out spectrumInfo);
@@ -633,27 +637,19 @@ namespace MSDataFileReader
             return false;
         }
 
-        protected void StoreIndexEntry(int scanNumber, long byteOffsetStart, long byteOffsetEnd)
+        protected IndexedSpectrumInfo StoreIndexEntry(int scanNumber, long byteOffsetStart, long byteOffsetEnd)
         {
-            if (mIndexedSpectrumInfoCount >= mIndexedSpectrumInfo.Length)
+            var spectrumInfo = new IndexedSpectrumInfo(scanNumber, byteOffsetStart, byteOffsetEnd);
+            mIndexedSpectrumInfo.Add(spectrumInfo);
+
+            UpdateFileStats(mIndexedSpectrumInfo.Count, scanNumber);
+
+            if (!mIndexedSpectraScanToIndex.ContainsKey(scanNumber))
             {
-                // Double the amount of space reserved for mIndexedSpectrumInfo
-                Array.Resize(ref mIndexedSpectrumInfo, mIndexedSpectrumInfo.Length * 2);
+                mIndexedSpectraScanToIndex.Add(scanNumber, mIndexedSpectrumInfo.Count - 1);
             }
 
-            mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ScanNumber = scanNumber;
-            mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ByteOffsetStart = byteOffsetStart;
-            mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ByteOffsetEnd = byteOffsetEnd;
-
-            UpdateFileStats(mIndexedSpectrumInfoCount + 1, mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ScanNumber);
-
-            if (!mIndexedSpectraScanToIndex.ContainsKey(mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ScanNumber))
-            {
-                mIndexedSpectraScanToIndex.Add(mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ScanNumber, mIndexedSpectrumInfoCount);
-            }
-
-            // Increment mIndexedSpectrumInfoCount
-            mIndexedSpectrumInfoCount++;
+            return spectrumInfo;
         }
     }
 }

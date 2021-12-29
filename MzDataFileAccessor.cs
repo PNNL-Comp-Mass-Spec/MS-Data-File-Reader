@@ -370,13 +370,13 @@ namespace MSDataFileReader
                     ParseFilesWithUnknownVersion = mParseFilesWithUnknownVersion
                 };
 
-                if (mIndexedSpectrumInfoCount == 0)
+                if (mIndexedSpectrumInfo.Count == 0)
                 {
                     mErrorMessage = "Indexed data not in memory";
                     return false;
                 }
 
-                if (spectrumIndex < 0 || spectrumIndex >= mIndexedSpectrumInfoCount)
+                if (spectrumIndex < 0 || spectrumIndex >= mIndexedSpectrumInfo.Count)
                 {
                     mErrorMessage = "Invalid spectrum index: " + spectrumIndex;
                     return false;
@@ -463,7 +463,7 @@ namespace MSDataFileReader
 
                 if (mIndexedSpectraSpectrumIDToIndex.Count == 0)
                 {
-                    var indexEnd = mIndexedSpectrumInfoCount - 1;
+                    var indexEnd = mIndexedSpectrumInfo.Count - 1;
 
                     for (var spectrumIndex = 0; spectrumIndex <= indexEnd; spectrumIndex++)
                     {
@@ -516,13 +516,13 @@ namespace MSDataFileReader
                 }
                 else if (GetSpectrumReadyStatus(true))
                 {
-                    if (mIndexedSpectrumInfo is null || mIndexedSpectrumInfoCount == 0)
+                    if (mIndexedSpectrumInfo is null || mIndexedSpectrumInfo.Count == 0)
                     {
                         SpectrumIDList = Array.Empty<int>();
                     }
                     else
                     {
-                        SpectrumIDList = new int[mIndexedSpectrumInfoCount];
+                        SpectrumIDList = new int[mIndexedSpectrumInfo.Count];
                         var indexEnd = SpectrumIDList.Length - 1;
 
                         for (var spectrumIndex = 0; spectrumIndex <= indexEnd; spectrumIndex++)
@@ -715,17 +715,18 @@ namespace MSDataFileReader
                         mAddNewLinesToHeader = false;
                     }
 
-                    StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, currentSpectrumByteOffsetStart, currentSpectrumByteOffsetEnd);
+                    var indexEntry = StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, currentSpectrumByteOffsetStart, currentSpectrumByteOffsetEnd);
 
-                    // Note that StoreIndexEntry will have incremented mIndexedSpectrumInfoCount
-                    mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].SpectrumID = mCurrentSpectrumInfo.SpectrumID;
-                    UpdateFileStats(mIndexedSpectrumInfoCount, mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].ScanNumber,
-                        mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].SpectrumID);
+                    indexEntry.SpectrumID = mCurrentSpectrumInfo.SpectrumID;
 
-                    if (!mIndexedSpectraSpectrumIDToIndex.ContainsKey(mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].SpectrumID))
+                    UpdateFileStats(
+                        mIndexedSpectrumInfo.Count,
+                        indexEntry.ScanNumber,
+                        indexEntry.SpectrumID);
+
+                    if (!mIndexedSpectraSpectrumIDToIndex.ContainsKey(indexEntry.SpectrumID))
                     {
-                        mIndexedSpectraSpectrumIDToIndex.Add(mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].SpectrumID,
-                            mIndexedSpectrumInfoCount - 1);
+                        mIndexedSpectraSpectrumIDToIndex.Add(indexEntry.SpectrumID, mIndexedSpectrumInfo.Count - 1);
                     }
 
                     // Update the progress

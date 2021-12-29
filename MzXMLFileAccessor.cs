@@ -441,13 +441,13 @@ namespace MSDataFileReader
                     ParseFilesWithUnknownVersion = mParseFilesWithUnknownVersion
                 };
 
-                if (mIndexedSpectrumInfoCount == 0)
+                if (mIndexedSpectrumInfo.Count == 0)
                 {
                     mErrorMessage = "Indexed data not in memory";
                     return false;
                 }
 
-                if (spectrumIndex < 0 || spectrumIndex >= mIndexedSpectrumInfoCount)
+                if (spectrumIndex < 0 || spectrumIndex >= mIndexedSpectrumInfo.Count)
                 {
                     mErrorMessage = "Invalid spectrum index: " + spectrumIndex;
                     return false;
@@ -641,7 +641,7 @@ namespace MSDataFileReader
                             // If the test read works, we'll set indexLoaded to True
                             indexLoaded = false;
 
-                            if (mIndexedSpectrumInfoCount > 0)
+                            if (mIndexedSpectrumInfo.Count > 0)
                             {
                                 // Set up the default error message
                                 mErrorMessage = "Index embedded in the input file (" + Path.GetFileName(mInputFilePath) + ") is corrupt: first byte offset (" + mIndexedSpectrumInfo[0].ByteOffsetStart + ") does not point to a " + SCAN_START_ELEMENT + " element";
@@ -703,11 +703,10 @@ namespace MSDataFileReader
                                 OnErrorEvent("Error in LoadExistingIndex: {0}", mErrorMessage);
                             }
 
-                            if (mIndexedSpectrumInfoCount > 0)
+                            if (mIndexedSpectrumInfo.Count > 0)
                             {
                                 // Reset the indexed spectrum info
-                                mIndexedSpectrumInfoCount = 0;
-                                mIndexedSpectrumInfo = new IndexedSpectrumInfoType[1000];
+                                mIndexedSpectrumInfo.Clear();
                             }
                         }
 
