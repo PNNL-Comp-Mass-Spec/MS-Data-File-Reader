@@ -67,7 +67,9 @@ namespace MSDataFileReader
 
             public const string SIM = "SIM";
 
-            public const string SRM = "SRM";      // MRM is synonymous with SRM
+            // MRM is synonymous with SRM
+            public const string SRM = "SRM";
+
             public const string CRM = "CRM";
 
             public const string Q1 = "Q1";

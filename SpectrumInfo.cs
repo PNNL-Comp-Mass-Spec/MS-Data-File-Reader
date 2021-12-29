@@ -33,20 +33,62 @@ namespace MSDataFileReader
 
         public enum eSpectrumStatusConstants
         {
-            Initialized = 0,                     // This is set when .Clear() is called
-            DataDefined = 1,                     // This is set when any of the values are set via a property
-            Validated = 2                       // This is set when .Validate() is called
+            /// <summary>
+            /// Used when .Clear() is called
+            /// </summary>
+            Initialized = 0,
+
+            /// <summary>
+            /// Used when any of the values are set via a property
+            /// </summary>
+            DataDefined = 1,
+
+            /// <summary>
+            /// Used when .Validate() is called
+            /// </summary>
+            Validated = 2
         }
 
-        private int mSpectrumID;                // Spectrum ID number; often the same as ScanNumber
-        private int mScanNumber;                // First scan number if ScanCount is > 1
-        private int mScanCount;                 // Number of spectra combined together to get the given spectrum
-        private int mScanNumberEnd;             // Last scan if more than one scan was combined to make this spectrum
-        private string mSpectrumType;               // See Class SpectrumTypeNames for typical names (discrete or continuous)
+        /// <summary>
+        /// Spectrum ID number
+        /// </summary>
+        /// <remarks>
+        /// Often the same as ScanNumber
+        /// </remarks>
+        private int mSpectrumID;
+
+        /// <summary>
+        /// First scan number if ScanCount is > 1
+        /// </summary>
+        private int mScanNumber;
+
+        /// <summary>
+        /// Number of spectra combined together to get the given spectrum
+        /// </summary>
+        private int mScanCount;
+
+        /// <summary>
+        /// Last scan if more than one scan was combined to make this spectrum
+        /// </summary>
+        private int mScanNumberEnd;
+
+        /// <summary>
+        /// See Class SpectrumTypeNames for typical names (discrete or continuous)
+        /// </summary>
+        private string mSpectrumType;
+
         private string mSpectrumCombinationMethod;
 
-        private int mMSLevel;                   // 1 for MS, 2 for MS/MS, 3 for MS^3, etc.
-        private bool mCentroided;                // True if the data is centroided (supported by mzXML v3.x)
+        /// <summary>
+        /// 1 for MS, 2 for MS/MS, 3 for MS^3, etc.
+        /// </summary>
+        private int mMSLevel;
+
+        /// <summary>
+        /// True if the data is centroided (supported by mzXML v3.x)
+        /// </summary>
+        private bool mCentroided;
+
         private string mPolarity;
 
         private float mRetentionTimeMin;

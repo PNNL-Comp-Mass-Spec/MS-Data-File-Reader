@@ -23,9 +23,20 @@ namespace MSDataFileReader
             InitializeLocalVariables();
         }
 
-        // Note: The extensions must be in all caps
+        /// <summary>
+        /// MzXML file extension
+        /// </summary>
+        /// <remarks>
+        /// Must be in all caps
+        /// </remarks>
         public const string MZXML_FILE_EXTENSION = ".MZXML";
 
+        /// <summary>
+        /// Alternative MzXML file extension
+        /// </summary>
+        /// <remarks>
+        /// Must be in all caps
+        /// </remarks>
         public const string MZXML_FILE_EXTENSION_XML = "_MZXML.XML";
 
         private static class XMLSectionNames
@@ -174,12 +185,23 @@ namespace MSDataFileReader
 
             public float EndTimeMin;
 
-            public bool IsCentroid;      // True if centroid (aka stick) data; False if profile (aka continuum) data
+            /// <summary>
+            /// True if centroid (aka stick) data
+            /// False if profile (aka continuum) data
+            /// </summary>
+            public bool IsCentroid;
         }
 
         private eCurrentMZXMLDataFileSectionConstants mCurrentXMLDataFileSection;
 
-        private int mScanDepth;       // > 0 if we're inside a scan element
+        /// <summary>
+        /// Scan depth
+        /// </summary>
+        /// <remarks>
+        /// Greater than 0 if inside a scan element
+        /// </remarks>
+        private int mScanDepth;
+
         private clsSpectrumInfoMzXML mCurrentSpectrum;
 
         private udtFileStatsAddnlType mInputFileStatsAddnl;
@@ -673,8 +695,7 @@ namespace MSDataFileReader
         /// Updates the current XMLReader object with a new reader positioned at the XML for a new mass spectrum
         /// </summary>
         /// <param name="newReader"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>True if successful, false if an error</returns>
         public bool SetXMLReaderForSpectrum(XmlReader newReader)
         {
             try

@@ -27,10 +27,15 @@ namespace MSDataFileReader
             InitializeLocalVariables();
         }
 
-        // Note: The extension must be in all caps
+        /// <summary>
+        /// CDTA file extension
+        /// </summary>
+        /// <remarks>
+        /// Must be in all caps
+        /// </remarks>
         public const string DTA_TEXT_FILE_EXTENSION = "_DTA.TXT";
 
-        private const char COMMENT_LINE_START_CHAR = '=';        // The comment character is an Equals sign
+        private const char COMMENT_LINE_START_CHAR = '=';
 
         private bool mCombineIdenticalSpectra;
 
@@ -406,7 +411,7 @@ namespace MSDataFileReader
                         objSpectrumInfoMsMsText.ParentIonChargeCount = 1;
                         objSpectrumInfoMsMsText.ParentIonCharges[0] = intCharge;
 
-                        // Note: Dta files have Parent Ion MH defined but not Parent Ion m/z
+                        // Note: DTA files have Parent Ion MH defined but not Parent Ion m/z
                         // Thus, compute .ParentIonMZ using .ParentIonMH
                         if (objSpectrumInfoMsMsText.ParentIonCharges[0] <= 1)
                         {

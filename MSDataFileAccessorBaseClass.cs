@@ -68,7 +68,14 @@ namespace MSDataFileReader
         {
             public int ScanNumber;
 
-            public int SpectrumID;        // Only used by mzData files
+            /// <summary>
+            /// Spectrum ID
+            /// </summary>
+            /// <remarks>
+            /// Only used by mzData files
+            /// </remarks>
+            public int SpectrumID;
+
             public long ByteOffsetStart;
 
             public long ByteOffsetEnd;

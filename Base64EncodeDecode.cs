@@ -30,7 +30,7 @@ namespace MSDataFileReader
         /// </summary>
         /// <param name="strBase64EncodedText"></param>
         /// <param name="dataArray"></param>
-        /// <returns></returns>
+        /// <returns>True if successful, raises an exception if an error</returns>
         public static bool DecodeNumericArray(string strBase64EncodedText, out byte[] dataArray)
         {
             dataArray = Convert.FromBase64String(strBase64EncodedText);
@@ -44,7 +44,7 @@ namespace MSDataFileReader
         /// <param name="dataArray"></param>
         /// <param name="zLibCompressed"></param>
         /// <param name="eEndianMode"></param>
-        /// <returns></returns>
+        /// <returns>True if successful, raises an exception if an error</returns>
         public static bool DecodeNumericArray(string strBase64EncodedText, out short[] dataArray, bool zLibCompressed, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 2;
@@ -102,7 +102,7 @@ namespace MSDataFileReader
         /// <param name="dataArray"></param>
         /// <param name="zLibCompressed"></param>
         /// <param name="eEndianMode"></param>
-        /// <returns></returns>
+        /// <returns>True if successful, raises an exception if an error</returns>
         public static bool DecodeNumericArray(string strBase64EncodedText, out int[] dataArray, bool zLibCompressed, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 4;
@@ -162,7 +162,7 @@ namespace MSDataFileReader
         /// <param name="dataArray"></param>
         /// <param name="zLibCompressed"></param>
         /// <param name="eEndianMode"></param>
-        /// <returns></returns>
+        /// <returns>True if successful, raises an exception if an error</returns>
         public static bool DecodeNumericArray(string strBase64EncodedText, out float[] dataArray, bool zLibCompressed, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 4;
@@ -222,7 +222,7 @@ namespace MSDataFileReader
         /// <param name="dataArray"></param>
         /// <param name="zLibCompressed"></param>
         /// <param name="eEndianMode"></param>
-        /// <returns></returns>
+        /// <returns>True if successful, raises an exception if an error</returns>
         public static bool DecodeNumericArray(string strBase64EncodedText, out double[] dataArray, bool zLibCompressed, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 8;
@@ -326,7 +326,7 @@ namespace MSDataFileReader
         /// </summary>
         /// <param name="dataArray"></param>
         /// <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
-        /// <param name="strDataTypeNameReturn">Output: Datatype name</param>
+        /// <param name="strDataTypeNameReturn">Output: Data type name</param>
         /// <param name="removeTrailingPaddingChars"></param>
         /// <returns>Base-64 encoded string</returns>
         public static string EncodeNumericArray(byte[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false)

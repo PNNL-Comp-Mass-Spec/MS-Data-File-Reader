@@ -22,7 +22,12 @@ namespace MSDataFileReader
             InitializeLocalVariables();
         }
 
-        // Note: The extension must be in all caps
+        /// <summary>
+        /// MGF file extension
+        /// </summary>
+        /// <remarks>
+        /// Must be in all caps
+        /// </remarks>
         public const string MGF_FILE_EXTENSION = ".MGF";
 
         private const char COMMENT_LINE_START_CHAR = '#';

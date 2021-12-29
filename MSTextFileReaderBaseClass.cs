@@ -343,7 +343,7 @@ namespace MSDataFileReader
         public void GuesstimateCharge(clsSpectrumInfoMsMsText objSpectrumInfo, bool blnAddToExistingChargeList = false, bool blnForceChargeAddnFor2and3Plus = false)
         {
             // Strategy:
-            // 1) If all frag peaks have m/z values less than the parent ion m/z, definitely assume a 1+ parent ion
+            // 1) If all fragmentation ions have m/z values less than the parent ion m/z, definitely assume a 1+ parent ion
             //
             // 2) If less than mThresholdIonPctForSingleCharge percent of the data's m/z values are greater
             // than the parent ion, definitely assume 1+ parent ion
@@ -356,7 +356,7 @@ namespace MSDataFileReader
             // At a minimum, include 2+ and 3+
             // Allow up to 5+
             // Allow a 3 Da mass tolerance when comparing deconvoluted mass to maximum ion mass
-            // E.g. if parent ion m/z is 476, but frag data ranges from 624 to 1922, guess 2+ to 5+
+            // E.g. if parent ion m/z is 476, but fragmentation data ranges from 624 to 1922, guess 2+ to 5+
             // Math involved: 476*2-1 = 951:  this is less than 1922
             // 476*3-2 = 1426: this is less than 1922
             // 476*4-3 = 1902: this is less than 1922
@@ -484,7 +484,7 @@ namespace MSDataFileReader
             mTotalBytesRead = 0L;
             mThresholdIonPctForSingleCharge = 10f;    // Percentage
             mThresholdIonPctForDoubleCharge = 25f;    // Percentage
-            mMostRecentSpectrumFileText = new System.Text.StringBuilder() { Length = 0 };
+            mMostRecentSpectrumFileText = new System.Text.StringBuilder();
             mSecondMostRecentSpectrumFileText = string.Empty;
             mInFileLineNumber = 0;
             mCurrentMsMsDataList = new List<string>();
@@ -573,6 +573,7 @@ namespace MSDataFileReader
                 dblMasses = new double[lstMSMSData.Count];
                 sngIntensities = new float[lstMSMSData.Count];
                 intDataCount = 0;
+
                 foreach (var strItem in lstMSMSData)
                 {
                     // Each line in strMSMSData should contain a mass and intensity pair, separated by a space or Tab

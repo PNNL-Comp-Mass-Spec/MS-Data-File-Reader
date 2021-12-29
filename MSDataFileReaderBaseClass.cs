@@ -121,8 +121,6 @@ namespace MSDataFileReader
         /// When mAutoShrinkDataLists is True, clsSpectrumInfo.MZList().Length and clsSpectrumInfo.IntensityList().Length will equal DataCount;
         /// When mAutoShrinkDataLists is False, the memory will not be freed when DataCount shrinks or clsSpectrumInfo.Clear() is called
         /// </summary>
-        /// <value></value>
-        /// <returns></returns>
         /// <remarks>
         /// Setting mAutoShrinkDataLists to False helps reduce slow, increased memory usage due to inefficient garbage collection
         /// (this is not much of an issue in 2016, and thus this parameter defaults to True)
@@ -180,7 +178,7 @@ namespace MSDataFileReader
 
         protected bool ReadingAndStoringSpectra => mReadingAndStoringSpectra;
 
-        // Note: When reading mzXML and mzData files the the FileReader classes, this value is not populated until after the first scan is read
+        // Note: When reading mzXML and mzData files the FileReader classes, this value is not populated until after the first scan is read
         // When using the FileAccessor classes, this value is populated after the file is indexed
         // For .MGF and .DtaText files, this value will always be 0
         public int ScanCount => mInputFileStats.ScanCount;
@@ -270,12 +268,12 @@ namespace MSDataFileReader
         /// <summary>
         /// Converts dblMassMZ to the MZ that would appear at the given intDesiredCharge
         /// </summary>
+        /// <remarks>To return the neutral mass, set intDesiredCharge to 0</remarks>
         /// <param name="dblMassMZ"></param>
         /// <param name="intCurrentCharge"></param>
         /// <param name="intDesiredCharge"></param>
         /// <param name="dblChargeCarrierMass"></param>
-        /// <returns></returns>
-        /// <remarks>To return the neutral mass, set intDesiredCharge to 0</remarks>
+        /// <returns>Converted m/z</returns>
         public static double ConvoluteMass(double dblMassMZ, int intCurrentCharge, int intDesiredCharge, double dblChargeCarrierMass)
         {
             double dblNewMZ;

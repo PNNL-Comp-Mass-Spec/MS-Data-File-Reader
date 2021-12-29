@@ -24,9 +24,20 @@ namespace MSDataFileReader
             InitializeLocalVariables();
         }
 
-        // Note: The extensions must be in all caps
+        /// <summary>
+        /// MzData file extension
+        /// </summary>
+        /// <remarks>
+        /// Must be in all caps
+        /// </remarks>
         public const string MZDATA_FILE_EXTENSION = ".MZDATA";
 
+        /// <summary>
+        /// Alternative MzData file extension
+        /// </summary>
+        /// <remarks>
+        /// Must be in all caps
+        /// </remarks>
         public const string MZDATA_FILE_EXTENSION_XML = "_MZDATA.XML";
 
         private static class XMLSectionNames
@@ -196,7 +207,12 @@ namespace MSDataFileReader
         {
             public string PeakProcessing;
 
-            public bool IsCentroid;      // True if centroid (aka stick) data; False if profile (aka continuum) data
+            /// <summary>
+            /// True if centroid (aka stick) data
+            /// False if profile (aka continuum) data
+            /// </summary>
+            public bool IsCentroid;
+
             public bool IsDeisotoped;
 
             public bool HasChargeDeconvolution;
@@ -923,8 +939,7 @@ namespace MSDataFileReader
         /// Updates the current XMLReader object with a new reader positioned at the XML for a new mass spectrum
         /// </summary>
         /// <param name="newReader"></param>
-        /// <returns></returns>
-        /// <remarks></remarks>
+        /// <returns>True if successful, false if an error</returns>
         public bool SetXMLReaderForSpectrum(XmlReader newReader)
         {
             try
