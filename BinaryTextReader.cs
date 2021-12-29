@@ -433,16 +433,9 @@ namespace MSDataFileReader
                         }
                         else
                         {
-                            // Examine the first 2000 bytes and check whether or not
+                            // Examine the data in the byte buffer to check whether or not
                             // every other byte is 0 for at least 95% of the data
                             // If it is, assume the appropriate Unicode format
-
-                            var intIndexEnd = 2000;
-
-                            if (intIndexEnd >= mByteBufferCount - 1)
-                            {
-                                intIndexEnd = mByteBufferCount - 2;
-                            }
 
                             int intIndexStart;
                             for (intIndexStart = 0; intIndexStart <= 1; intIndexStart++)
