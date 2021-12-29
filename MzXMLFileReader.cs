@@ -619,8 +619,8 @@ namespace MSDataFileReader
                                 mCurrentSpectrum.FilterLine = GetAttribValue(ScanAttributeNames.filterLine, string.Empty);
                                 mCurrentSpectrum.StartMZ = GetAttribValue(ScanAttributeNames.startMz, 0);
                                 mCurrentSpectrum.EndMZ = GetAttribValue(ScanAttributeNames.endMz, 0);
-                                mCurrentSpectrum.mzRangeStart = GetAttribValue(ScanAttributeNames.lowMz, 0);
-                                mCurrentSpectrum.mzRangeEnd = GetAttribValue(ScanAttributeNames.highMz, 0);
+                                mCurrentSpectrum.MzRangeStart = GetAttribValue(ScanAttributeNames.lowMz, 0);
+                                mCurrentSpectrum.MzRangeEnd = GetAttribValue(ScanAttributeNames.highMz, 0);
                                 mCurrentSpectrum.BasePeakMZ = GetAttribValue(ScanAttributeNames.basePeakMz, 0);
                                 mCurrentSpectrum.BasePeakIntensity = GetAttribValue(ScanAttributeNames.basePeakIntensity, 0);
                                 mCurrentSpectrum.TotalIonCurrent = GetAttribValue(ScanAttributeNames.totIonCurrent, 0);

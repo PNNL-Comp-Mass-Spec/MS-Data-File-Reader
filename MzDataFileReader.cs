@@ -777,8 +777,8 @@ namespace MSDataFileReader
                     {
                         mCurrentXMLDataFileSection = CurrentMzDataFileSection.SpectrumInstrument;
                         mCurrentSpectrum.MSLevel = GetAttribValue(SpectrumInstrumentAttributeNames.msLevel, 1);
-                        mCurrentSpectrum.mzRangeStart = GetAttribValue(SpectrumInstrumentAttributeNames.mzRangeStart, 0);
-                        mCurrentSpectrum.mzRangeEnd = GetAttribValue(SpectrumInstrumentAttributeNames.mzRangeStop, 0);
+                        mCurrentSpectrum.MzRangeStart = GetAttribValue(SpectrumInstrumentAttributeNames.mzRangeStart, 0);
+                        mCurrentSpectrum.MzRangeEnd = GetAttribValue(SpectrumInstrumentAttributeNames.mzRangeStop, 0);
                     }
 
                     break;

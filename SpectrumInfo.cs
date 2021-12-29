@@ -219,7 +219,7 @@ namespace MSDataFileReader
             }
         }
 
-        public float mzRangeStart
+        public float MzRangeStart
         {
             get => mMzRangeStart;
 
@@ -230,7 +230,7 @@ namespace MSDataFileReader
             }
         }
 
-        public float mzRangeEnd
+        public float MzRangeEnd
         {
             get => mMzRangeEnd;
 
