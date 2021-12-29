@@ -82,7 +82,6 @@ namespace MSDataFileReader
                 }
 
                 mCurrentSpectrum.AutoShrinkDataLists = AutoShrinkDataLists;
-                blnSpectrumFound = false;
 
                 if (mFileReader is null)
                 {
@@ -461,7 +460,7 @@ namespace MSDataFileReader
                 }
             }
 
-            return blnSpectrumFound;
+            return true;
         }
     }
 }

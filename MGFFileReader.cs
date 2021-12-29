@@ -148,7 +148,6 @@ namespace MSDataFileReader
                 }
 
                 mCurrentSpectrum.AutoShrinkDataLists = AutoShrinkDataLists;
-                blnSpectrumFound = false;
                 var blnScanNumberFound = false;
 
                 // Initialize mCurrentMsMsDataList
