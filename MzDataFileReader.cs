@@ -355,7 +355,7 @@ namespace MSDataFileReader
         {
             var zLibCompressed = false;
 
-            if (msmsDataBase64Encoded is null || msmsDataBase64Encoded.Length == 0)
+            if (string.IsNullOrEmpty(msmsDataBase64Encoded))
             {
                 values = Array.Empty<float>();
                 return false;
@@ -438,7 +438,7 @@ namespace MSDataFileReader
         {
             var zLibCompressed = false;
 
-            if (msmsDataBase64Encoded is null || msmsDataBase64Encoded.Length == 0)
+            if (string.IsNullOrEmpty(msmsDataBase64Encoded))
             {
                 values = Array.Empty<double>();
                 return false;

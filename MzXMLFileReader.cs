@@ -325,7 +325,7 @@ namespace MSDataFileReader
                 return;
             }
 
-            if (msmsDataBase64Encoded is null || msmsDataBase64Encoded.Length == 0)
+            if (string.IsNullOrEmpty(msmsDataBase64Encoded))
             {
                 mCurrentSpectrum.DataCount = 0;
                 mCurrentSpectrum.MZList = Array.Empty<double>();
@@ -689,7 +689,7 @@ namespace MSDataFileReader
                         // First look for attribute xmlns
                         var value = GetAttribValue(mzXMLRootAttributeNames.xmlns, string.Empty);
 
-                        if (value is null || value.Length == 0)
+                        if (string.IsNullOrEmpty(value))
                         {
                             // Attribute not found; look for attribute xsi:schemaLocation
                             value = GetAttribValue(mzXMLRootAttributeNames.xsi_schemaLocation, string.Empty);
