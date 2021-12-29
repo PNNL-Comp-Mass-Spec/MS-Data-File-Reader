@@ -490,25 +490,25 @@ namespace MSDataFileReader
                     int intIndex;
                     for (intIndex = DataCount - 1; intIndex >= 0; intIndex--)
                     {
-                        if (intIndex < MZList.Length && intIndex < IntensityList.Length)
-                        {
-                            if (MZList[intIndex] >= dblMZMinimum)
-                            {
-                                var dblMZDifference = dblMZToFind - MZList[intIndex];
+                        if (intIndex >= MZList.Length || intIndex >= IntensityList.Length)
+                            continue;
 
-                                if (Math.Abs(dblMZDifference) <= sngMatchTolerance)
+                        if (MZList[intIndex] >= dblMZMinimum)
+                        {
+                            var dblMZDifference = dblMZToFind - MZList[intIndex];
+
+                            if (Math.Abs(dblMZDifference) <= sngMatchTolerance)
+                            {
+                                if (IntensityList[intIndex] > sngIntensityMatch)
                                 {
-                                    if (IntensityList[intIndex] > sngIntensityMatch)
-                                    {
-                                        sngIntensityMatch = IntensityList[intIndex];
-                                    }
+                                    sngIntensityMatch = IntensityList[intIndex];
                                 }
                             }
-                            else
-                            {
-                                // Assuming MZList is sorted on intensity, we can exit out of the loop once we pass dblMZMinimum
-                                break;
-                            }
+                        }
+                        else
+                        {
+                            // Assuming MZList is sorted on intensity, we can exit out of the loop once we pass dblMZMinimum
+                            break;
                         }
                     }
                 }

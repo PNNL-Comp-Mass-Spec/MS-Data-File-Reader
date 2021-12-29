@@ -659,11 +659,9 @@ namespace MSDataFileReader
                 mLastSpectrumIndexRead++;
                 return GetSpectrumByIndex(mLastSpectrumIndexRead, out objSpectrumInfo);
             }
-            else
-            {
-                objSpectrumInfo = null;
-                return false;
-            }
+
+            objSpectrumInfo = null;
+            return false;
         }
 
         protected void StoreIndexEntry(int intScanNumber, long lngByteOffsetStart, long lngByteOffsetEnd)
