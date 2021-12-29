@@ -28,8 +28,7 @@ namespace MSDataFileReader
 
         public const string MZXML_FILE_EXTENSION_XML = "_MZXML.XML";
 
-        // Note that I'm using classes to group the constants
-        private class XMLSectionNames
+        private static class XMLSectionNames
         {
             public const string RootName = "mzXML";
 
@@ -43,14 +42,14 @@ namespace MSDataFileReader
             public const string xsi_schemaLocation = "xsi:schemaLocation";
         }
 
-        private class HeaderSectionNames
+        private static class HeaderSectionNames
         {
             public const string msInstrument = "msInstrument";
 
             public const string dataProcessing = "dataProcessing";
         }
 
-        private class ScanSectionNames
+        private static class ScanSectionNames
         {
             public const string scan = "scan";
 
@@ -59,7 +58,7 @@ namespace MSDataFileReader
             public const string peaks = "peaks";
         }
 
-        private class MSRunAttributeNames
+        private static class MSRunAttributeNames
         {
             public const string scanCount = "scanCount";
 
@@ -68,12 +67,12 @@ namespace MSDataFileReader
             public const string endTime = "endTime";
         }
 
-        private class DataProcessingAttributeNames
+        private static class DataProcessingAttributeNames
         {
             public const string centroided = "centroided";
         }
 
-        private class ScanAttributeNames
+        private static class ScanAttributeNames
         {
             public const string num = "num";
 
@@ -122,7 +121,7 @@ namespace MSDataFileReader
             public const string msInstrumentID = "msInstrumentID";
         }
 
-        private class PrecursorAttributeNames
+        private static class PrecursorAttributeNames
         {
             // Scan number of the precursor
             public const string precursorScanNum = "precursorScanNum";
@@ -140,7 +139,7 @@ namespace MSDataFileReader
             public const string windowWideness = "windowWideness";
         }
 
-        private class PeaksAttributeNames
+        private static class PeaksAttributeNames
         {
             public const string precision = "precision";
 

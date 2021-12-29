@@ -23,12 +23,12 @@ namespace MSDataFileReader
             Clear();
         }
 
-        public class ByteOrderTypes
+        public static class ByteOrderTypes
         {
             public const string network = "network";
         }
 
-        public class CompressionTypes
+        public static class CompressionTypes
         {
             public const string none = "none";
 
@@ -40,7 +40,7 @@ namespace MSDataFileReader
         /// Tracks contentType for mzXML 3.x files
         /// </summary>
         /// <remarks></remarks>
-        public class PairOrderTypes
+        public static class PairOrderTypes
         {
             public const string MZandIntensity = "m/z-int";
 
@@ -59,7 +59,7 @@ namespace MSDataFileReader
             public const string TOF = "TOF";
         }
 
-        public class ScanTypeNames
+        public static class ScanTypeNames
         {
             public const string Full = "Full";
 

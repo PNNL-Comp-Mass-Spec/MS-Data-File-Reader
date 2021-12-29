@@ -21,7 +21,7 @@ namespace MSDataFileReader
             Clear();
         }
 
-        public class EndianModes
+        public static class EndianModes
         {
             public const string littleEndian = "little";
 

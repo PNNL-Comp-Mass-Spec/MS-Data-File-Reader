@@ -29,15 +29,14 @@ namespace MSDataFileReader
 
         public const string MZDATA_FILE_EXTENSION_XML = "_MZDATA.XML";
 
-        // Note that I'm using classes to group the constants
-        private class XMLSectionNames
+        private static class XMLSectionNames
         {
             public const string RootName = "mzData";
 
             public const string CVParam = "cvParam";
         }
 
-        private class HeaderSectionNames
+        private static class HeaderSectionNames
         {
             public const string Description = "description";
 
@@ -50,7 +49,7 @@ namespace MSDataFileReader
             public const string processingMethod = "processingMethod";
         }
 
-        private class ScanSectionNames
+        private static class ScanSectionNames
         {
             public const string spectrumList = "spectrumList";
 
@@ -88,17 +87,17 @@ namespace MSDataFileReader
             public const string xmlns_xsi = "xmlns:xsi";
         }
 
-        private class SpectrumListAttributeNames
+        private static class SpectrumListAttributeNames
         {
             public const string count = "count";
         }
 
-        private class SpectrumAttributeNames
+        private static class SpectrumAttributeNames
         {
             public const string id = "id";
         }
 
-        private class ProcessingMethodCVParamNames
+        private static class ProcessingMethodCVParamNames
         {
             public const string Deisotoping = "Deisotoping";
 
@@ -107,7 +106,7 @@ namespace MSDataFileReader
             public const string PeakProcessing = "PeakProcessing";
         }
 
-        private class AcqSpecificationAttributeNames
+        private static class AcqSpecificationAttributeNames
         {
             public const string spectrumType = "spectrumType";
 
@@ -116,12 +115,12 @@ namespace MSDataFileReader
             public const string count = "count";
         }
 
-        private class AcquisitionAttributeNames
+        private static class AcquisitionAttributeNames
         {
             public const string acqNumber = "acqNumber";
         }
 
-        private class SpectrumInstrumentAttributeNames
+        private static class SpectrumInstrumentAttributeNames
         {
             public const string msLevel = "msLevel";
 
@@ -130,7 +129,7 @@ namespace MSDataFileReader
             public const string mzRangeStop = "mzRangeStop";
         }
 
-        private class SpectrumInstrumentCVParamNames
+        private static class SpectrumInstrumentCVParamNames
         {
             public const string ScanMode = "ScanMode";
 
@@ -139,21 +138,21 @@ namespace MSDataFileReader
             public const string TimeInMinutes = "TimeInMinutes";
         }
 
-        private class PrecursorAttributeNames
+        private static class PrecursorAttributeNames
         {
             public const string msLevel = "msLevel";
 
             public const string spectrumRef = "spectrumRef";
         }
 
-        private class PrecursorIonSelectionCVParamNames
+        private static class PrecursorIonSelectionCVParamNames
         {
             public const string MassToChargeRatio = "MassToChargeRatio";
 
             public const string ChargeState = "ChargeState";
         }
 
-        private class PrecursorActivationCVParamNames
+        private static class PrecursorActivationCVParamNames
         {
             public const string Method = "Method";
 
@@ -162,7 +161,7 @@ namespace MSDataFileReader
             public const string EnergyUnits = "EnergyUnits";
         }
 
-        private class BinaryDataAttributeNames
+        private static class BinaryDataAttributeNames
         {
             public const string precision = "precision";
 

@@ -24,7 +24,7 @@ namespace MSDataFileReader
             Clear();
         }
 
-        public class SpectrumTypeNames
+        public static class SpectrumTypeNames
         {
             public const string discrete = "discrete";
 
