@@ -235,7 +235,7 @@ namespace MSDataFileReader
 
                                         if (temp.Length > 0)
                                         {
-                                            do
+                                            while (true)
                                             {
                                                 charIndex = temp.IndexOf('/');
 
@@ -258,7 +258,6 @@ namespace MSDataFileReader
                                                     break;
                                                 }
                                             }
-                                            while (true);
 
                                             if (IsNumber(temp))
                                             {
