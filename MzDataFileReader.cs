@@ -351,14 +351,14 @@ namespace MSDataFileReader
         /// <param name="peaksEndianMode"></param>
         /// <param name="updatePeaksCountIfInconsistent"></param>
         /// <returns>True if successful, false if an error</returns>
-        private bool ParseBinaryData(string msmsDataBase64Encoded, ref float[] values, int numericPrecisionOfData, string peaksEndianMode, bool updatePeaksCountIfInconsistent)
+        private void ParseBinaryData(string msmsDataBase64Encoded, ref float[] values, int numericPrecisionOfData, string peaksEndianMode, bool updatePeaksCountIfInconsistent)
         {
             var zLibCompressed = false;
 
             if (string.IsNullOrEmpty(msmsDataBase64Encoded))
             {
                 values = Array.Empty<float>();
-                return false;
+                return;
             }
 
             try
@@ -400,10 +400,10 @@ namespace MSDataFileReader
                 }
 
                 if (!success)
-                    return false;
+                    return;
 
                 if (values.Length == mCurrentSpectrum.DataCount)
-                    return true;
+                    return;
 
                 if (mCurrentSpectrum.DataCount == 0 && values.Length > 0 && Math.Abs(values[0]) < float.Epsilon)
                 {
@@ -416,12 +416,12 @@ namespace MSDataFileReader
                     mCurrentSpectrum.DataCount = values.Length;
                 }
 
-                return true;
+                return;
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in ParseBinaryData", ex);
-                return false;
+                return;
             }
         }
 
