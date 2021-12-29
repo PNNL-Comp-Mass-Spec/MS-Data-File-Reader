@@ -705,7 +705,7 @@ namespace MSDataFileReader
                             mCachedSpectraScanToIndex.Add(objSpectrumInfo.ScanNumber, mCachedSpectrumCount);
                         }
 
-                        mCachedSpectrumCount += 1;
+                        mCachedSpectrumCount++;
 
                         mInputFileStats.ScanCount = mCachedSpectrumCount;
                         var intScanNumber = objSpectrumInfo.ScanNumber;

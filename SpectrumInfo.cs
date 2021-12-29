@@ -488,7 +488,7 @@ namespace MSDataFileReader
                 if (!(MZList is null || IntensityList is null))
                 {
                     int intIndex;
-                    for (intIndex = DataCount - 1; intIndex >= 0; intIndex -= 1)
+                    for (intIndex = DataCount - 1; intIndex >= 0; intIndex--)
                     {
                         if (intIndex < MZList.Length && intIndex < IntensityList.Length)
                         {

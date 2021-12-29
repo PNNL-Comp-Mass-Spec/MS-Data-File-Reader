@@ -207,7 +207,7 @@ namespace MSDataFileReader
 
                     if (intCharIndex >= 0 && intCharIndex < intTimeIndex)
                     {
-                        intCharIndex += 1;
+                        intCharIndex++;
                         var intCharIndex2 = strXMLDuration.IndexOf("Y0M", intCharIndex, StringComparison.Ordinal);
 
                         if (intCharIndex2 > 0 && intCharIndex < intTimeIndex)
@@ -230,7 +230,7 @@ namespace MSDataFileReader
 
                         if (intCharIndex > 0)
                         {
-                            intCharIndex += 1;
+                            intCharIndex++;
                             var intCharIndex2 = strXMLDuration.IndexOf("H0M", intCharIndex, StringComparison.Ordinal);
 
                             if (intCharIndex2 > 0)

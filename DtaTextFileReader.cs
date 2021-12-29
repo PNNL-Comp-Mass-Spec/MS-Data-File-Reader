@@ -101,7 +101,7 @@ namespace MSDataFileReader
 
                             if (strLineIn != null)
                                 mTotalBytesRead += strLineIn.Length + 2;
-                            mInFileLineNumber += 1;
+                            mInFileLineNumber++;
                         }
 
                         // See if strLineIn is nothing or starts with the comment line character (equals sign)
@@ -133,7 +133,7 @@ namespace MSDataFileReader
                             if (strLineIn != null)
                                 mTotalBytesRead += strLineIn.Length + 2;
 
-                            mInFileLineNumber += 1;
+                            mInFileLineNumber++;
 
                             if (string.IsNullOrWhiteSpace(strLineIn))
                             {
@@ -188,7 +188,7 @@ namespace MSDataFileReader
                                         if (strLineIn != null)
                                             mTotalBytesRead += strLineIn.Length + 2;
 
-                                        mInFileLineNumber += 1;
+                                        mInFileLineNumber++;
                                     }
 
                                     if (strLineIn != null && strLineIn.StartsWith(CommentLineStartChar.ToString()))
@@ -211,7 +211,7 @@ namespace MSDataFileReader
                                                 while (mFileReader.Peek() > -1)
                                                 {
                                                     strLineIn = mFileReader.ReadLine();
-                                                    mInFileLineNumber += 1;
+                                                    mInFileLineNumber++;
 
                                                     // See if strLineIn is blank or starts with an equals sign
                                                     if (strLineIn != null)
@@ -292,7 +292,7 @@ namespace MSDataFileReader
                 while (!fileReader.EndOfStream && !mAbortProcessing)
                 {
                     var strLineIn = fileReader.ReadLine();
-                    mInFileLineNumber += 1;
+                    mInFileLineNumber++;
 
                     if (strLineIn != null)
                         mTotalBytesRead += strLineIn.Length + 2;
@@ -428,7 +428,7 @@ namespace MSDataFileReader
             while (srReader.Peek() > -1)
             {
                 var strLineIn = srReader.ReadLine();
-                intLinesRead += 1;
+                intLinesRead++;
 
                 // See if strLineIn is blank
                 if (strLineIn != null)

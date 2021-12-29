@@ -184,7 +184,7 @@ namespace MSDataFileReader
                         if (strLineIn != null)
                             mTotalBytesRead += strLineIn.Length + 2;
 
-                        mInFileLineNumber += 1;
+                        mInFileLineNumber++;
 
                         if (strLineIn != null && strLineIn.Trim().Length > 0)
                         {
@@ -241,7 +241,7 @@ namespace MSDataFileReader
 
                                                 if (charIndex > 0)
                                                 {
-                                                    mCurrentSpectrum.ScanCount += 1;
+                                                    mCurrentSpectrum.ScanCount++;
 
                                                     if (charIndex < strTemp.Length - 1)
                                                     {
@@ -292,7 +292,7 @@ namespace MSDataFileReader
                                 while (mFileReader.Peek() > -1)
                                 {
                                     strLineIn = mFileReader.ReadLine();
-                                    mInFileLineNumber += 1;
+                                    mInFileLineNumber++;
 
                                     if (strLineIn != null)
                                     {
@@ -353,7 +353,7 @@ namespace MSDataFileReader
                                                                 mCurrentSpectrum.ParentIonCharges[mCurrentSpectrum.ParentIonChargeCount] =
                                                                     int.Parse(strSplitLine[intIndex].Trim());
 
-                                                                mCurrentSpectrum.ParentIonChargeCount += 1;
+                                                                mCurrentSpectrum.ParentIonChargeCount++;
                                                             }
                                                         }
                                                     }
@@ -438,7 +438,7 @@ namespace MSDataFileReader
                                     while (mFileReader.Peek() > -1)
                                     {
                                         strLineIn = mFileReader.ReadLine();
-                                        mInFileLineNumber += 1;
+                                        mInFileLineNumber++;
 
                                         // See if strLineIn is blank
                                         if (strLineIn != null)

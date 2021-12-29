@@ -383,7 +383,7 @@ namespace MSDataFileReader
                                         // Append any additional numbers to strNumber
                                         while (intIndex + 1 < strTextStream.Length)
                                         {
-                                            intIndex += 1;
+                                            intIndex++;
 
                                             if (IsNumber(strTextStream[intIndex].ToString()))
                                             {

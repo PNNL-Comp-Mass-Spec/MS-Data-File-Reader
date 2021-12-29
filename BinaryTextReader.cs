@@ -453,11 +453,11 @@ namespace MSDataFileReader
                                 int intIndex;
                                 for (intIndex = intIndexStart; intIndex <= loopTo; intIndex += 2)
                                 {
-                                    intCharCheckCount += 1;
+                                    intCharCheckCount++;
 
                                     if (mByteBuffer[intIndex] != 0 && mByteBuffer[intIndex + 1] == 0)
                                     {
-                                        intAlternatedZeroMatchCount += 1;
+                                        intAlternatedZeroMatchCount++;
                                     }
                                 }
 
@@ -697,10 +697,10 @@ namespace MSDataFileReader
                                         }
                                         else if (mByteBuffer[intIndex] == 0)
                                         {
-                                            intTerminatorCheckCountValueZero += 1;
+                                            intTerminatorCheckCountValueZero++;
                                         }
 
-                                        intTerminatorCheckCount += 1;
+                                        intTerminatorCheckCount++;
                                         break;
 
                                     case InputFileEncodingConstants.UnicodeBigEndian:
@@ -712,10 +712,10 @@ namespace MSDataFileReader
                                         }
                                         else if (mByteBuffer[intIndex + 1] == 0)
                                         {
-                                            intTerminatorCheckCountValueZero += 1;
+                                            intTerminatorCheckCountValueZero++;
                                         }
 
-                                        intTerminatorCheckCount += 1;
+                                        intTerminatorCheckCount++;
                                         break;
                                 }
 
@@ -792,7 +792,7 @@ namespace MSDataFileReader
                                 }
 
                                 mByteBufferNextLineStartIndex += intStartIndexShiftIncrement;
-                                intStartIndexShiftCount += 1;
+                                intStartIndexShiftCount++;
                                 blnStartIndexShifted = true;
                             }
                             else if (eDirection == ReadDirectionConstants.Forward)
@@ -970,7 +970,7 @@ namespace MSDataFileReader
                             if (eDirection == ReadDirectionConstants.Forward)
                             {
                                 mByteBufferNextLineStartIndex = intMatchingTextIndexEnd + 1;
-                                mLineNumber += 1;
+                                mLineNumber++;
                             }
                             else
                             {
@@ -978,7 +978,7 @@ namespace MSDataFileReader
 
                                 if (mLineNumber > 0)
                                 {
-                                    mLineNumber -= 1;
+                                    mLineNumber--;
                                 }
                             }
 
@@ -1106,7 +1106,7 @@ namespace MSDataFileReader
                             }
 
                             // Shift the data
-                            for (intIndex = mByteBufferCount - intShiftIncrement - 1; intIndex >= 0; intIndex -= 1)
+                            for (intIndex = mByteBufferCount - intShiftIncrement - 1; intIndex >= 0; intIndex--)
                             {
                                 mByteBuffer[intShiftIncrement + intIndex] = mByteBuffer[intIndex];
                             }

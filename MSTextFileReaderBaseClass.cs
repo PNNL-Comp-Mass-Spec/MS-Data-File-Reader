@@ -185,7 +185,7 @@ namespace MSDataFileReader
 
                 if (dblMZList[intIndex] > dblThresholdMZ)
                 {
-                    intCountAboveThreshold += 1;
+                    intCountAboveThreshold++;
                     dblIntensitySumAboveThreshold += sngIntensityList[intIndex];
                 }
             }
@@ -409,7 +409,7 @@ namespace MSDataFileReader
 
                         if (dblParentIonMH < objSpectrumInfo.MZList[objSpectrumInfo.DataCount - 1] + 3d)
                         {
-                            intChargeEnd += 1;
+                            intChargeEnd++;
                         }
                         else
                         {
@@ -562,7 +562,7 @@ namespace MSDataFileReader
                         {
                             dblMasses[intDataCount] = double.Parse(strSplitLine[0]);
                             sngIntensities[intDataCount] = float.Parse(strSplitLine[1]);
-                            intDataCount += 1;
+                            intDataCount++;
                         }
                     }
                 }

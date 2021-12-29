@@ -656,7 +656,7 @@ namespace MSDataFileReader
         {
             if (GetSpectrumReadyStatus(false) && mLastSpectrumIndexRead < mIndexedSpectrumInfoCount)
             {
-                mLastSpectrumIndexRead += 1;
+                mLastSpectrumIndexRead++;
                 return GetSpectrumByIndex(mLastSpectrumIndexRead, out objSpectrumInfo);
             }
             else
@@ -686,7 +686,7 @@ namespace MSDataFileReader
             }
 
             // Increment mIndexedSpectrumInfoCount
-            mIndexedSpectrumInfoCount += 1;
+            mIndexedSpectrumInfoCount++;
         }
     }
 }

@@ -464,7 +464,7 @@ namespace MSDataFileReader
                         mSpectrumFound = true;
                     }
 
-                    mScanDepth -= 1;
+                    mScanDepth--;
 
                     if (mScanDepth < 0)
                     {
@@ -519,7 +519,7 @@ namespace MSDataFileReader
                     }
 
                     mCurrentSpectrum.Clear();
-                    mScanDepth += 1;
+                    mScanDepth++;
                     bool blnAttributeMissing;
 
                     if (!mXMLReader.HasAttributes)
