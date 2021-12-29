@@ -13,7 +13,7 @@ namespace MSDataFileReader
     /// <summary>
     /// This class holds the values associated with each spectrum in an DTA or MGF file
     /// </summary>
-    [Serializable()]
+    [Serializable]
     public class clsSpectrumInfoMsMsText : clsSpectrumInfo
     {
         public clsSpectrumInfoMsMsText()

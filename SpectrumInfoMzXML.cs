@@ -13,7 +13,7 @@ namespace MSDataFileReader
     /// <summary>
     /// This class holds the values associated with each spectrum in an mzXML file
     /// </summary>
-    [Serializable()]
+    [Serializable]
     public class clsSpectrumInfoMzXML : clsSpectrumInfo
     {
         // Ignore Spelling: zlib

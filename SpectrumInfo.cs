@@ -13,7 +13,7 @@ namespace MSDataFileReader
     /// <summary>
     /// This class holds the values associated with each spectrum in an MS Data file
     /// </summary>
-    [Serializable()]
+    [Serializable]
     public class clsSpectrumInfo : ICloneable
     {
         // Ignore Spelling: centroided
