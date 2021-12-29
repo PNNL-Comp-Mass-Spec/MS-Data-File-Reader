@@ -100,8 +100,9 @@ namespace MSDataFileReader
 
             set
             {
-                if (value < 0f || value > 100f)
+                if (value is < 0f or > 100f)
                     value = 25f;
+
                 mThresholdIonPctForDoubleCharge = value;
             }
         }
@@ -549,7 +550,7 @@ namespace MSDataFileReader
             var sepChars = new[] { ' ', '\t' };
 
             // ReSharper disable once MergeIntoPattern
-            if (msmsData != null && msmsData.Count > 0)
+            if (msmsData?.Count > 0)
             {
                 masses = new double[msmsData.Count];
                 intensities = new float[msmsData.Count];
