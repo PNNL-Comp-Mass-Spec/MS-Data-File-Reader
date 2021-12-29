@@ -29,10 +29,7 @@ namespace MSDataFileReader
         {
             try
             {
-                if (mDataFileOrTextStream != null)
-                {
-                    mDataFileOrTextStream.Close();
-                }
+                mDataFileOrTextStream?.Close();
             }
             catch (Exception ex)
             {
@@ -41,10 +38,7 @@ namespace MSDataFileReader
 
             try
             {
-                if (mXMLReader != null)
-                {
-                    mXMLReader.Close();
-                }
+                mXMLReader?.Close();
             }
             catch (Exception ex)
             {
@@ -115,10 +109,7 @@ namespace MSDataFileReader
 
         public override void CloseFile()
         {
-            if (mXMLReader != null)
-            {
-                mXMLReader.Close();
-            }
+            mXMLReader?.Close();
 
             mDataFileOrTextStream = null;
             mInputFilePath = string.Empty;

@@ -27,10 +27,7 @@ namespace MSDataFileReader
         {
             try
             {
-                if (mFileReader != null)
-                {
-                    mFileReader.Close();
-                }
+                mFileReader?.Close();
             }
             catch (Exception ex)
             {
@@ -170,10 +167,7 @@ namespace MSDataFileReader
         {
             try
             {
-                if (mFileReader != null)
-                {
-                    mFileReader.Close();
-                }
+                mFileReader?.Close();
 
                 mInFileLineNumber = 0;
                 mInputFilePath = string.Empty;

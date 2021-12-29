@@ -290,10 +290,7 @@ namespace MSDataFileReader
         {
             try
             {
-                if (mBinaryReader != null)
-                {
-                    mBinaryReader.Close();
-                }
+                mBinaryReader?.Close();
             }
             catch (Exception ex)
             {
