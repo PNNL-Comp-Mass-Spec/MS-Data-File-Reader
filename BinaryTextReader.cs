@@ -140,29 +140,11 @@ namespace MSDataFileReader
 
         private string mCurrentLineTerminator;
 
-        public long ByteBufferFileOffsetStart
-        {
-            get
-            {
-                return mByteBufferFileOffsetStart;
-            }
-        }
+        public long ByteBufferFileOffsetStart => mByteBufferFileOffsetStart;
 
-        public byte ByteOrderMarkLength
-        {
-            get
-            {
-                return mByteOrderMarkLength;
-            }
-        }
+        public byte ByteOrderMarkLength => mByteOrderMarkLength;
 
-        public byte CharSize
-        {
-            get
-            {
-                return mCharSize;
-            }
-        }
+        public byte CharSize => mCharSize;
 
         public string CurrentLine
         {
@@ -194,29 +176,11 @@ namespace MSDataFileReader
             }
         }
 
-        public long CurrentLineByteOffsetStart
-        {
-            get
-            {
-                return mCurrentLineByteOffsetStart;
-            }
-        }
+        public long CurrentLineByteOffsetStart => mCurrentLineByteOffsetStart;
 
-        public long CurrentLineByteOffsetEnd
-        {
-            get
-            {
-                return mCurrentLineByteOffsetEnd;
-            }
-        }
+        public long CurrentLineByteOffsetEnd => mCurrentLineByteOffsetEnd;
 
-        public long CurrentLineByteOffsetEndWithTerminator
-        {
-            get
-            {
-                return mCurrentLineByteOffsetEndWithTerminator;
-            }
-        }
+        public long CurrentLineByteOffsetEndWithTerminator => mCurrentLineByteOffsetEndWithTerminator;
 
         public string CurrentLineTerminator
         {
@@ -233,13 +197,7 @@ namespace MSDataFileReader
             }
         }
 
-        public string ErrorMessage
-        {
-            get
-            {
-                return mErrorMessage;
-            }
-        }
+        public string ErrorMessage => mErrorMessage;
 
         public long FileLengthBytes
         {
@@ -265,10 +223,7 @@ namespace MSDataFileReader
 
         public FileSystemModeConstants FileSystemMode
         {
-            get
-            {
-                return mFileSystemMode;
-            }
+            get => mFileSystemMode;
 
             set
             {
@@ -291,33 +246,15 @@ namespace MSDataFileReader
             }
         }
 
-        public string InputFilePath
-        {
-            get
-            {
-                return mInputFilePath;
-            }
-        }
+        public string InputFilePath => mInputFilePath;
 
-        public int LineNumber
-        {
-            get
-            {
-                return mLineNumber;
-            }
-        }
+        public int LineNumber => mLineNumber;
 
         public InputFileEncodingConstants InputFileEncoding
         {
-            get
-            {
-                return mInputFileEncoding;
-            }
+            get => mInputFileEncoding;
 
-            set
-            {
-                SetInputFileEncoding(value);
-            }
+            set => SetInputFileEncoding(value);
         }
 
         public bool ByteAtBOF(long lngBytePosition)

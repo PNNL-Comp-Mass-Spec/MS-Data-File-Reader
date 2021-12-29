@@ -85,10 +85,7 @@ namespace MSDataFileReader
 
         public int SpectrumID
         {
-            get
-            {
-                return mSpectrumID;
-            }
+            get => mSpectrumID;
 
             set
             {
@@ -99,10 +96,7 @@ namespace MSDataFileReader
 
         public int ScanNumber
         {
-            get
-            {
-                return mScanNumber;
-            }
+            get => mScanNumber;
 
             set
             {
@@ -113,10 +107,7 @@ namespace MSDataFileReader
 
         public int ScanCount
         {
-            get
-            {
-                return mScanCount;
-            }
+            get => mScanCount;
 
             set
             {
@@ -127,10 +118,7 @@ namespace MSDataFileReader
 
         public int ScanNumberEnd
         {
-            get
-            {
-                return mScanNumberEnd;
-            }
+            get => mScanNumberEnd;
 
             set
             {
@@ -141,10 +129,7 @@ namespace MSDataFileReader
 
         public string SpectrumType
         {
-            get
-            {
-                return mSpectrumType;
-            }
+            get => mSpectrumType;
 
             set
             {
@@ -155,10 +140,7 @@ namespace MSDataFileReader
 
         public string SpectrumCombinationMethod
         {
-            get
-            {
-                return mSpectrumCombinationMethod;
-            }
+            get => mSpectrumCombinationMethod;
 
             set
             {
@@ -169,10 +151,7 @@ namespace MSDataFileReader
 
         public int MSLevel
         {
-            get
-            {
-                return mMSLevel;
-            }
+            get => mMSLevel;
 
             set
             {
@@ -183,23 +162,14 @@ namespace MSDataFileReader
 
         public bool Centroided
         {
-            get
-            {
-                return mCentroided;
-            }
+            get => mCentroided;
 
-            set
-            {
-                mCentroided = value;
-            }
+            set => mCentroided = value;
         }
 
         public string Polarity
         {
-            get
-            {
-                return mPolarity;
-            }
+            get => mPolarity;
 
             set
             {
@@ -210,10 +180,7 @@ namespace MSDataFileReader
 
         public float RetentionTimeMin
         {
-            get
-            {
-                return mRetentionTimeMin;
-            }
+            get => mRetentionTimeMin;
 
             set
             {
@@ -224,10 +191,7 @@ namespace MSDataFileReader
 
         public float mzRangeStart
         {
-            get
-            {
-                return mmzRangeStart;
-            }
+            get => mmzRangeStart;
 
             set
             {
@@ -238,10 +202,7 @@ namespace MSDataFileReader
 
         public float mzRangeEnd
         {
-            get
-            {
-                return mmzRangeEnd;
-            }
+            get => mmzRangeEnd;
 
             set
             {
@@ -252,10 +213,7 @@ namespace MSDataFileReader
 
         public double BasePeakMZ
         {
-            get
-            {
-                return mBasePeakMZ;
-            }
+            get => mBasePeakMZ;
 
             set
             {
@@ -266,10 +224,7 @@ namespace MSDataFileReader
 
         public float BasePeakIntensity
         {
-            get
-            {
-                return mBasePeakIntensity;
-            }
+            get => mBasePeakIntensity;
 
             set
             {
@@ -280,10 +235,7 @@ namespace MSDataFileReader
 
         public double TotalIonCurrent
         {
-            get
-            {
-                return mTotalIonCurrent;
-            }
+            get => mTotalIonCurrent;
 
             set
             {
@@ -294,10 +246,7 @@ namespace MSDataFileReader
 
         public double ParentIonMZ
         {
-            get
-            {
-                return mParentIonMZ;
-            }
+            get => mParentIonMZ;
 
             set
             {
@@ -308,10 +257,7 @@ namespace MSDataFileReader
 
         public float ParentIonIntensity
         {
-            get
-            {
-                return mParentIonIntensity;
-            }
+            get => mParentIonIntensity;
 
             set
             {
@@ -320,25 +266,13 @@ namespace MSDataFileReader
             }
         }
 
-        public eSpectrumStatusConstants SpectrumStatus
-        {
-            get
-            {
-                return mSpectrumStatus;
-            }
-        }
+        public eSpectrumStatusConstants SpectrumStatus => mSpectrumStatus;
 
         public bool AutoShrinkDataLists
         {
-            get
-            {
-                return mAutoShrinkDataLists;
-            }
+            get => mAutoShrinkDataLists;
 
-            set
-            {
-                mAutoShrinkDataLists = value;
-            }
+            set => mAutoShrinkDataLists = value;
         }
 
         public string ErrorMessage

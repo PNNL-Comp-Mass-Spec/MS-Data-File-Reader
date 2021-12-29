@@ -56,10 +56,7 @@ namespace MSDataFileReader
 
         public float CollisionEnergy
         {
-            get
-            {
-                return mCollisionEnergy;
-            }
+            get => mCollisionEnergy;
 
             set
             {
@@ -70,10 +67,7 @@ namespace MSDataFileReader
 
         public string CollisionEnergyUnits
         {
-            get
-            {
-                return mCollisionEnergyUnits;
-            }
+            get => mCollisionEnergyUnits;
 
             set
             {
@@ -84,10 +78,7 @@ namespace MSDataFileReader
 
         public string CollisionMethod
         {
-            get
-            {
-                return mCollisionMethod;
-            }
+            get => mCollisionMethod;
 
             set
             {
@@ -98,10 +89,7 @@ namespace MSDataFileReader
 
         public int ParentIonCharge
         {
-            get
-            {
-                return mParentIonCharge;
-            }
+            get => mParentIonCharge;
 
             set
             {
@@ -112,36 +100,21 @@ namespace MSDataFileReader
 
         public int ParentIonSpectrumMSLevel
         {
-            get
-            {
-                return mParentIonSpectrumMSLevel;
-            }
+            get => mParentIonSpectrumMSLevel;
 
-            set
-            {
-                mParentIonSpectrumMSLevel = value;
-            }
+            set => mParentIonSpectrumMSLevel = value;
         }
 
         public int ParentIonSpectrumID
         {
-            get
-            {
-                return mParentIonSpectrumID;
-            }
+            get => mParentIonSpectrumID;
 
-            set
-            {
-                mParentIonSpectrumID = value;
-            }
+            set => mParentIonSpectrumID = value;
         }
 
         public string ScanMode
         {
-            get
-            {
-                return mScanMode;
-            }
+            get => mScanMode;
 
             set
             {
@@ -152,10 +125,7 @@ namespace MSDataFileReader
 
         public int NumericPrecisionOfDataMZ
         {
-            get
-            {
-                return mNumericPrecisionOfDataMZ;
-            }
+            get => mNumericPrecisionOfDataMZ;
 
             set
             {
@@ -166,10 +136,7 @@ namespace MSDataFileReader
 
         public string PeaksEndianModeMZ
         {
-            get
-            {
-                return mPeaksEndianModeMZ;
-            }
+            get => mPeaksEndianModeMZ;
 
             set
             {
@@ -180,10 +147,7 @@ namespace MSDataFileReader
 
         public int NumericPrecisionOfDataIntensity
         {
-            get
-            {
-                return mNumericPrecisionOfDataIntensity;
-            }
+            get => mNumericPrecisionOfDataIntensity;
 
             set
             {
@@ -194,10 +158,7 @@ namespace MSDataFileReader
 
         public string PeaksEndianModeIntensity
         {
-            get
-            {
-                return mPeaksEndianModeIntensity;
-            }
+            get => mPeaksEndianModeIntensity;
 
             set
             {

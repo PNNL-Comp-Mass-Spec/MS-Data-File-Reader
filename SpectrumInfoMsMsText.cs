@@ -41,10 +41,7 @@ namespace MSDataFileReader
 
         public string SpectrumTitleWithCommentChars
         {
-            get
-            {
-                return mSpectrumTitleWithCommentChars;
-            }
+            get => mSpectrumTitleWithCommentChars;
 
             set
             {
@@ -55,10 +52,7 @@ namespace MSDataFileReader
 
         public string SpectrumTitle
         {
-            get
-            {
-                return mSpectrumTitle;
-            }
+            get => mSpectrumTitle;
 
             set
             {
@@ -69,10 +63,7 @@ namespace MSDataFileReader
 
         public string ParentIonLineText
         {
-            get
-            {
-                return mParentIonLineText;
-            }
+            get => mParentIonLineText;
 
             set
             {
@@ -83,10 +74,7 @@ namespace MSDataFileReader
 
         public double ParentIonMH
         {
-            get
-            {
-                return mParentIonMH;
-            }
+            get => mParentIonMH;
 
             set
             {
@@ -97,15 +85,9 @@ namespace MSDataFileReader
 
         public bool ChargeIs2And3Plus
         {
-            get
-            {
-                return mChargeIs2And3Plus;
-            }
+            get => mChargeIs2And3Plus;
 
-            set
-            {
-                mChargeIs2And3Plus = value;
-            }
+            set => mChargeIs2And3Plus = value;
         }
 
         public override void Clear()

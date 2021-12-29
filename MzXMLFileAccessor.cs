@@ -103,23 +103,14 @@ namespace MSDataFileReader
 
         public bool IgnoreEmbeddedIndex
         {
-            get
-            {
-                return mIgnoreEmbeddedIndex;
-            }
+            get => mIgnoreEmbeddedIndex;
 
-            set
-            {
-                mIgnoreEmbeddedIndex = value;
-            }
+            set => mIgnoreEmbeddedIndex = value;
         }
 
         public override bool ParseFilesWithUnknownVersion
         {
-            get
-            {
-                return base.ParseFilesWithUnknownVersion;
-            }
+            get => base.ParseFilesWithUnknownVersion;
 
             set
             {

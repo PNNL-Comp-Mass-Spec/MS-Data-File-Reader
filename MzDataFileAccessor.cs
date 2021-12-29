@@ -90,28 +90,13 @@ namespace MSDataFileReader
 
         private XmlReaderSettings mXMLReaderSettings;
 
-        public int CachedSpectraSpectrumIDMinimum
-        {
-            get
-            {
-                return mInputFileStatsSpectrumIDMinimum;
-            }
-        }
+        public int CachedSpectraSpectrumIDMinimum => mInputFileStatsSpectrumIDMinimum;
 
-        public int CachedSpectraSpectrumIDMaximum
-        {
-            get
-            {
-                return mInputFileStatsSpectrumIDMaximum;
-            }
-        }
+        public int CachedSpectraSpectrumIDMaximum => mInputFileStatsSpectrumIDMaximum;
 
         public override bool ParseFilesWithUnknownVersion
         {
-            get
-            {
-                return base.ParseFilesWithUnknownVersion;
-            }
+            get => base.ParseFilesWithUnknownVersion;
 
             set
             {

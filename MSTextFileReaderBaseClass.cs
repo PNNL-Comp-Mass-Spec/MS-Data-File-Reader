@@ -79,44 +79,23 @@ namespace MSDataFileReader
 
         public char CommentLineStartChar
         {
-            get
-            {
-                return mCommentLineStartChar;
-            }
+            get => mCommentLineStartChar;
 
-            set
-            {
-                mCommentLineStartChar = value;
-            }
+            set => mCommentLineStartChar = value;
         }
 
-        public clsSpectrumInfoMsMsText CurrentSpectrum
-        {
-            get
-            {
-                return mCurrentSpectrum;
-            }
-        }
+        public clsSpectrumInfoMsMsText CurrentSpectrum => mCurrentSpectrum;
 
         public bool ReadTextDataOnly
         {
-            get
-            {
-                return mReadTextDataOnly;
-            }
+            get => mReadTextDataOnly;
 
-            set
-            {
-                mReadTextDataOnly = value;
-            }
+            set => mReadTextDataOnly = value;
         }
 
         public float ThresholdIonPctForSingleCharge
         {
-            get
-            {
-                return mThresholdIonPctForSingleCharge;
-            }
+            get => mThresholdIonPctForSingleCharge;
 
             set
             {
@@ -128,10 +107,7 @@ namespace MSDataFileReader
 
         public float ThresholdIonPctForDoubleCharge
         {
-            get
-            {
-                return mThresholdIonPctForDoubleCharge;
-            }
+            get => mThresholdIonPctForDoubleCharge;
 
             set
             {

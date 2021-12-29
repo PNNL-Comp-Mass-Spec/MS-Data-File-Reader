@@ -183,29 +183,11 @@ namespace MSDataFileReader
 
         private udtFileStatsAddnlType mInputFileStatsAddnl;
 
-        public float FileInfoStartTimeMin
-        {
-            get
-            {
-                return mInputFileStatsAddnl.StartTimeMin;
-            }
-        }
+        public float FileInfoStartTimeMin => mInputFileStatsAddnl.StartTimeMin;
 
-        public float FileInfoEndTimeMin
-        {
-            get
-            {
-                return mInputFileStatsAddnl.EndTimeMin;
-            }
-        }
+        public float FileInfoEndTimeMin => mInputFileStatsAddnl.EndTimeMin;
 
-        public bool FileInfoIsCentroid
-        {
-            get
-            {
-                return mInputFileStatsAddnl.IsCentroid;
-            }
-        }
+        public bool FileInfoIsCentroid => mInputFileStatsAddnl.IsCentroid;
 
         protected override clsSpectrumInfo GetCurrentSpectrum()
         {

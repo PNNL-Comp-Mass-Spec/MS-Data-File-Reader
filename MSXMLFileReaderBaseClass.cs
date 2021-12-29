@@ -108,15 +108,9 @@ namespace MSDataFileReader
 
         public bool SkipBinaryData
         {
-            get
-            {
-                return mSkipBinaryData;
-            }
+            get => mSkipBinaryData;
 
-            set
-            {
-                mSkipBinaryData = value;
-            }
+            set => mSkipBinaryData = value;
         }
 
         public override void CloseFile()

@@ -41,15 +41,9 @@ namespace MSDataFileReader
 
         public bool CombineIdenticalSpectra
         {
-            get
-            {
-                return mCombineIdenticalSpectra;
-            }
+            get => mCombineIdenticalSpectra;
 
-            set
-            {
-                mCombineIdenticalSpectra = value;
-            }
+            set => mCombineIdenticalSpectra = value;
         }
 
         protected override void InitializeLocalVariables()

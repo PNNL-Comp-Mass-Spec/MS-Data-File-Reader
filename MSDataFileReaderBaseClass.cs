@@ -129,15 +129,9 @@ namespace MSDataFileReader
         /// </remarks>
         public bool AutoShrinkDataLists
         {
-            get
-            {
-                return mAutoShrinkDataLists;
-            }
+            get => mAutoShrinkDataLists;
 
-            set
-            {
-                mAutoShrinkDataLists = value;
-            }
+            set => mAutoShrinkDataLists = value;
         }
 
         public virtual int CachedSpectrumCount
@@ -155,109 +149,41 @@ namespace MSDataFileReader
             }
         }
 
-        public int CachedSpectraScanNumberMinimum
-        {
-            get
-            {
-                return mInputFileStats.ScanNumberMinimum;
-            }
-        }
+        public int CachedSpectraScanNumberMinimum => mInputFileStats.ScanNumberMinimum;
 
-        public int CachedSpectraScanNumberMaximum
-        {
-            get
-            {
-                return mInputFileStats.ScanNumberMaximum;
-            }
-        }
+        public int CachedSpectraScanNumberMaximum => mInputFileStats.ScanNumberMaximum;
 
         public double ChargeCarrierMass
         {
-            get
-            {
-                return mChargeCarrierMass;
-            }
+            get => mChargeCarrierMass;
 
-            set
-            {
-                mChargeCarrierMass = value;
-            }
+            set => mChargeCarrierMass = value;
         }
 
-        public string ErrorMessage
-        {
-            get
-            {
-                if (mErrorMessage is null)
-                    mErrorMessage = string.Empty;
-                return mErrorMessage;
-            }
-        }
+        public string ErrorMessage => mErrorMessage ?? string.Empty;
 
-        public string InputFilePath
-        {
-            get
-            {
-                return mInputFilePath;
-            }
-        }
+        public string InputFilePath => mInputFilePath;
 
-        public string FileVersion
-        {
-            get
-            {
-                return mFileVersion;
-            }
-        }
+        public string FileVersion => mFileVersion;
 
         public virtual bool ParseFilesWithUnknownVersion
         {
-            get
-            {
-                return mParseFilesWithUnknownVersion;
-            }
+            get => mParseFilesWithUnknownVersion;
 
-            set
-            {
-                mParseFilesWithUnknownVersion = value;
-            }
+            set => mParseFilesWithUnknownVersion = value;
         }
 
-        public virtual string ProgressStepDescription
-        {
-            get
-            {
-                return mProgressStepDescription;
-            }
-        }
+        public virtual string ProgressStepDescription => mProgressStepDescription;
 
         // ProgressPercentComplete ranges from 0 to 100, but can contain decimal percentage values
-        public float ProgressPercentComplete
-        {
-            get
-            {
-                return (float)Math.Round(mProgressPercentComplete, 2);
-            }
-        }
+        public float ProgressPercentComplete => (float)Math.Round(mProgressPercentComplete, 2);
 
-        protected bool ReadingAndStoringSpectra
-        {
-            get
-            {
-                return mReadingAndStoringSpectra;
-            }
-        }
+        protected bool ReadingAndStoringSpectra => mReadingAndStoringSpectra;
 
         // Note: When reading mzXML and mzData files the the FileReader classes, this value is not populated until after the first scan is read
         // When using the FileAccessor classes, this value is populated after the file is indexed
         // For .MGF and .DtaText files, this value will always be 0
-        public int ScanCount
-        {
-            get
-            {
-                return mInputFileStats.ScanCount;
-            }
-        }
+        public int ScanCount => mInputFileStats.ScanCount;
 
         public void AbortProcessingNow()
         {

@@ -211,37 +211,13 @@ namespace MSDataFileReader
 
         private udtFileStatsAddnlType mInputFileStatsAddnl;
 
-        public string PeakProcessing
-        {
-            get
-            {
-                return mInputFileStatsAddnl.PeakProcessing;
-            }
-        }
+        public string PeakProcessing => mInputFileStatsAddnl.PeakProcessing;
 
-        public bool FileInfoIsCentroid
-        {
-            get
-            {
-                return mInputFileStatsAddnl.IsCentroid;
-            }
-        }
+        public bool FileInfoIsCentroid => mInputFileStatsAddnl.IsCentroid;
 
-        public bool IsDeisotoped
-        {
-            get
-            {
-                return mInputFileStatsAddnl.IsDeisotoped;
-            }
-        }
+        public bool IsDeisotoped => mInputFileStatsAddnl.IsDeisotoped;
 
-        public bool HasChargeDeconvolution
-        {
-            get
-            {
-                return mInputFileStatsAddnl.HasChargeDeconvolution;
-            }
-        }
+        public bool HasChargeDeconvolution => mInputFileStatsAddnl.HasChargeDeconvolution;
 
         private float FindIonIntensityInRecentSpectra(int intSpectrumIDToFind, double dblMZToFind)
         {

@@ -113,23 +113,14 @@ namespace MSDataFileReader
 
         public string ActivationMethod
         {
-            get
-            {
-                return mActivationMethod;
-            }
+            get => mActivationMethod;
 
-            set
-            {
-                mActivationMethod = value;
-            }
+            set => mActivationMethod = value;
         }
 
         public float CollisionEnergy
         {
-            get
-            {
-                return mCollisionEnergy;
-            }
+            get => mCollisionEnergy;
 
             set
             {
@@ -140,10 +131,7 @@ namespace MSDataFileReader
 
         public string FilterLine
         {
-            get
-            {
-                return mFilterLine;
-            }
+            get => mFilterLine;
 
             set
             {
@@ -154,10 +142,7 @@ namespace MSDataFileReader
 
         public int NumericPrecisionOfData
         {
-            get
-            {
-                return mNumericPrecisionOfData;
-            }
+            get => mNumericPrecisionOfData;
 
             set
             {
@@ -168,10 +153,7 @@ namespace MSDataFileReader
 
         public string PeaksByteOrder
         {
-            get
-            {
-                return mPeaksByteOrder;
-            }
+            get => mPeaksByteOrder;
 
             set
             {
@@ -182,10 +164,7 @@ namespace MSDataFileReader
 
         public string PeaksPairOrder
         {
-            get
-            {
-                return mPeaksPairOrder;
-            }
+            get => mPeaksPairOrder;
 
             set
             {
@@ -196,36 +175,21 @@ namespace MSDataFileReader
 
         public string CompressionType
         {
-            get
-            {
-                return mCompressionType;
-            }
+            get => mCompressionType;
 
-            set
-            {
-                mCompressionType = value;
-            }
+            set => mCompressionType = value;
         }
 
         public int CompressedLen
         {
-            get
-            {
-                return mCompressedLen;
-            }
+            get => mCompressedLen;
 
-            set
-            {
-                mCompressedLen = value;
-            }
+            set => mCompressedLen = value;
         }
 
         public float EndMZ
         {
-            get
-            {
-                return mEndMZ;
-            }
+            get => mEndMZ;
 
             set
             {
@@ -236,49 +200,28 @@ namespace MSDataFileReader
 
         public float IsolationWindow
         {
-            get
-            {
-                return mIsolationWindow;
-            }
+            get => mIsolationWindow;
 
-            set
-            {
-                mIsolationWindow = value;
-            }
+            set => mIsolationWindow = value;
         }
 
         public int ParentIonCharge
         {
-            get
-            {
-                return mParentIonCharge;
-            }
+            get => mParentIonCharge;
 
-            set
-            {
-                mParentIonCharge = value;
-            }
+            set => mParentIonCharge = value;
         }
 
         public int PrecursorScanNum
         {
-            get
-            {
-                return mPrecursorScanNum;
-            }
+            get => mPrecursorScanNum;
 
-            set
-            {
-                mPrecursorScanNum = value;
-            }
+            set => mPrecursorScanNum = value;
         }
 
         public float StartMZ
         {
-            get
-            {
-                return mStartMZ;
-            }
+            get => mStartMZ;
 
             set
             {
@@ -289,10 +232,7 @@ namespace MSDataFileReader
 
         public string ScanType
         {
-            get
-            {
-                return mScanType;
-            }
+            get => mScanType;
 
             set
             {
