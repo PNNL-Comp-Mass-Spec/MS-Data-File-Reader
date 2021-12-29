@@ -50,7 +50,7 @@ namespace MSDataFileReader
             }
         }
 
-        private struct udtElementInfoType
+        private struct ElementInfoType
         {
             public string Name;
 
@@ -391,7 +391,7 @@ namespace MSDataFileReader
             {
                 try
                 {
-                    var udtElementInfo = (udtElementInfoType)mParentElementStack.ToArray()[mParentElementStack.Count - intElementDepth + 1];
+                    var udtElementInfo = (ElementInfoType)mParentElementStack.ToArray()[mParentElementStack.Count - intElementDepth + 1];
                     return udtElementInfo.Name;
                 }
                 catch (Exception ex)
@@ -501,7 +501,7 @@ namespace MSDataFileReader
                 return string.Empty;
             }
 
-            var udtElementInfo = (udtElementInfoType)mParentElementStack.Pop();
+            var udtElementInfo = (ElementInfoType)mParentElementStack.Pop();
             return udtElementInfo.Name;
         }
 
@@ -517,11 +517,11 @@ namespace MSDataFileReader
             // If the depth values are the same, we pop the top element off and push the new element on
             // If the depth values are not the same, we push the new element on
 
-            udtElementInfoType udtElementInfo;
+            ElementInfoType udtElementInfo;
 
             if (mParentElementStack.Count > 0)
             {
-                udtElementInfo = (udtElementInfoType)mParentElementStack.Peek();
+                udtElementInfo = (ElementInfoType)mParentElementStack.Peek();
 
                 if (udtElementInfo.Depth == objXMLReader.Depth)
                 {

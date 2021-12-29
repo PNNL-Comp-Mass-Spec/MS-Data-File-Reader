@@ -77,7 +77,7 @@ namespace MSDataFileReader
             MGF = 3
         }
 
-        protected struct udtFileStatsType
+        protected struct FileStatsType
         {
             /// <summary>
             /// Actual scan count if mDataReaderMode = Cached or mDataReaderMode = Indexed
@@ -112,7 +112,7 @@ namespace MSDataFileReader
 
         protected string mInputFilePath = string.Empty;
 
-        protected udtFileStatsType mInputFileStats;
+        protected FileStatsType mInputFileStats;
 
         // These variables are used when mDataReaderMode = Cached
         protected int mCachedSpectrumCount;

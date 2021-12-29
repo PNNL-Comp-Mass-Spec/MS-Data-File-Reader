@@ -237,7 +237,7 @@ namespace MSDataFileReader
             ScanList = 5
         }
 
-        private struct udtFileStatsAddnlType
+        private struct FileStatsAddnlType
         {
             public float StartTimeMin;
 
@@ -262,7 +262,7 @@ namespace MSDataFileReader
 
         private SpectrumInfoMzXML mCurrentSpectrum;
 
-        private udtFileStatsAddnlType mInputFileStatsAddnl;
+        private FileStatsAddnlType mInputFileStatsAddnl;
 
         // ReSharper disable UnusedMember.Global
 

@@ -65,7 +65,7 @@ namespace MSDataFileReader
             EndElement = 1
         }
 
-        protected struct udtIndexedSpectrumInfoType
+        protected struct IndexedSpectrumInfoType
         {
             public int ScanNumber;
 
@@ -110,7 +110,7 @@ namespace MSDataFileReader
         // These variables are used when mDataReaderMode = Indexed
         protected int mIndexedSpectrumInfoCount;
 
-        protected udtIndexedSpectrumInfoType[] mIndexedSpectrumInfo;
+        protected IndexedSpectrumInfoType[] mIndexedSpectrumInfo;
 
         public override int CachedSpectrumCount
         {
@@ -544,7 +544,7 @@ namespace MSDataFileReader
 
             // Reset the indexed spectrum info
             mIndexedSpectrumInfoCount = 0;
-            mIndexedSpectrumInfo = new udtIndexedSpectrumInfoType[1000];
+            mIndexedSpectrumInfo = new IndexedSpectrumInfoType[1000];
             mIndexedSpectraScanToIndex.Clear();
         }
 

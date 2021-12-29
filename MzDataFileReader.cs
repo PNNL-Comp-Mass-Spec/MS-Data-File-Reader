@@ -207,7 +207,7 @@ namespace MSDataFileReader
             SpectrumDataArrayIntensity = 15
         }
 
-        private struct udtFileStatsAddnlType
+        private struct FileStatsAddnlType
         {
             public string PeakProcessing;
 
@@ -230,7 +230,7 @@ namespace MSDataFileReader
 
         private Queue mMostRecentSurveyScanSpectra;
 
-        private udtFileStatsAddnlType mInputFileStatsAddnl;
+        private FileStatsAddnlType mInputFileStatsAddnl;
 
         // ReSharper disable UnusedMember.Global
 

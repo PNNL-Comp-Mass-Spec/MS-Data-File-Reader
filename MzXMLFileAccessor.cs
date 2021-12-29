@@ -707,7 +707,7 @@ namespace MSDataFileReader
                             {
                                 // Reset the indexed spectrum info
                                 mIndexedSpectrumInfoCount = 0;
-                                mIndexedSpectrumInfo = new udtIndexedSpectrumInfoType[1000];
+                                mIndexedSpectrumInfo = new IndexedSpectrumInfoType[1000];
                             }
                         }
 
