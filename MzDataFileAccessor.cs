@@ -544,7 +544,7 @@ namespace MSDataFileReader
             return false;
         }
 
-        protected override void InitializeLocalVariables()
+        protected sealed override void InitializeLocalVariables()
         {
             base.InitializeLocalVariables();
             mInputFileStatsSpectrumIDMinimum = 0;

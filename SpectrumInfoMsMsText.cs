@@ -83,7 +83,7 @@ namespace MSDataFileReader
             }
         }
 
-        public override void Clear()
+        public sealed override void Clear()
         {
             base.Clear();
             mSpectrumTitleWithCommentChars = string.Empty;

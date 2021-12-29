@@ -52,7 +52,7 @@ namespace MSDataFileReader
         // scan numbers defined using   ###MSMS: #1234   or   TITLE=Filename.1234.1234.2.dta  or  TITLE=Filename.1234.1234.2
         private int mScanNumberStartSaved;
 
-        protected override void InitializeLocalVariables()
+        protected sealed override void InitializeLocalVariables()
         {
             base.InitializeLocalVariables();
             CommentLineStartChar = COMMENT_LINE_START_CHAR;

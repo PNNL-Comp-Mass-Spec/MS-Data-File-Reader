@@ -245,7 +245,7 @@ namespace MSDataFileReader
             }
         }
 
-        public override void Clear()
+        public sealed override void Clear()
         {
             base.Clear();
             mCollisionEnergy = 0f;

@@ -44,7 +44,7 @@ namespace MSDataFileReader
 
         public bool CombineIdenticalSpectra { get; set; }
 
-        protected override void InitializeLocalVariables()
+        protected sealed override void InitializeLocalVariables()
         {
             base.InitializeLocalVariables();
             CommentLineStartChar = COMMENT_LINE_START_CHAR;

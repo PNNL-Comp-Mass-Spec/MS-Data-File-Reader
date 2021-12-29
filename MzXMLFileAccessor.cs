@@ -481,7 +481,7 @@ namespace MSDataFileReader
             }
         }
 
-        protected override void InitializeLocalVariables()
+        protected sealed override void InitializeLocalVariables()
         {
             base.InitializeLocalVariables();
             mXmlFileHeader = string.Empty;

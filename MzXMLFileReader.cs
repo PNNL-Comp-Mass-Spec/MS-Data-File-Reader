@@ -231,7 +231,7 @@ namespace MSDataFileReader
             mCurrentSpectrum.AutoShrinkDataLists = blnAutoShrinkDataLists;
         }
 
-        protected override void InitializeLocalVariables()
+        protected sealed override void InitializeLocalVariables()
         {
             base.InitializeLocalVariables();
             mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.UnknownFile;
