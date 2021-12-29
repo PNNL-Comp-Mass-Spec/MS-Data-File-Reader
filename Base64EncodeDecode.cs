@@ -279,8 +279,8 @@ namespace MSDataFileReader
 
         protected static byte[] DecompressZLib(string strBase64EncodedText)
         {
-            var msCompressed = new System.IO.MemoryStream(Convert.FromBase64String(strBase64EncodedText));
-            var msInflated = new System.IO.MemoryStream(strBase64EncodedText.Length * 2);
+            var msCompressed = new MemoryStream(Convert.FromBase64String(strBase64EncodedText));
+            var msInflated = new MemoryStream(strBase64EncodedText.Length * 2);
 
             // We must skip the first two bytes
             // See http://george.chiramattel.com/blog/2007/09/deflatestream-block-length-does-not-match.html
@@ -300,7 +300,7 @@ namespace MSDataFileReader
                     msInflated.Write(bytBuffer, 0, intBytesRead);
                 }
 
-                msInflated.Seek(0L, System.IO.SeekOrigin.Begin);
+                msInflated.Seek(0L, SeekOrigin.Begin);
             }
 
             byte[] bytArray;

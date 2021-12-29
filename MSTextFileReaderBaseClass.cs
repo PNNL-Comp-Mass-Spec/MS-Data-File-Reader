@@ -65,7 +65,8 @@ namespace MSDataFileReader
         /// </remarks>
         protected float mThresholdIonPctForDoubleCharge;
 
-        protected System.IO.TextReader mFileReader;
+        protected TextReader mFileReader;
+
         protected char mCommentLineStartChar = '=';
 
         private string mSecondMostRecentSpectrumFileText;
@@ -545,11 +546,11 @@ namespace MSDataFileReader
                 if (!success)
                     return false;
 
-                var objStreamReader = new System.IO.StreamReader(new System.IO.FileStream(strInputFilePath, System.IO.FileMode.Open, System.IO.FileAccess.Read, System.IO.FileShare.ReadWrite));
+                var objStreamReader = new StreamReader(new FileStream(strInputFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
                 mInFileStreamLength = objStreamReader.BaseStream.Length;
                 mFileReader = objStreamReader;
                 InitializeLocalVariables();
-                ResetProgress("Parsing " + System.IO.Path.GetFileName(strInputFilePath));
+                ResetProgress("Parsing " + Path.GetFileName(strInputFilePath));
                 return true;
             }
             catch (Exception ex)
@@ -572,7 +573,7 @@ namespace MSDataFileReader
             try
             {
                 mInputFilePath = "TextStream";
-                mFileReader = new System.IO.StringReader(strTextStream);
+                mFileReader = new StringReader(strTextStream);
                 mInFileStreamLength = strTextStream.Length;
                 InitializeLocalVariables();
                 ResetProgress("Parsing text stream");
