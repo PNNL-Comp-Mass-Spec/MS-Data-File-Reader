@@ -282,7 +282,7 @@ namespace MSDataFileReader
 
         protected override string GetInputFileLocation()
         {
-            return "Line " + mInFileLineNumber.ToString();
+            return "Line " + mInFileLineNumber;
         }
 
         public List<string> GetMSMSDataAsText()

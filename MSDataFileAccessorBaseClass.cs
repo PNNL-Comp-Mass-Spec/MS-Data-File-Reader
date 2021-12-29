@@ -290,7 +290,7 @@ namespace MSDataFileReader
 
                 if (spectrumIndex < 0 || spectrumIndex >= mIndexedSpectrumInfoCount)
                 {
-                    mErrorMessage = "Invalid spectrum index: " + spectrumIndex.ToString();
+                    mErrorMessage = "Invalid spectrum index: " + spectrumIndex;
                     return false;
                 }
 

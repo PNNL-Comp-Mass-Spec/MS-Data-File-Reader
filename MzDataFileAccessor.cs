@@ -483,7 +483,7 @@ namespace MSDataFileReader
 
                 if (!success && string.IsNullOrWhiteSpace(mErrorMessage))
                 {
-                    mErrorMessage = "Invalid spectrum ID: " + spectrumID.ToString();
+                    mErrorMessage = "Invalid spectrum ID: " + spectrumID;
                 }
 
                 return success;

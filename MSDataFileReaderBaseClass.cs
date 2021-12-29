@@ -525,7 +525,7 @@ namespace MSDataFileReader
                     return true;
                 }
 
-                mErrorMessage = "Invalid spectrum index: " + spectrumIndex.ToString();
+                mErrorMessage = "Invalid spectrum index: " + spectrumIndex;
                 spectrumInfo = null;
             }
             else

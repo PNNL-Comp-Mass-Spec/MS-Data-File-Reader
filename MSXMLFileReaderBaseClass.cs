@@ -405,7 +405,7 @@ namespace MSDataFileReader
 
         protected override string GetInputFileLocation()
         {
-            return "Line " + SAXParserLineNumber.ToString() + ", Column " + SAXParserColumnNumber.ToString();
+            return "Line " + SAXParserLineNumber + ", Column " + SAXParserColumnNumber;
         }
 
         protected abstract void InitializeCurrentSpectrum(bool autoShrinkDataLists);
