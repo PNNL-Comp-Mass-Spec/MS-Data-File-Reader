@@ -312,13 +312,13 @@ namespace MSDataFileReader
         /// <param name="strMSMSDataBase64Encoded"></param>
         /// <param name="strCompressionType"></param>
         /// <returns>True if successful, false if an error</returns>
-        private bool ParseBinaryData(string strMSMSDataBase64Encoded, string strCompressionType)
+        private void ParseBinaryData(string strMSMSDataBase64Encoded, string strCompressionType)
         {
             var eEndianMode = clsBase64EncodeDecode.eEndianTypeConstants.BigEndian;
 
             if (mCurrentSpectrum is null)
             {
-                return false;
+                return;
             }
 
             if (strMSMSDataBase64Encoded is null || strMSMSDataBase64Encoded.Length == 0)
@@ -326,7 +326,7 @@ namespace MSDataFileReader
                 mCurrentSpectrum.DataCount = 0;
                 mCurrentSpectrum.MZList = Array.Empty<double>();
                 mCurrentSpectrum.IntensityList = Array.Empty<float>();
-                return false;
+                return;
             }
 
             try
@@ -415,11 +415,11 @@ namespace MSDataFileReader
                 }
 
                 if (!success)
-                    return false;
+                    return;
 
                 if (mCurrentSpectrum.MZList.Length == mCurrentSpectrum.DataCount)
                 {
-                    return true;
+                    return;
                 }
 
                 if (mCurrentSpectrum.DataCount == 0 && mCurrentSpectrum.MZList.Length > 0 &&
@@ -427,7 +427,7 @@ namespace MSDataFileReader
                     Math.Abs(mCurrentSpectrum.IntensityList[0] - 0f) < float.Epsilon)
                 {
                     // Leave .PeaksCount at 0
-                    return true;
+                    return;
                 }
 
                 if (mCurrentSpectrum.MZList.Length > 1 && mCurrentSpectrum.IntensityList.Length > 1)
@@ -449,12 +449,12 @@ namespace MSDataFileReader
                     mCurrentSpectrum.DataCount = mCurrentSpectrum.MZList.Length;
                 }
 
-                return true;
+                return;
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in ParseBinaryData", ex);
-                return false;
+                return;
             }
         }
 
