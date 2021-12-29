@@ -36,6 +36,8 @@ namespace MSDataFileReader
     /// </summary>
     public class clsMzXMLFileAccessor : clsMSDataFileAccessorBaseClass
     {
+        // Ignore Spelling: num
+
         public clsMzXMLFileAccessor()
         {
             InitializeObjectVariables();

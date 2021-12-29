@@ -18,6 +18,8 @@ namespace MSDataFileReader
     /// </summary>
     public abstract class clsMSTextFileReaderBaseClass : clsMSDataFileReaderBaseClass
     {
+        // Ignore Spelling: Da, deconvoluted
+
         public clsMSTextFileReaderBaseClass()
         {
             InitializeLocalVariables();

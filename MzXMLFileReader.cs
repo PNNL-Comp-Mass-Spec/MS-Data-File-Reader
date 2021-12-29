@@ -16,6 +16,8 @@ namespace MSDataFileReader
     /// </summary>
     public class clsMzXMLFileReader : clsMSXMLFileReaderBaseClass
     {
+        // Ignore Spelling: centroided, num, xmlns, xsi, zlib
+
         public clsMzXMLFileReader()
         {
             InitializeLocalVariables();

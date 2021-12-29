@@ -5,6 +5,8 @@ namespace MSDataFileReader
 {
     public class clsBase64EncodeDecode
     {
+        // Ignore Spelling: endian
+
         public enum eEndianTypeConstants : int
         {
             LittleEndian = 0,

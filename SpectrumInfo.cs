@@ -16,6 +16,8 @@ namespace MSDataFileReader
     [Serializable()]
     public class clsSpectrumInfo : ICloneable
     {
+        // Ignore Spelling: centroided
+
         public clsSpectrumInfo()
         {
             mAutoShrinkDataLists = true;

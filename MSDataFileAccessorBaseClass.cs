@@ -37,6 +37,8 @@ namespace MSDataFileReader
     /// </summary>
     public abstract class clsMSDataFileAccessorBaseClass : clsMSDataFileReaderBaseClass
     {
+        // Ignore Spelling: Accessor
+
         public clsMSDataFileAccessorBaseClass()
         {
             InitializeLocalVariables();

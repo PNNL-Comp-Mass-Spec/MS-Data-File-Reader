@@ -16,6 +16,8 @@ namespace MSDataFileReader
     [Serializable()]
     public class clsSpectrumInfoMzXML : clsSpectrumInfo
     {
+        // Ignore Spelling: zlib
+
         public clsSpectrumInfoMzXML()
         {
             Clear();
