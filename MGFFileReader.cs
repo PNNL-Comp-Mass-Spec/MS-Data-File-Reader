@@ -55,7 +55,7 @@ namespace MSDataFileReader
         protected override void InitializeLocalVariables()
         {
             base.InitializeLocalVariables();
-            mCommentLineStartChar = COMMENT_LINE_START_CHAR;
+            CommentLineStartChar = COMMENT_LINE_START_CHAR;
             mScanNumberStartSaved = 0;
         }
 
@@ -192,10 +192,10 @@ namespace MSDataFileReader
                             strLineIn = strLineIn.Trim();
 
                             // See if strLineIn starts with the comment line start character (a pound sign, #)
-                            if (strLineIn.StartsWith(mCommentLineStartChar.ToString()))
+                            if (strLineIn.StartsWith(CommentLineStartChar.ToString()))
                             {
                                 // Remove any comment characters at the start of strLineIn
-                                strLineIn = strLineIn.TrimStart(mCommentLineStartChar).Trim();
+                                strLineIn = strLineIn.TrimStart(CommentLineStartChar).Trim();
 
                                 // Look for LINE_START_MSMS in strLineIn
                                 // This will be present in MGF files created using Agilent's DataAnalysis software
@@ -467,7 +467,7 @@ namespace MSDataFileReader
 
                                     blnSpectrumFound = true;
 
-                                    if (mReadTextDataOnly)
+                                    if (ReadTextDataOnly)
                                     {
                                         // Do not parse the text data to populate .MZList and .IntensityList
                                         mCurrentSpectrum.DataCount = 0;

@@ -20,7 +20,7 @@ namespace MSDataFileReader
 
         public clsSpectrumInfo()
         {
-            mAutoShrinkDataLists = true;
+            AutoShrinkDataLists = true;
             Clear();
         }
 
@@ -84,11 +84,6 @@ namespace MSDataFileReader
         /// </summary>
         private int mMSLevel;
 
-        /// <summary>
-        /// True if the data is centroided (supported by mzXML v3.x)
-        /// </summary>
-        private bool mCentroided;
-
         private string mPolarity;
 
         private float mRetentionTimeMin;
@@ -113,15 +108,6 @@ namespace MSDataFileReader
         public double[] MZList;
 
         public float[] IntensityList;
-
-        /// <summary>
-        /// When True, MZList().Length and IntensityList().Length will equal DataCount
-        /// When False, the memory will not be freed when DataCount shrinks or .Clear() is called
-        /// </summary>
-        /// <remarks>
-        /// Setting mAutoShrinkDataLists to False helps reduce slow, increased memory usage due to inefficient garbage collection
-        /// </remarks>
-        private bool mAutoShrinkDataLists;
 
         protected string mErrorMessage;
 
@@ -204,12 +190,10 @@ namespace MSDataFileReader
             }
         }
 
-        public bool Centroided
-        {
-            get => mCentroided;
-
-            set => mCentroided = value;
-        }
+        /// <summary>
+        /// True if the data is centroided (supported by mzXML v3.x)
+        /// </summary>
+        public bool Centroided { get; set; }
 
         public string Polarity
         {
@@ -312,12 +296,14 @@ namespace MSDataFileReader
 
         public eSpectrumStatusConstants SpectrumStatus => mSpectrumStatus;
 
-        public bool AutoShrinkDataLists
-        {
-            get => mAutoShrinkDataLists;
-
-            set => mAutoShrinkDataLists = value;
-        }
+        /// <summary>
+        /// When True, MZList().Length and IntensityList().Length will equal DataCount
+        /// When False, the memory will not be freed when DataCount shrinks or .Clear() is called
+        /// </summary>
+        /// <remarks>
+        /// Set this to False helps reduce slow, increased memory usage due to inefficient garbage collection
+        /// </remarks>
+        public bool AutoShrinkDataLists { get; set; }
 
         public string ErrorMessage
         {
@@ -338,7 +324,7 @@ namespace MSDataFileReader
             mSpectrumType = SpectrumTypeNames.discrete;
             mSpectrumCombinationMethod = string.Empty;
             mMSLevel = 1;
-            mCentroided = false;
+            Centroided = false;
             mPolarity = "Positive";
             mRetentionTimeMin = 0f;
             mmzRangeStart = 0f;
@@ -350,7 +336,7 @@ namespace MSDataFileReader
             mParentIonIntensity = 0f;
             DataCount = 0;
 
-            if (mAutoShrinkDataLists || MZList is null)
+            if (AutoShrinkDataLists || MZList is null)
             {
                 MZList = new double[0];
             }
@@ -359,7 +345,7 @@ namespace MSDataFileReader
                 Array.Clear(MZList, 0, MZList.Length);
             }
 
-            if (mAutoShrinkDataLists || IntensityList is null)
+            if (AutoShrinkDataLists || IntensityList is null)
             {
                 IntensityList = new float[0];
             }
@@ -555,7 +541,7 @@ namespace MSDataFileReader
                 UpdateMZRange();
             }
 
-            if (mAutoShrinkDataLists)
+            if (AutoShrinkDataLists)
             {
                 if (MZList != null)
                 {

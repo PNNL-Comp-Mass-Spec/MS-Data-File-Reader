@@ -23,7 +23,7 @@ namespace MSDataFileReader
 
         public clsDtaTextFileReader(bool blnCombineIdenticalSpectra)
         {
-            mCombineIdenticalSpectra = blnCombineIdenticalSpectra;
+            CombineIdenticalSpectra = blnCombineIdenticalSpectra;
             InitializeLocalVariables();
         }
 
@@ -37,24 +37,17 @@ namespace MSDataFileReader
 
         private const char COMMENT_LINE_START_CHAR = '=';
 
-        private bool mCombineIdenticalSpectra;
-
         // mHeaderSaved is used to store the previous header title; it is needed when the next
         // header was read for comparison with the current scan, but it didn't match, and thus
         // wasn't used for grouping
         private string mHeaderSaved;
 
-        public bool CombineIdenticalSpectra
-        {
-            get => mCombineIdenticalSpectra;
-
-            set => mCombineIdenticalSpectra = value;
-        }
+        public bool CombineIdenticalSpectra { get; set; }
 
         protected override void InitializeLocalVariables()
         {
             base.InitializeLocalVariables();
-            mCommentLineStartChar = COMMENT_LINE_START_CHAR;
+            CommentLineStartChar = COMMENT_LINE_START_CHAR;
             mHeaderSaved = string.Empty;
         }
 
@@ -112,12 +105,12 @@ namespace MSDataFileReader
                         }
 
                         // See if strLineIn is nothing or starts with the comment line character (equals sign)
-                        if (strLineIn != null && strLineIn.Trim().StartsWith(mCommentLineStartChar.ToString()))
+                        if (strLineIn != null && strLineIn.Trim().StartsWith(CommentLineStartChar.ToString()))
                         {
                             AddNewRecentFileText(strLineIn);
                             {
                                 mCurrentSpectrum.SpectrumTitleWithCommentChars = strLineIn;
-                                mCurrentSpectrum.SpectrumTitle = CleanupComment(strLineIn, mCommentLineStartChar, true);
+                                mCurrentSpectrum.SpectrumTitle = CleanupComment(strLineIn, CommentLineStartChar, true);
 
                                 ExtractScanInfoFromDtaHeader(mCurrentSpectrum.SpectrumTitle, out var scanNumberStart, out var scanNumberEnd, out var scanCount);
                                 mCurrentSpectrum.ScanNumber = scanNumberStart;
@@ -161,7 +154,7 @@ namespace MSDataFileReader
 
                                 if (blnSpectrumFound)
                                 {
-                                    if (mReadTextDataOnly)
+                                    if (ReadTextDataOnly)
                                     {
                                         // Do not parse the text data to populate .MZList and .IntensityList
                                         mCurrentSpectrum.DataCount = 0;
@@ -181,7 +174,7 @@ namespace MSDataFileReader
                                     }
                                 }
 
-                                if (blnSpectrumFound && mCombineIdenticalSpectra && mCurrentSpectrum.ParentIonCharges[0] == 2)
+                                if (blnSpectrumFound && CombineIdenticalSpectra && mCurrentSpectrum.ParentIonCharges[0] == 2)
                                 {
                                     // See if the next spectrum is the identical data, but the charge is 3 (this is a common situation with .dta files prepared by Lcq_Dta)
 
@@ -198,10 +191,10 @@ namespace MSDataFileReader
                                         mInFileLineNumber += 1;
                                     }
 
-                                    if (strLineIn != null && strLineIn.StartsWith(mCommentLineStartChar.ToString()))
+                                    if (strLineIn != null && strLineIn.StartsWith(CommentLineStartChar.ToString()))
                                     {
                                         mHeaderSaved = string.Copy(strLineIn);
-                                        var strCompareTitle = CleanupComment(mHeaderSaved, mCommentLineStartChar, true);
+                                        var strCompareTitle = CleanupComment(mHeaderSaved, CommentLineStartChar, true);
 
                                         if (strCompareTitle.EndsWith("3.dta", StringComparison.OrdinalIgnoreCase))
                                         {
@@ -230,7 +223,7 @@ namespace MSDataFileReader
                                                             break;
                                                         }
 
-                                                        if (strLineIn.Trim().StartsWith(mCommentLineStartChar.ToString()))
+                                                        if (strLineIn.Trim().StartsWith(CommentLineStartChar.ToString()))
                                                         {
                                                             mHeaderSaved = string.Copy(strLineIn);
                                                             break;
@@ -241,7 +234,7 @@ namespace MSDataFileReader
                                         }
                                     }
                                 }
-                                else if (strMostRecentLineIn.StartsWith(mCommentLineStartChar.ToString()))
+                                else if (strMostRecentLineIn.StartsWith(CommentLineStartChar.ToString()))
                                 {
                                     mHeaderSaved = string.Copy(strMostRecentLineIn);
                                 }

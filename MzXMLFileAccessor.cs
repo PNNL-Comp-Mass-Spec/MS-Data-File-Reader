@@ -91,8 +91,6 @@ namespace MSDataFileReader
 
         private bool mMSRunFound;
 
-        private bool mIgnoreEmbeddedIndex;
-
         private Regex mMSRunRegEx;
 
         private Regex mScanStartElementRegEx;
@@ -103,12 +101,7 @@ namespace MSDataFileReader
 
         private XmlReaderSettings mXMLReaderSettings;
 
-        public bool IgnoreEmbeddedIndex
-        {
-            get => mIgnoreEmbeddedIndex;
-
-            set => mIgnoreEmbeddedIndex = value;
-        }
+        public bool IgnoreEmbeddedIndex { get; set; }
 
         public override bool ParseFilesWithUnknownVersion
         {
@@ -530,7 +523,7 @@ namespace MSDataFileReader
 
             try
             {
-                if (mIgnoreEmbeddedIndex)
+                if (IgnoreEmbeddedIndex)
                 {
                     return false;
                 }

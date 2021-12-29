@@ -57,8 +57,6 @@ namespace MSDataFileReader
 
         protected TextReader mFileReader;
 
-        protected char mCommentLineStartChar = '=';
-
         private string mSecondMostRecentSpectrumFileText;
 
         private System.Text.StringBuilder mMostRecentSpectrumFileText;
@@ -70,27 +68,16 @@ namespace MSDataFileReader
         protected List<string> mCurrentMsMsDataList;
 
         // When true, read the data and populate mCurrentMsMsDataList but do not populate mCurrentSpectrum.MZList() or mCurrentSpectrum.IntensityList()
-        protected bool mReadTextDataOnly;
 
         protected long mTotalBytesRead;
 
         protected long mInFileStreamLength;
 
-        public char CommentLineStartChar
-        {
-            get => mCommentLineStartChar;
-
-            set => mCommentLineStartChar = value;
-        }
+        public char CommentLineStartChar { get; set; } = '=';
 
         public clsSpectrumInfoMsMsText CurrentSpectrum => mCurrentSpectrum;
 
-        public bool ReadTextDataOnly
-        {
-            get => mReadTextDataOnly;
-
-            set => mReadTextDataOnly = value;
-        }
+        public bool ReadTextDataOnly { get; set; }
 
         public float ThresholdIonPctForSingleCharge
         {

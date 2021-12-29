@@ -32,12 +32,12 @@ namespace MSDataFileReader
         // DTA files include this value, but not the MZ value
         private double mParentIonMH;
 
-        public int ParentIonChargeCount;
+        public int ParentIonChargeCount { get; set; }
 
         // 0 if unknown, otherwise typically 1, 2, or 3; Max index is MAX_CHARGE_COUNT-1
         public int[] ParentIonCharges;
 
-        private bool mChargeIs2And3Plus;
+        public bool ChargeIs2And3Plus { get; set; }
 
         public string SpectrumTitleWithCommentChars
         {
@@ -83,13 +83,6 @@ namespace MSDataFileReader
             }
         }
 
-        public bool ChargeIs2And3Plus
-        {
-            get => mChargeIs2And3Plus;
-
-            set => mChargeIs2And3Plus = value;
-        }
-
         public override void Clear()
         {
             base.Clear();
@@ -99,7 +92,7 @@ namespace MSDataFileReader
             mParentIonMH = 0d;
             ParentIonChargeCount = 0;
             ParentIonCharges = new int[5];
-            mChargeIs2And3Plus = false;
+            ChargeIs2And3Plus = false;
         }
 
         /// <summary>
