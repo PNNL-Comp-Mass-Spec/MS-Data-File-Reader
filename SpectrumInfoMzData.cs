@@ -14,9 +14,9 @@ namespace MSDataFileReader
     /// This class holds the values associated with each spectrum in an mzData file
     /// </summary>
     [Serializable]
-    public class clsSpectrumInfoMzData : clsSpectrumInfo
+    public class SpectrumInfoMzData : SpectrumInfo
     {
-        public clsSpectrumInfoMzData()
+        public SpectrumInfoMzData()
         {
             Clear();
         }
@@ -183,19 +183,19 @@ namespace MSDataFileReader
             mPeaksEndianModeIntensity = EndianModes.littleEndian;
         }
 
-        public clsBase64EncodeDecode.eEndianTypeConstants GetEndianModeValue(string strEndianModeText)
+        public Base64EncodeDecode.eEndianTypeConstants GetEndianModeValue(string strEndianModeText)
         {
             switch (strEndianModeText)
             {
                 case EndianModes.bigEndian:
-                    return clsBase64EncodeDecode.eEndianTypeConstants.BigEndian;
+                    return Base64EncodeDecode.eEndianTypeConstants.BigEndian;
 
                 case EndianModes.littleEndian:
-                    return clsBase64EncodeDecode.eEndianTypeConstants.LittleEndian;
+                    return Base64EncodeDecode.eEndianTypeConstants.LittleEndian;
 
                 default:
                     // Assume littleEndian
-                    return clsBase64EncodeDecode.eEndianTypeConstants.LittleEndian;
+                    return Base64EncodeDecode.eEndianTypeConstants.LittleEndian;
             }
         }
 
@@ -203,10 +203,10 @@ namespace MSDataFileReader
         /// Clone this spectrum object
         /// </summary>
         /// <returns>Deep copy of this spectrum</returns>
-        public new clsSpectrumInfoMzData Clone()
+        public new SpectrumInfoMzData Clone()
         {
             // First create a shallow copy of this object
-            var objTarget = (clsSpectrumInfoMzData)MemberwiseClone();
+            var objTarget = (SpectrumInfoMzData)MemberwiseClone();
 
             // Next, manually copy the array objects and any other objects
             // Duplicate code from the base class
@@ -233,7 +233,7 @@ namespace MSDataFileReader
             return objTarget;
         }
 
-        public void CopyTo(out clsSpectrumInfoMzData objTarget)
+        public void CopyTo(out SpectrumInfoMzData objTarget)
         {
             objTarget = Clone();
         }

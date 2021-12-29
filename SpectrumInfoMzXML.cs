@@ -14,11 +14,11 @@ namespace MSDataFileReader
     /// This class holds the values associated with each spectrum in an mzXML file
     /// </summary>
     [Serializable]
-    public class clsSpectrumInfoMzXML : clsSpectrumInfo
+    public class SpectrumInfoMzXML : SpectrumInfo
     {
         // Ignore Spelling: zlib
 
-        public clsSpectrumInfoMzXML()
+        public SpectrumInfoMzXML()
         {
             Clear();
         }
@@ -273,10 +273,10 @@ namespace MSDataFileReader
         /// Clone this spectrum object
         /// </summary>
         /// <returns>Deep copy of this spectrum</returns>
-        public new clsSpectrumInfoMzXML Clone()
+        public new SpectrumInfoMzXML Clone()
         {
             // First create a shallow copy of this object
-            var objTarget = (clsSpectrumInfoMzXML)MemberwiseClone();
+            var objTarget = (SpectrumInfoMzXML)MemberwiseClone();
 
             // Next, manually copy the array objects and any other objects
             // Duplicate code from the base class
@@ -303,7 +303,7 @@ namespace MSDataFileReader
             return objTarget;
         }
 
-        public void CopyTo(out clsSpectrumInfoMzXML objTarget)
+        public void CopyTo(out SpectrumInfoMzXML objTarget)
         {
             objTarget = Clone();
         }

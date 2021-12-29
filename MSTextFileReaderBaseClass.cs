@@ -18,17 +18,17 @@ namespace MSDataFileReader
     /// <summary>
     /// This is the base class for the DTA and MGF file readers
     /// </summary>
-    public abstract class clsMSTextFileReaderBaseClass : clsMSDataFileReaderBaseClass
+    public abstract class MsTextFileReaderBaseClass : MsDataFileReaderBaseClass
     {
         // Ignore Spelling: Da, deconvoluted
 
-        protected clsMSTextFileReaderBaseClass()
+        protected MsTextFileReaderBaseClass()
         {
             // ReSharper disable once VirtualMemberCallInConstructor
             InitializeLocalVariables();
         }
 
-        ~clsMSTextFileReaderBaseClass()
+        ~MsTextFileReaderBaseClass()
         {
             try
             {
@@ -66,7 +66,7 @@ namespace MSDataFileReader
 
         protected int mInFileLineNumber;
 
-        protected clsSpectrumInfoMsMsText mCurrentSpectrum;
+        protected SpectrumInfoMsMsText mCurrentSpectrum;
 
         protected List<string> mCurrentMsMsDataList;
 
@@ -78,7 +78,7 @@ namespace MSDataFileReader
 
         public char CommentLineStartChar { get; set; } = '=';
 
-        public clsSpectrumInfoMsMsText CurrentSpectrum => mCurrentSpectrum;
+        public SpectrumInfoMsMsText CurrentSpectrum => mCurrentSpectrum;
 
         public bool ReadTextDataOnly { get; set; }
 
@@ -170,7 +170,7 @@ namespace MSDataFileReader
             }
         }
 
-        private void ComputePercentageDataAboveThreshold(clsSpectrumInfo objSpectrumInfo, out float sngPctByCount, out float sngPctByIntensity)
+        private void ComputePercentageDataAboveThreshold(SpectrumInfo objSpectrumInfo, out float sngPctByCount, out float sngPctByIntensity)
         {
             ComputePercentageDataAboveThreshold(objSpectrumInfo.DataCount, objSpectrumInfo.MZList, objSpectrumInfo.IntensityList, objSpectrumInfo.ParentIonMZ, out sngPctByCount, out sngPctByIntensity);
         }
@@ -316,7 +316,7 @@ namespace MSDataFileReader
         /// <param name="objSpectrumInfo"></param>
         /// <param name="blnAddToExistingChargeList"></param>
         /// <param name="blnForceChargeAdditionFor2and3Plus"></param>
-        public void GuesstimateCharge(clsSpectrumInfoMsMsText objSpectrumInfo, bool blnAddToExistingChargeList = false, bool blnForceChargeAdditionFor2and3Plus = false)
+        public void GuesstimateCharge(SpectrumInfoMsMsText objSpectrumInfo, bool blnAddToExistingChargeList = false, bool blnForceChargeAdditionFor2and3Plus = false)
         {
             // Strategy:
             // 1) If all fragmentation ions have m/z values less than the parent ion m/z, definitely assume a 1+ parent ion
@@ -419,7 +419,7 @@ namespace MSDataFileReader
                             break;
                         }
                     }
-                    while (intChargeEnd < clsSpectrumInfoMsMsText.MAX_CHARGE_COUNT);
+                    while (intChargeEnd < SpectrumInfoMsMsText.MAX_CHARGE_COUNT);
 
                     if (blnAddToExistingChargeList)
                     {

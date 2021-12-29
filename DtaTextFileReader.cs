@@ -15,13 +15,13 @@ using System.IO;
 /// </summary>
 namespace MSDataFileReader
 {
-    public class clsDtaTextFileReader : clsMSTextFileReaderBaseClass
+    public class DtaTextFileReader : MsTextFileReaderBaseClass
     {
-        public clsDtaTextFileReader() : this(true)
+        public DtaTextFileReader() : this(true)
         {
         }
 
-        public clsDtaTextFileReader(bool blnCombineIdenticalSpectra)
+        public DtaTextFileReader(bool blnCombineIdenticalSpectra)
         {
             CombineIdenticalSpectra = blnCombineIdenticalSpectra;
             InitializeLocalVariables();
@@ -59,7 +59,7 @@ namespace MSDataFileReader
         /// </remarks>
         /// <param name="objSpectrumInfo"></param>
         /// <returns>True if a spectrum is found, otherwise false</returns>
-        public override bool ReadNextSpectrum(out clsSpectrumInfo objSpectrumInfo)
+        public override bool ReadNextSpectrum(out SpectrumInfo objSpectrumInfo)
         {
             var blnSpectrumFound = false;
 
@@ -67,7 +67,7 @@ namespace MSDataFileReader
             {
                 if (ReadingAndStoringSpectra || mCurrentSpectrum is null)
                 {
-                    mCurrentSpectrum = new clsSpectrumInfoMsMsText();
+                    mCurrentSpectrum = new SpectrumInfoMsMsText();
                 }
                 else
                 {
@@ -78,7 +78,7 @@ namespace MSDataFileReader
 
                 if (mFileReader is null)
                 {
-                    objSpectrumInfo = new clsSpectrumInfo();
+                    objSpectrumInfo = new SpectrumInfo();
                     mErrorMessage = "Data file not currently open";
                 }
                 else
@@ -259,7 +259,7 @@ namespace MSDataFileReader
             catch (Exception ex)
             {
                 OnErrorEvent("Error in ReadNextSpectrum", ex);
-                objSpectrumInfo = new clsSpectrumInfo();
+                objSpectrumInfo = new SpectrumInfo();
             }
 
             return blnSpectrumFound;
@@ -274,12 +274,12 @@ namespace MSDataFileReader
         /// <param name="objSpectrumInfoMsMsText"></param>
         /// <returns>True if the file was successfully opened and a spectrum was read</returns>
         // ReSharper disable once UnusedMember.Global
-        public bool ReadSingleDtaFile(string strInputFilePath, out string[] strMsMsDataList, out int intMsMsDataCount, out clsSpectrumInfoMsMsText objSpectrumInfoMsMsText)
+        public bool ReadSingleDtaFile(string strInputFilePath, out string[] strMsMsDataList, out int intMsMsDataCount, out SpectrumInfoMsMsText objSpectrumInfoMsMsText)
         {
             var blnSpectrumFound = false;
             var lstMsMsDataList = new List<string>();
             intMsMsDataCount = 0;
-            objSpectrumInfoMsMsText = new clsSpectrumInfoMsMsText();
+            objSpectrumInfoMsMsText = new SpectrumInfoMsMsText();
 
             try
             {
@@ -346,7 +346,7 @@ namespace MSDataFileReader
             catch (Exception ex)
             {
                 OnErrorEvent("Error in ReadSingleDtaFile", ex);
-                objSpectrumInfoMsMsText = new clsSpectrumInfoMsMsText();
+                objSpectrumInfoMsMsText = new SpectrumInfoMsMsText();
                 strMsMsDataList = new string[1];
             }
 
@@ -368,7 +368,7 @@ namespace MSDataFileReader
             TextReader srReader,
             string strParentIonLineText,
             out List<string> lstMsMsDataList,
-            clsSpectrumInfoMsMsText objSpectrumInfoMsMsText,
+            SpectrumInfoMsMsText objSpectrumInfoMsMsText,
             ref int intLinesRead,
             ref int intLastProgressUpdateLine,
             out string strMostRecentLineIn)

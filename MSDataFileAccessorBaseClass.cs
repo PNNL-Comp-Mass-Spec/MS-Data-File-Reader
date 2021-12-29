@@ -37,17 +37,17 @@ namespace MSDataFileReader
     /// random access to the spectra is possible.  After the indexing is complete, spectra
     /// can be obtained using GetSpectrumByScanNumber or GetSpectrumByIndex
     /// </summary>
-    public abstract class clsMSDataFileAccessorBaseClass : clsMSDataFileReaderBaseClass
+    public abstract class MsDataFileAccessorBaseClass : MsDataFileReaderBaseClass
     {
         // Ignore Spelling: Accessor
 
-        protected clsMSDataFileAccessorBaseClass()
+        protected MsDataFileAccessorBaseClass()
         {
             // ReSharper disable once VirtualMemberCallInConstructor
             InitializeLocalVariables();
         }
 
-        ~clsMSDataFileAccessorBaseClass()
+        ~MsDataFileAccessorBaseClass()
         {
             try
             {
@@ -87,7 +87,7 @@ namespace MSDataFileReader
             }
         }
 
-        protected clsBinaryTextReader.InputFileEncodingConstants mInputFileEncoding;
+        protected BinaryTextReader.InputFileEncodingConstants mInputFileEncoding;
 
         protected byte mCharSize;
 
@@ -95,7 +95,7 @@ namespace MSDataFileReader
 
         protected FileStream mBinaryReader;
 
-        protected clsBinaryTextReader mBinaryTextReader;
+        protected BinaryTextReader mBinaryTextReader;
 
         protected string mInFileCurrentLineText;
 
@@ -169,16 +169,16 @@ namespace MSDataFileReader
 
                         switch (mInputFileEncoding)
                         {
-                            case clsBinaryTextReader.InputFileEncodingConstants.ASCII:
+                            case BinaryTextReader.InputFileEncodingConstants.ASCII:
                                 return new string(Encoding.ASCII.GetChars(bytData, 0, intBytesToRead));
 
-                            case clsBinaryTextReader.InputFileEncodingConstants.UTF8:
+                            case BinaryTextReader.InputFileEncodingConstants.UTF8:
                                 return new string(Encoding.UTF8.GetChars(bytData, 0, intBytesToRead));
 
-                            case clsBinaryTextReader.InputFileEncodingConstants.UnicodeNormal:
+                            case BinaryTextReader.InputFileEncodingConstants.UnicodeNormal:
                                 return new string(Encoding.Unicode.GetChars(bytData, 0, intBytesToRead));
 
-                            case clsBinaryTextReader.InputFileEncodingConstants.UnicodeBigEndian:
+                            case BinaryTextReader.InputFileEncodingConstants.UnicodeBigEndian:
                                 return new string(Encoding.BigEndianUnicode.GetChars(bytData, 0, intBytesToRead));
 
                             default:
@@ -396,7 +396,7 @@ namespace MSDataFileReader
         /// <param name="intSpectrumIndex"></param>
         /// <param name="objSpectrumInfo"></param>
         /// <returns>True if success, False if failure</returns>
-        public override bool GetSpectrumByIndex(int intSpectrumIndex, out clsSpectrumInfo objSpectrumInfo)
+        public override bool GetSpectrumByIndex(int intSpectrumIndex, out SpectrumInfo objSpectrumInfo)
         {
             try
             {
@@ -422,9 +422,9 @@ namespace MSDataFileReader
             }
         }
 
-        protected abstract bool GetSpectrumByIndexWork(int intSpectrumIndex, out clsSpectrumInfo objSpectrumInfo, bool blnHeaderInfoOnly);
+        protected abstract bool GetSpectrumByIndexWork(int intSpectrumIndex, out SpectrumInfo objSpectrumInfo, bool blnHeaderInfoOnly);
 
-        public override bool GetSpectrumByScanNumber(int intScanNumber, out clsSpectrumInfo objSpectrumInfo)
+        public override bool GetSpectrumByScanNumber(int intScanNumber, out SpectrumInfo objSpectrumInfo)
         {
             return GetSpectrumByScanNumberWork(intScanNumber, out objSpectrumInfo, false);
         }
@@ -439,7 +439,7 @@ namespace MSDataFileReader
         /// <param name="objSpectrumInfo"></param>
         /// <param name="blnHeaderInfoOnly"></param>
         /// <returns>True if success, False if failure</returns>
-        protected bool GetSpectrumByScanNumberWork(int intScanNumber, out clsSpectrumInfo objSpectrumInfo, bool blnHeaderInfoOnly)
+        protected bool GetSpectrumByScanNumberWork(int intScanNumber, out SpectrumInfo objSpectrumInfo, bool blnHeaderInfoOnly)
         {
             objSpectrumInfo = null;
 
@@ -499,12 +499,12 @@ namespace MSDataFileReader
             }
         }
 
-        public bool GetSpectrumHeaderInfoByIndex(int intSpectrumIndex, out clsSpectrumInfo objSpectrumInfo)
+        public bool GetSpectrumHeaderInfoByIndex(int intSpectrumIndex, out SpectrumInfo objSpectrumInfo)
         {
             return GetSpectrumByIndexWork(intSpectrumIndex, out objSpectrumInfo, true);
         }
 
-        public bool GetSpectrumHeaderInfoByScanNumber(int intScanNumber, out clsSpectrumInfo objSpectrumInfo)
+        public bool GetSpectrumHeaderInfoByScanNumber(int intScanNumber, out SpectrumInfo objSpectrumInfo)
         {
             return GetSpectrumByScanNumberWork(intScanNumber, out objSpectrumInfo, true);
         }
@@ -554,7 +554,7 @@ namespace MSDataFileReader
             mErrorMessage = string.Empty;
             mLastSpectrumIndexRead = 0;
             mDataReaderMode = drmDataReaderModeConstants.Indexed;
-            mInputFileEncoding = clsBinaryTextReader.InputFileEncodingConstants.ASCII;
+            mInputFileEncoding = BinaryTextReader.InputFileEncodingConstants.ASCII;
             mCharSize = 1;
             mIndexingComplete = false;
         }
@@ -591,7 +591,7 @@ namespace MSDataFileReader
                 // Initialize the binary text reader
                 // Even if an existing index is present, this is needed to determine
                 // the input file encoding and the character size
-                mBinaryTextReader = new clsBinaryTextReader();
+                mBinaryTextReader = new BinaryTextReader();
 
                 if (!mBinaryTextReader.OpenFile(mInputFilePath, FileShare.ReadWrite))
                 {
@@ -657,7 +657,7 @@ namespace MSDataFileReader
             return success;
         }
 
-        public override bool ReadNextSpectrum(out clsSpectrumInfo objSpectrumInfo)
+        public override bool ReadNextSpectrum(out SpectrumInfo objSpectrumInfo)
         {
             if (GetSpectrumReadyStatus(false) && mLastSpectrumIndexRead < mIndexedSpectrumInfoCount)
             {

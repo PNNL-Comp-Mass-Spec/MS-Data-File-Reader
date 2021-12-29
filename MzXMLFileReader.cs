@@ -14,11 +14,11 @@ namespace MSDataFileReader
     /// <summary>
     /// This class uses a SAX Parser to read an mzXML file
     /// </summary>
-    public class clsMzXMLFileReader : clsMSXMLFileReaderBaseClass
+    public class MzXMLFileReader : MsXMLFileReaderBaseClass
     {
         // Ignore Spelling: centroided, num, xmlns, xsi, zlib
 
-        public clsMzXMLFileReader()
+        public MzXMLFileReader()
         {
             InitializeLocalVariables();
         }
@@ -260,7 +260,7 @@ namespace MSDataFileReader
         /// </remarks>
         private int mScanDepth;
 
-        private clsSpectrumInfoMzXML mCurrentSpectrum;
+        private SpectrumInfoMzXML mCurrentSpectrum;
 
         private udtFileStatsAddnlType mInputFileStatsAddnl;
 
@@ -274,7 +274,7 @@ namespace MSDataFileReader
 
         // ReSharper restore UnusedMember.Global
 
-        protected override clsSpectrumInfo GetCurrentSpectrum()
+        protected override SpectrumInfo GetCurrentSpectrum()
         {
             return mCurrentSpectrum;
         }
@@ -283,7 +283,7 @@ namespace MSDataFileReader
         {
             if (ReadingAndStoringSpectra || mCurrentSpectrum is null)
             {
-                mCurrentSpectrum = new clsSpectrumInfoMzXML();
+                mCurrentSpectrum = new SpectrumInfoMzXML();
             }
             else
             {
@@ -318,7 +318,7 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         private void ParseBinaryData(string strMSMSDataBase64Encoded, string strCompressionType)
         {
-            var eEndianMode = clsBase64EncodeDecode.eEndianTypeConstants.BigEndian;
+            var eEndianMode = Base64EncodeDecode.eEndianTypeConstants.BigEndian;
 
             if (mCurrentSpectrum is null)
             {
@@ -335,14 +335,14 @@ namespace MSDataFileReader
 
             try
             {
-                var zLibCompressed = strCompressionType.Equals(clsSpectrumInfoMzXML.CompressionTypes.zlib);
+                var zLibCompressed = strCompressionType.Equals(SpectrumInfoMzXML.CompressionTypes.zlib);
 
                 var success = false;
 
                 switch (mCurrentSpectrum.NumericPrecisionOfData)
                 {
                     case 32:
-                        if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
+                        if (Base64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
                         {
                             // sngDataArray now contains pairs of singles, either m/z and intensity or intensity and m/z
                             // Need to split this apart into two arrays
@@ -350,7 +350,7 @@ namespace MSDataFileReader
                             mCurrentSpectrum.MZList = new double[(int)Math.Round(sngDataArray.Length / 2d)];
                             mCurrentSpectrum.IntensityList = new float[(int)Math.Round(sngDataArray.Length / 2d)];
 
-                            if (mCurrentSpectrum.PeaksPairOrder.Equals(clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ))
+                            if (mCurrentSpectrum.PeaksPairOrder.Equals(SpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ))
                             {
                                 var intIndexEnd = sngDataArray.Length - 1;
 
@@ -378,7 +378,7 @@ namespace MSDataFileReader
                         break;
 
                     case 64:
-                        if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
+                        if (Base64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
                         {
                             // dblDataArray now contains pairs of doubles, either m/z and intensity or intensity and m/z
                             // Need to split this apart into two arrays
@@ -386,7 +386,7 @@ namespace MSDataFileReader
                             mCurrentSpectrum.MZList = new double[(int)Math.Round(dblDataArray.Length / 2d)];
                             mCurrentSpectrum.IntensityList = new float[(int)Math.Round(dblDataArray.Length / 2d)];
 
-                            if (mCurrentSpectrum.PeaksPairOrder.Equals(clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ))
+                            if (mCurrentSpectrum.PeaksPairOrder.Equals(SpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ))
                             {
                                 var intIndexEnd = dblDataArray.Length - 1;
 
@@ -524,7 +524,7 @@ namespace MSDataFileReader
                 // If we just moved out of a scan element, finalize the current scan
                 if ((mXMLReader.Name) == ScanSectionNames.scan)
                 {
-                    if (mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Initialized && mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Validated)
+                    if (mCurrentSpectrum.SpectrumStatus != SpectrumInfo.eSpectrumStatusConstants.Initialized && mCurrentSpectrum.SpectrumStatus != SpectrumInfo.eSpectrumStatusConstants.Validated)
                     {
                         mCurrentSpectrum.Validate();
                         mSpectrumFound = true;
@@ -575,7 +575,7 @@ namespace MSDataFileReader
 
                     if (mScanDepth > 0 && !mSkippedStartElementAdvance)
                     {
-                        if (mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Initialized && mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Validated)
+                        if (mCurrentSpectrum.SpectrumStatus != SpectrumInfo.eSpectrumStatusConstants.Initialized && mCurrentSpectrum.SpectrumStatus != SpectrumInfo.eSpectrumStatusConstants.Validated)
                         {
                             mCurrentSpectrum.Validate();
                             mSkipNextReaderAdvance = true;
@@ -667,7 +667,7 @@ namespace MSDataFileReader
                         {
                             // mzXML v3.x
                             mCurrentSpectrum.CompressionType = GetAttribValue(PeaksAttributeNames.compressionType,
-                                clsSpectrumInfoMzXML.CompressionTypes.none);
+                                SpectrumInfoMzXML.CompressionTypes.none);
 
                             mCurrentSpectrum.CompressedLen = GetAttribValue(PeaksAttributeNames.compressedLen, 0);
                         }
@@ -675,15 +675,15 @@ namespace MSDataFileReader
                         {
                             // mzXML v1.x or v2.x
                             mCurrentSpectrum.PeaksPairOrder = GetAttribValue(PeaksAttributeNames.pairOrder,
-                                clsSpectrumInfoMzXML.PairOrderTypes.MZandIntensity);
+                                SpectrumInfoMzXML.PairOrderTypes.MZandIntensity);
 
-                            mCurrentSpectrum.CompressionType = clsSpectrumInfoMzXML.CompressionTypes.none;
+                            mCurrentSpectrum.CompressionType = SpectrumInfoMzXML.CompressionTypes.none;
                             mCurrentSpectrum.CompressedLen = 0;
                         }
 
                         mCurrentSpectrum.NumericPrecisionOfData = GetAttribValue(PeaksAttributeNames.precision, 32);
                         mCurrentSpectrum.PeaksByteOrder =
-                            GetAttribValue(PeaksAttributeNames.byteOrder, clsSpectrumInfoMzXML.ByteOrderTypes.network);
+                            GetAttribValue(PeaksAttributeNames.byteOrder, SpectrumInfoMzXML.ByteOrderTypes.network);
                     }
 
                     break;

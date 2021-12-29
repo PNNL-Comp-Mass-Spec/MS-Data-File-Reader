@@ -21,15 +21,15 @@ namespace MSDataFileReader
     /// <summary>
     /// This is the base class for the mzXML and mzData readers
     /// </summary>
-    public abstract class clsMSXMLFileReaderBaseClass : clsMSDataFileReaderBaseClass
+    public abstract class MsXMLFileReaderBaseClass : MsDataFileReaderBaseClass
     {
-        protected clsMSXMLFileReaderBaseClass()
+        protected MsXMLFileReaderBaseClass()
         {
             // ReSharper disable once VirtualMemberCallInConstructor
             InitializeLocalVariables();
         }
 
-        ~clsMSXMLFileReaderBaseClass()
+        ~MsXMLFileReaderBaseClass()
         {
             try
             {
@@ -371,7 +371,7 @@ namespace MSDataFileReader
             }
         }
 
-        protected abstract clsSpectrumInfo GetCurrentSpectrum();
+        protected abstract SpectrumInfo GetCurrentSpectrum();
 
         /// <summary>
         /// Obtain the element name one level up from intDepth
@@ -545,7 +545,7 @@ namespace MSDataFileReader
         /// </summary>
         /// <param name="objSpectrumInfo"></param>
         /// <returns>True if a spectrum is found, otherwise, returns False</returns>
-        public override bool ReadNextSpectrum(out clsSpectrumInfo objSpectrumInfo)
+        public override bool ReadNextSpectrum(out SpectrumInfo objSpectrumInfo)
         {
             try
             {
@@ -554,7 +554,7 @@ namespace MSDataFileReader
 
                 if (mXMLReader is null)
                 {
-                    objSpectrumInfo = new clsSpectrumInfo();
+                    objSpectrumInfo = new SpectrumInfo();
                     mErrorMessage = "Data file not currently open";
                 }
                 else
@@ -639,7 +639,7 @@ namespace MSDataFileReader
             catch (Exception ex)
             {
                 OnErrorEvent("Error in ReadNextSpectrum", ex);
-                objSpectrumInfo = new clsSpectrumInfo();
+                objSpectrumInfo = new SpectrumInfo();
             }
 
             return mSpectrumFound;

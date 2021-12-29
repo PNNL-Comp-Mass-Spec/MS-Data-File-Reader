@@ -14,9 +14,9 @@ namespace MSDataFileReader
     /// This class holds the values associated with each spectrum in an DTA or MGF file
     /// </summary>
     [Serializable]
-    public class clsSpectrumInfoMsMsText : clsSpectrumInfo
+    public class SpectrumInfoMsMsText : SpectrumInfo
     {
-        public clsSpectrumInfoMsMsText()
+        public SpectrumInfoMsMsText()
         {
             Clear();
         }
@@ -166,10 +166,10 @@ namespace MSDataFileReader
         /// Clone this spectrum object
         /// </summary>
         /// <returns>Deep copy of this spectrum</returns>
-        public new clsSpectrumInfoMsMsText Clone()
+        public new SpectrumInfoMsMsText Clone()
         {
             // First create a shallow copy of this object
-            var objTarget = (clsSpectrumInfoMsMsText)MemberwiseClone();
+            var objTarget = (SpectrumInfoMsMsText)MemberwiseClone();
 
             // Next, manually copy the array objects and any other objects
             // Duplicate code from the base class
@@ -207,7 +207,7 @@ namespace MSDataFileReader
             return objTarget;
         }
 
-        public void CopyTo(out clsSpectrumInfoMsMsText objTarget)
+        public void CopyTo(out SpectrumInfoMsMsText objTarget)
         {
             objTarget = Clone();
         }
@@ -220,14 +220,14 @@ namespace MSDataFileReader
             {
                 if (ParentIonChargeCount > 0)
                 {
-                    ParentIonMH = clsMSDataFileReaderBaseClass.ConvoluteMass(ParentIonMZ, ParentIonCharges[0], 1, clsMSDataFileReaderBaseClass.CHARGE_CARRIER_MASS_MONOISOTOPIC);
+                    ParentIonMH = MsDataFileReaderBaseClass.ConvoluteMass(ParentIonMZ, ParentIonCharges[0], 1, MsDataFileReaderBaseClass.CHARGE_CARRIER_MASS_MONOISOTOPIC);
                 }
             }
             else if (Math.Abs(ParentIonMZ) < float.Epsilon && Math.Abs(ParentIonMH) > float.Epsilon)
             {
                 if (ParentIonChargeCount > 0)
                 {
-                    ParentIonMZ = clsMSDataFileReaderBaseClass.ConvoluteMass(ParentIonMH, 1, ParentIonCharges[0], clsMSDataFileReaderBaseClass.CHARGE_CARRIER_MASS_MONOISOTOPIC);
+                    ParentIonMZ = MsDataFileReaderBaseClass.ConvoluteMass(ParentIonMH, 1, ParentIonCharges[0], MsDataFileReaderBaseClass.CHARGE_CARRIER_MASS_MONOISOTOPIC);
                 }
             }
         }

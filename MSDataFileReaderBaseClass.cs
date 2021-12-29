@@ -18,7 +18,7 @@ namespace MSDataFileReader
     /// <summary>
     /// This is the base class for the various MS data file readers
     /// </summary>
-    public abstract class clsMSDataFileReaderBaseClass : EventNotifier
+    public abstract class MsDataFileReaderBaseClass : EventNotifier
     {
         // Ignore Spelling: accessor
 
@@ -40,7 +40,7 @@ namespace MSDataFileReader
         // Ranges from 0 to 100, but can contain decimal percentage values
         protected float mProgressPercentComplete;
 
-        protected clsMSDataFileReaderBaseClass()
+        protected MsDataFileReaderBaseClass()
         {
             InitializeLocalVariables();
         }
@@ -117,7 +117,7 @@ namespace MSDataFileReader
         // These variables are used when mDataReaderMode = Cached
         protected int mCachedSpectrumCount;
 
-        protected clsSpectrumInfo[] mCachedSpectra;
+        protected SpectrumInfo[] mCachedSpectra;
 
         // This dictionary maps scan number to index in mCachedSpectra()
         // If more than one spectrum comes from the same scan, tracks the first one read
@@ -352,29 +352,29 @@ namespace MSDataFileReader
 
                 switch (strFileExtension)
                 {
-                    case clsMzDataFileReader.MZDATA_FILE_EXTENSION:
+                    case MzDataFileReader.MZDATA_FILE_EXTENSION:
                         eFileType = dftDataFileTypeConstants.mzData;
                         break;
 
-                    case clsMzXMLFileReader.MZXML_FILE_EXTENSION:
+                    case MzXMLFileReader.MZXML_FILE_EXTENSION:
                         eFileType = dftDataFileTypeConstants.mzXML;
                         break;
 
-                    case clsMGFFileReader.MGF_FILE_EXTENSION:
+                    case MGFFileReader.MGF_FILE_EXTENSION:
                         eFileType = dftDataFileTypeConstants.MGF;
                         break;
 
                     default:
                         // See if the filename ends with MZDATA_FILE_EXTENSION_XML or MZXML_FILE_EXTENSION_XML
-                        if (strFileName.EndsWith(clsMzDataFileReader.MZDATA_FILE_EXTENSION_XML, StringComparison.OrdinalIgnoreCase))
+                        if (strFileName.EndsWith(MzDataFileReader.MZDATA_FILE_EXTENSION_XML, StringComparison.OrdinalIgnoreCase))
                         {
                             eFileType = dftDataFileTypeConstants.mzData;
                         }
-                        else if (strFileName.EndsWith(clsMzXMLFileReader.MZXML_FILE_EXTENSION_XML, StringComparison.OrdinalIgnoreCase))
+                        else if (strFileName.EndsWith(MzXMLFileReader.MZXML_FILE_EXTENSION_XML, StringComparison.OrdinalIgnoreCase))
                         {
                             eFileType = dftDataFileTypeConstants.mzXML;
                         }
-                        else if (strFileName.EndsWith(clsDtaTextFileReader.DTA_TEXT_FILE_EXTENSION, StringComparison.OrdinalIgnoreCase))
+                        else if (strFileName.EndsWith(DtaTextFileReader.DTA_TEXT_FILE_EXTENSION, StringComparison.OrdinalIgnoreCase))
                         {
                             eFileType = dftDataFileTypeConstants.DtaText;
                         }
@@ -400,28 +400,28 @@ namespace MSDataFileReader
         /// </summary>
         /// <param name="strFileNameOrPath"></param>
         /// <returns>An MS File reader, or null if an error or unknown file extension</returns>
-        public static clsMSDataFileReaderBaseClass GetFileReaderBasedOnFileType(string strFileNameOrPath)
+        public static MSDataFileReaderBaseClass GetFileReaderBasedOnFileType(string strFileNameOrPath)
         {
-            clsMSDataFileReaderBaseClass objFileReader = null;
+            MSDataFileReaderBaseClass objFileReader = null;
 
             if (DetermineFileType(strFileNameOrPath, out var eFileType))
             {
                 switch (eFileType)
                 {
                     case dftDataFileTypeConstants.DtaText:
-                        objFileReader = new clsDtaTextFileReader();
+                        objFileReader = new DtaTextFileReader();
                         break;
 
                     case dftDataFileTypeConstants.MGF:
-                        objFileReader = new clsMGFFileReader();
+                        objFileReader = new MGFFileReader();
                         break;
 
                     case dftDataFileTypeConstants.mzData:
-                        objFileReader = new clsMzDataFileReader();
+                        objFileReader = new MzDataFileReader();
                         break;
 
                     case dftDataFileTypeConstants.mzXML:
-                        objFileReader = new clsMzXMLFileReader();
+                        objFileReader = new MzXMLFileReader();
                         break;
 
                     default:
@@ -441,20 +441,20 @@ namespace MSDataFileReader
         /// </remarks>
         /// <param name="strFileNameOrPath"></param>
         /// <returns>An MS file accessor, or null if an error or unknown file extension</returns>
-        public static clsMSDataFileAccessorBaseClass GetFileAccessorBasedOnFileType(string strFileNameOrPath)
+        public static MSDataFileAccessorBaseClass GetFileAccessorBasedOnFileType(string strFileNameOrPath)
         {
-            clsMSDataFileAccessorBaseClass objFileAccessor = null;
+            MSDataFileAccessorBaseClass objFileAccessor = null;
 
             if (DetermineFileType(strFileNameOrPath, out var eFileType))
             {
                 switch (eFileType)
                 {
                     case dftDataFileTypeConstants.mzData:
-                        objFileAccessor = new clsMzDataFileAccessor();
+                        objFileAccessor = new MzDataFileAccessor();
                         break;
 
                     case dftDataFileTypeConstants.mzXML:
-                        objFileAccessor = new clsMzXMLFileAccessor();
+                        objFileAccessor = new MzXMLFileAccessor();
                         break;
 
                     // These file types do not have file accessors
@@ -515,7 +515,7 @@ namespace MSDataFileReader
         /// <param name="intSpectrumIndex"></param>
         /// <param name="objSpectrumInfo"></param>
         /// <returns>True if successful, false if an error</returns>
-        public virtual bool GetSpectrumByIndex(int intSpectrumIndex, out clsSpectrumInfo objSpectrumInfo)
+        public virtual bool GetSpectrumByIndex(int intSpectrumIndex, out SpectrumInfo objSpectrumInfo)
         {
             if (mDataReaderMode == drmDataReaderModeConstants.Cached && mCachedSpectrumCount > 0)
             {
@@ -547,7 +547,7 @@ namespace MSDataFileReader
         /// <param name="intScanNumber"></param>
         /// <param name="objSpectrumInfo"></param>
         /// <returns>True if successful, false if an error or invalid scan number</returns>
-        public virtual bool GetSpectrumByScanNumber(int intScanNumber, out clsSpectrumInfo objSpectrumInfo)
+        public virtual bool GetSpectrumByScanNumber(int intScanNumber, out SpectrumInfo objSpectrumInfo)
         {
             objSpectrumInfo = null;
 
@@ -604,7 +604,7 @@ namespace MSDataFileReader
             mProgressStepDescription = string.Empty;
             mProgressPercentComplete = 0f;
             mCachedSpectrumCount = 0;
-            mCachedSpectra = new clsSpectrumInfo[500];
+            mCachedSpectra = new SpectrumInfo[500];
 
             mInputFileStats.ScanCount = 0;
             mInputFileStats.ScanNumberMinimum = 0;
@@ -665,7 +665,7 @@ namespace MSDataFileReader
             ProgressComplete?.Invoke();
         }
 
-        public abstract bool ReadNextSpectrum(out clsSpectrumInfo objSpectrumInfo);
+        public abstract bool ReadNextSpectrum(out SpectrumInfo objSpectrumInfo);
 
         /// <summary>
         /// Cache the entire file in memory

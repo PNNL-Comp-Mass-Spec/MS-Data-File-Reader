@@ -34,17 +34,17 @@ namespace MSDataFileReader
     /// random access to the spectra is possible.  After the indexing is complete, spectra
     /// can be obtained using GetSpectrumByScanNumber or GetSpectrumByIndex
     /// </summary>
-    public class clsMzXMLFileAccessor : clsMSDataFileAccessorBaseClass
+    public class MzXMLFileAccessor : MsDataFileAccessorBaseClass
     {
         // Ignore Spelling: num
 
-        public clsMzXMLFileAccessor()
+        public MzXMLFileAccessor()
         {
             InitializeObjectVariables();
             InitializeLocalVariables();
         }
 
-        ~clsMzXMLFileAccessor()
+        ~MzXMLFileAccessor()
         {
             mXmlFileReader = null;
         }
@@ -92,9 +92,9 @@ namespace MSDataFileReader
 
         // ReSharper restore UnusedMember.Local
 
-        private clsMzXMLFileReader mXmlFileReader;
+        private MzXMLFileReader mXmlFileReader;
 
-        private clsSpectrumInfoMzXML mCurrentSpectrumInfo;
+        private SpectrumInfoMzXML mCurrentSpectrumInfo;
 
         private string mXmlFileHeader;
 
@@ -425,7 +425,7 @@ namespace MSDataFileReader
             return lngIndexOffset;
         }
 
-        protected override bool GetSpectrumByIndexWork(int intSpectrumIndex, out clsSpectrumInfo objCurrentSpectrumInfo, bool blnHeaderInfoOnly)
+        protected override bool GetSpectrumByIndexWork(int intSpectrumIndex, out SpectrumInfo objCurrentSpectrumInfo, bool blnHeaderInfoOnly)
         {
             objCurrentSpectrumInfo = null;
 
@@ -436,7 +436,7 @@ namespace MSDataFileReader
                     return false;
                 }
 
-                mXmlFileReader ??= new clsMzXMLFileReader
+                mXmlFileReader ??= new MzXMLFileReader
                 {
                     ParseFilesWithUnknownVersion = mParseFilesWithUnknownVersion
                 };
@@ -473,7 +473,7 @@ namespace MSDataFileReader
                 }
                 else if (string.IsNullOrWhiteSpace(mFileVersion) && !string.IsNullOrWhiteSpace(mXmlFileHeader))
                 {
-                    if (!clsMzXMLFileReader.ExtractMzXmlFileVersion(mXmlFileHeader, out mFileVersion))
+                    if (!MzXMLFileReader.ExtractMzXmlFileVersion(mXmlFileHeader, out mFileVersion))
                     {
                         OnErrorEvent("Unknown mzXML file version; expected text not found in mXmlFileHeader");
                     }
@@ -537,7 +537,7 @@ namespace MSDataFileReader
                 // Move to the end of the file
                 mBinaryTextReader.MoveToEnd();
 
-                while (mBinaryTextReader.ReadLine(clsBinaryTextReader.ReadDirectionConstants.Reverse))
+                while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirectionConstants.Reverse))
                 {
                     var strCurrentLine = mBinaryTextReader.CurrentLine;
                     var intCharIndex = strCurrentLine.IndexOf(INDEX_OFFSET_START_ELEMENT, StringComparison.Ordinal);
@@ -556,7 +556,7 @@ namespace MSDataFileReader
                             // Need to read the next few lines to find </indexOffset>
                             mBinaryTextReader.MoveToByteOffset(mBinaryTextReader.CurrentLineByteOffsetEndWithTerminator + 1L);
 
-                            while (mBinaryTextReader.ReadLine(clsBinaryTextReader.ReadDirectionConstants.Forward))
+                            while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirectionConstants.Forward))
                             {
                                 strCurrentLine += " " + mBinaryTextReader.CurrentLine;
                                 intCharIndexEnd = strCurrentLine.IndexOf(INDEX_OFFSET_END_ELEMENT, intCharIndex + INDEX_OFFSET_START_ELEMENT.Length, StringComparison.Ordinal);
@@ -578,7 +578,7 @@ namespace MSDataFileReader
                                 mBinaryTextReader.MoveToByteOffset(lngIndexOffset);
 
                                 // Read the text at offset lngIndexOffset
-                                mBinaryTextReader.ReadLine(clsBinaryTextReader.ReadDirectionConstants.Forward);
+                                mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirectionConstants.Forward);
                                 strCurrentLine = mBinaryTextReader.CurrentLine;
 
                                 // Verify that strCurrentLine contains "<index"
@@ -625,7 +625,7 @@ namespace MSDataFileReader
                         }
 
                         // Read all of the lines to the end of the file
-                        while (mBinaryTextReader.ReadLine(clsBinaryTextReader.ReadDirectionConstants.Forward))
+                        while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirectionConstants.Forward))
                         {
                             strCurrentLine = mBinaryTextReader.CurrentLine;
                             objStringBuilder.Append(strCurrentLine + mBinaryTextReader.CurrentLineTerminator);
@@ -672,7 +672,7 @@ namespace MSDataFileReader
                             mBinaryTextReader.MoveToBeginning();
                             mXmlFileHeader = string.Empty;
 
-                            while (mBinaryTextReader.ReadLine(clsBinaryTextReader.ReadDirectionConstants.Forward))
+                            while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirectionConstants.Forward))
                             {
                                 strCurrentLine = mBinaryTextReader.CurrentLine;
                                 intCharIndex = strCurrentLine.IndexOf(SCAN_START_ELEMENT, StringComparison.Ordinal);
@@ -932,7 +932,7 @@ namespace MSDataFileReader
                 {
                     if (mCurrentSpectrumInfo is null)
                     {
-                        mCurrentSpectrumInfo = new clsSpectrumInfoMzXML();
+                        mCurrentSpectrumInfo = new SpectrumInfoMzXML();
                     }
                     else
                     {
@@ -1013,7 +1013,7 @@ namespace MSDataFileReader
 
             mBinaryTextReader.MoveToByteOffset(lngByteOffsetStart);
 
-            while (mBinaryTextReader.ReadLine(clsBinaryTextReader.ReadDirectionConstants.Forward))
+            while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirectionConstants.Forward))
             {
                 var strCurrentLine = mBinaryTextReader.CurrentLine;
                 var intMatchIndex = strCurrentLine.IndexOf(PEAKS_END_ELEMENT, StringComparison.Ordinal);

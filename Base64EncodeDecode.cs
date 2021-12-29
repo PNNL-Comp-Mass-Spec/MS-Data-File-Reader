@@ -5,7 +5,7 @@ using System.IO;
 
 namespace MSDataFileReader
 {
-    public class clsBase64EncodeDecode
+    public class Base64EncodeDecode
     {
         // Ignore Spelling: endian
 

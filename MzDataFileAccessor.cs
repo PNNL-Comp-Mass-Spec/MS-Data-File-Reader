@@ -36,15 +36,15 @@ namespace MSDataFileReader
     /// random access to the spectra is possible.  After the indexing is complete, spectra
     /// can be obtained using GetSpectrumByScanNumber or GetSpectrumByIndex
     /// </summary>
-    public class clsMzDataFileAccessor : clsMSDataFileAccessorBaseClass
+    public class MzDataFileAccessor : MsDataFileAccessorBaseClass
     {
-        public clsMzDataFileAccessor()
+        public MzDataFileAccessor()
         {
             InitializeObjectVariables();
             InitializeLocalVariables();
         }
 
-        ~clsMzDataFileAccessor()
+        ~MzDataFileAccessor()
         {
             mXmlFileReader = null;
         }
@@ -65,9 +65,9 @@ namespace MSDataFileReader
 
         // ReSharper restore UnusedMember.Local
 
-        private clsMzDataFileReader mXmlFileReader;
+        private MzDataFileReader mXmlFileReader;
 
-        private clsSpectrumInfoMzData mCurrentSpectrumInfo;
+        private SpectrumInfoMzData mCurrentSpectrumInfo;
 
         private int mInputFileStatsSpectrumIDMinimum;
 
@@ -354,7 +354,7 @@ namespace MSDataFileReader
             return blnMatchFound;
         }
 
-        protected override bool GetSpectrumByIndexWork(int intSpectrumIndex, out clsSpectrumInfo objCurrentSpectrumInfo, bool blnHeaderInfoOnly)
+        protected override bool GetSpectrumByIndexWork(int intSpectrumIndex, out SpectrumInfo objCurrentSpectrumInfo, bool blnHeaderInfoOnly)
         {
             objCurrentSpectrumInfo = null;
 
@@ -365,7 +365,7 @@ namespace MSDataFileReader
                     return false;
                 }
 
-                mXmlFileReader ??= new clsMzDataFileReader
+                mXmlFileReader ??= new MzDataFileReader
                 {
                     ParseFilesWithUnknownVersion = mParseFilesWithUnknownVersion
                 };
@@ -419,7 +419,7 @@ namespace MSDataFileReader
         /// <param name="intSpectrumID"></param>
         /// <param name="objSpectrumInfo"></param>
         /// <returns>True if successful, false if an error or invalid spectrum ID</returns>
-        public bool GetSpectrumBySpectrumID(int intSpectrumID, out clsSpectrumInfo objSpectrumInfo)
+        public bool GetSpectrumBySpectrumID(int intSpectrumID, out SpectrumInfo objSpectrumInfo)
         {
             return GetSpectrumBySpectrumIDWork(intSpectrumID, out objSpectrumInfo, false);
         }
@@ -434,7 +434,7 @@ namespace MSDataFileReader
         /// <param name="objSpectrumInfo"></param>
         /// <param name="blnHeaderInfoOnly"></param>
         /// <returns>True if successful, false if an error or invalid spectrum ID</returns>
-        private bool GetSpectrumBySpectrumIDWork(int intSpectrumID, out clsSpectrumInfo objSpectrumInfo, bool blnHeaderInfoOnly)
+        private bool GetSpectrumBySpectrumIDWork(int intSpectrumID, out SpectrumInfo objSpectrumInfo, bool blnHeaderInfoOnly)
         {
             objSpectrumInfo = null;
 
@@ -495,7 +495,7 @@ namespace MSDataFileReader
             }
         }
 
-        public bool GetSpectrumHeaderInfoBySpectrumID(int intSpectrumID, out clsSpectrumInfo objSpectrumInfo)
+        public bool GetSpectrumHeaderInfoBySpectrumID(int intSpectrumID, out SpectrumInfo objSpectrumInfo)
         {
             return GetSpectrumBySpectrumIDWork(intSpectrumID, out objSpectrumInfo, true);
         }
@@ -668,7 +668,7 @@ namespace MSDataFileReader
                 {
                     if (mCurrentSpectrumInfo is null)
                     {
-                        mCurrentSpectrumInfo = new clsSpectrumInfoMzData();
+                        mCurrentSpectrumInfo = new SpectrumInfoMzData();
                     }
                     else
                     {

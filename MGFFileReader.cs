@@ -15,9 +15,9 @@ namespace MSDataFileReader
     /// <summary>
     /// This class can be used to open a Mascot Generic File (.MGF) and return each spectrum present
     /// </summary>
-    public class clsMGFFileReader : clsMSTextFileReaderBaseClass
+    public class MgfFileReader : MsTextFileReaderBaseClass
     {
-        public clsMGFFileReader()
+        public MgfFileReader()
         {
             InitializeLocalVariables();
         }
@@ -65,7 +65,7 @@ namespace MSDataFileReader
         /// <param name="strData">Single integer or two integers separated by a dash</param>
         /// <param name="spectrumInfo"></param>
         /// <returns>True if the scan number was found, otherwise false</returns>
-        private bool ExtractScanRange(string strData, clsSpectrumInfo spectrumInfo)
+        private bool ExtractScanRange(string strData, SpectrumInfo spectrumInfo)
         {
             var scanNumberFound = false;
             var charIndex = strData.IndexOf('-');
@@ -131,7 +131,7 @@ namespace MSDataFileReader
         /// </summary>
         /// <param name="objSpectrumInfo"></param>
         /// <returns>True if a spectrum is found, otherwise false</returns>
-        public override bool ReadNextSpectrum(out clsSpectrumInfo objSpectrumInfo)
+        public override bool ReadNextSpectrum(out SpectrumInfo objSpectrumInfo)
         {
             var strSepChars = new[] { ' ', '\t' };
 
@@ -141,7 +141,7 @@ namespace MSDataFileReader
             {
                 if (ReadingAndStoringSpectra || mCurrentSpectrum is null)
                 {
-                    mCurrentSpectrum = new clsSpectrumInfoMsMsText();
+                    mCurrentSpectrum = new SpectrumInfoMsMsText();
                 }
                 else
                 {
@@ -163,7 +163,7 @@ namespace MSDataFileReader
 
                 if (mFileReader is null)
                 {
-                    objSpectrumInfo = new clsSpectrumInfoMsMsText();
+                    objSpectrumInfo = new SpectrumInfoMsMsText();
                     mErrorMessage = "Data file not currently open";
                 }
                 else
@@ -348,7 +348,7 @@ namespace MSDataFileReader
                                                         // Typically, strSplitLine(1) will contain "and"
                                                         if (IsNumber(strSplitLine[intIndex].Trim()))
                                                         {
-                                                            if (mCurrentSpectrum.ParentIonChargeCount < clsSpectrumInfoMsMsText.MAX_CHARGE_COUNT)
+                                                            if (mCurrentSpectrum.ParentIonChargeCount < SpectrumInfoMsMsText.MAX_CHARGE_COUNT)
                                                             {
                                                                 mCurrentSpectrum.ParentIonCharges[mCurrentSpectrum.ParentIonChargeCount] =
                                                                     int.Parse(strSplitLine[intIndex].Trim());
@@ -521,7 +521,7 @@ namespace MSDataFileReader
             catch (Exception ex)
             {
                 OnErrorEvent("Error in ReadNextSpectrum", ex);
-                objSpectrumInfo = new clsSpectrumInfoMsMsText();
+                objSpectrumInfo = new SpectrumInfoMsMsText();
             }
 
             return blnSpectrumFound;

@@ -15,11 +15,11 @@ namespace MSDataFileReader
     /// <summary>
     /// This class uses a SAX Parser to read an mzData file
     /// </summary>
-    public class clsMzDataFileReader : clsMSXMLFileReaderBaseClass
+    public class MzDataFileReader : MsXMLFileReaderBaseClass
     {
         // Ignore Spelling: deisotoping, endian, xmlns, xsi
 
-        public clsMzDataFileReader()
+        public MzDataFileReader()
         {
             InitializeLocalVariables();
         }
@@ -224,7 +224,7 @@ namespace MSDataFileReader
 
         private eCurrentMZDataFileSectionConstants mCurrentXMLDataFileSection;
 
-        private clsSpectrumInfoMzData mCurrentSpectrum;
+        private SpectrumInfoMzData mCurrentSpectrum;
 
         private int mAcquisitionElementCount;
 
@@ -254,7 +254,7 @@ namespace MSDataFileReader
 
                 while (objEnumerator.MoveNext())
                 {
-                    var objSpectrum = (clsSpectrumInfoMzData)objEnumerator.Current;
+                    var objSpectrum = (SpectrumInfoMzData)objEnumerator.Current;
 
                     if (objSpectrum == null)
                         continue;
@@ -270,7 +270,7 @@ namespace MSDataFileReader
             return sngIntensityMatch;
         }
 
-        protected override clsSpectrumInfo GetCurrentSpectrum()
+        protected override SpectrumInfo GetCurrentSpectrum()
         {
             return mCurrentSpectrum;
         }
@@ -312,7 +312,7 @@ namespace MSDataFileReader
 
             if (ReadingAndStoringSpectra || mCurrentSpectrum is null)
             {
-                mCurrentSpectrum = new clsSpectrumInfoMzData();
+                mCurrentSpectrum = new SpectrumInfoMzData();
             }
             else
             {
@@ -369,7 +369,7 @@ namespace MSDataFileReader
                 switch (NumericPrecisionOfData)
                 {
                     case 32:
-                        if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
+                        if (Base64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
                         {
                             sngValues = new float[sngDataArray.Length];
                             sngDataArray.CopyTo(sngValues, 0);
@@ -379,7 +379,7 @@ namespace MSDataFileReader
                         break;
 
                     case 64:
-                        if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
+                        if (Base64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
                         {
                             sngValues = new float[dblDataArray.Length];
                             var intIndexEnd = dblDataArray.Length - 1;
@@ -452,7 +452,7 @@ namespace MSDataFileReader
                 switch (NumericPrecisionOfData)
                 {
                     case 32:
-                        if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
+                        if (Base64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
                         {
                             dblValues = new double[sngDataArray.Length];
                             sngDataArray.CopyTo(dblValues, 0);
@@ -462,7 +462,7 @@ namespace MSDataFileReader
                         break;
 
                     case 64:
-                        if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
+                        if (Base64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
                         {
                             dblValues = new double[dblDataArray.Length];
                             dblDataArray.CopyTo(dblValues, 0);
@@ -752,7 +752,7 @@ namespace MSDataFileReader
                     if (GetParentElement().Equals(ScanSectionNames.spectrumSettings))
                     {
                         mCurrentSpectrum.SpectrumType = GetAttribValue(AcqSpecificationAttributeNames.spectrumType,
-                            clsSpectrumInfo.SpectrumTypeNames.discrete);
+                            SpectrumInfo.SpectrumTypeNames.discrete);
 
                         mCurrentSpectrum.SpectrumCombinationMethod =
                             GetAttribValue(AcqSpecificationAttributeNames.methodOfCombination, string.Empty);
@@ -839,7 +839,7 @@ namespace MSDataFileReader
                     {
                         case eCurrentMZDataFileSectionConstants.SpectrumDataArrayMZ:
                             mCurrentSpectrum.NumericPrecisionOfDataMZ = GetAttribValue(BinaryDataAttributeNames.precision, 32);
-                            mCurrentSpectrum.PeaksEndianModeMZ = GetAttribValue(BinaryDataAttributeNames.endian, clsSpectrumInfoMzData.EndianModes.littleEndian);
+                            mCurrentSpectrum.PeaksEndianModeMZ = GetAttribValue(BinaryDataAttributeNames.endian, SpectrumInfoMzData.EndianModes.littleEndian);
 
                             mCurrentSpectrum.DataCount = GetAttribValue(BinaryDataAttributeNames.length, 0);
 
@@ -847,7 +847,7 @@ namespace MSDataFileReader
 
                         case eCurrentMZDataFileSectionConstants.SpectrumDataArrayIntensity:
                             mCurrentSpectrum.NumericPrecisionOfDataIntensity = GetAttribValue(BinaryDataAttributeNames.precision, 32);
-                            mCurrentSpectrum.PeaksEndianModeIntensity = GetAttribValue(BinaryDataAttributeNames.endian, clsSpectrumInfoMzData.EndianModes.littleEndian);
+                            mCurrentSpectrum.PeaksEndianModeIntensity = GetAttribValue(BinaryDataAttributeNames.endian, SpectrumInfoMzData.EndianModes.littleEndian);
 
                             // Only update .DataCount if it is currently 0
                             if (mCurrentSpectrum.DataCount == 0)

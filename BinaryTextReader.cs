@@ -48,11 +48,11 @@ namespace MSDataFileReader
     /// If FileSystemMode = FileSystemModeConstants.Macintosh, the Line Terminator = CR, previous character is not considered
     /// </para>
     /// </remarks>
-    public class clsBinaryTextReader : EventNotifier
+    public class BinaryTextReader : EventNotifier
     {
         // Ignore Spelling: endian
 
-        public clsBinaryTextReader()
+        public BinaryTextReader()
         {
             // Note: Setting this property's value will also update mLineTerminator1Code and mLineTerminator2Code
             FileSystemMode = FileSystemModeConstants.Windows;
@@ -60,7 +60,7 @@ namespace MSDataFileReader
             InitializeLocalVariables();
         }
 
-        ~clsBinaryTextReader()
+        ~BinaryTextReader()
         {
             Close();
         }

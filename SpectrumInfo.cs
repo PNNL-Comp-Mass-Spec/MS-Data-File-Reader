@@ -14,11 +14,11 @@ namespace MSDataFileReader
     /// This class holds the values associated with each spectrum in an MS Data file
     /// </summary>
     [Serializable]
-    public class clsSpectrumInfo : ICloneable
+    public class SpectrumInfo : ICloneable
     {
         // Ignore Spelling: centroided
 
-        public clsSpectrumInfo()
+        public SpectrumInfo()
         {
             AutoShrinkDataLists = true;
 
@@ -368,10 +368,10 @@ namespace MSDataFileReader
         /// Clone() methods in the derived SpectrumInfo classes hide this method using new
         /// </remarks>
         /// <returns>Deep copy of this spectrum</returns>
-        public clsSpectrumInfo Clone()
+        public SpectrumInfo Clone()
         {
             // First create a shallow copy of this object
-            var objTarget = (clsSpectrumInfo)MemberwiseClone();
+            var objTarget = (SpectrumInfo)MemberwiseClone();
 
             // Next, manually copy the array objects and any other objects
             // Note: Since Clone() methods in the derived classes hide this method,
@@ -399,7 +399,7 @@ namespace MSDataFileReader
             return objTarget;
         }
 
-        public virtual void CopyTo(out clsSpectrumInfo objTarget)
+        public virtual void CopyTo(out SpectrumInfo objTarget)
         {
             objTarget = Clone();
         }
