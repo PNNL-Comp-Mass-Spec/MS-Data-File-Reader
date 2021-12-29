@@ -186,7 +186,7 @@ namespace MSDataFileReader
 
                         mInFileLineNumber++;
 
-                        if (lineIn != null && lineIn.Trim().Length > 0)
+                        if (lineIn?.Trim().Length > 0)
                         {
                             AddNewRecentFileText(lineIn);
                             lineIn = lineIn.Trim();
