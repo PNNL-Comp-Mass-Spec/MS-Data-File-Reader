@@ -140,20 +140,7 @@ namespace MSDataFileReader
             set => mAutoShrinkDataLists = value;
         }
 
-        public virtual int CachedSpectrumCount
-        {
-            get
-            {
-                if (mDataReaderMode == drmDataReaderModeConstants.Cached)
-                {
-                    return mCachedSpectrumCount;
-                }
-                else
-                {
-                    return 0;
-                }
-            }
-        }
+        public virtual int CachedSpectrumCount => mDataReaderMode == drmDataReaderModeConstants.Cached ? mCachedSpectrumCount : 0;
 
         public int CachedSpectraScanNumberMinimum => mInputFileStats.ScanNumberMinimum;
 
