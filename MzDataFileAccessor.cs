@@ -120,10 +120,7 @@ namespace MSDataFileReader
 
             try
             {
-                if (mInFileCurrentLineText is null)
-                {
-                    mInFileCurrentLineText = string.Empty;
-                }
+                mInFileCurrentLineText ??= string.Empty;
 
                 var strInFileCurrentLineSubstring = string.Empty;
                 var blnAppendingText = false;
@@ -365,10 +362,10 @@ namespace MSDataFileReader
                     return false;
                 }
 
-                if (mXmlFileReader is null)
+                mXmlFileReader ??= new clsMzDataFileReader
                 {
-                    mXmlFileReader = new clsMzDataFileReader() { ParseFilesWithUnknownVersion = mParseFilesWithUnknownVersion };
-                }
+                    ParseFilesWithUnknownVersion = mParseFilesWithUnknownVersion
+                };
 
                 if (mIndexedSpectrumInfoCount == 0)
                 {

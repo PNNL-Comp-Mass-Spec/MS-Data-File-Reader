@@ -155,7 +155,7 @@ namespace MSDataFileReader
         {
             try
             {
-                if (mBinaryReader != null && mBinaryReader.CanRead)
+                if (mBinaryReader is { CanRead: true })
                 {
                     mBinaryReader.Seek(lngStartByteOffset, SeekOrigin.Begin);
                     var intBytesToRead = (int)(lngEndByteOffset - lngStartByteOffset + 1L);

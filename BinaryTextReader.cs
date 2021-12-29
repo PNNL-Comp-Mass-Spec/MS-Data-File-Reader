@@ -376,8 +376,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                if (mInputFilePath is null)
-                    mInputFilePath = string.Empty;
+                mInputFilePath ??= string.Empty;
                 OnErrorEvent(string.Format("Error moving to byte offset {0} in file {1}", lngByteOffset, mInputFilePath), ex);
             }
         }
@@ -481,8 +480,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                if (mInputFilePath is null)
-                    mInputFilePath = string.Empty;
+                mInputFilePath ??= string.Empty;
                 OnErrorEvent("Error moving to beginning of file " + mInputFilePath, ex);
             }
         }
@@ -498,8 +496,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                if (mInputFilePath is null)
-                    mInputFilePath = string.Empty;
+                mInputFilePath ??= string.Empty;
                 OnErrorEvent("Error moving to end of file " + mInputFilePath, ex);
             }
         }
