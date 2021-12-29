@@ -771,14 +771,7 @@ namespace MSDataFileReader
 
                                     if (!string.IsNullOrEmpty(value))
                                     {
-                                        if (value == "scan")
-                                        {
-                                            parseIndexValues = true;
-                                        }
-                                        else
-                                        {
-                                            parseIndexValues = false;
-                                        }
+                                        parseIndexValues = value == "scan";
                                     }
                                 }
                             }

@@ -116,25 +116,21 @@ namespace MSDataFileReader
         /// <returns>Updated comment</returns>
         protected string CleanupComment(string commentIn, char commentChar, bool removeQuoteMarks)
         {
-            if (commentIn is null)
+            if (string.IsNullOrWhiteSpace(commentIn))
             {
-                commentIn = string.Empty;
-            }
-            else
-            {
-                commentIn = commentIn.TrimStart(commentChar).Trim();
-                commentIn = commentIn.TrimEnd(commentChar).Trim();
-
-                if (removeQuoteMarks)
-                {
-                    commentIn = commentIn.TrimStart('"');
-                    commentIn = commentIn.TrimEnd('"');
-                }
-
-                commentIn = commentIn.Trim();
+                return string.Empty;
             }
 
-            return commentIn;
+            commentIn = commentIn.TrimStart(commentChar).Trim();
+            commentIn = commentIn.TrimEnd(commentChar).Trim();
+
+            if (removeQuoteMarks)
+            {
+                commentIn = commentIn.TrimStart('"');
+                commentIn = commentIn.TrimEnd('"');
+            }
+
+            return commentIn.Trim();
         }
 
         protected void AddNewRecentFileText(string newText, bool newSpectrum = false, bool addCrLfIfNeeded = true)
