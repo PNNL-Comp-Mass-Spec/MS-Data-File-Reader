@@ -980,7 +980,7 @@ namespace MSDataFileReader
                                 mCurrentLineByteOffsetStartSaved >= 0L &&
                                 mCurrentLineByteOffsetStart == mCurrentLineByteOffsetStartSaved &&
                                 mCurrentLineTextSaved != null &&
-                                (mCurrentLineText ?? "") == (mCurrentLineTextSaved ?? ""))
+                                mCurrentLineText.Equals(mCurrentLineTextSaved))
                             {
                                 // Recursively call this method to read the next line
                                 // To avoid infinite loops, set mCurrentLineByteOffsetStartSaved to -1

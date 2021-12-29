@@ -346,7 +346,7 @@ namespace MSDataFileReader
                             mCurrentSpectrum.MZList = new double[(int)Math.Round(sngDataArray.Length / 2d)];
                             mCurrentSpectrum.IntensityList = new float[(int)Math.Round(sngDataArray.Length / 2d)];
 
-                            if ((mCurrentSpectrum.PeaksPairOrder ?? "") == clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ)
+                            if (mCurrentSpectrum.PeaksPairOrder.Equals(clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ))
                             {
                                 var intIndexEnd = sngDataArray.Length - 1;
 
@@ -382,7 +382,7 @@ namespace MSDataFileReader
                             mCurrentSpectrum.MZList = new double[(int)Math.Round(dblDataArray.Length / 2d)];
                             mCurrentSpectrum.IntensityList = new float[(int)Math.Round(dblDataArray.Length / 2d)];
 
-                            if ((mCurrentSpectrum.PeaksPairOrder ?? "") == clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ)
+                            if (mCurrentSpectrum.PeaksPairOrder.Equals(clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ))
                             {
                                 var intIndexEnd = dblDataArray.Length - 1;
 
@@ -476,7 +476,7 @@ namespace MSDataFileReader
                 {
                     // Check the last element name sent to startElement to determine
                     // what to do with the data we just received
-                    switch (mCurrentElement ?? "")
+                    switch (mCurrentElement)
                     {
                         case ScanSectionNames.precursorMz:
                             try
@@ -703,7 +703,7 @@ namespace MSDataFileReader
                     break;
 
                 case HeaderSectionNames.msInstrument:
-                    if ((GetParentElement() ?? "") == XMLSectionNames.msRun)
+                    if (GetParentElement().Equals(XMLSectionNames.msRun))
                     {
                         mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.msInstrument;
                     }
@@ -740,7 +740,7 @@ namespace MSDataFileReader
                     break;
 
                 case HeaderSectionNames.dataProcessing:
-                    if ((GetParentElement() ?? "") == XMLSectionNames.msRun)
+                    if (GetParentElement().Equals(XMLSectionNames.msRun))
                     {
                         mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.dataProcessing;
                         mInputFileStatsAddnl.IsCentroid = GetAttribValue(DataProcessingAttributeNames.centroided, false);

@@ -185,7 +185,7 @@ namespace MSDataFileReader
 
         public clsBase64EncodeDecode.eEndianTypeConstants GetEndianModeValue(string strEndianModeText)
         {
-            switch (strEndianModeText ?? "")
+            switch (strEndianModeText)
             {
                 case EndianModes.bigEndian:
                     return clsBase64EncodeDecode.eEndianTypeConstants.BigEndian;
