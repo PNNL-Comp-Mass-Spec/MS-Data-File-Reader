@@ -725,8 +725,8 @@ namespace MSDataFileReader
                             if ((mInputFileStatsAddnl.EndTimeMin - mInputFileStatsAddnl.StartTimeMin) / mInputFileStats.ScanCount * 60f < 0.1d)
                             {
                                 // Less than 0.1 sec/scan; this is unlikely
-                                mInputFileStatsAddnl.StartTimeMin = mInputFileStatsAddnl.StartTimeMin * 60f;
-                                mInputFileStatsAddnl.EndTimeMin = mInputFileStatsAddnl.EndTimeMin * 60f;
+                                mInputFileStatsAddnl.StartTimeMin *= 60f;
+                                mInputFileStatsAddnl.EndTimeMin *= 60f;
                             }
                         }
                     }
