@@ -182,7 +182,7 @@ namespace MSDataFileReader
                 {
                     return mBinaryReader?.Length ?? 0L;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return 0L;
                 }
@@ -246,7 +246,7 @@ namespace MSDataFileReader
             {
                 mBinaryReader?.Close();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Ignore errors here
             }

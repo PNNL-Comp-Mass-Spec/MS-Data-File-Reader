@@ -510,7 +510,7 @@ namespace MSDataFileReader
                     }
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 intensityMatch = intensityIfNotFound;
             }

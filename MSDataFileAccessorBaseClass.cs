@@ -53,7 +53,7 @@ namespace MSDataFileReader
             {
                 CloseFile();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Ignore errors here
             }
@@ -198,7 +198,7 @@ namespace MSDataFileReader
 
                 return "Line " + mBinaryTextReader.LineNumber + ", Byte Offset " + mBinaryTextReader.CurrentLineByteOffsetStart;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Ignore errors here
                 return string.Empty;

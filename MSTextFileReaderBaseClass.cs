@@ -34,7 +34,7 @@ namespace MSDataFileReader
             {
                 mFileReader?.Close();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Ignore errors here
             }
@@ -161,7 +161,7 @@ namespace MSDataFileReader
                 mInFileLineNumber = 0;
                 mInputFilePath = string.Empty;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Ignore errors here
             }

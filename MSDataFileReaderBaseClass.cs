@@ -204,7 +204,7 @@ namespace MSDataFileReader
 
                 return defaultValue;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return defaultValue;
             }
@@ -216,7 +216,7 @@ namespace MSDataFileReader
             {
                 return double.Parse(value);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return defaultValue;
             }
@@ -228,7 +228,7 @@ namespace MSDataFileReader
             {
                 return int.Parse(value);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return defaultValue;
             }
@@ -240,7 +240,7 @@ namespace MSDataFileReader
             {
                 return float.Parse(value);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return defaultValue;
             }
@@ -387,7 +387,7 @@ namespace MSDataFileReader
                         break;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 knownType = false;
             }
@@ -622,7 +622,7 @@ namespace MSDataFileReader
             {
                 return double.TryParse(value, out _);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return false;
             }

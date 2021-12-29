@@ -286,7 +286,7 @@ namespace MSDataFileReader
                     return true;
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Ignore errors here
             }

@@ -1046,7 +1046,7 @@ namespace MSDataFileReader
                         {
                             headerText = headerText.Substring(0, match.Groups[1].Index) + scanCountTotal + headerText.Substring(match.Groups[1].Index + match.Groups[1].Length);
                         }
-                        catch (Exception ex)
+                        catch (Exception)
                         {
                             // Ignore errors here
                         }

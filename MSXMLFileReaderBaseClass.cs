@@ -35,7 +35,7 @@ namespace MSDataFileReader
             {
                 mDataFileOrTextStream?.Close();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Ignore errors here
             }
@@ -44,7 +44,7 @@ namespace MSDataFileReader
             {
                 mXMLReader?.Close();
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Ignore errors here
             }
@@ -285,7 +285,7 @@ namespace MSDataFileReader
             {
                 timeSpan = System.Runtime.Remoting.Metadata.W3cXsd2001.SoapDuration.Parse(time);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 timeSpan = defaultTimeSpan;
             }
@@ -300,7 +300,7 @@ namespace MSDataFileReader
                 var timeSpan = ConvertTimeFromXmlDurationToTimespan(GetAttribValue(attributeName, "PT0S"), new TimeSpan(0L));
                 return (float)timeSpan.TotalMinutes;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return 0f;
             }
@@ -317,7 +317,7 @@ namespace MSDataFileReader
 
                 return defaultValue;
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return defaultValue;
             }
@@ -329,7 +329,7 @@ namespace MSDataFileReader
             {
                 return int.Parse(GetAttribValue(attributeName, defaultValue.ToString()));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return defaultValue;
             }
@@ -341,7 +341,7 @@ namespace MSDataFileReader
             {
                 return float.Parse(GetAttribValue(attributeName, defaultValue.ToString(CultureInfo.InvariantCulture)));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return defaultValue;
             }
@@ -353,7 +353,7 @@ namespace MSDataFileReader
             {
                 return CBoolSafe(GetAttribValue(attributeName, defaultValue.ToString()), defaultValue);
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return defaultValue;
             }
@@ -365,7 +365,7 @@ namespace MSDataFileReader
             {
                 return double.Parse(GetAttribValue(attributeName, defaultValue.ToString(CultureInfo.InvariantCulture)));
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 return defaultValue;
             }
@@ -394,7 +394,7 @@ namespace MSDataFileReader
                     var elementInfo = (ElementInfoType)mParentElementStack.ToArray()[mParentElementStack.Count - elementDepth + 1];
                     return elementInfo.Name;
                 }
-                catch (Exception ex)
+                catch (Exception)
                 {
                     return string.Empty;
                 }
@@ -677,7 +677,7 @@ namespace MSDataFileReader
                     mXMLReader.Read();
                 }
             }
-            catch (Exception ex)
+            catch (Exception)
             {
                 // Ignore Errors Here
             }
