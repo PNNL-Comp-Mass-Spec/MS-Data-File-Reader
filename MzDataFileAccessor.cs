@@ -263,48 +263,62 @@ namespace MSDataFileReader
                             // Match Found
                             blnMatchFound = true;
                             intCharIndex = objMatch.Index + 1 + mInFileCurrentCharIndex;
-                            if (eElementMatchMode == emmElementMatchModeConstants.StartElement)
+
+                            switch (eElementMatchMode)
                             {
-                                // Look for the id value after <spectrum
-                                objMatch = mSpectrumIDRegEx.Match(strInFileCurrentLineSubstring);
-                                if (objMatch.Success)
+                                case emmElementMatchModeConstants.StartElement:
                                 {
-                                    if (objMatch.Groups.Count > 1)
+                                    // Look for the id value after <spectrum
+                                    objMatch = mSpectrumIDRegEx.Match(strInFileCurrentLineSubstring);
+
+                                    if (objMatch.Success)
                                     {
-                                        try
+                                        if (objMatch.Groups.Count > 1)
                                         {
-                                            mCurrentSpectrumInfo.SpectrumID = int.Parse(objMatch.Groups[1].Captures[0].Value);
-                                        }
-                                        catch (Exception ex)
-                                        {
+                                            try
+                                            {
+                                                mCurrentSpectrumInfo.SpectrumID = int.Parse(objMatch.Groups[1].Captures[0].Value);
+                                            }
+                                            catch (Exception ex)
+                                            {
+                                            }
                                         }
                                     }
-                                }
-                                // Could not find the id attribute
-                                // If strInFileCurrentLineSubstring does not contain SPECTRUM_END_ELEMENT,
-                                // set blnAppendingText to True and continue reading
-                                else if (strInFileCurrentLineSubstring.IndexOf(SPECTRUM_END_ELEMENT, StringComparison.Ordinal) < 0)
-                                {
-                                    blnMatchFound = false;
-                                    if (!blnAppendingText)
+
+                                    // Could not find the id attribute
+                                    // If strInFileCurrentLineSubstring does not contain SPECTRUM_END_ELEMENT,
+                                    // set blnAppendingText to True and continue reading
+                                    else if (strInFileCurrentLineSubstring.IndexOf(SPECTRUM_END_ELEMENT, StringComparison.Ordinal) < 0)
                                     {
-                                        blnAppendingText = true;
-                                        // Record the byte offset of the start of the current line
-                                        // We will use this offset to "rewind" the file pointer once the id attribute is found
-                                        lngByteOffsetForRewind = mBinaryTextReader.CurrentLineByteOffsetStart;
+                                        blnMatchFound = false;
+                                        if (!blnAppendingText)
+                                        {
+                                            blnAppendingText = true;
+                                            // Record the byte offset of the start of the current line
+                                            // We will use this offset to "rewind" the file pointer once the id attribute is found
+                                            lngByteOffsetForRewind = mBinaryTextReader.CurrentLineByteOffsetStart;
+                                        }
                                     }
+
+                                    break;
                                 }
-                            }
-                            else if (eElementMatchMode == emmElementMatchModeConstants.EndElement)
-                            {
-                                // Move to the end of the element
-                                intCharIndex += objMatch.Value.Length - 1;
-                                if (intCharIndex >= mInFileCurrentLineText.Length)
+
+                                case emmElementMatchModeConstants.EndElement:
                                 {
-                                    // This shouldn't happen
-                                    OnErrorEvent("Unexpected condition in AdvanceFileReaders: intCharIndex >= mInFileCurrentLineText.Length");
-                                    intCharIndex = mInFileCurrentLineText.Length - 1;
+                                    // Move to the end of the element
+                                    intCharIndex += objMatch.Value.Length - 1;
+                                    if (intCharIndex >= mInFileCurrentLineText.Length)
+                                    {
+                                        // This shouldn't happen
+                                        OnErrorEvent("Unexpected condition in AdvanceFileReaders: intCharIndex >= mInFileCurrentLineText.Length");
+                                        intCharIndex = mInFileCurrentLineText.Length - 1;
+                                    }
+
+                                    break;
                                 }
+
+                                default:
+                                    throw new ArgumentOutOfRangeException(nameof(eElementMatchMode), eElementMatchMode, null);
                             }
 
                             mInFileCurrentCharIndex = intCharIndex;
