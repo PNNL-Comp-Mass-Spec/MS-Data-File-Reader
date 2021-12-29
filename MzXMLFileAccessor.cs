@@ -242,7 +242,6 @@ namespace MSDataFileReader
                             switch (eElementMatchMode)
                             {
                                 case emmElementMatchModeConstants.StartElement:
-                                {
                                     // Look for the scan number after <scan
                                     objMatch = mScanNumberRegEx.Match(strInFileCurrentLineSubstring);
 
@@ -278,10 +277,8 @@ namespace MSDataFileReader
                                     }
 
                                     break;
-                                }
 
                                 case emmElementMatchModeConstants.EndElement:
-                                {
                                     // Move to the end of the element
                                     intCharIndex += objMatch.Value.Length - 1;
 
@@ -293,7 +290,6 @@ namespace MSDataFileReader
                                     }
 
                                     break;
-                                }
 
                                 default:
                                     throw new ArgumentOutOfRangeException(nameof(eElementMatchMode), eElementMatchMode, null);

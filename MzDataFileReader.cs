@@ -611,124 +611,98 @@ namespace MSDataFileReader
                     switch (mCurrentXMLDataFileSection)
                     {
                         case eCurrentMZDataFileSectionConstants.DataProcessingMethod:
+                            if (GetCVNameAndValue(out strCVName, out strValue))
                             {
-                                if (GetCVNameAndValue(out strCVName, out strValue))
+                                switch (strCVName)
                                 {
-                                    switch (strCVName)
-                                    {
-                                        case ProcessingMethodCVParamNames.Deisotoping:
-                                            {
-                                                mInputFileStatsAddnl.IsDeisotoped = CBoolSafe(strValue, false);
-                                                break;
-                                            }
+                                    case ProcessingMethodCVParamNames.Deisotoping:
+                                        mInputFileStatsAddnl.IsDeisotoped = CBoolSafe(strValue, false);
+                                        break;
 
-                                        case ProcessingMethodCVParamNames.ChargeDeconvolution:
-                                            {
-                                                mInputFileStatsAddnl.HasChargeDeconvolution = CBoolSafe(strValue, false);
-                                                break;
-                                            }
+                                    case ProcessingMethodCVParamNames.ChargeDeconvolution:
+                                        mInputFileStatsAddnl.HasChargeDeconvolution = CBoolSafe(strValue, false);
+                                        break;
 
-                                        case ProcessingMethodCVParamNames.PeakProcessing:
-                                            {
-                                                mInputFileStatsAddnl.PeakProcessing = strValue;
+                                    case ProcessingMethodCVParamNames.PeakProcessing:
+                                        mInputFileStatsAddnl.PeakProcessing = strValue;
 
-                                                if (strValue.ToLower().IndexOf("centroid", StringComparison.Ordinal) >= 0)
-                                                {
-                                                    mInputFileStatsAddnl.IsCentroid = true;
-                                                }
-                                                else
-                                                {
-                                                    mInputFileStatsAddnl.IsCentroid = false;
-                                                }
+                                        if (strValue.ToLower().IndexOf("centroid", StringComparison.Ordinal) >= 0)
+                                        {
+                                            mInputFileStatsAddnl.IsCentroid = true;
+                                        }
+                                        else
+                                        {
+                                            mInputFileStatsAddnl.IsCentroid = false;
+                                        }
 
-                                                break;
-                                            }
-                                    }
+                                        break;
                                 }
-
-                                break;
                             }
+
+                            break;
 
                         case eCurrentMZDataFileSectionConstants.SpectrumInstrument:
+                            if (GetCVNameAndValue(out strCVName, out strValue))
                             {
-                                if (GetCVNameAndValue(out strCVName, out strValue))
+                                switch (strCVName)
                                 {
-                                    switch (strCVName)
-                                    {
-                                        case SpectrumInstrumentCVParamNames.ScanMode:
-                                            {
-                                                mCurrentSpectrum.ScanMode = strValue;
-                                                break;
-                                            }
+                                    case SpectrumInstrumentCVParamNames.ScanMode:
+                                        mCurrentSpectrum.ScanMode = strValue;
+                                        break;
 
-                                        case SpectrumInstrumentCVParamNames.Polarity:
-                                            {
-                                                mCurrentSpectrum.Polarity = strValue;
-                                                break;
-                                            }
+                                    case SpectrumInstrumentCVParamNames.Polarity:
+                                        mCurrentSpectrum.Polarity = strValue;
+                                        break;
 
-                                        case SpectrumInstrumentCVParamNames.TimeInMinutes:
-                                            {
-                                                mCurrentSpectrum.RetentionTimeMin = CSngSafe(strValue, 0f);
-                                                break;
-                                            }
-                                    }
+                                    case SpectrumInstrumentCVParamNames.TimeInMinutes:
+                                        mCurrentSpectrum.RetentionTimeMin = CSngSafe(strValue, 0f);
+                                        break;
                                 }
-
-                                break;
                             }
+
+                            break;
 
                         case eCurrentMZDataFileSectionConstants.PrecursorIonSelection:
+                            if (GetCVNameAndValue(out strCVName, out strValue))
                             {
-                                if (GetCVNameAndValue(out strCVName, out strValue))
+                                switch (strCVName)
                                 {
-                                    switch (strCVName)
-                                    {
-                                        case PrecursorIonSelectionCVParamNames.MassToChargeRatio:
-                                            mCurrentSpectrum.ParentIonMZ = CDblSafe(strValue, 0d);
-                                            mCurrentSpectrum.ParentIonIntensity =
-                                                FindIonIntensityInRecentSpectra(mCurrentSpectrum.ParentIonSpectrumID,
-                                                    mCurrentSpectrum.ParentIonMZ);
+                                    case PrecursorIonSelectionCVParamNames.MassToChargeRatio:
+                                        mCurrentSpectrum.ParentIonMZ = CDblSafe(strValue, 0d);
+                                        mCurrentSpectrum.ParentIonIntensity =
+                                            FindIonIntensityInRecentSpectra(mCurrentSpectrum.ParentIonSpectrumID,
+                                                mCurrentSpectrum.ParentIonMZ);
 
-                                            break;
+                                        break;
 
-                                        case PrecursorIonSelectionCVParamNames.ChargeState:
-                                            mCurrentSpectrum.ParentIonCharge = CIntSafe(strValue, 0);
-                                            break;
-                                    }
+                                    case PrecursorIonSelectionCVParamNames.ChargeState:
+                                        mCurrentSpectrum.ParentIonCharge = CIntSafe(strValue, 0);
+                                        break;
                                 }
-
-                                break;
                             }
+
+                            break;
 
                         case eCurrentMZDataFileSectionConstants.PrecursorActivation:
+                            if (GetCVNameAndValue(out strCVName, out strValue))
                             {
-                                if (GetCVNameAndValue(out strCVName, out strValue))
+                                switch (strCVName)
                                 {
-                                    switch (strCVName)
-                                    {
-                                        case PrecursorActivationCVParamNames.Method:
-                                            {
-                                                mCurrentSpectrum.CollisionMethod = strValue;
-                                                break;
-                                            }
+                                    case PrecursorActivationCVParamNames.Method:
+                                        mCurrentSpectrum.CollisionMethod = strValue;
+                                        break;
 
-                                        case PrecursorActivationCVParamNames.CollisionEnergy:
-                                            {
-                                                mCurrentSpectrum.CollisionEnergy = CSngSafe(strValue, 0f);
-                                                break;
-                                            }
+                                    case PrecursorActivationCVParamNames.CollisionEnergy:
+                                        mCurrentSpectrum.CollisionEnergy = CSngSafe(strValue, 0f);
+                                        break;
 
-                                        case PrecursorActivationCVParamNames.EnergyUnits:
-                                            {
-                                                mCurrentSpectrum.CollisionEnergyUnits = strValue;
-                                                break;
-                                            }
-                                    }
+                                    case PrecursorActivationCVParamNames.EnergyUnits:
+                                        mCurrentSpectrum.CollisionEnergyUnits = strValue;
+                                        break;
                                 }
-
-                                break;
                             }
+
+                            break;
                     }
 
                     break;
@@ -864,27 +838,24 @@ namespace MSDataFileReader
                     switch (mCurrentXMLDataFileSection)
                     {
                         case eCurrentMZDataFileSectionConstants.SpectrumDataArrayMZ:
-                            {
-                                mCurrentSpectrum.NumericPrecisionOfDataMZ = GetAttribValue(BinaryDataAttributeNames.precision, 32);
-                                mCurrentSpectrum.PeaksEndianModeMZ = GetAttribValue(BinaryDataAttributeNames.endian, clsSpectrumInfoMzData.EndianModes.littleEndian);
-                                mCurrentSpectrum.DataCount = GetAttribValue(BinaryDataAttributeNames.length, 0);
+                            mCurrentSpectrum.NumericPrecisionOfDataMZ = GetAttribValue(BinaryDataAttributeNames.precision, 32);
+                            mCurrentSpectrum.PeaksEndianModeMZ = GetAttribValue(BinaryDataAttributeNames.endian, clsSpectrumInfoMzData.EndianModes.littleEndian);
 
-                                break;
-                            }
+                            mCurrentSpectrum.DataCount = GetAttribValue(BinaryDataAttributeNames.length, 0);
+
+                            break;
 
                         case eCurrentMZDataFileSectionConstants.SpectrumDataArrayIntensity:
+                            mCurrentSpectrum.NumericPrecisionOfDataIntensity = GetAttribValue(BinaryDataAttributeNames.precision, 32);
+                            mCurrentSpectrum.PeaksEndianModeIntensity = GetAttribValue(BinaryDataAttributeNames.endian, clsSpectrumInfoMzData.EndianModes.littleEndian);
+
+                            // Only update .DataCount if it is currently 0
+                            if (mCurrentSpectrum.DataCount == 0)
                             {
-                                mCurrentSpectrum.NumericPrecisionOfDataIntensity = GetAttribValue(BinaryDataAttributeNames.precision, 32);
-                                mCurrentSpectrum.PeaksEndianModeIntensity = GetAttribValue(BinaryDataAttributeNames.endian, clsSpectrumInfoMzData.EndianModes.littleEndian);
-
-                                // Only update .DataCount if it is currently 0
-                                if (mCurrentSpectrum.DataCount == 0)
-                                {
-                                    mCurrentSpectrum.DataCount = GetAttribValue(BinaryDataAttributeNames.length, 0);
-                                }
-
-                                break;
+                                mCurrentSpectrum.DataCount = GetAttribValue(BinaryDataAttributeNames.length, 0);
                             }
+
+                            break;
                     }
 
                     break;
