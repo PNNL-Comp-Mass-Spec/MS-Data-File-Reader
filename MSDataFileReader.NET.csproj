@@ -127,6 +127,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="GlobalSuppressions.cs" />
+    <Compile Include="IndexedSpectrumInfo.cs" />
     <Compile Include="MGFFileReader.cs">
       <SubType>Code</SubType>
     </Compile>

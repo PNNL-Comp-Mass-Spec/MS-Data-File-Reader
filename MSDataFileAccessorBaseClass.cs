@@ -65,28 +65,6 @@ namespace MSDataFileReader
             EndElement = 1
         }
 
-        protected struct IndexedSpectrumInfoType
-        {
-            public int ScanNumber;
-
-            /// <summary>
-            /// Spectrum ID
-            /// </summary>
-            /// <remarks>
-            /// Only used by mzData files
-            /// </remarks>
-            public int SpectrumID;
-
-            public long ByteOffsetStart;
-
-            public long ByteOffsetEnd;
-
-            public override string ToString()
-            {
-                return "Scan " + ScanNumber + ", bytes " + ByteOffsetStart + " to " + ByteOffsetEnd;
-            }
-        }
-
         protected BinaryTextReader.InputFileEncodings mInputFileEncoding;
 
         protected byte mCharSize;
