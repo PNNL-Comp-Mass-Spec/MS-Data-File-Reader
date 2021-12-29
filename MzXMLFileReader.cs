@@ -318,7 +318,7 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         private void ParseBinaryData(string msmsDataBase64Encoded, string compressionType)
         {
-            var endianMode = Base64EncodeDecode.EndianType.BigEndian;
+            const Base64EncodeDecode.EndianType endianMode = Base64EncodeDecode.EndianType.BigEndian;
 
             if (mCurrentSpectrum is null)
             {

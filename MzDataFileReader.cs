@@ -353,7 +353,7 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         private void ParseBinaryData(string msmsDataBase64Encoded, ref float[] values, int numericPrecisionOfData, string peaksEndianMode, bool updatePeaksCountIfInconsistent)
         {
-            var zLibCompressed = false;
+            const bool zLibCompressed = false;
 
             if (string.IsNullOrEmpty(msmsDataBase64Encoded))
             {
@@ -436,7 +436,7 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         private bool ParseBinaryData(string msmsDataBase64Encoded, ref double[] values, int numericPrecisionOfData, string peaksEndianMode, bool updatePeaksCountIfInconsistent)
         {
-            var zLibCompressed = false;
+            const bool zLibCompressed = false;
 
             if (string.IsNullOrEmpty(msmsDataBase64Encoded))
             {
