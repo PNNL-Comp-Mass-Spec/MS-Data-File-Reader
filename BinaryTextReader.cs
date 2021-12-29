@@ -580,7 +580,7 @@ namespace MSDataFileReader
         /// <returns>True if successful, False if failure</returns>
         public bool ReadLine(ReadDirectionConstants eDirection)
         {
-            var intStartIndexShiftIncrement = default(int);
+            var intStartIndexShiftIncrement = 0;
             var blnMatchFound = false;
 
             try

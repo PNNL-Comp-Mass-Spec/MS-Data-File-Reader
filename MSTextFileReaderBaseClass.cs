@@ -40,7 +40,7 @@ namespace MSDataFileReader
             }
         }
 
-        private readonly Regex mDtaHeaderScanAndCharge = new Regex(@".+\.(\d+)\.(\d+)\.(\d*)$", RegexOptions.Compiled);
+        private readonly Regex mDtaHeaderScanAndCharge = new(@".+\.(\d+)\.(\d+)\.(\d*)$", RegexOptions.Compiled);
 
         /// <summary>
         /// Threshold ion percent to assume a 1+ spectrum (number between 0 and 100)
@@ -170,7 +170,7 @@ namespace MSDataFileReader
             }
         }
 
-        private void ComputePercentageDataAboveThreshold(clsSpectrumInfoMsMsText objSpectrumInfo, out float sngPctByCount, out float sngPctByIntensity)
+        private void ComputePercentageDataAboveThreshold(clsSpectrumInfo objSpectrumInfo, out float sngPctByCount, out float sngPctByIntensity)
         {
             ComputePercentageDataAboveThreshold(objSpectrumInfo.DataCount, objSpectrumInfo.MZList, objSpectrumInfo.IntensityList, objSpectrumInfo.ParentIonMZ, out sngPctByCount, out sngPctByIntensity);
         }
