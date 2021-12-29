@@ -96,54 +96,54 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-        /// If blnAddToExistingChargeList is True, adds intNewCharge to the ParentIonCharges array
-        /// Otherwise, clears ParentIonCharges and sets ParentIonCharges[0] to intNewCharge
+        /// If addToExistingChargeList is True, adds newCharge to the ParentIonCharges array
+        /// Otherwise, clears ParentIonCharges and sets ParentIonCharges[0] to newCharge
         /// </summary>
-        /// <param name="intNewCharge"></param>
-        /// <param name="blnAddToExistingChargeList"></param>
-        public void AddOrUpdateChargeList(int intNewCharge, bool blnAddToExistingChargeList)
+        /// <param name="newCharge"></param>
+        /// <param name="addToExistingChargeList"></param>
+        public void AddOrUpdateChargeList(int newCharge, bool addToExistingChargeList)
         {
             try
             {
-                if (blnAddToExistingChargeList)
+                if (addToExistingChargeList)
                 {
                     if (ParentIonChargeCount < 0)
                         ParentIonChargeCount = 0;
 
                     if (ParentIonChargeCount < MAX_CHARGE_COUNT)
                     {
-                        // Insert intNewCharge into ParentIonCharges() in the appropriate slot
-                        var blnChargeAdded = false;
-                        var intIndexEnd = ParentIonChargeCount - 1;
+                        // Insert newCharge into ParentIonCharges() in the appropriate slot
+                        var chargeAdded = false;
+                        var indexEnd = ParentIonChargeCount - 1;
 
-                        for (var intIndex = 0; intIndex <= intIndexEnd; intIndex++)
+                        for (var index = 0; index <= indexEnd; index++)
                         {
-                            if (ParentIonCharges[intIndex] == intNewCharge)
+                            if (ParentIonCharges[index] == newCharge)
                             {
                                 // Charge already exists
-                                blnChargeAdded = true;
+                                chargeAdded = true;
                                 break;
                             }
 
-                            if (ParentIonCharges[intIndex] > intNewCharge)
+                            if (ParentIonCharges[index] > newCharge)
                             {
                                 // Need to shift each of the existing charges up one
-                                var intCopyIndexEnd = intIndex + 1;
+                                var copyIndexEnd = index + 1;
 
-                                for (var intCopyIndex = ParentIonChargeCount; intCopyIndex >= intCopyIndexEnd; intCopyIndex--)
+                                for (var copyIndex = ParentIonChargeCount; copyIndex >= copyIndexEnd; copyIndex--)
                                 {
-                                    ParentIonCharges[intCopyIndex] = ParentIonCharges[intCopyIndex - 1];
+                                    ParentIonCharges[copyIndex] = ParentIonCharges[copyIndex - 1];
                                 }
 
-                                ParentIonCharges[intIndex] = intNewCharge;
-                                blnChargeAdded = true;
+                                ParentIonCharges[index] = newCharge;
+                                chargeAdded = true;
                                 break;
                             }
                         }
 
-                        if (!blnChargeAdded)
+                        if (!chargeAdded)
                         {
-                            ParentIonCharges[ParentIonChargeCount] = intNewCharge;
+                            ParentIonCharges[ParentIonChargeCount] = newCharge;
                             ParentIonChargeCount++;
                         }
                     }
@@ -152,7 +152,7 @@ namespace MSDataFileReader
                 {
                     ParentIonChargeCount = 1;
                     Array.Clear(ParentIonCharges, 0, ParentIonCharges.Length);
-                    ParentIonCharges[0] = intNewCharge;
+                    ParentIonCharges[0] = newCharge;
                 }
             }
             catch (Exception ex)
@@ -169,52 +169,52 @@ namespace MSDataFileReader
         public new SpectrumInfoMsMsText Clone()
         {
             // First create a shallow copy of this object
-            var objTarget = (SpectrumInfoMsMsText)MemberwiseClone();
+            var target = (SpectrumInfoMsMsText)MemberwiseClone();
 
             // Next, manually copy the array objects and any other objects
             // Duplicate code from the base class
             if (MZList is null)
             {
-                objTarget.MZList = null;
+                target.MZList = null;
             }
             else
             {
-                objTarget.MZList = new double[MZList.Length];
-                MZList.CopyTo(objTarget.MZList, 0);
+                target.MZList = new double[MZList.Length];
+                MZList.CopyTo(target.MZList, 0);
             }
 
             if (IntensityList is null)
             {
-                objTarget.IntensityList = null;
+                target.IntensityList = null;
             }
             else
             {
-                objTarget.IntensityList = new float[IntensityList.Length];
-                IntensityList.CopyTo(objTarget.IntensityList, 0);
+                target.IntensityList = new float[IntensityList.Length];
+                IntensityList.CopyTo(target.IntensityList, 0);
             }
 
             // Code specific to clsSpectrumInfoMsMsText
             if (ParentIonCharges is null)
             {
-                objTarget.ParentIonCharges = null;
+                target.ParentIonCharges = null;
             }
             else
             {
-                objTarget.ParentIonCharges = new int[ParentIonCharges.Length];
-                ParentIonCharges.CopyTo(objTarget.ParentIonCharges, 0);
+                target.ParentIonCharges = new int[ParentIonCharges.Length];
+                ParentIonCharges.CopyTo(target.ParentIonCharges, 0);
             }
 
-            return objTarget;
+            return target;
         }
 
-        public void CopyTo(out SpectrumInfoMsMsText objTarget)
+        public void CopyTo(out SpectrumInfoMsMsText target)
         {
-            objTarget = Clone();
+            target = Clone();
         }
 
-        public override void Validate(bool blnComputeBasePeakAndTIC, bool blnUpdateMZRange)
+        public override void Validate(bool computeBasePeakAndTIC, bool updateMZRange)
         {
-            base.Validate(blnComputeBasePeakAndTIC, blnUpdateMZRange);
+            base.Validate(computeBasePeakAndTIC, updateMZRange);
 
             if (Math.Abs(ParentIonMZ) > float.Epsilon && Math.Abs(ParentIonMH) < float.Epsilon)
             {

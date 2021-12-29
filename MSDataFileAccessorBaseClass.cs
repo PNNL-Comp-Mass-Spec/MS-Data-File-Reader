@@ -126,7 +126,7 @@ namespace MSDataFileReader
         }
 
         // ReSharper disable once UnusedMemberInSuper.Global
-        protected abstract bool AdvanceFileReaders(ElementMatchMode eElementMatchMode);
+        protected abstract bool AdvanceFileReaders(ElementMatchMode elementMatchMode);
 
         public override void CloseFile()
         {
@@ -147,39 +147,39 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-        /// Extracts the text between lngStartByteOffset and lngEndByteOffset in strFilePath and returns it
+        /// Extracts the text between startByteOffset and endByteOffset in filePath and returns it
         /// </summary>
-        /// <param name="strFilePath"></param>
-        /// <param name="lngStartByteOffset"></param>
-        /// <param name="lngEndByteOffset"></param>
+        /// <param name="filePath"></param>
+        /// <param name="startByteOffset"></param>
+        /// <param name="endByteOffset"></param>
         /// <returns>Extracted text</returns>
-        protected string ExtractTextBetweenOffsets(string strFilePath, long lngStartByteOffset, long lngEndByteOffset)
+        protected string ExtractTextBetweenOffsets(string filePath, long startByteOffset, long endByteOffset)
         {
             try
             {
                 if (mBinaryReader is { CanRead: true })
                 {
-                    mBinaryReader.Seek(lngStartByteOffset, SeekOrigin.Begin);
-                    var intBytesToRead = (int)(lngEndByteOffset - lngStartByteOffset + 1L);
+                    mBinaryReader.Seek(startByteOffset, SeekOrigin.Begin);
+                    var bytesToRead = (int)(endByteOffset - startByteOffset + 1L);
 
-                    if (intBytesToRead > 0)
+                    if (bytesToRead > 0)
                     {
-                        var bytData = new byte[intBytesToRead];
-                        intBytesToRead = mBinaryReader.Read(bytData, 0, intBytesToRead);
+                        var data = new byte[bytesToRead];
+                        bytesToRead = mBinaryReader.Read(data, 0, bytesToRead);
 
                         switch (mInputFileEncoding)
                         {
                             case BinaryTextReader.InputFileEncodings.ASCII:
-                                return new string(Encoding.ASCII.GetChars(bytData, 0, intBytesToRead));
+                                return new string(Encoding.ASCII.GetChars(data, 0, bytesToRead));
 
                             case BinaryTextReader.InputFileEncodings.UTF8:
-                                return new string(Encoding.UTF8.GetChars(bytData, 0, intBytesToRead));
+                                return new string(Encoding.UTF8.GetChars(data, 0, bytesToRead));
 
                             case BinaryTextReader.InputFileEncodings.UnicodeNormal:
-                                return new string(Encoding.Unicode.GetChars(bytData, 0, intBytesToRead));
+                                return new string(Encoding.Unicode.GetChars(data, 0, bytesToRead));
 
                             case BinaryTextReader.InputFileEncodings.UnicodeBigEndian:
-                                return new string(Encoding.BigEndianUnicode.GetChars(bytData, 0, intBytesToRead));
+                                return new string(Encoding.BigEndianUnicode.GetChars(data, 0, bytesToRead));
 
                             default:
                                 // Unknown encoding
@@ -242,11 +242,11 @@ namespace MSDataFileReader
                 }
 
                 ScanNumberList = new int[mIndexedSpectrumInfoCount];
-                var intIndexEnd = ScanNumberList.Length - 1;
+                var indexEnd = ScanNumberList.Length - 1;
 
-                for (var intSpectrumIndex = 0; intSpectrumIndex <= intIndexEnd; intSpectrumIndex++)
+                for (var spectrumIndex = 0; spectrumIndex <= indexEnd; spectrumIndex++)
                 {
-                    ScanNumberList[intSpectrumIndex] = mIndexedSpectrumInfo[intSpectrumIndex].ScanNumber;
+                    ScanNumberList[spectrumIndex] = mIndexedSpectrumInfo[spectrumIndex].ScanNumber;
                 }
 
                 return true;
@@ -270,12 +270,12 @@ namespace MSDataFileReader
         /// Only valid if we have Indexed data in memory
         /// </para>
         /// </remarks>
-        /// <param name="intSpectrumIndex"></param>
-        /// <param name="strSourceXML"></param>
+        /// <param name="spectrumIndex"></param>
+        /// <param name="sourceXML"></param>
         /// <returns>True if successful, false if an error or invalid spectrum</returns>
-        public bool GetSourceXMLByIndex(int intSpectrumIndex, out string strSourceXML)
+        public bool GetSourceXMLByIndex(int spectrumIndex, out string sourceXML)
         {
-            strSourceXML = string.Empty;
+            sourceXML = string.Empty;
 
             try
             {
@@ -298,19 +298,19 @@ namespace MSDataFileReader
                     return false;
                 }
 
-                if (intSpectrumIndex < 0 || intSpectrumIndex >= mIndexedSpectrumInfoCount)
+                if (spectrumIndex < 0 || spectrumIndex >= mIndexedSpectrumInfoCount)
                 {
-                    mErrorMessage = "Invalid spectrum index: " + intSpectrumIndex.ToString();
+                    mErrorMessage = "Invalid spectrum index: " + spectrumIndex.ToString();
                     return false;
                 }
 
-                // Move the binary file reader to .ByteOffsetStart and populate strXMLText with the text for the given spectrum
-                strSourceXML = ExtractTextBetweenOffsets(
+                // Move the binary file reader to .ByteOffsetStart and populate sourceXML with the text for the given spectrum
+                sourceXML = ExtractTextBetweenOffsets(
                     mInputFilePath,
-                    mIndexedSpectrumInfo[intSpectrumIndex].ByteOffsetStart,
-                    mIndexedSpectrumInfo[intSpectrumIndex].ByteOffsetEnd);
+                    mIndexedSpectrumInfo[spectrumIndex].ByteOffsetStart,
+                    mIndexedSpectrumInfo[spectrumIndex].ByteOffsetEnd);
 
-                return !string.IsNullOrWhiteSpace(strSourceXML);
+                return !string.IsNullOrWhiteSpace(sourceXML);
             }
             catch (Exception ex)
             {
@@ -330,12 +330,12 @@ namespace MSDataFileReader
         /// Only valid if we have Indexed data in memory
         /// </para>
         /// </remarks>
-        /// <param name="intScanNumber"></param>
-        /// <param name="strSourceXML"></param>
+        /// <param name="scanNumber"></param>
+        /// <param name="sourceXML"></param>
         /// <returns>True if successful, false if an error or invalid spectrum</returns>
-        public bool GetSourceXMLByScanNumber(int intScanNumber, out string strSourceXML)
+        public bool GetSourceXMLByScanNumber(int scanNumber, out string sourceXML)
         {
-            strSourceXML = string.Empty;
+            sourceXML = string.Empty;
 
             try
             {
@@ -355,27 +355,27 @@ namespace MSDataFileReader
 
                 if (mIndexedSpectraScanToIndex.Count == 0)
                 {
-                    var intIndexEnd = mIndexedSpectrumInfoCount - 1;
+                    var indexEnd = mIndexedSpectrumInfoCount - 1;
 
-                    for (var intSpectrumIndex = 0; intSpectrumIndex <= intIndexEnd; intSpectrumIndex++)
+                    for (var spectrumIndex = 0; spectrumIndex <= indexEnd; spectrumIndex++)
                     {
-                        if (mIndexedSpectrumInfo[intSpectrumIndex].ScanNumber == intScanNumber)
+                        if (mIndexedSpectrumInfo[spectrumIndex].ScanNumber == scanNumber)
                         {
-                            success = GetSourceXMLByIndex(intSpectrumIndex, out strSourceXML);
+                            success = GetSourceXMLByIndex(spectrumIndex, out sourceXML);
                             break;
                         }
                     }
                 }
                 else
                 {
-                    // Look for intScanNumber in mIndexedSpectraScanToIndex
-                    var index = mIndexedSpectraScanToIndex[intScanNumber];
-                    success = GetSourceXMLByIndex(index, out strSourceXML);
+                    // Look for scanNumber in mIndexedSpectraScanToIndex
+                    var index = mIndexedSpectraScanToIndex[scanNumber];
+                    success = GetSourceXMLByIndex(index, out sourceXML);
                 }
 
                 if (!success && mErrorMessage.Length == 0)
                 {
-                    mErrorMessage = "Invalid scan number: " + intScanNumber;
+                    mErrorMessage = "Invalid scan number: " + scanNumber;
                 }
 
                 return success;
@@ -393,40 +393,40 @@ namespace MSDataFileReader
         /// <remarks>
         /// Only valid if we have Cached or Indexed data in memory
         /// </remarks>
-        /// <param name="intSpectrumIndex"></param>
-        /// <param name="objSpectrumInfo"></param>
+        /// <param name="spectrumIndex"></param>
+        /// <param name="spectrumInfo"></param>
         /// <returns>True if success, False if failure</returns>
-        public override bool GetSpectrumByIndex(int intSpectrumIndex, out SpectrumInfo objSpectrumInfo)
+        public override bool GetSpectrumByIndex(int spectrumIndex, out SpectrumInfo spectrumInfo)
         {
             try
             {
                 if (mDataReaderMode == DataReaderMode.Cached)
                 {
-                    return base.GetSpectrumByIndex(intSpectrumIndex, out objSpectrumInfo);
+                    return base.GetSpectrumByIndex(spectrumIndex, out spectrumInfo);
                 }
 
                 if (mDataReaderMode == DataReaderMode.Indexed)
                 {
-                    return GetSpectrumByIndexWork(intSpectrumIndex, out objSpectrumInfo, false);
+                    return GetSpectrumByIndexWork(spectrumIndex, out spectrumInfo, false);
                 }
 
                 mErrorMessage = "Cached or indexed data not in memory";
-                objSpectrumInfo = null;
+                spectrumInfo = null;
                 return false;
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in GetSpectrumByIndex", ex);
-                objSpectrumInfo = null;
+                spectrumInfo = null;
                 return false;
             }
         }
 
-        protected abstract bool GetSpectrumByIndexWork(int intSpectrumIndex, out SpectrumInfo objSpectrumInfo, bool blnHeaderInfoOnly);
+        protected abstract bool GetSpectrumByIndexWork(int spectrumIndex, out SpectrumInfo spectrumInfo, bool headerInfoOnly);
 
-        public override bool GetSpectrumByScanNumber(int intScanNumber, out SpectrumInfo objSpectrumInfo)
+        public override bool GetSpectrumByScanNumber(int scanNumber, out SpectrumInfo spectrumInfo)
         {
-            return GetSpectrumByScanNumberWork(intScanNumber, out objSpectrumInfo, false);
+            return GetSpectrumByScanNumberWork(scanNumber, out spectrumInfo, false);
         }
 
         /// <summary>
@@ -435,13 +435,13 @@ namespace MSDataFileReader
         /// <remarks>
         /// Only valid if we have Cached or Indexed data in memory
         /// </remarks>
-        /// <param name="intScanNumber"></param>
-        /// <param name="objSpectrumInfo"></param>
-        /// <param name="blnHeaderInfoOnly"></param>
+        /// <param name="scanNumber"></param>
+        /// <param name="spectrumInfo"></param>
+        /// <param name="headerInfoOnly"></param>
         /// <returns>True if success, False if failure</returns>
-        protected bool GetSpectrumByScanNumberWork(int intScanNumber, out SpectrumInfo objSpectrumInfo, bool blnHeaderInfoOnly)
+        protected bool GetSpectrumByScanNumberWork(int scanNumber, out SpectrumInfo spectrumInfo, bool headerInfoOnly)
         {
-            objSpectrumInfo = null;
+            spectrumInfo = null;
 
             try
             {
@@ -449,7 +449,7 @@ namespace MSDataFileReader
 
                 if (mDataReaderMode == DataReaderMode.Cached)
                 {
-                    return base.GetSpectrumByScanNumber(intScanNumber, out objSpectrumInfo);
+                    return base.GetSpectrumByScanNumber(scanNumber, out spectrumInfo);
                 }
 
                 if (mDataReaderMode != DataReaderMode.Indexed)
@@ -467,27 +467,27 @@ namespace MSDataFileReader
 
                 if (mIndexedSpectraScanToIndex.Count == 0)
                 {
-                    var intIndexEnd = mIndexedSpectrumInfoCount - 1;
+                    var indexEnd = mIndexedSpectrumInfoCount - 1;
 
-                    for (var intSpectrumIndex = 0; intSpectrumIndex <= intIndexEnd; intSpectrumIndex++)
+                    for (var spectrumIndex = 0; spectrumIndex <= indexEnd; spectrumIndex++)
                     {
-                        if (mIndexedSpectrumInfo[intSpectrumIndex].ScanNumber == intScanNumber)
+                        if (mIndexedSpectrumInfo[spectrumIndex].ScanNumber == scanNumber)
                         {
-                            success = GetSpectrumByIndex(intSpectrumIndex, out objSpectrumInfo);
+                            success = GetSpectrumByIndex(spectrumIndex, out spectrumInfo);
                             break;
                         }
                     }
                 }
                 else
                 {
-                    // Look for intScanNumber in mIndexedSpectraScanToIndex
-                    var index = mIndexedSpectraScanToIndex[intScanNumber];
-                    success = GetSpectrumByIndexWork(index, out objSpectrumInfo, blnHeaderInfoOnly);
+                    // Look for scanNumber in mIndexedSpectraScanToIndex
+                    var index = mIndexedSpectraScanToIndex[scanNumber];
+                    success = GetSpectrumByIndexWork(index, out spectrumInfo, headerInfoOnly);
                 }
 
                 if (!success && string.IsNullOrWhiteSpace(mErrorMessage))
                 {
-                    mErrorMessage = "Invalid scan number: " + intScanNumber;
+                    mErrorMessage = "Invalid scan number: " + scanNumber;
                 }
 
                 return success;
@@ -499,26 +499,26 @@ namespace MSDataFileReader
             }
         }
 
-        public bool GetSpectrumHeaderInfoByIndex(int intSpectrumIndex, out SpectrumInfo objSpectrumInfo)
+        public bool GetSpectrumHeaderInfoByIndex(int spectrumIndex, out SpectrumInfo spectrumInfo)
         {
-            return GetSpectrumByIndexWork(intSpectrumIndex, out objSpectrumInfo, true);
+            return GetSpectrumByIndexWork(spectrumIndex, out spectrumInfo, true);
         }
 
-        public bool GetSpectrumHeaderInfoByScanNumber(int intScanNumber, out SpectrumInfo objSpectrumInfo)
+        public bool GetSpectrumHeaderInfoByScanNumber(int scanNumber, out SpectrumInfo spectrumInfo)
         {
-            return GetSpectrumByScanNumberWork(intScanNumber, out objSpectrumInfo, true);
+            return GetSpectrumByScanNumberWork(scanNumber, out spectrumInfo, true);
         }
 
         /// <summary>
         /// Check whether the reader is open and spectra can be obtained
         /// </summary>
         /// <remarks>
-        /// If blnAllowConcurrentReading = True, returns True if mBinaryReader is ready for reading
-        /// If blnAllowConcurrentReading = False, returns True only after the file is fully indexed
+        /// If allowConcurrentReading = True, returns True if mBinaryReader is ready for reading
+        /// If allowConcurrentReading = False, returns True only after the file is fully indexed
         /// Otherwise, returns false
         /// </remarks>
-        /// <param name="blnAllowConcurrentReading"></param>
-        protected bool GetSpectrumReadyStatus(bool blnAllowConcurrentReading)
+        /// <param name="allowConcurrentReading"></param>
+        protected bool GetSpectrumReadyStatus(bool allowConcurrentReading)
         {
             if (mBinaryReader is null || !mBinaryReader.CanRead)
             {
@@ -526,7 +526,7 @@ namespace MSDataFileReader
                 return false;
             }
 
-            if (blnAllowConcurrentReading)
+            if (allowConcurrentReading)
             {
                 return true;
             }
@@ -559,9 +559,9 @@ namespace MSDataFileReader
             mIndexingComplete = false;
         }
 
-        protected Regex InitializeRegEx(string strPattern)
+        protected Regex InitializeRegEx(string pattern)
         {
-            return new Regex(strPattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
+            return new Regex(pattern, RegexOptions.Compiled | RegexOptions.IgnoreCase);
         }
 
         /// <summary>
@@ -573,20 +573,20 @@ namespace MSDataFileReader
         /// <summary>
         /// Open the given file
         /// </summary>
-        /// <param name="strInputFilePath"></param>
+        /// <param name="inputFilePath"></param>
         /// <returns>True if the file is successfully opened</returns>
-        public override bool OpenFile(string strInputFilePath)
+        public override bool OpenFile(string inputFilePath)
         {
             try
             {
-                var initSuccess = OpenFileInit(strInputFilePath);
+                var initSuccess = OpenFileInit(inputFilePath);
 
                 if (!initSuccess)
                     return false;
 
                 InitializeFileTrackingVariables();
                 mDataReaderMode = DataReaderMode.Indexed;
-                mInputFilePath = string.Copy(strInputFilePath);
+                mInputFilePath = string.Copy(inputFilePath);
 
                 // Initialize the binary text reader
                 // Even if an existing index is present, this is needed to determine
@@ -623,7 +623,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                mErrorMessage = "Error opening file: " + strInputFilePath + "; " + ex.Message;
+                mErrorMessage = "Error opening file: " + inputFilePath + "; " + ex.Message;
                 OnErrorEvent(mErrorMessage, ex);
                 return false;
             }
@@ -632,9 +632,9 @@ namespace MSDataFileReader
         /// <summary>
         /// This reading mode is not appropriate for the MS Data File Accessor
         /// </summary>
-        /// <param name="strTextStream"></param>
+        /// <param name="textStream"></param>
         /// <returns>Always returns false</returns>
-        public override bool OpenTextStream(string strTextStream)
+        public override bool OpenTextStream(string textStream)
         {
             mErrorMessage = "The OpenTextStream method is not valid for clsMSDataFileAccessorBaseClass";
             CloseFile();
@@ -657,19 +657,19 @@ namespace MSDataFileReader
             return success;
         }
 
-        public override bool ReadNextSpectrum(out SpectrumInfo objSpectrumInfo)
+        public override bool ReadNextSpectrum(out SpectrumInfo spectrumInfo)
         {
             if (GetSpectrumReadyStatus(false) && mLastSpectrumIndexRead < mIndexedSpectrumInfoCount)
             {
                 mLastSpectrumIndexRead++;
-                return GetSpectrumByIndex(mLastSpectrumIndexRead, out objSpectrumInfo);
+                return GetSpectrumByIndex(mLastSpectrumIndexRead, out spectrumInfo);
             }
 
-            objSpectrumInfo = null;
+            spectrumInfo = null;
             return false;
         }
 
-        protected void StoreIndexEntry(int intScanNumber, long lngByteOffsetStart, long lngByteOffsetEnd)
+        protected void StoreIndexEntry(int scanNumber, long byteOffsetStart, long byteOffsetEnd)
         {
             if (mIndexedSpectrumInfoCount >= mIndexedSpectrumInfo.Length)
             {
@@ -677,9 +677,9 @@ namespace MSDataFileReader
                 Array.Resize(ref mIndexedSpectrumInfo, mIndexedSpectrumInfo.Length * 2);
             }
 
-            mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ScanNumber = intScanNumber;
-            mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ByteOffsetStart = lngByteOffsetStart;
-            mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ByteOffsetEnd = lngByteOffsetEnd;
+            mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ScanNumber = scanNumber;
+            mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ByteOffsetStart = byteOffsetStart;
+            mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ByteOffsetEnd = byteOffsetEnd;
 
             UpdateFileStats(mIndexedSpectrumInfoCount + 1, mIndexedSpectrumInfo[mIndexedSpectrumInfoCount].ScanNumber);
 

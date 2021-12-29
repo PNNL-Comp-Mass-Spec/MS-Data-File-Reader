@@ -276,36 +276,36 @@ namespace MSDataFileReader
         public new SpectrumInfoMzXML Clone()
         {
             // First create a shallow copy of this object
-            var objTarget = (SpectrumInfoMzXML)MemberwiseClone();
+            var target = (SpectrumInfoMzXML)MemberwiseClone();
 
             // Next, manually copy the array objects and any other objects
             // Duplicate code from the base class
             if (MZList is null)
             {
-                objTarget.MZList = null;
+                target.MZList = null;
             }
             else
             {
-                objTarget.MZList = new double[MZList.Length];
-                MZList.CopyTo(objTarget.MZList, 0);
+                target.MZList = new double[MZList.Length];
+                MZList.CopyTo(target.MZList, 0);
             }
 
             if (IntensityList is null)
             {
-                objTarget.IntensityList = null;
+                target.IntensityList = null;
             }
             else
             {
-                objTarget.IntensityList = new float[IntensityList.Length];
-                IntensityList.CopyTo(objTarget.IntensityList, 0);
+                target.IntensityList = new float[IntensityList.Length];
+                IntensityList.CopyTo(target.IntensityList, 0);
             }
 
-            return objTarget;
+            return target;
         }
 
-        public void CopyTo(out SpectrumInfoMzXML objTarget)
+        public void CopyTo(out SpectrumInfoMzXML target)
         {
-            objTarget = Clone();
+            target = Clone();
         }
 
         public void Validate()
@@ -313,9 +313,9 @@ namespace MSDataFileReader
             Validate(false, false);
         }
 
-        public override void Validate(bool blnComputeBasePeakAndTIC, bool blnUpdateMZRange)
+        public override void Validate(bool computeBasePeakAndTIC, bool updateMZRange)
         {
-            base.Validate(blnComputeBasePeakAndTIC, blnUpdateMZRange);
+            base.Validate(computeBasePeakAndTIC, updateMZRange);
 
             if (SpectrumID == 0 && ScanNumber != 0)
             {

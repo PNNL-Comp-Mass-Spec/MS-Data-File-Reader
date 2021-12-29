@@ -107,52 +107,52 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-        /// Remove any instance of strCommentChar from the beginning and end of strCommentIn
+        /// Remove any instance of commentChar from the beginning and end of commentIn
         /// </summary>
-        /// <param name="strCommentIn"></param>
-        /// <param name="strCommentChar"></param>
-        /// <param name="blnRemoveQuoteMarks">When True, also look for double quotation marks at the beginning and end</param>
+        /// <param name="commentIn"></param>
+        /// <param name="commentChar"></param>
+        /// <param name="removeQuoteMarks">When True, also look for double quotation marks at the beginning and end</param>
         /// <returns>Updated comment</returns>
-        protected string CleanupComment(string strCommentIn, char strCommentChar, bool blnRemoveQuoteMarks)
+        protected string CleanupComment(string commentIn, char commentChar, bool removeQuoteMarks)
         {
-            if (strCommentIn is null)
+            if (commentIn is null)
             {
-                strCommentIn = string.Empty;
+                commentIn = string.Empty;
             }
             else
             {
-                strCommentIn = strCommentIn.TrimStart(strCommentChar).Trim();
-                strCommentIn = strCommentIn.TrimEnd(strCommentChar).Trim();
+                commentIn = commentIn.TrimStart(commentChar).Trim();
+                commentIn = commentIn.TrimEnd(commentChar).Trim();
 
-                if (blnRemoveQuoteMarks)
+                if (removeQuoteMarks)
                 {
-                    strCommentIn = strCommentIn.TrimStart('"');
-                    strCommentIn = strCommentIn.TrimEnd('"');
+                    commentIn = commentIn.TrimStart('"');
+                    commentIn = commentIn.TrimEnd('"');
                 }
 
-                strCommentIn = strCommentIn.Trim();
+                commentIn = commentIn.Trim();
             }
 
-            return strCommentIn;
+            return commentIn;
         }
 
-        protected void AddNewRecentFileText(string strNewText, bool blnNewSpectrum = false, bool blnAddCrLfIfNeeded = true)
+        protected void AddNewRecentFileText(string newText, bool newSpectrum = false, bool addCrLfIfNeeded = true)
         {
-            if (blnNewSpectrum)
+            if (newSpectrum)
             {
                 mSecondMostRecentSpectrumFileText = mMostRecentSpectrumFileText.ToString();
                 mMostRecentSpectrumFileText.Length = 0;
             }
 
-            if (blnAddCrLfIfNeeded)
+            if (addCrLfIfNeeded)
             {
-                if (!(strNewText.EndsWith("\r") || strNewText.EndsWith("\n")))
+                if (!(newText.EndsWith("\r") || newText.EndsWith("\n")))
                 {
-                    strNewText += Environment.NewLine;
+                    newText += Environment.NewLine;
                 }
             }
 
-            mMostRecentSpectrumFileText.Append(strNewText);
+            mMostRecentSpectrumFileText.Append(newText);
         }
 
         public override void CloseFile()
@@ -170,44 +170,44 @@ namespace MSDataFileReader
             }
         }
 
-        private void ComputePercentageDataAboveThreshold(SpectrumInfo objSpectrumInfo, out float sngPctByCount, out float sngPctByIntensity)
+        private void ComputePercentageDataAboveThreshold(SpectrumInfo spectrumInfo, out float pctByCount, out float pctByIntensity)
         {
-            ComputePercentageDataAboveThreshold(objSpectrumInfo.DataCount, objSpectrumInfo.MZList, objSpectrumInfo.IntensityList, objSpectrumInfo.ParentIonMZ, out sngPctByCount, out sngPctByIntensity);
+            ComputePercentageDataAboveThreshold(spectrumInfo.DataCount, spectrumInfo.MZList, spectrumInfo.IntensityList, spectrumInfo.ParentIonMZ, out pctByCount, out pctByIntensity);
         }
 
-        protected void ComputePercentageDataAboveThreshold(int intDataCount, double[] dblMZList, float[] sngIntensityList, double dblThresholdMZ, out float sngPctByCount, out float sngPctByIntensity)
+        protected void ComputePercentageDataAboveThreshold(int dataCount, double[] mzList, float[] intensityList, double thresholdMZ, out float pctByCount, out float pctByIntensity)
         {
-            var intCountAboveThreshold = 0;
-            var dblIntensitySumAboveThreshold = 0d;
-            var dblTotalIntensitySum = 0d;
-            var intIndexEnd = intDataCount - 1;
+            var countAboveThreshold = 0;
+            var intensitySumAboveThreshold = 0d;
+            var totalIntensitySum = 0d;
+            var indexEnd = dataCount - 1;
 
-            for (var intIndex = 0; intIndex <= intIndexEnd; intIndex++)
+            for (var index = 0; index <= indexEnd; index++)
             {
-                dblTotalIntensitySum += sngIntensityList[intIndex];
+                totalIntensitySum += intensityList[index];
 
-                if (dblMZList[intIndex] > dblThresholdMZ)
+                if (mzList[index] > thresholdMZ)
                 {
-                    intCountAboveThreshold++;
-                    dblIntensitySumAboveThreshold += sngIntensityList[intIndex];
+                    countAboveThreshold++;
+                    intensitySumAboveThreshold += intensityList[index];
                 }
             }
 
-            if (intDataCount == 0)
+            if (dataCount == 0)
             {
-                sngPctByCount = 0f;
-                sngPctByIntensity = 0f;
+                pctByCount = 0f;
+                pctByIntensity = 0f;
             }
             else
             {
-                sngPctByCount = intCountAboveThreshold / (float)intDataCount * 100.0f;
-                sngPctByIntensity = (float)(dblIntensitySumAboveThreshold / dblTotalIntensitySum * 100.0d);
+                pctByCount = countAboveThreshold / (float)dataCount * 100.0f;
+                pctByIntensity = (float)(intensitySumAboveThreshold / totalIntensitySum * 100.0d);
             }
         }
 
-        public bool ExtractScanInfoFromDtaHeader(string strSpectrumHeader, out int intScanNumberStart, out int intScanNumberEnd, out int intScanCount)
+        public bool ExtractScanInfoFromDtaHeader(string spectrumHeader, out int scanNumberStart, out int scanNumberEnd, out int scanCount)
         {
-            return ExtractScanInfoFromDtaHeader(strSpectrumHeader, out intScanNumberStart, out intScanNumberEnd, out intScanCount, out _);
+            return ExtractScanInfoFromDtaHeader(spectrumHeader, out scanNumberStart, out scanNumberEnd, out scanCount, out _);
         }
 
         /// <summary>
@@ -219,54 +219,54 @@ namespace MSDataFileReader
         /// FileName.1234.1234.2      (StartScan.EndScan.Charge)
         /// FileName.1234.1234.       (ProteoWizard uses this format to indicate unknown charge)
         /// </remarks>
-        /// <param name="strSpectrumHeader"></param>
-        /// <param name="intScanNumberStart"></param>
-        /// <param name="intScanNumberEnd"></param>
-        /// <param name="intScanCount"></param>
-        /// <param name="intCharge"></param>
+        /// <param name="spectrumHeader"></param>
+        /// <param name="scanNumberStart"></param>
+        /// <param name="scanNumberEnd"></param>
+        /// <param name="scanCount"></param>
+        /// <param name="charge"></param>
         /// <returns>True if the scan numbers are found in the header</returns>
-        public bool ExtractScanInfoFromDtaHeader(string strSpectrumHeader, out int intScanNumberStart, out int intScanNumberEnd, out int intScanCount, out int intCharge)
+        public bool ExtractScanInfoFromDtaHeader(string spectrumHeader, out int scanNumberStart, out int scanNumberEnd, out int scanCount, out int charge)
         {
-            var blnScanNumberFound = false;
-            intScanNumberStart = 0;
-            intScanNumberEnd = 0;
-            intScanCount = 0;
-            intCharge = 0;
+            var scanNumberFound = false;
+            scanNumberStart = 0;
+            scanNumberEnd = 0;
+            scanCount = 0;
+            charge = 0;
 
             try
             {
-                if (strSpectrumHeader != null)
+                if (spectrumHeader != null)
                 {
-                    strSpectrumHeader = strSpectrumHeader.Trim();
+                    spectrumHeader = spectrumHeader.Trim();
 
-                    if (strSpectrumHeader.EndsWith(".dta", StringComparison.OrdinalIgnoreCase))
+                    if (spectrumHeader.EndsWith(".dta", StringComparison.OrdinalIgnoreCase))
                     {
                         // Remove the trailing .dta
-                        strSpectrumHeader = strSpectrumHeader.Substring(0, strSpectrumHeader.Length - 4);
+                        spectrumHeader = spectrumHeader.Substring(0, spectrumHeader.Length - 4);
                     }
 
                     // Extract the scans and charge using a RegEx
-                    var reMatch = mDtaHeaderScanAndCharge.Match(strSpectrumHeader);
+                    var reMatch = mDtaHeaderScanAndCharge.Match(spectrumHeader);
 
                     if (reMatch.Success)
                     {
-                        if (int.TryParse(reMatch.Groups[1].Value, out intScanNumberStart))
+                        if (int.TryParse(reMatch.Groups[1].Value, out scanNumberStart))
                         {
-                            if (int.TryParse(reMatch.Groups[2].Value, out intScanNumberEnd))
+                            if (int.TryParse(reMatch.Groups[2].Value, out scanNumberEnd))
                             {
-                                if (intScanNumberEnd > intScanNumberStart)
+                                if (scanNumberEnd > scanNumberStart)
                                 {
-                                    intScanCount = intScanNumberEnd - intScanNumberStart + 1;
+                                    scanCount = scanNumberEnd - scanNumberStart + 1;
                                 }
                                 else
                                 {
-                                    intScanCount = 1;
+                                    scanCount = 1;
                                 }
 
-                                blnScanNumberFound = true;
+                                scanNumberFound = true;
 
                                 // Also try to parse out the charge
-                                int.TryParse(reMatch.Groups[3].Value, out intCharge);
+                                int.TryParse(reMatch.Groups[3].Value, out charge);
                             }
                         }
                     }
@@ -277,7 +277,7 @@ namespace MSDataFileReader
                 OnErrorEvent("Error in ExtractScanInfoFromDtaHeader", ex);
             }
 
-            return blnScanNumberFound;
+            return scanNumberFound;
         }
 
         protected override string GetInputFileLocation()
@@ -313,10 +313,10 @@ namespace MSDataFileReader
         /// <summary>
         /// Guesstimate the parent ion charge based on its m/z and the ions in the fragmentation spectrum
         /// </summary>
-        /// <param name="objSpectrumInfo"></param>
-        /// <param name="blnAddToExistingChargeList"></param>
-        /// <param name="blnForceChargeAdditionFor2and3Plus"></param>
-        public void GuesstimateCharge(SpectrumInfoMsMsText objSpectrumInfo, bool blnAddToExistingChargeList = false, bool blnForceChargeAdditionFor2and3Plus = false)
+        /// <param name="spectrumInfo"></param>
+        /// <param name="addToExistingChargeList"></param>
+        /// <param name="forceChargeAdditionFor2and3Plus"></param>
+        public void GuesstimateCharge(SpectrumInfoMsMsText spectrumInfo, bool addToExistingChargeList = false, bool forceChargeAdditionFor2and3Plus = false)
         {
             // Strategy:
             // 1) If all fragmentation ions have m/z values less than the parent ion m/z, definitely assume a 1+ parent ion
@@ -364,91 +364,91 @@ namespace MSDataFileReader
             // % above 700 by intensity sum:	21%
             // % above 700 by data point count:	33%
 
-            if (objSpectrumInfo.DataCount <= 0 || objSpectrumInfo.MZList is null)
+            if (spectrumInfo.DataCount <= 0 || spectrumInfo.MZList is null)
             {
                 // This shouldn't happen, but we'll handle it anyway
-                objSpectrumInfo.AddOrUpdateChargeList(1, false);
+                spectrumInfo.AddOrUpdateChargeList(1, false);
             }
 
             // Test 1: See if all m/z values are less than the parent ion m/z
             // Assume the data in .IonList() is sorted by ascending m/z
 
-            else if (objSpectrumInfo.MZList[objSpectrumInfo.DataCount - 1] <= objSpectrumInfo.ParentIonMZ)
+            else if (spectrumInfo.MZList[spectrumInfo.DataCount - 1] <= spectrumInfo.ParentIonMZ)
             {
                 // Yes, all data is less than the parent ion m/z
-                objSpectrumInfo.AddOrUpdateChargeList(1, blnAddToExistingChargeList);
+                spectrumInfo.AddOrUpdateChargeList(1, addToExistingChargeList);
             }
             else
             {
                 // Find percentage of data with m/z values greater than the Parent Ion m/z
                 // Compute this number using both raw data point counts and sum of intensity values
-                ComputePercentageDataAboveThreshold(objSpectrumInfo, out var sngPctByCount, out var sngPctByIntensity);
+                ComputePercentageDataAboveThreshold(spectrumInfo, out var pctByCount, out var pctByIntensity);
 
-                if (sngPctByCount < mThresholdIonPctForSingleCharge && sngPctByIntensity < mThresholdIonPctForSingleCharge)
+                if (pctByCount < mThresholdIonPctForSingleCharge && pctByIntensity < mThresholdIonPctForSingleCharge)
                 {
                     // Both percentages are less than the threshold for definitively single charge
-                    objSpectrumInfo.AddOrUpdateChargeList(1, blnAddToExistingChargeList);
+                    spectrumInfo.AddOrUpdateChargeList(1, addToExistingChargeList);
                 }
                 else
                 {
-                    int intChargeStart;
+                    int chargeStart;
 
-                    if (sngPctByCount >= mThresholdIonPctForDoubleCharge && sngPctByIntensity >= mThresholdIonPctForDoubleCharge)
+                    if (pctByCount >= mThresholdIonPctForDoubleCharge && pctByIntensity >= mThresholdIonPctForDoubleCharge)
                     {
                         // Both percentages are above the threshold for definitively double charge (or higher)
-                        intChargeStart = 2;
+                        chargeStart = 2;
                     }
                     else
                     {
-                        intChargeStart = 1;
+                        chargeStart = 1;
                     }
 
-                    var intChargeEnd = 3;
+                    var chargeEnd = 3;
 
-                    // Determine whether intChargeEnd should be higher than 3+
+                    // Determine whether chargeEnd should be higher than 3+
                     do
                     {
-                        var dblParentIonMH = ConvoluteMass(objSpectrumInfo.ParentIonMZ, intChargeEnd, 1);
+                        var parentIonMH = ConvoluteMass(spectrumInfo.ParentIonMZ, chargeEnd, 1);
 
-                        if (dblParentIonMH < objSpectrumInfo.MZList[objSpectrumInfo.DataCount - 1] + 3d)
+                        if (parentIonMH < spectrumInfo.MZList[spectrumInfo.DataCount - 1] + 3d)
                         {
-                            intChargeEnd++;
+                            chargeEnd++;
                         }
                         else
                         {
                             break;
                         }
                     }
-                    while (intChargeEnd < SpectrumInfoMsMsText.MAX_CHARGE_COUNT);
+                    while (chargeEnd < SpectrumInfoMsMsText.MAX_CHARGE_COUNT);
 
-                    if (blnAddToExistingChargeList)
+                    if (addToExistingChargeList)
                     {
-                        if (!blnForceChargeAdditionFor2and3Plus && intChargeStart == 2 && intChargeEnd == 3)
+                        if (!forceChargeAdditionFor2and3Plus && chargeStart == 2 && chargeEnd == 3)
                         {
-                            // See if objSpectrumInfo already contains a single entry and it is 2+ or 3+
+                            // See if spectrumInfo already contains a single entry and it is 2+ or 3+
                             // If so, do not alter the charge list
 
-                            if (objSpectrumInfo.ParentIonChargeCount == 1)
+                            if (spectrumInfo.ParentIonChargeCount == 1)
                             {
-                                if (objSpectrumInfo.ParentIonCharges[0] == 2 || objSpectrumInfo.ParentIonCharges[0] == 3)
+                                if (spectrumInfo.ParentIonCharges[0] == 2 || spectrumInfo.ParentIonCharges[0] == 3)
                                 {
-                                    // The following will guarantee that the For intChargeIndex loop doesn't run
-                                    intChargeStart = 0;
-                                    intChargeEnd = -1;
+                                    // The following will guarantee that the For chargeIndex loop doesn't run
+                                    chargeStart = 0;
+                                    chargeEnd = -1;
                                 }
                             }
                         }
                     }
                     else
                     {
-                        objSpectrumInfo.ParentIonChargeCount = 0;
+                        spectrumInfo.ParentIonChargeCount = 0;
                     }
 
-                    var intIndexEnd = intChargeEnd - intChargeStart;
+                    var indexEnd = chargeEnd - chargeStart;
 
-                    for (var intChargeIndex = 0; intChargeIndex <= intIndexEnd; intChargeIndex++)
+                    for (var chargeIndex = 0; chargeIndex <= indexEnd; chargeIndex++)
                     {
-                        objSpectrumInfo.AddOrUpdateChargeList(intChargeStart + intChargeIndex, true);
+                        spectrumInfo.AddOrUpdateChargeList(chargeStart + chargeIndex, true);
                     }
                 }
             }
@@ -469,27 +469,27 @@ namespace MSDataFileReader
         /// <summary>
         /// Open a data file
         /// </summary>
-        /// <param name="strInputFilePath"></param>
+        /// <param name="inputFilePath"></param>
         /// <returns>True if successful, false if an error</returns>
-        public override bool OpenFile(string strInputFilePath)
+        public override bool OpenFile(string inputFilePath)
         {
             try
             {
-                var success = OpenFileInit(strInputFilePath);
+                var success = OpenFileInit(inputFilePath);
 
                 if (!success)
                     return false;
 
-                var objStreamReader = new StreamReader(new FileStream(strInputFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
-                mInFileStreamLength = objStreamReader.BaseStream.Length;
-                mFileReader = objStreamReader;
+                var streamReader = new StreamReader(new FileStream(inputFilePath, FileMode.Open, FileAccess.Read, FileShare.ReadWrite));
+                mInFileStreamLength = streamReader.BaseStream.Length;
+                mFileReader = streamReader;
                 InitializeLocalVariables();
-                ResetProgress("Parsing " + Path.GetFileName(strInputFilePath));
+                ResetProgress("Parsing " + Path.GetFileName(inputFilePath));
                 return true;
             }
             catch (Exception ex)
             {
-                mErrorMessage = "Error opening file: " + strInputFilePath + "; " + ex.Message;
+                mErrorMessage = "Error opening file: " + inputFilePath + "; " + ex.Message;
                 OnErrorEvent(mErrorMessage, ex);
                 return false;
             }
@@ -498,9 +498,9 @@ namespace MSDataFileReader
         /// <summary>
         /// Open a text stream
         /// </summary>
-        /// <param name="strTextStream"></param>
+        /// <param name="textStream"></param>
         /// <returns>True if successful, false if an error</returns>
-        public override bool OpenTextStream(string strTextStream)
+        public override bool OpenTextStream(string textStream)
         {
             // Make sure any open file or text stream is closed
             CloseFile();
@@ -508,8 +508,8 @@ namespace MSDataFileReader
             try
             {
                 mInputFilePath = "TextStream";
-                mFileReader = new StringReader(strTextStream);
-                mInFileStreamLength = strTextStream.Length;
+                mFileReader = new StringReader(textStream);
+                mInFileStreamLength = textStream.Length;
                 InitializeLocalVariables();
                 ResetProgress("Parsing text stream");
                 return true;
@@ -522,83 +522,83 @@ namespace MSDataFileReader
             }
         }
 
-        public int ParseMsMsDataList(string[] strMSMSData, int intMsMsDataCount, out double[] dblMasses, out float[] sngIntensities, bool blnShrinkDataArrays)
+        public int ParseMsMsDataList(string[] msmsDataArray, int msmsDataCount, out double[] masses, out float[] intensities, bool shrinkDataArrays)
         {
-            var lstMSMSData = new List<string>();
-            var intIndexEnd = intMsMsDataCount - 1;
+            var msmsData = new List<string>();
+            var indexEnd = msmsDataCount - 1;
 
-            for (var intIndex = 0; intIndex <= intIndexEnd; intIndex++)
+            for (var index = 0; index <= indexEnd; index++)
             {
-                lstMSMSData.Add(strMSMSData[intIndex]);
+                msmsData.Add(msmsDataArray[index]);
             }
 
-            return ParseMsMsDataList(lstMSMSData, out dblMasses, out sngIntensities, blnShrinkDataArrays);
+            return ParseMsMsDataList(msmsData, out masses, out intensities, shrinkDataArrays);
         }
 
         /// <summary>
         /// Parse a space or tab separated list of list of mass and intensity pairs
         /// </summary>
-        /// <param name="lstMSMSData"></param>
-        /// <param name="dblMasses"></param>
-        /// <param name="sngIntensities"></param>
-        /// <param name="blnShrinkDataArrays">If true and any invalid lines were encountered, shrink the arrays</param>
+        /// <param name="msmsData"></param>
+        /// <param name="masses"></param>
+        /// <param name="intensities"></param>
+        /// <param name="shrinkDataArrays">If true and any invalid lines were encountered, shrink the arrays</param>
         /// <returns>The number of data points in the output arrays</returns>
-        public int ParseMsMsDataList(List<string> lstMSMSData, out double[] dblMasses, out float[] sngIntensities, bool blnShrinkDataArrays)
+        public int ParseMsMsDataList(List<string> msmsData, out double[] masses, out float[] intensities, bool shrinkDataArrays)
         {
-            int intDataCount;
-            var strSepChars = new[] { ' ', '\t' };
+            int dataCount;
+            var sepChars = new[] { ' ', '\t' };
 
             // ReSharper disable once MergeIntoPattern
-            if (lstMSMSData != null && lstMSMSData.Count > 0)
+            if (msmsData != null && msmsData.Count > 0)
             {
-                dblMasses = new double[lstMSMSData.Count];
-                sngIntensities = new float[lstMSMSData.Count];
-                intDataCount = 0;
+                masses = new double[msmsData.Count];
+                intensities = new float[msmsData.Count];
+                dataCount = 0;
 
-                foreach (var strItem in lstMSMSData)
+                foreach (var item in msmsData)
                 {
-                    // Each line in strMSMSData should contain a mass and intensity pair, separated by a space or Tab
+                    // Each line in msmsData should contain a mass and intensity pair, separated by a space or Tab
                     // MGF files sometimes contain a third number, the charge of the ion
                     // Use .Split() to parse the numbers in the line to extract the mass and intensity, and ignore the charge (if present)
-                    var strSplitLine = strItem.Split(strSepChars);
+                    var splitLine = item.Split(sepChars);
 
-                    if (strSplitLine.Length >= 2)
+                    if (splitLine.Length >= 2)
                     {
-                        if (IsNumber(strSplitLine[0]) && IsNumber(strSplitLine[1]))
+                        if (IsNumber(splitLine[0]) && IsNumber(splitLine[1]))
                         {
-                            dblMasses[intDataCount] = double.Parse(strSplitLine[0]);
-                            sngIntensities[intDataCount] = float.Parse(strSplitLine[1]);
-                            intDataCount++;
+                            masses[dataCount] = double.Parse(splitLine[0]);
+                            intensities[dataCount] = float.Parse(splitLine[1]);
+                            dataCount++;
                         }
                     }
                 }
 
-                if (intDataCount <= 0)
+                if (dataCount <= 0)
                 {
-                    dblMasses = new double[1];
-                    sngIntensities = new float[1];
+                    masses = new double[1];
+                    intensities = new float[1];
                 }
-                else if (intDataCount != lstMSMSData.Count && blnShrinkDataArrays)
+                else if (dataCount != msmsData.Count && shrinkDataArrays)
                 {
-                    Array.Resize(ref dblMasses, intDataCount);
-                    Array.Resize(ref sngIntensities, intDataCount);
+                    Array.Resize(ref masses, dataCount);
+                    Array.Resize(ref intensities, dataCount);
                 }
             }
             else
             {
-                intDataCount = 0;
-                dblMasses = new double[1];
-                sngIntensities = new float[1];
+                dataCount = 0;
+                masses = new double[1];
+                intensities = new float[1];
             }
 
-            return intDataCount;
+            return dataCount;
         }
 
         protected void UpdateStreamReaderProgress()
         {
-            if (mFileReader is StreamReader objStreamReader)
+            if (mFileReader is StreamReader streamReader)
             {
-                UpdateProgress(objStreamReader.BaseStream.Position / (double)objStreamReader.BaseStream.Length * 100.0d);
+                UpdateProgress(streamReader.BaseStream.Position / (double)streamReader.BaseStream.Length * 100.0d);
             }
             else if (mInFileStreamLength > 0L)
             {

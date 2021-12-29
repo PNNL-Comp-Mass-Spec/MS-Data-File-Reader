@@ -244,30 +244,30 @@ namespace MSDataFileReader
 
         // ReSharper restore UnusedMember.Global
 
-        private float FindIonIntensityInRecentSpectra(int intSpectrumIDToFind, double dblMZToFind)
+        private float FindIonIntensityInRecentSpectra(int spectrumIDToFind, double mzToFind)
         {
-            var sngIntensityMatch = 0f;
+            var intensityMatch = 0f;
 
             if (mMostRecentSurveyScanSpectra != null)
             {
-                var objEnumerator = mMostRecentSurveyScanSpectra.GetEnumerator();
+                var enumerator = mMostRecentSurveyScanSpectra.GetEnumerator();
 
-                while (objEnumerator.MoveNext())
+                while (enumerator.MoveNext())
                 {
-                    var objSpectrum = (SpectrumInfoMzData)objEnumerator.Current;
+                    var spectrum = (SpectrumInfoMzData)enumerator.Current;
 
-                    if (objSpectrum == null)
+                    if (spectrum == null)
                         continue;
 
-                    if (objSpectrum.SpectrumID == intSpectrumIDToFind)
+                    if (spectrum.SpectrumID == spectrumIDToFind)
                     {
-                        sngIntensityMatch = objSpectrum.LookupIonIntensityByMZ(dblMZToFind, 0f);
+                        intensityMatch = spectrum.LookupIonIntensityByMZ(mzToFind, 0f);
                         break;
                     }
                 }
             }
 
-            return sngIntensityMatch;
+            return intensityMatch;
         }
 
         protected override SpectrumInfo GetCurrentSpectrum()
@@ -275,14 +275,14 @@ namespace MSDataFileReader
             return mCurrentSpectrum;
         }
 
-        private bool GetCVNameAndValue(out string strName, out string strValue)
+        private bool GetCVNameAndValue(out string name, out string value)
         {
             try
             {
                 if (mXMLReader.HasAttributes)
                 {
-                    strName = mXMLReader.GetAttribute("name");
-                    strValue = mXMLReader.GetAttribute("value");
+                    name = mXMLReader.GetAttribute("name");
+                    value = mXMLReader.GetAttribute("value");
                     return true;
                 }
             }
@@ -291,12 +291,12 @@ namespace MSDataFileReader
                 // Ignore errors here
             }
 
-            strName = string.Empty;
-            strValue = string.Empty;
+            name = string.Empty;
+            value = string.Empty;
             return false;
         }
 
-        protected override void InitializeCurrentSpectrum(bool blnAutoShrinkDataLists)
+        protected override void InitializeCurrentSpectrum(bool autoShrinkDataLists)
         {
             if (mCurrentSpectrum is { MSLevel: 1 })
             {
@@ -306,8 +306,8 @@ namespace MSDataFileReader
                 }
 
                 // Add mCurrentSpectrum to mMostRecentSurveyScanSpectra
-                mCurrentSpectrum.CopyTo(out var objSpectrumCopy);
-                mMostRecentSurveyScanSpectra.Enqueue(objSpectrumCopy);
+                mCurrentSpectrum.CopyTo(out var spectrumCopy);
+                mMostRecentSurveyScanSpectra.Enqueue(spectrumCopy);
             }
 
             if (ReadingAndStoringSpectra || mCurrentSpectrum is null)
@@ -319,7 +319,7 @@ namespace MSDataFileReader
                 mCurrentSpectrum.Clear();
             }
 
-            mCurrentSpectrum.AutoShrinkDataLists = blnAutoShrinkDataLists;
+            mCurrentSpectrum.AutoShrinkDataLists = autoShrinkDataLists;
         }
 
         protected sealed override void InitializeLocalVariables()
@@ -336,57 +336,57 @@ namespace MSDataFileReader
             mMostRecentSurveyScanSpectra = new Queue();
         }
 
-        public override bool OpenFile(string strInputFilePath)
+        public override bool OpenFile(string inputFilePath)
         {
             InitializeLocalVariables();
-            return base.OpenFile(strInputFilePath);
+            return base.OpenFile(inputFilePath);
         }
 
         /// <summary>
-        /// Parse strMSMSDataBase64Encoded and store the data in sngValues
+        /// Parse msmsDataBase64Encoded and store the data in values
         /// </summary>
-        /// <param name="strMSMSDataBase64Encoded"></param>
-        /// <param name="sngValues"></param>
-        /// <param name="NumericPrecisionOfData"></param>
-        /// <param name="PeaksEndianMode"></param>
-        /// <param name="blnUpdatePeaksCountIfInconsistent"></param>
+        /// <param name="msmsDataBase64Encoded"></param>
+        /// <param name="values"></param>
+        /// <param name="numericPrecisionOfData"></param>
+        /// <param name="peaksEndianMode"></param>
+        /// <param name="updatePeaksCountIfInconsistent"></param>
         /// <returns>True if successful, false if an error</returns>
-        private bool ParseBinaryData(string strMSMSDataBase64Encoded, ref float[] sngValues, int NumericPrecisionOfData, string PeaksEndianMode, bool blnUpdatePeaksCountIfInconsistent)
+        private bool ParseBinaryData(string msmsDataBase64Encoded, ref float[] values, int numericPrecisionOfData, string peaksEndianMode, bool updatePeaksCountIfInconsistent)
         {
             var zLibCompressed = false;
 
-            if (strMSMSDataBase64Encoded is null || strMSMSDataBase64Encoded.Length == 0)
+            if (msmsDataBase64Encoded is null || msmsDataBase64Encoded.Length == 0)
             {
-                sngValues = Array.Empty<float>();
+                values = Array.Empty<float>();
                 return false;
             }
 
             try
             {
-                var eEndianMode = mCurrentSpectrum.GetEndianModeValue(PeaksEndianMode);
+                var endianMode = mCurrentSpectrum.GetEndianModeValue(peaksEndianMode);
                 var success = false;
 
-                switch (NumericPrecisionOfData)
+                switch (numericPrecisionOfData)
                 {
                     case 32:
-                        if (Base64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
+                        if (Base64EncodeDecode.DecodeNumericArray(msmsDataBase64Encoded, out float[] floatDataArray, zLibCompressed, endianMode))
                         {
-                            sngValues = new float[sngDataArray.Length];
-                            sngDataArray.CopyTo(sngValues, 0);
+                            values = new float[floatDataArray.Length];
+                            floatDataArray.CopyTo(values, 0);
                             success = true;
                         }
 
                         break;
 
                     case 64:
-                        if (Base64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
+                        if (Base64EncodeDecode.DecodeNumericArray(msmsDataBase64Encoded, out double[] doubleDataArray, zLibCompressed, endianMode))
                         {
-                            sngValues = new float[dblDataArray.Length];
-                            var intIndexEnd = dblDataArray.Length - 1;
+                            values = new float[doubleDataArray.Length];
+                            var indexEnd = doubleDataArray.Length - 1;
 
-                            for (var intIndex = 0; intIndex <= intIndexEnd; intIndex++)
+                            for (var index = 0; index <= indexEnd; index++)
                             {
-                                sngValues[intIndex] = (float)dblDataArray[intIndex];
+                                values[index] = (float)doubleDataArray[index];
                             }
 
                             success = true;
@@ -402,18 +402,18 @@ namespace MSDataFileReader
                 if (!success)
                     return false;
 
-                if (sngValues.Length == mCurrentSpectrum.DataCount)
+                if (values.Length == mCurrentSpectrum.DataCount)
                     return true;
 
-                if (mCurrentSpectrum.DataCount == 0 && sngValues.Length > 0 && Math.Abs(sngValues[0]) < float.Epsilon)
+                if (mCurrentSpectrum.DataCount == 0 && values.Length > 0 && Math.Abs(values[0]) < float.Epsilon)
                 {
                     // Leave .PeaksCount at 0
                 }
-                else if (blnUpdatePeaksCountIfInconsistent)
+                else if (updatePeaksCountIfInconsistent)
                 {
                     // This shouldn't normally be necessary
-                    OnErrorEvent("Unexpected condition in ParseBinaryData: sngValues.Length <> .DataCount and .DataCount > 0");
-                    mCurrentSpectrum.DataCount = sngValues.Length;
+                    OnErrorEvent("Unexpected condition in ParseBinaryData: values.Length <> .DataCount and .DataCount > 0");
+                    mCurrentSpectrum.DataCount = values.Length;
                 }
 
                 return true;
@@ -426,46 +426,46 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-        /// Parse strMSMSDataBase64Encoded and store the data in dblValues
+        /// Parse msmsDataBase64Encoded and store the data in values
         /// </summary>
-        /// <param name="strMSMSDataBase64Encoded"></param>
-        /// <param name="dblValues"></param>
-        /// <param name="NumericPrecisionOfData"></param>
-        /// <param name="PeaksEndianMode"></param>
-        /// <param name="blnUpdatePeaksCountIfInconsistent"></param>
+        /// <param name="msmsDataBase64Encoded"></param>
+        /// <param name="values"></param>
+        /// <param name="numericPrecisionOfData"></param>
+        /// <param name="peaksEndianMode"></param>
+        /// <param name="updatePeaksCountIfInconsistent"></param>
         /// <returns>True if successful, false if an error</returns>
-        private bool ParseBinaryData(string strMSMSDataBase64Encoded, ref double[] dblValues, int NumericPrecisionOfData, string PeaksEndianMode, bool blnUpdatePeaksCountIfInconsistent)
+        private bool ParseBinaryData(string msmsDataBase64Encoded, ref double[] values, int numericPrecisionOfData, string peaksEndianMode, bool updatePeaksCountIfInconsistent)
         {
             var zLibCompressed = false;
 
-            if (strMSMSDataBase64Encoded is null || strMSMSDataBase64Encoded.Length == 0)
+            if (msmsDataBase64Encoded is null || msmsDataBase64Encoded.Length == 0)
             {
-                dblValues = Array.Empty<double>();
+                values = Array.Empty<double>();
                 return false;
             }
 
             try
             {
-                var eEndianMode = mCurrentSpectrum.GetEndianModeValue(PeaksEndianMode);
+                var endianMode = mCurrentSpectrum.GetEndianModeValue(peaksEndianMode);
                 var success = false;
 
-                switch (NumericPrecisionOfData)
+                switch (numericPrecisionOfData)
                 {
                     case 32:
-                        if (Base64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
+                        if (Base64EncodeDecode.DecodeNumericArray(msmsDataBase64Encoded, out float[] floatDataArray, zLibCompressed, endianMode))
                         {
-                            dblValues = new double[sngDataArray.Length];
-                            sngDataArray.CopyTo(dblValues, 0);
+                            values = new double[floatDataArray.Length];
+                            floatDataArray.CopyTo(values, 0);
                             success = true;
                         }
 
                         break;
 
                     case 64:
-                        if (Base64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
+                        if (Base64EncodeDecode.DecodeNumericArray(msmsDataBase64Encoded, out double[] doubleDataArray, zLibCompressed, endianMode))
                         {
-                            dblValues = new double[dblDataArray.Length];
-                            dblDataArray.CopyTo(dblValues, 0);
+                            values = new double[doubleDataArray.Length];
+                            doubleDataArray.CopyTo(values, 0);
                             success = true;
                         }
 
@@ -479,18 +479,18 @@ namespace MSDataFileReader
                 if (!success)
                     return false;
 
-                if (dblValues.Length == mCurrentSpectrum.DataCount)
+                if (values.Length == mCurrentSpectrum.DataCount)
                     return true;
 
-                if (mCurrentSpectrum.DataCount == 0 && dblValues.Length > 0 && Math.Abs(dblValues[0]) < float.Epsilon)
+                if (mCurrentSpectrum.DataCount == 0 && values.Length > 0 && Math.Abs(values[0]) < float.Epsilon)
                 {
                     // Leave .PeaksCount at 0
                 }
-                else if (blnUpdatePeaksCountIfInconsistent)
+                else if (updatePeaksCountIfInconsistent)
                 {
                     // This shouldn't normally be necessary
-                    OnErrorEvent("Unexpected condition in ParseBinaryData: sngValues.Length <> .DataCount and .DataCount > 0");
-                    mCurrentSpectrum.DataCount = dblValues.Length;
+                    OnErrorEvent("Unexpected condition in ParseBinaryData: values.Length <> .DataCount and .DataCount > 0");
+                    mCurrentSpectrum.DataCount = values.Length;
                 }
 
                 return true;
@@ -605,28 +605,28 @@ namespace MSDataFileReader
             switch (mXMLReader.Name)
             {
                 case XMLSectionNames.CVParam:
-                    string strCVName;
-                    string strValue;
+                    string cvName;
+                    string cvValue;
 
                     switch (mCurrentXMLDataFileSection)
                     {
                         case CurrentMzDataFileSection.DataProcessingMethod:
-                            if (GetCVNameAndValue(out strCVName, out strValue))
+                            if (GetCVNameAndValue(out cvName, out cvValue))
                             {
-                                switch (strCVName)
+                                switch (cvName)
                                 {
                                     case ProcessingMethodCVParamNames.Deisotoping:
-                                        mInputFileStatsAddnl.IsDeisotoped = CBoolSafe(strValue, false);
+                                        mInputFileStatsAddnl.IsDeisotoped = CBoolSafe(cvValue, false);
                                         break;
 
                                     case ProcessingMethodCVParamNames.ChargeDeconvolution:
-                                        mInputFileStatsAddnl.HasChargeDeconvolution = CBoolSafe(strValue, false);
+                                        mInputFileStatsAddnl.HasChargeDeconvolution = CBoolSafe(cvValue, false);
                                         break;
 
                                     case ProcessingMethodCVParamNames.PeakProcessing:
-                                        mInputFileStatsAddnl.PeakProcessing = strValue;
+                                        mInputFileStatsAddnl.PeakProcessing = cvValue;
 
-                                        if (strValue.ToLower().IndexOf("centroid", StringComparison.Ordinal) >= 0)
+                                        if (cvValue.ToLower().IndexOf("centroid", StringComparison.Ordinal) >= 0)
                                         {
                                             mInputFileStatsAddnl.IsCentroid = true;
                                         }
@@ -642,20 +642,20 @@ namespace MSDataFileReader
                             break;
 
                         case CurrentMzDataFileSection.SpectrumInstrument:
-                            if (GetCVNameAndValue(out strCVName, out strValue))
+                            if (GetCVNameAndValue(out cvName, out cvValue))
                             {
-                                switch (strCVName)
+                                switch (cvName)
                                 {
                                     case SpectrumInstrumentCVParamNames.ScanMode:
-                                        mCurrentSpectrum.ScanMode = strValue;
+                                        mCurrentSpectrum.ScanMode = cvValue;
                                         break;
 
                                     case SpectrumInstrumentCVParamNames.Polarity:
-                                        mCurrentSpectrum.Polarity = strValue;
+                                        mCurrentSpectrum.Polarity = cvValue;
                                         break;
 
                                     case SpectrumInstrumentCVParamNames.TimeInMinutes:
-                                        mCurrentSpectrum.RetentionTimeMin = CSngSafe(strValue, 0f);
+                                        mCurrentSpectrum.RetentionTimeMin = CSngSafe(cvValue, 0f);
                                         break;
                                 }
                             }
@@ -663,12 +663,12 @@ namespace MSDataFileReader
                             break;
 
                         case CurrentMzDataFileSection.PrecursorIonSelection:
-                            if (GetCVNameAndValue(out strCVName, out strValue))
+                            if (GetCVNameAndValue(out cvName, out cvValue))
                             {
-                                switch (strCVName)
+                                switch (cvName)
                                 {
                                     case PrecursorIonSelectionCVParamNames.MassToChargeRatio:
-                                        mCurrentSpectrum.ParentIonMZ = CDblSafe(strValue, 0d);
+                                        mCurrentSpectrum.ParentIonMZ = CDblSafe(cvValue, 0d);
                                         mCurrentSpectrum.ParentIonIntensity =
                                             FindIonIntensityInRecentSpectra(mCurrentSpectrum.ParentIonSpectrumID,
                                                 mCurrentSpectrum.ParentIonMZ);
@@ -676,7 +676,7 @@ namespace MSDataFileReader
                                         break;
 
                                     case PrecursorIonSelectionCVParamNames.ChargeState:
-                                        mCurrentSpectrum.ParentIonCharge = CIntSafe(strValue, 0);
+                                        mCurrentSpectrum.ParentIonCharge = CIntSafe(cvValue, 0);
                                         break;
                                 }
                             }
@@ -684,20 +684,20 @@ namespace MSDataFileReader
                             break;
 
                         case CurrentMzDataFileSection.PrecursorActivation:
-                            if (GetCVNameAndValue(out strCVName, out strValue))
+                            if (GetCVNameAndValue(out cvName, out cvValue))
                             {
-                                switch (strCVName)
+                                switch (cvName)
                                 {
                                     case PrecursorActivationCVParamNames.Method:
-                                        mCurrentSpectrum.CollisionMethod = strValue;
+                                        mCurrentSpectrum.CollisionMethod = cvValue;
                                         break;
 
                                     case PrecursorActivationCVParamNames.CollisionEnergy:
-                                        mCurrentSpectrum.CollisionEnergy = CSngSafe(strValue, 0f);
+                                        mCurrentSpectrum.CollisionEnergy = CSngSafe(cvValue, 0f);
                                         break;
 
                                     case PrecursorActivationCVParamNames.EnergyUnits:
-                                        mCurrentSpectrum.CollisionEnergyUnits = strValue;
+                                        mCurrentSpectrum.CollisionEnergyUnits = cvValue;
                                         break;
                                 }
                             }
@@ -937,38 +937,38 @@ namespace MSDataFileReader
             }
         }
 
-        private void ValidateMZDataFileVersion(string strFileVersion)
+        private void ValidateMZDataFileVersion(string fileVersion)
         {
             try
             {
                 mFileVersion = string.Empty;
 
                 // Currently, the only version supported is 1.x (typically 1.05)
-                var objFileVersionRegEx = new System.Text.RegularExpressions.Regex(@"1\.[0-9]+", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+                var fileVersionRegEx = new System.Text.RegularExpressions.Regex(@"1\.[0-9]+", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
                 // Validate the mzData file version
-                if (!string.IsNullOrWhiteSpace(strFileVersion))
+                if (!string.IsNullOrWhiteSpace(fileVersion))
                 {
-                    mFileVersion = string.Copy(strFileVersion);
-                    var objMatch = objFileVersionRegEx.Match(strFileVersion);
+                    mFileVersion = string.Copy(fileVersion);
+                    var match = fileVersionRegEx.Match(fileVersion);
 
-                    if (!objMatch.Success)
+                    if (!match.Success)
                     {
                         // Unknown version
                         // Log error and abort if mParseFilesWithUnknownVersion = False
-                        var strMessage = "Unknown mzData file version: " + mFileVersion;
+                        var message = "Unknown mzData file version: " + mFileVersion;
 
                         if (mParseFilesWithUnknownVersion)
                         {
-                            strMessage += "; attempting to parse since ParseFilesWithUnknownVersion = True";
+                            message += "; attempting to parse since ParseFilesWithUnknownVersion = True";
                         }
                         else
                         {
                             mAbortProcessing = true;
-                            strMessage += "; aborting read";
+                            message += "; aborting read";
                         }
 
-                        OnErrorEvent("Error in ValidateMZDataFileVersion: {0}", strMessage);
+                        OnErrorEvent("Error in ValidateMZDataFileVersion: {0}", message);
                     }
                 }
             }

@@ -371,50 +371,50 @@ namespace MSDataFileReader
         public SpectrumInfo Clone()
         {
             // First create a shallow copy of this object
-            var objTarget = (SpectrumInfo)MemberwiseClone();
+            var target = (SpectrumInfo)MemberwiseClone();
 
             // Next, manually copy the array objects and any other objects
             // Note: Since Clone() methods in the derived classes hide this method,
             // be sure to update them too if you change any code below
             if (MZList is null)
             {
-                objTarget.MZList = null;
+                target.MZList = null;
             }
             else
             {
-                objTarget.MZList = new double[MZList.Length];
-                MZList.CopyTo(objTarget.MZList, 0);
+                target.MZList = new double[MZList.Length];
+                MZList.CopyTo(target.MZList, 0);
             }
 
             if (IntensityList is null)
             {
-                objTarget.IntensityList = null;
+                target.IntensityList = null;
             }
             else
             {
-                objTarget.IntensityList = new float[IntensityList.Length];
-                IntensityList.CopyTo(objTarget.IntensityList, 0);
+                target.IntensityList = new float[IntensityList.Length];
+                IntensityList.CopyTo(target.IntensityList, 0);
             }
 
-            return objTarget;
+            return target;
         }
 
-        public virtual void CopyTo(out SpectrumInfo objTarget)
+        public virtual void CopyTo(out SpectrumInfo target)
         {
-            objTarget = Clone();
+            target = Clone();
         }
 
         public void UpdateMZRange()
         {
-            var sngMzRangeStart = 0f;
-            var sngMzRangeEnd = 0f;
+            var mzRangeStart = 0f;
+            var mzRangeEnd = 0f;
 
             try
             {
                 if (DataCount > 0 && MZList != null)
                 {
-                    sngMzRangeStart = (float)MZList[0];
-                    sngMzRangeEnd = (float)MZList[DataCount - 1];
+                    mzRangeStart = (float)MZList[0];
+                    mzRangeEnd = (float)MZList[DataCount - 1];
                 }
             }
             catch (Exception ex)
@@ -423,38 +423,38 @@ namespace MSDataFileReader
             }
             finally
             {
-                mzRangeStart = sngMzRangeStart;
-                mzRangeEnd = sngMzRangeEnd;
+                mzRangeStart = mzRangeStart;
+                mzRangeEnd = mzRangeEnd;
             }
         }
 
         public void ComputeBasePeakAndTIC()
         {
-            var dblTotalIonCurrent = default(double);
-            var dblBasePeakMZ = default(double);
-            var sngBasePeakIntensity = default(float);
+            var totalIonCurrent = default(double);
+            var basePeakMZ = default(double);
+            var basePeakIntensity = default(float);
 
             try
             {
-                dblTotalIonCurrent = 0d;
-                dblBasePeakMZ = 0d;
-                sngBasePeakIntensity = 0f;
+                totalIonCurrent = 0d;
+                basePeakMZ = 0d;
+                basePeakIntensity = 0f;
 
                 if (DataCount > 0 && MZList != null && IntensityList != null)
                 {
-                    dblBasePeakMZ = MZList[0];
-                    sngBasePeakIntensity = IntensityList[0];
-                    dblTotalIonCurrent = IntensityList[0];
-                    var intIndexEnd = DataCount - 1;
+                    basePeakMZ = MZList[0];
+                    basePeakIntensity = IntensityList[0];
+                    totalIonCurrent = IntensityList[0];
+                    var indexEnd = DataCount - 1;
 
-                    for (var intIndex = 1; intIndex <= intIndexEnd; intIndex++)
+                    for (var index = 1; index <= indexEnd; index++)
                     {
-                        dblTotalIonCurrent += IntensityList[intIndex];
+                        totalIonCurrent += IntensityList[index];
 
-                        if (IntensityList[intIndex] >= sngBasePeakIntensity)
+                        if (IntensityList[index] >= basePeakIntensity)
                         {
-                            dblBasePeakMZ = MZList[intIndex];
-                            sngBasePeakIntensity = IntensityList[intIndex];
+                            basePeakMZ = MZList[index];
+                            basePeakIntensity = IntensityList[index];
                         }
                     }
                 }
@@ -465,52 +465,52 @@ namespace MSDataFileReader
             }
             finally
             {
-                TotalIonCurrent = dblTotalIonCurrent;
-                BasePeakMZ = dblBasePeakMZ;
-                BasePeakIntensity = sngBasePeakIntensity;
+                TotalIonCurrent = totalIonCurrent;
+                BasePeakMZ = basePeakMZ;
+                BasePeakIntensity = basePeakIntensity;
             }
         }
 
         /// <summary>
-        /// Look for dblMZToFind in this spectrum's data and return the intensity, if found
+        /// Look for mzToFind in this spectrum's data and return the intensity, if found
         /// </summary>
-        /// <param name="dblMZToFind">m/z to find</param>
-        /// <param name="sngIntensityIfNotFound">Intensity to return, if not found</param>
-        /// <param name="sngMatchTolerance">Match tolerance</param>
-        /// <returns>Intensity for the given ion, or sngIntensityIfNotFound if not found</returns>
-        public float LookupIonIntensityByMZ(double dblMZToFind, float sngIntensityIfNotFound, float sngMatchTolerance = 0.05f)
+        /// <param name="mzToFind">m/z to find</param>
+        /// <param name="intensityIfNotFound">Intensity to return, if not found</param>
+        /// <param name="matchTolerance">Match tolerance</param>
+        /// <returns>Intensity for the given ion, or intensityIfNotFound if not found</returns>
+        public float LookupIonIntensityByMZ(double mzToFind, float intensityIfNotFound, float matchTolerance = 0.05f)
         {
-            float sngIntensityMatch;
+            float intensityMatch;
 
             try
             {
                 // Define the minimum MZ value to consider
-                var dblMZMinimum = dblMZToFind - sngMatchTolerance;
-                sngIntensityMatch = sngIntensityIfNotFound;
+                var mzMinimum = mzToFind - matchTolerance;
+                intensityMatch = intensityIfNotFound;
 
                 if (!(MZList is null || IntensityList is null))
                 {
-                    int intIndex;
-                    for (intIndex = DataCount - 1; intIndex >= 0; intIndex--)
+                    int index;
+                    for (index = DataCount - 1; index >= 0; index--)
                     {
-                        if (intIndex >= MZList.Length || intIndex >= IntensityList.Length)
+                        if (index >= MZList.Length || index >= IntensityList.Length)
                             continue;
 
-                        if (MZList[intIndex] >= dblMZMinimum)
+                        if (MZList[index] >= mzMinimum)
                         {
-                            var dblMZDifference = dblMZToFind - MZList[intIndex];
+                            var mzDifference = mzToFind - MZList[index];
 
-                            if (Math.Abs(dblMZDifference) <= sngMatchTolerance)
+                            if (Math.Abs(mzDifference) <= matchTolerance)
                             {
-                                if (IntensityList[intIndex] > sngIntensityMatch)
+                                if (IntensityList[index] > intensityMatch)
                                 {
-                                    sngIntensityMatch = IntensityList[intIndex];
+                                    intensityMatch = IntensityList[index];
                                 }
                             }
                         }
                         else
                         {
-                            // Assuming MZList is sorted on intensity, we can exit out of the loop once we pass dblMZMinimum
+                            // Assuming MZList is sorted on intensity, we can exit out of the loop once we pass mzMinimum
                             break;
                         }
                     }
@@ -518,20 +518,20 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                sngIntensityMatch = sngIntensityIfNotFound;
+                intensityMatch = intensityIfNotFound;
             }
 
-            return sngIntensityMatch;
+            return intensityMatch;
         }
 
-        public virtual void Validate(bool blnComputeBasePeakAndTIC, bool blnUpdateMZRange)
+        public virtual void Validate(bool computeBasePeakAndTIC, bool updateMZRange)
         {
-            if (blnComputeBasePeakAndTIC)
+            if (computeBasePeakAndTIC)
             {
                 ComputeBasePeakAndTIC();
             }
 
-            if (blnUpdateMZRange)
+            if (updateMZRange)
             {
                 UpdateMZRange();
             }

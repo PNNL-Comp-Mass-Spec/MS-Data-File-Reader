@@ -15,78 +15,78 @@ namespace MSDataFileReader
             BigEndian = 1
         }
 
-        private static string B64encode(byte[] bytArray, bool removeTrailingPaddingChars = false)
+        private static string B64encode(byte[] array, bool removeTrailingPaddingChars = false)
         {
             return removeTrailingPaddingChars
-                ? Convert.ToBase64String(bytArray).TrimEnd('=')
-                : Convert.ToBase64String(bytArray);
+                ? Convert.ToBase64String(array).TrimEnd('=')
+                : Convert.ToBase64String(array);
         }
 
         /// <summary>
         /// Extracts an array of Bytes from a base-64 encoded string
         /// </summary>
-        /// <param name="strBase64EncodedText"></param>
+        /// <param name="base64EncodedText"></param>
         /// <param name="dataArray"></param>
         /// <returns>True if successful, raises an exception if an error</returns>
-        public static bool DecodeNumericArray(string strBase64EncodedText, out byte[] dataArray)
+        public static bool DecodeNumericArray(string base64EncodedText, out byte[] dataArray)
         {
-            dataArray = Convert.FromBase64String(strBase64EncodedText);
+            dataArray = Convert.FromBase64String(base64EncodedText);
             return true;
         }
 
         /// <summary>
         /// Extracts an array of 16-bit integers from a base-64 encoded string
         /// </summary>
-        /// <param name="strBase64EncodedText"></param>
+        /// <param name="base64EncodedText"></param>
         /// <param name="dataArray"></param>
         /// <param name="zLibCompressed"></param>
-        /// <param name="eEndianMode"></param>
+        /// <param name="endianMode"></param>
         /// <returns>True if successful, raises an exception if an error</returns>
-        public static bool DecodeNumericArray(string strBase64EncodedText, out short[] dataArray, bool zLibCompressed, EndianType eEndianMode = EndianType.LittleEndian)
+        public static bool DecodeNumericArray(string base64EncodedText, out short[] dataArray, bool zLibCompressed, EndianType endianMode = EndianType.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 2;
-            byte[] bytArray;
-            var bytArrayOneValue = new byte[2];
+            byte[] byteArray;
+            var byteArrayOneValue = new byte[2];
             string conversionSource;
 
             if (zLibCompressed)
             {
                 conversionSource = "DecompressZLib";
-                bytArray = DecompressZLib(strBase64EncodedText);
+                byteArray = DecompressZLib(base64EncodedText);
             }
             else
             {
                 conversionSource = "Convert.FromBase64String";
-                bytArray = Convert.FromBase64String(strBase64EncodedText);
+                byteArray = Convert.FromBase64String(base64EncodedText);
             }
 
-            if (bytArray.Length % DATA_TYPE_PRECISION_BYTES != 0)
+            if (byteArray.Length % DATA_TYPE_PRECISION_BYTES != 0)
             {
                 throw new Exception("Array length of the Byte Array returned by " + conversionSource + " is not divisible by " + DATA_TYPE_PRECISION_BYTES + " bytes;" + " not the correct length for an encoded array of 16-bit integers");
             }
 
-            dataArray = new short[(int)Math.Round(bytArray.Length / (double)DATA_TYPE_PRECISION_BYTES)];
-            var intIndexEnd = bytArray.Length - 1;
+            dataArray = new short[(int)Math.Round(byteArray.Length / (double)DATA_TYPE_PRECISION_BYTES)];
+            var indexEnd = byteArray.Length - 1;
 
-            for (var intIndex = 0; intIndex <= intIndexEnd; intIndex += DATA_TYPE_PRECISION_BYTES)
+            for (var index = 0; index <= indexEnd; index += DATA_TYPE_PRECISION_BYTES)
             {
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
-                if (eEndianMode == EndianType.LittleEndian)
+                if (endianMode == EndianType.LittleEndian)
                 {
                     // Do not swap bytes
-                    Array.Copy(bytArray, intIndex, bytArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES);
+                    Array.Copy(byteArray, index, byteArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES);
                 }
                 else
                 {
-                    // eEndianTypeConstants.BigEndian
+                    // EndianType.BigEndian
                     // Swap bytes before converting from DATA_TYPE_PRECISION_BYTES bits to one 16-bit integer
-                    bytArrayOneValue[0] = bytArray[intIndex + 1];
-                    bytArrayOneValue[1] = bytArray[intIndex + 0];
+                    byteArrayOneValue[0] = byteArray[index + 1];
+                    byteArrayOneValue[1] = byteArray[index + 0];
                 }
 
-                dataArray[(int)Math.Round(intIndex / (double)DATA_TYPE_PRECISION_BYTES)] = BitConverter.ToInt16(bytArrayOneValue, 0);
+                dataArray[(int)Math.Round(index / (double)DATA_TYPE_PRECISION_BYTES)] = BitConverter.ToInt16(byteArrayOneValue, 0);
             }
 
             return true;
@@ -95,58 +95,58 @@ namespace MSDataFileReader
         /// <summary>
         /// Extracts an array of 32-bit integers from a base-64 encoded string
         /// </summary>
-        /// <param name="strBase64EncodedText"></param>
+        /// <param name="base64EncodedText"></param>
         /// <param name="dataArray"></param>
         /// <param name="zLibCompressed"></param>
-        /// <param name="eEndianMode"></param>
+        /// <param name="endianMode"></param>
         /// <returns>True if successful, raises an exception if an error</returns>
-        public static bool DecodeNumericArray(string strBase64EncodedText, out int[] dataArray, bool zLibCompressed, EndianType eEndianMode = EndianType.LittleEndian)
+        public static bool DecodeNumericArray(string base64EncodedText, out int[] dataArray, bool zLibCompressed, EndianType endianMode = EndianType.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 4;
-            byte[] bytArray;
-            var bytArrayOneValue = new byte[4];
+            byte[] byteArray;
+            var byteArrayOneValue = new byte[4];
             string conversionSource;
 
             if (zLibCompressed)
             {
                 conversionSource = "DecompressZLib";
-                bytArray = DecompressZLib(strBase64EncodedText);
+                byteArray = DecompressZLib(base64EncodedText);
             }
             else
             {
                 conversionSource = "Convert.FromBase64String";
-                bytArray = Convert.FromBase64String(strBase64EncodedText);
+                byteArray = Convert.FromBase64String(base64EncodedText);
             }
 
-            if (bytArray.Length % DATA_TYPE_PRECISION_BYTES != 0)
+            if (byteArray.Length % DATA_TYPE_PRECISION_BYTES != 0)
             {
                 throw new Exception("Array length of the Byte Array returned by " + conversionSource + " is not divisible by " + DATA_TYPE_PRECISION_BYTES + " bytes;" + " not the correct length for an encoded array of 32-bit integers");
             }
 
-            dataArray = new int[(int)Math.Round(bytArray.Length / (double)DATA_TYPE_PRECISION_BYTES)];
-            var intIndexEnd = bytArray.Length - 1;
+            dataArray = new int[(int)Math.Round(byteArray.Length / (double)DATA_TYPE_PRECISION_BYTES)];
+            var indexEnd = byteArray.Length - 1;
 
-            for (var intIndex = 0; intIndex <= intIndexEnd; intIndex += DATA_TYPE_PRECISION_BYTES)
+            for (var index = 0; index <= indexEnd; index += DATA_TYPE_PRECISION_BYTES)
             {
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
-                if (eEndianMode == EndianType.LittleEndian)
+                if (endianMode == EndianType.LittleEndian)
                 {
                     // Do not swap bytes
-                    Array.Copy(bytArray, intIndex, bytArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES);
+                    Array.Copy(byteArray, index, byteArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES);
                 }
                 else
                 {
-                    // eEndianTypeConstants.BigEndian
+                    // EndianType.BigEndian
                     // Swap bytes before converting from DATA_TYPE_PRECISION_BYTES bits to one 32-bit integer
-                    bytArrayOneValue[0] = bytArray[intIndex + 3];
-                    bytArrayOneValue[1] = bytArray[intIndex + 2];
-                    bytArrayOneValue[2] = bytArray[intIndex + 1];
-                    bytArrayOneValue[3] = bytArray[intIndex + 0];
+                    byteArrayOneValue[0] = byteArray[index + 3];
+                    byteArrayOneValue[1] = byteArray[index + 2];
+                    byteArrayOneValue[2] = byteArray[index + 1];
+                    byteArrayOneValue[3] = byteArray[index + 0];
                 }
 
-                dataArray[(int)Math.Round(intIndex / (double)DATA_TYPE_PRECISION_BYTES)] = BitConverter.ToInt32(bytArrayOneValue, 0);
+                dataArray[(int)Math.Round(index / (double)DATA_TYPE_PRECISION_BYTES)] = BitConverter.ToInt32(byteArrayOneValue, 0);
             }
 
             return true;
@@ -155,62 +155,62 @@ namespace MSDataFileReader
         /// <summary>
         /// Extracts an array of Singles from a base-64 encoded string
         /// </summary>
-        /// <param name="strBase64EncodedText"></param>
+        /// <param name="base64EncodedText"></param>
         /// <param name="dataArray"></param>
         /// <param name="zLibCompressed"></param>
-        /// <param name="eEndianMode"></param>
+        /// <param name="endianMode"></param>
         /// <returns>True if successful, raises an exception if an error</returns>
         public static bool DecodeNumericArray(
-            string strBase64EncodedText,
+            string base64EncodedText,
             out float[] dataArray,
             bool zLibCompressed,
-            EndianType eEndianMode = EndianType.LittleEndian)
+            EndianType endianMode = EndianType.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 4;
-            byte[] bytArray;
-            var bytArrayOneValue = new byte[4];
+            byte[] byteArray;
+            var byteArrayOneValue = new byte[4];
             string conversionSource;
 
             if (zLibCompressed)
             {
                 conversionSource = "DecompressZLib";
-                bytArray = DecompressZLib(strBase64EncodedText);
+                byteArray = DecompressZLib(base64EncodedText);
             }
             else
             {
                 conversionSource = "Convert.FromBase64String";
-                bytArray = Convert.FromBase64String(strBase64EncodedText);
+                byteArray = Convert.FromBase64String(base64EncodedText);
             }
 
-            if (bytArray.Length % DATA_TYPE_PRECISION_BYTES != 0)
+            if (byteArray.Length % DATA_TYPE_PRECISION_BYTES != 0)
             {
                 throw new Exception("Array length of the Byte Array returned by " + conversionSource + " is not divisible by " + DATA_TYPE_PRECISION_BYTES + " bytes;" + " not the correct length for an encoded array of floats (aka singles)");
             }
 
-            dataArray = new float[(int)Math.Round(bytArray.Length / (double)DATA_TYPE_PRECISION_BYTES)];
-            var intIndexEnd = bytArray.Length - 1;
+            dataArray = new float[(int)Math.Round(byteArray.Length / (double)DATA_TYPE_PRECISION_BYTES)];
+            var indexEnd = byteArray.Length - 1;
 
-            for (var intIndex = 0; intIndex <= intIndexEnd; intIndex += DATA_TYPE_PRECISION_BYTES)
+            for (var index = 0; index <= indexEnd; index += DATA_TYPE_PRECISION_BYTES)
             {
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
-                if (eEndianMode == EndianType.LittleEndian)
+                if (endianMode == EndianType.LittleEndian)
                 {
                     // Do not swap bytes
-                    Array.Copy(bytArray, intIndex, bytArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES);
+                    Array.Copy(byteArray, index, byteArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES);
                 }
                 else
                 {
-                    // eEndianTypeConstants.BigEndian
+                    // EndianType.BigEndian
                     // Swap bytes before converting from DATA_TYPE_PRECISION_BYTES bits to one single
-                    bytArrayOneValue[0] = bytArray[intIndex + 3];
-                    bytArrayOneValue[1] = bytArray[intIndex + 2];
-                    bytArrayOneValue[2] = bytArray[intIndex + 1];
-                    bytArrayOneValue[3] = bytArray[intIndex + 0];
+                    byteArrayOneValue[0] = byteArray[index + 3];
+                    byteArrayOneValue[1] = byteArray[index + 2];
+                    byteArrayOneValue[2] = byteArray[index + 1];
+                    byteArrayOneValue[3] = byteArray[index + 0];
                 }
 
-                dataArray[(int)Math.Round(intIndex / (double)DATA_TYPE_PRECISION_BYTES)] = BitConverter.ToSingle(bytArrayOneValue, 0);
+                dataArray[(int)Math.Round(index / (double)DATA_TYPE_PRECISION_BYTES)] = BitConverter.ToSingle(byteArrayOneValue, 0);
             }
 
             return true;
@@ -219,71 +219,71 @@ namespace MSDataFileReader
         /// <summary>
         /// Extracts an array of Doubles from a base-64 encoded string
         /// </summary>
-        /// <param name="strBase64EncodedText"></param>
+        /// <param name="base64EncodedText"></param>
         /// <param name="dataArray"></param>
         /// <param name="zLibCompressed"></param>
-        /// <param name="eEndianMode"></param>
+        /// <param name="endianMode"></param>
         /// <returns>True if successful, raises an exception if an error</returns>
-        public static bool DecodeNumericArray(string strBase64EncodedText, out double[] dataArray, bool zLibCompressed, EndianType eEndianMode = EndianType.LittleEndian)
+        public static bool DecodeNumericArray(string base64EncodedText, out double[] dataArray, bool zLibCompressed, EndianType endianMode = EndianType.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 8;
-            byte[] bytArray;
-            var bytArrayOneValue = new byte[8];
+            byte[] byteArray;
+            var byteArrayOneValue = new byte[8];
             string conversionSource;
 
             if (zLibCompressed)
             {
                 conversionSource = "DecompressZLib";
-                bytArray = DecompressZLib(strBase64EncodedText);
+                byteArray = DecompressZLib(base64EncodedText);
             }
             else
             {
                 conversionSource = "Convert.FromBase64String";
-                bytArray = Convert.FromBase64String(strBase64EncodedText);
+                byteArray = Convert.FromBase64String(base64EncodedText);
             }
 
-            if (bytArray.Length % DATA_TYPE_PRECISION_BYTES != 0)
+            if (byteArray.Length % DATA_TYPE_PRECISION_BYTES != 0)
             {
                 throw new Exception("Array length of the Byte Array returned by " + conversionSource + " is not divisible by " + DATA_TYPE_PRECISION_BYTES + " bytes;" + " not the correct length for an encoded array of doubles");
             }
 
-            dataArray = new double[(int)Math.Round(bytArray.Length / (double)DATA_TYPE_PRECISION_BYTES)];
-            var intIndexEnd = bytArray.Length - 1;
+            dataArray = new double[(int)Math.Round(byteArray.Length / (double)DATA_TYPE_PRECISION_BYTES)];
+            var indexEnd = byteArray.Length - 1;
 
-            for (var intIndex = 0; intIndex <= intIndexEnd; intIndex += DATA_TYPE_PRECISION_BYTES)
+            for (var index = 0; index <= indexEnd; index += DATA_TYPE_PRECISION_BYTES)
             {
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
-                if (eEndianMode == EndianType.LittleEndian)
+                if (endianMode == EndianType.LittleEndian)
                 {
                     // Do not swap bytes
-                    Array.Copy(bytArray, intIndex, bytArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES);
+                    Array.Copy(byteArray, index, byteArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES);
                 }
                 else
                 {
-                    // eEndianTypeConstants.BigEndian
+                    // EndianType.BigEndian
                     // Swap bytes before converting from DATA_TYPE_PRECISION_BYTES bits to one double
-                    bytArrayOneValue[0] = bytArray[intIndex + 7];
-                    bytArrayOneValue[1] = bytArray[intIndex + 6];
-                    bytArrayOneValue[2] = bytArray[intIndex + 5];
-                    bytArrayOneValue[3] = bytArray[intIndex + 4];
-                    bytArrayOneValue[4] = bytArray[intIndex + 3];
-                    bytArrayOneValue[5] = bytArray[intIndex + 2];
-                    bytArrayOneValue[6] = bytArray[intIndex + 1];
-                    bytArrayOneValue[7] = bytArray[intIndex];
+                    byteArrayOneValue[0] = byteArray[index + 7];
+                    byteArrayOneValue[1] = byteArray[index + 6];
+                    byteArrayOneValue[2] = byteArray[index + 5];
+                    byteArrayOneValue[3] = byteArray[index + 4];
+                    byteArrayOneValue[4] = byteArray[index + 3];
+                    byteArrayOneValue[5] = byteArray[index + 2];
+                    byteArrayOneValue[6] = byteArray[index + 1];
+                    byteArrayOneValue[7] = byteArray[index];
                 }
 
-                dataArray[(int)Math.Round(intIndex / (double)DATA_TYPE_PRECISION_BYTES)] = BitConverter.ToDouble(bytArrayOneValue, 0);
+                dataArray[(int)Math.Round(index / (double)DATA_TYPE_PRECISION_BYTES)] = BitConverter.ToDouble(byteArrayOneValue, 0);
             }
 
             return true;
         }
 
-        protected static byte[] DecompressZLib(string strBase64EncodedText)
+        protected static byte[] DecompressZLib(string base64EncodedText)
         {
-            var msCompressed = new MemoryStream(Convert.FromBase64String(strBase64EncodedText));
-            var msInflated = new MemoryStream(strBase64EncodedText.Length * 2);
+            var msCompressed = new MemoryStream(Convert.FromBase64String(base64EncodedText));
+            var msInflated = new MemoryStream(base64EncodedText.Length * 2);
 
             // We must skip the first two bytes
             // See http://george.chiramattel.com/blog/2007/09/deflatestream-block-length-does-not-match.html
@@ -292,50 +292,50 @@ namespace MSDataFileReader
 
             using (var inflater = new System.IO.Compression.DeflateStream(msCompressed, System.IO.Compression.CompressionMode.Decompress))
             {
-                var bytBuffer = new byte[4096];
+                var buffer = new byte[4096];
 
                 while (inflater.CanRead)
                 {
-                    var intBytesRead = inflater.Read(bytBuffer, 0, bytBuffer.Length);
+                    var bytesRead = inflater.Read(buffer, 0, buffer.Length);
 
-                    if (intBytesRead == 0)
+                    if (bytesRead == 0)
                         break;
-                    msInflated.Write(bytBuffer, 0, intBytesRead);
+                    msInflated.Write(buffer, 0, bytesRead);
                 }
 
                 msInflated.Seek(0L, SeekOrigin.Begin);
             }
 
-            byte[] bytArray;
-            var intTotalBytesDecompressed = (int)msInflated.Length;
+            byte[] byteArray;
+            var totalBytesDecompressed = (int)msInflated.Length;
 
-            if (intTotalBytesDecompressed > 0)
+            if (totalBytesDecompressed > 0)
             {
-                bytArray = new byte[intTotalBytesDecompressed];
-                msInflated.Read(bytArray, 0, intTotalBytesDecompressed);
+                byteArray = new byte[totalBytesDecompressed];
+                msInflated.Read(byteArray, 0, totalBytesDecompressed);
             }
             else
             {
-                bytArray = Array.Empty<byte>();
+                byteArray = Array.Empty<byte>();
             }
 
-            return bytArray;
+            return byteArray;
         }
 
         /// <summary>
         /// Converts an array of Bytes to a base-64 encoded string
         /// </summary>
         /// <param name="dataArray"></param>
-        /// <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
-        /// <param name="strDataTypeNameReturn">Output: Data type name</param>
+        /// <param name="precisionBitsReturn">Output: Bits of precision</param>
+        /// <param name="dataTypeNameReturn">Output: Data type name</param>
         /// <param name="removeTrailingPaddingChars"></param>
         /// <returns>Base-64 encoded string</returns>
-        public static string EncodeNumericArray(byte[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false)
+        public static string EncodeNumericArray(byte[] dataArray, out int precisionBitsReturn, out string dataTypeNameReturn, bool removeTrailingPaddingChars = false)
         {
             const int DATA_TYPE_PRECISION_BYTES = 1;
             const string DATA_TYPE_NAME = "byte";
-            intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
-            strDataTypeNameReturn = DATA_TYPE_NAME;
+            precisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
+            dataTypeNameReturn = DATA_TYPE_NAME;
 
             if (dataArray is null || dataArray.Length == 0)
             {
@@ -350,207 +350,207 @@ namespace MSDataFileReader
         /// In addition, returns the bits of precision and data type name for the given data type
         /// </summary>
         /// <param name="dataArray"></param>
-        /// <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
-        /// <param name="strDataTypeNameReturn">Output: Data type name</param>
+        /// <param name="precisionBitsReturn">Output: Bits of precision</param>
+        /// <param name="dataTypeNameReturn">Output: Data type name</param>
         /// <param name="removeTrailingPaddingChars"></param>
-        /// <param name="eEndianMode"></param>
+        /// <param name="endianMode"></param>
         /// <returns>Base-64 encoded string</returns>
-        public static string EncodeNumericArray(short[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false, EndianType eEndianMode = EndianType.LittleEndian)
+        public static string EncodeNumericArray(short[] dataArray, out int precisionBitsReturn, out string dataTypeNameReturn, bool removeTrailingPaddingChars = false, EndianType endianMode = EndianType.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 2;
             const string DATA_TYPE_NAME = "int";
 
-            intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
-            strDataTypeNameReturn = DATA_TYPE_NAME;
+            precisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
+            dataTypeNameReturn = DATA_TYPE_NAME;
 
             if (dataArray is null || dataArray.Length == 0)
             {
                 return string.Empty;
             }
 
-            var bytArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
-            var intIndexEnd = dataArray.Length - 1;
+            var byteArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
+            var indexEnd = dataArray.Length - 1;
 
-            for (var intIndex = 0; intIndex <= intIndexEnd; intIndex++)
+            for (var index = 0; index <= indexEnd; index++)
             {
-                var intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
-                var bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
+                var baseIndex = index * DATA_TYPE_PRECISION_BYTES;
+                var newBytes = BitConverter.GetBytes(dataArray[index]);
 
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
-                if (eEndianMode == EndianType.LittleEndian)
+                if (endianMode == EndianType.LittleEndian)
                 {
                     // Do not swap bytes
-                    Array.Copy(bytNewBytes, 0, bytArray, intBaseIndex, DATA_TYPE_PRECISION_BYTES);
+                    Array.Copy(newBytes, 0, byteArray, baseIndex, DATA_TYPE_PRECISION_BYTES);
                 }
                 else
                 {
-                    // eEndianTypeConstants.BigEndian
-                    // Swap bytes when copying into bytArray
-                    bytArray[intBaseIndex + 0] = bytNewBytes[1];
-                    bytArray[intBaseIndex + 1] = bytNewBytes[0];
+                    // EndianType.BigEndian
+                    // Swap bytes when copying into byteArray
+                    byteArray[baseIndex + 0] = newBytes[1];
+                    byteArray[baseIndex + 1] = newBytes[0];
                 }
             }
 
-            return B64encode(bytArray, removeTrailingPaddingChars);
+            return B64encode(byteArray, removeTrailingPaddingChars);
         }
 
         /// <summary>
         /// Converts an array of 32-bit integers to a base-64 encoded string
         /// </summary>
         /// <param name="dataArray"></param>
-        /// <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
-        /// <param name="strDataTypeNameReturn">Output: Data type name</param>
+        /// <param name="precisionBitsReturn">Output: Bits of precision</param>
+        /// <param name="dataTypeNameReturn">Output: Data type name</param>
         /// <param name="removeTrailingPaddingChars"></param>
-        /// <param name="eEndianMode"></param>
+        /// <param name="endianMode"></param>
         /// <returns>Base-64 encoded string</returns>
-        public static string EncodeNumericArray(int[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false, EndianType eEndianMode = EndianType.LittleEndian)
+        public static string EncodeNumericArray(int[] dataArray, out int precisionBitsReturn, out string dataTypeNameReturn, bool removeTrailingPaddingChars = false, EndianType endianMode = EndianType.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 4;
             const string DATA_TYPE_NAME = "int";
-            intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
-            strDataTypeNameReturn = DATA_TYPE_NAME;
+            precisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
+            dataTypeNameReturn = DATA_TYPE_NAME;
 
             if (dataArray is null || dataArray.Length == 0)
             {
                 return string.Empty;
             }
 
-            var bytArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
-            var intIndexEnd = dataArray.Length - 1;
+            var byteArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
+            var indexEnd = dataArray.Length - 1;
 
-            for (var intIndex = 0; intIndex <= intIndexEnd; intIndex++)
+            for (var index = 0; index <= indexEnd; index++)
             {
-                var intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
-                var bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
+                var baseIndex = index * DATA_TYPE_PRECISION_BYTES;
+                var newBytes = BitConverter.GetBytes(dataArray[index]);
 
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
-                if (eEndianMode == EndianType.LittleEndian)
+                if (endianMode == EndianType.LittleEndian)
                 {
                     // Do not swap bytes
-                    Array.Copy(bytNewBytes, 0, bytArray, intBaseIndex, DATA_TYPE_PRECISION_BYTES);
+                    Array.Copy(newBytes, 0, byteArray, baseIndex, DATA_TYPE_PRECISION_BYTES);
                 }
                 else
                 {
-                    // eEndianTypeConstants.BigEndian
-                    // Swap bytes when copying into bytArray
-                    bytArray[intBaseIndex + 0] = bytNewBytes[3];
-                    bytArray[intBaseIndex + 1] = bytNewBytes[2];
-                    bytArray[intBaseIndex + 2] = bytNewBytes[1];
-                    bytArray[intBaseIndex + 3] = bytNewBytes[0];
+                    // EndianType.BigEndian
+                    // Swap bytes when copying into byteArray
+                    byteArray[baseIndex + 0] = newBytes[3];
+                    byteArray[baseIndex + 1] = newBytes[2];
+                    byteArray[baseIndex + 2] = newBytes[1];
+                    byteArray[baseIndex + 3] = newBytes[0];
                 }
             }
 
-            return B64encode(bytArray, removeTrailingPaddingChars);
+            return B64encode(byteArray, removeTrailingPaddingChars);
         }
 
         /// <summary>
         /// Converts an array of singles (floats) to a base-64 encoded string
         /// </summary>
         /// <param name="dataArray"></param>
-        /// <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
-        /// <param name="strDataTypeNameReturn">Output: Data type name</param>
+        /// <param name="precisionBitsReturn">Output: Bits of precision</param>
+        /// <param name="dataTypeNameReturn">Output: Data type name</param>
         /// <param name="removeTrailingPaddingChars"></param>
-        /// <param name="eEndianMode"></param>
+        /// <param name="endianMode"></param>
         /// <returns>Base-64 encoded string</returns>
-        public static string EncodeNumericArray(float[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false, EndianType eEndianMode = EndianType.LittleEndian)
+        public static string EncodeNumericArray(float[] dataArray, out int precisionBitsReturn, out string dataTypeNameReturn, bool removeTrailingPaddingChars = false, EndianType endianMode = EndianType.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 4;
             const string DATA_TYPE_NAME = "float";
-            intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
-            strDataTypeNameReturn = DATA_TYPE_NAME;
+            precisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
+            dataTypeNameReturn = DATA_TYPE_NAME;
 
             if (dataArray is null || dataArray.Length == 0)
             {
                 return string.Empty;
             }
 
-            var bytArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
-            var intIndexEnd = dataArray.Length - 1;
+            var byteArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
+            var indexEnd = dataArray.Length - 1;
 
-            for (var intIndex = 0; intIndex <= intIndexEnd; intIndex++)
+            for (var index = 0; index <= indexEnd; index++)
             {
-                var intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
-                var bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
+                var baseIndex = index * DATA_TYPE_PRECISION_BYTES;
+                var newBytes = BitConverter.GetBytes(dataArray[index]);
 
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
-                if (eEndianMode == EndianType.LittleEndian)
+                if (endianMode == EndianType.LittleEndian)
                 {
                     // Do not swap bytes
-                    Array.Copy(bytNewBytes, 0, bytArray, intBaseIndex, DATA_TYPE_PRECISION_BYTES);
+                    Array.Copy(newBytes, 0, byteArray, baseIndex, DATA_TYPE_PRECISION_BYTES);
                 }
                 else
                 {
-                    // eEndianTypeConstants.BigEndian
-                    // Swap bytes when copying into bytArray
-                    bytArray[intBaseIndex + 0] = bytNewBytes[3];
-                    bytArray[intBaseIndex + 1] = bytNewBytes[2];
-                    bytArray[intBaseIndex + 2] = bytNewBytes[1];
-                    bytArray[intBaseIndex + 3] = bytNewBytes[0];
+                    // EndianType.BigEndian
+                    // Swap bytes when copying into byteArray
+                    byteArray[baseIndex + 0] = newBytes[3];
+                    byteArray[baseIndex + 1] = newBytes[2];
+                    byteArray[baseIndex + 2] = newBytes[1];
+                    byteArray[baseIndex + 3] = newBytes[0];
                 }
             }
 
-            return B64encode(bytArray, removeTrailingPaddingChars);
+            return B64encode(byteArray, removeTrailingPaddingChars);
         }
 
         /// <summary>
         /// Converts an array of doubles to a base-64 encoded string
         /// </summary>
         /// <param name="dataArray"></param>
-        /// <param name="intPrecisionBitsReturn">Output: Bits of precision</param>
-        /// <param name="strDataTypeNameReturn">Output: Data type name</param>
+        /// <param name="precisionBitsReturn">Output: Bits of precision</param>
+        /// <param name="dataTypeNameReturn">Output: Data type name</param>
         /// <param name="removeTrailingPaddingChars"></param>
-        /// <param name="eEndianMode"></param>
+        /// <param name="endianMode"></param>
         /// <returns>Base-64 encoded string</returns>
-        public static string EncodeNumericArray(double[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false, EndianType eEndianMode = EndianType.LittleEndian)
+        public static string EncodeNumericArray(double[] dataArray, out int precisionBitsReturn, out string dataTypeNameReturn, bool removeTrailingPaddingChars = false, EndianType endianMode = EndianType.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 8;
             const string DATA_TYPE_NAME = "float";
-            intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
-            strDataTypeNameReturn = DATA_TYPE_NAME;
+            precisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
+            dataTypeNameReturn = DATA_TYPE_NAME;
 
             if (dataArray is null || dataArray.Length == 0)
             {
                 return string.Empty;
             }
 
-            var bytArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
-            var intIndexEnd = dataArray.Length - 1;
+            var byteArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
+            var indexEnd = dataArray.Length - 1;
 
-            for (var intIndex = 0; intIndex <= intIndexEnd; intIndex++)
+            for (var index = 0; index <= indexEnd; index++)
             {
-                var intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
-                var bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
+                var baseIndex = index * DATA_TYPE_PRECISION_BYTES;
+                var newBytes = BitConverter.GetBytes(dataArray[index]);
 
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
-                if (eEndianMode == EndianType.LittleEndian)
+                if (endianMode == EndianType.LittleEndian)
                 {
                     // Do not swap bytes
-                    Array.Copy(bytNewBytes, 0, bytArray, intBaseIndex, DATA_TYPE_PRECISION_BYTES);
+                    Array.Copy(newBytes, 0, byteArray, baseIndex, DATA_TYPE_PRECISION_BYTES);
                 }
                 else
                 {
-                    // eEndianTypeConstants.BigEndian
-                    // Swap bytes when copying into bytArray
-                    bytArray[intBaseIndex + 0] = bytNewBytes[7];
-                    bytArray[intBaseIndex + 1] = bytNewBytes[6];
-                    bytArray[intBaseIndex + 2] = bytNewBytes[5];
-                    bytArray[intBaseIndex + 3] = bytNewBytes[4];
-                    bytArray[intBaseIndex + 4] = bytNewBytes[3];
-                    bytArray[intBaseIndex + 5] = bytNewBytes[2];
-                    bytArray[intBaseIndex + 6] = bytNewBytes[1];
-                    bytArray[intBaseIndex + 7] = bytNewBytes[0];
+                    // EndianType.BigEndian
+                    // Swap bytes when copying into byteArray
+                    byteArray[baseIndex + 0] = newBytes[7];
+                    byteArray[baseIndex + 1] = newBytes[6];
+                    byteArray[baseIndex + 2] = newBytes[5];
+                    byteArray[baseIndex + 3] = newBytes[4];
+                    byteArray[baseIndex + 4] = newBytes[3];
+                    byteArray[baseIndex + 5] = newBytes[2];
+                    byteArray[baseIndex + 6] = newBytes[1];
+                    byteArray[baseIndex + 7] = newBytes[0];
                 }
             }
 
-            return B64encode(bytArray, removeTrailingPaddingChars);
+            return B64encode(byteArray, removeTrailingPaddingChars);
         }
     }
 }

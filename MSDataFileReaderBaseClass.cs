@@ -183,23 +183,23 @@ namespace MSDataFileReader
             mAbortProcessing = true;
         }
 
-        protected bool CBoolSafe(string strValue, bool defaultValue)
+        protected bool CBoolSafe(string value, bool defaultValue)
         {
             try
             {
-                if (string.IsNullOrWhiteSpace(strValue))
+                if (string.IsNullOrWhiteSpace(value))
                 {
                     return defaultValue;
                 }
 
-                if (double.TryParse(strValue, out var dblValue))
+                if (double.TryParse(value, out var numericValue))
                 {
-                    return !(Math.Abs(dblValue) < float.Epsilon);
+                    return !(Math.Abs(numericValue) < float.Epsilon);
                 }
 
-                if (bool.TryParse(strValue, out var blnValue))
+                if (bool.TryParse(value, out var boolValue))
                 {
-                    return blnValue;
+                    return boolValue;
                 }
 
                 return defaultValue;
@@ -210,11 +210,11 @@ namespace MSDataFileReader
             }
         }
 
-        protected double CDblSafe(string strValue, double defaultValue)
+        protected double CDblSafe(string value, double defaultValue)
         {
             try
             {
-                return double.Parse(strValue);
+                return double.Parse(value);
             }
             catch (Exception ex)
             {
@@ -222,11 +222,11 @@ namespace MSDataFileReader
             }
         }
 
-        protected int CIntSafe(string strValue, int defaultValue)
+        protected int CIntSafe(string value, int defaultValue)
         {
             try
             {
-                return int.Parse(strValue);
+                return int.Parse(value);
             }
             catch (Exception ex)
             {
@@ -234,11 +234,11 @@ namespace MSDataFileReader
             }
         }
 
-        protected float CSngSafe(string strValue, float defaultValue)
+        protected float CSngSafe(string value, float defaultValue)
         {
             try
             {
-                return float.Parse(strValue);
+                return float.Parse(value);
             }
             catch (Exception ex)
             {
@@ -248,43 +248,43 @@ namespace MSDataFileReader
 
         public abstract void CloseFile();
 
-        public double ConvoluteMass(double dblMassMZ, int intCurrentCharge, int intDesiredCharge)
+        public double ConvoluteMass(double massMZ, int currentCharge, int desiredCharge)
         {
-            return ConvoluteMass(dblMassMZ, intCurrentCharge, intDesiredCharge, mChargeCarrierMass);
+            return ConvoluteMass(massMZ, currentCharge, desiredCharge, mChargeCarrierMass);
         }
 
         /// <summary>
-        /// Converts dblMassMZ to the MZ that would appear at the given intDesiredCharge
+        /// Converts massMZ to the MZ that would appear at the given desiredCharge
         /// </summary>
-        /// <remarks>To return the neutral mass, set intDesiredCharge to 0</remarks>
-        /// <param name="dblMassMZ"></param>
-        /// <param name="intCurrentCharge"></param>
-        /// <param name="intDesiredCharge"></param>
-        /// <param name="dblChargeCarrierMass"></param>
+        /// <remarks>To return the neutral mass, set desiredCharge to 0</remarks>
+        /// <param name="massMZ"></param>
+        /// <param name="currentCharge"></param>
+        /// <param name="desiredCharge"></param>
+        /// <param name="chargeCarrierMass"></param>
         /// <returns>Converted m/z</returns>
-        public static double ConvoluteMass(double dblMassMZ, int intCurrentCharge, int intDesiredCharge, double dblChargeCarrierMass)
+        public static double ConvoluteMass(double massMZ, int currentCharge, int desiredCharge, double chargeCarrierMass)
         {
-            double dblNewMZ;
+            double newMZ;
 
-            if (intCurrentCharge == intDesiredCharge)
+            if (currentCharge == desiredCharge)
             {
-                dblNewMZ = dblMassMZ;
+                newMZ = massMZ;
             }
             else
             {
-                if (intCurrentCharge == 1)
+                if (currentCharge == 1)
                 {
-                    dblNewMZ = dblMassMZ;
+                    newMZ = massMZ;
                 }
-                else if (intCurrentCharge > 1)
+                else if (currentCharge > 1)
                 {
-                    // Convert dblMassMZ to M+H
-                    dblNewMZ = dblMassMZ * intCurrentCharge - dblChargeCarrierMass * (intCurrentCharge - 1);
+                    // Convert massMZ to M+H
+                    newMZ = massMZ * currentCharge - chargeCarrierMass * (currentCharge - 1);
                 }
-                else if (intCurrentCharge == 0)
+                else if (currentCharge == 0)
                 {
-                    // Convert dblMassMZ (which is neutral) to M+H and store in dblNewMZ
-                    dblNewMZ = dblMassMZ + dblChargeCarrierMass;
+                    // Convert massMZ (which is neutral) to M+H and store in newMZ
+                    newMZ = massMZ + chargeCarrierMass;
                 }
                 else
                 {
@@ -292,96 +292,96 @@ namespace MSDataFileReader
                     return 0d;
                 }
 
-                if (intDesiredCharge > 1)
+                if (desiredCharge > 1)
                 {
-                    dblNewMZ = (dblNewMZ + dblChargeCarrierMass * (intDesiredCharge - 1)) / intDesiredCharge;
+                    newMZ = (newMZ + chargeCarrierMass * (desiredCharge - 1)) / desiredCharge;
                 }
-                else if (intDesiredCharge == 1)
+                else if (desiredCharge == 1)
                 {
-                    // Return M+H, which is currently stored in dblNewMZ
+                    // Return M+H, which is currently stored in newMZ
                 }
-                else if (intDesiredCharge == 0)
+                else if (desiredCharge == 0)
                 {
                     // Return the neutral mass
-                    dblNewMZ -= dblChargeCarrierMass;
+                    newMZ -= chargeCarrierMass;
                 }
                 else
                 {
                     // Negative charges are not supported; return 0
-                    dblNewMZ = 0d;
+                    newMZ = 0d;
                 }
             }
 
-            return dblNewMZ;
+            return newMZ;
         }
 
         /// <summary>
         /// Determine the file type based on its extension
         /// </summary>
-        /// <param name="strFileNameOrPath"></param>
-        /// <param name="eFileType"></param>
+        /// <param name="fileNameOrPath"></param>
+        /// <param name="fileType"></param>
         /// <returns>True if a known file type, otherwise false</returns>
-        public static bool DetermineFileType(string strFileNameOrPath, out DataFileType eFileType)
+        public static bool DetermineFileType(string fileNameOrPath, out DataFileType fileType)
         {
-            bool blnKnownType;
-            eFileType = DataFileType.Unknown;
+            bool knownType;
+            fileType = DataFileType.Unknown;
 
             try
             {
-                if (string.IsNullOrWhiteSpace(strFileNameOrPath))
+                if (string.IsNullOrWhiteSpace(fileNameOrPath))
                 {
                     return false;
                 }
 
-                var strFileName = Path.GetFileName(strFileNameOrPath);
+                var fileName = Path.GetFileName(fileNameOrPath);
 
-                var strFileExtension = Path.GetExtension(strFileName).ToUpper();
+                var fileExtension = Path.GetExtension(fileName).ToUpper();
 
-                if (string.IsNullOrWhiteSpace(strFileExtension))
+                if (string.IsNullOrWhiteSpace(fileExtension))
                 {
                     return false;
                 }
 
-                if (!strFileExtension.StartsWith("."))
+                if (!fileExtension.StartsWith("."))
                 {
-                    strFileExtension = '.' + strFileExtension;
+                    fileExtension = '.' + fileExtension;
                 }
 
                 // Assume known file type for now
-                blnKnownType = true;
+                knownType = true;
 
-                switch (strFileExtension)
+                switch (fileExtension)
                 {
                     case MzDataFileReader.MZDATA_FILE_EXTENSION:
-                        eFileType = DataFileType.mzData;
+                        fileType = DataFileType.mzData;
                         break;
 
                     case MzXMLFileReader.MZXML_FILE_EXTENSION:
-                        eFileType = DataFileType.mzXML;
+                        fileType = DataFileType.mzXML;
                         break;
 
-                    case MGFFileReader.MGF_FILE_EXTENSION:
-                        eFileType = DataFileType.MGF;
+                    case MgfFileReader.MGF_FILE_EXTENSION:
+                        fileType = DataFileType.MGF;
                         break;
 
                     default:
                         // See if the filename ends with MZDATA_FILE_EXTENSION_XML or MZXML_FILE_EXTENSION_XML
-                        if (strFileName.EndsWith(MzDataFileReader.MZDATA_FILE_EXTENSION_XML, StringComparison.OrdinalIgnoreCase))
+                        if (fileName.EndsWith(MzDataFileReader.MZDATA_FILE_EXTENSION_XML, StringComparison.OrdinalIgnoreCase))
                         {
-                            eFileType = DataFileType.mzData;
+                            fileType = DataFileType.mzData;
                         }
-                        else if (strFileName.EndsWith(MzXMLFileReader.MZXML_FILE_EXTENSION_XML, StringComparison.OrdinalIgnoreCase))
+                        else if (fileName.EndsWith(MzXMLFileReader.MZXML_FILE_EXTENSION_XML, StringComparison.OrdinalIgnoreCase))
                         {
-                            eFileType = DataFileType.mzXML;
+                            fileType = DataFileType.mzXML;
                         }
-                        else if (strFileName.EndsWith(DtaTextFileReader.DTA_TEXT_FILE_EXTENSION, StringComparison.OrdinalIgnoreCase))
+                        else if (fileName.EndsWith(DtaTextFileReader.DTA_TEXT_FILE_EXTENSION, StringComparison.OrdinalIgnoreCase))
                         {
-                            eFileType = DataFileType.DtaText;
+                            fileType = DataFileType.DtaText;
                         }
                         else
                         {
                             // Unknown file type
-                            blnKnownType = false;
+                            knownType = false;
                         }
 
                         break;
@@ -389,39 +389,39 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                blnKnownType = false;
+                knownType = false;
             }
 
-            return blnKnownType;
+            return knownType;
         }
 
         /// <summary>
         /// Obtain a forward-only reader for the given file
         /// </summary>
-        /// <param name="strFileNameOrPath"></param>
+        /// <param name="fileNameOrPath"></param>
         /// <returns>An MS File reader, or null if an error or unknown file extension</returns>
-        public static MSDataFileReaderBaseClass GetFileReaderBasedOnFileType(string strFileNameOrPath)
+        public static MsDataFileReaderBaseClass GetFileReaderBasedOnFileType(string fileNameOrPath)
         {
-            MSDataFileReaderBaseClass objFileReader = null;
+            MsDataFileReaderBaseClass fileReader = null;
 
-            if (DetermineFileType(strFileNameOrPath, out var eFileType))
+            if (DetermineFileType(fileNameOrPath, out var fileType))
             {
-                switch (eFileType)
+                switch (fileType)
                 {
                     case DataFileType.DtaText:
-                        objFileReader = new DtaTextFileReader();
+                        fileReader = new DtaTextFileReader();
                         break;
 
                     case DataFileType.MGF:
-                        objFileReader = new MGFFileReader();
+                        fileReader = new MgfFileReader();
                         break;
 
                     case DataFileType.mzData:
-                        objFileReader = new MzDataFileReader();
+                        fileReader = new MzDataFileReader();
                         break;
 
                     case DataFileType.mzXML:
-                        objFileReader = new MzXMLFileReader();
+                        fileReader = new MzXMLFileReader();
                         break;
 
                     default:
@@ -430,7 +430,7 @@ namespace MSDataFileReader
                 }
             }
 
-            return objFileReader;
+            return fileReader;
         }
 
         /// <summary>
@@ -439,22 +439,22 @@ namespace MSDataFileReader
         /// <remarks>
         /// Returns null if the file type is _dta.txt or .mgf since those file types do not have file accessors
         /// </remarks>
-        /// <param name="strFileNameOrPath"></param>
+        /// <param name="fileNameOrPath"></param>
         /// <returns>An MS file accessor, or null if an error or unknown file extension</returns>
-        public static MSDataFileAccessorBaseClass GetFileAccessorBasedOnFileType(string strFileNameOrPath)
+        public static MsDataFileAccessorBaseClass GetFileAccessorBasedOnFileType(string fileNameOrPath)
         {
-            MSDataFileAccessorBaseClass objFileAccessor = null;
+            MsDataFileAccessorBaseClass fileAccessor = null;
 
-            if (DetermineFileType(strFileNameOrPath, out var eFileType))
+            if (DetermineFileType(fileNameOrPath, out var fileType))
             {
-                switch (eFileType)
+                switch (fileType)
                 {
                     case DataFileType.mzData:
-                        objFileAccessor = new MzDataFileAccessor();
+                        fileAccessor = new MzDataFileAccessor();
                         break;
 
                     case DataFileType.mzXML:
-                        objFileAccessor = new MzXMLFileAccessor();
+                        fileAccessor = new MzXMLFileAccessor();
                         break;
 
                     // These file types do not have file accessors
@@ -468,7 +468,7 @@ namespace MSDataFileReader
                 }
             }
 
-            return objFileAccessor;
+            return fileAccessor;
         }
 
         protected abstract string GetInputFileLocation();
@@ -485,11 +485,11 @@ namespace MSDataFileReader
                 if (mDataReaderMode == DataReaderMode.Cached && mCachedSpectra != null)
                 {
                     ScanNumberList = new int[mCachedSpectrumCount];
-                    var intIndexEnd = ScanNumberList.Length - 1;
+                    var indexEnd = ScanNumberList.Length - 1;
 
-                    for (var intSpectrumIndex = 0; intSpectrumIndex <= intIndexEnd; intSpectrumIndex++)
+                    for (var spectrumIndex = 0; spectrumIndex <= indexEnd; spectrumIndex++)
                     {
-                        ScanNumberList[intSpectrumIndex] = mCachedSpectra[intSpectrumIndex].ScanNumber;
+                        ScanNumberList[spectrumIndex] = mCachedSpectra[spectrumIndex].ScanNumber;
                     }
 
                     return true;
@@ -512,26 +512,26 @@ namespace MSDataFileReader
         /// <remarks>
         /// Only valid if we have Cached data in memory
         /// </remarks>
-        /// <param name="intSpectrumIndex"></param>
-        /// <param name="objSpectrumInfo"></param>
+        /// <param name="spectrumIndex"></param>
+        /// <param name="spectrumInfo"></param>
         /// <returns>True if successful, false if an error</returns>
-        public virtual bool GetSpectrumByIndex(int intSpectrumIndex, out SpectrumInfo objSpectrumInfo)
+        public virtual bool GetSpectrumByIndex(int spectrumIndex, out SpectrumInfo spectrumInfo)
         {
             if (mDataReaderMode == DataReaderMode.Cached && mCachedSpectrumCount > 0)
             {
-                if (intSpectrumIndex >= 0 && intSpectrumIndex < mCachedSpectrumCount && mCachedSpectra != null)
+                if (spectrumIndex >= 0 && spectrumIndex < mCachedSpectrumCount && mCachedSpectra != null)
                 {
-                    objSpectrumInfo = mCachedSpectra[intSpectrumIndex];
+                    spectrumInfo = mCachedSpectra[spectrumIndex];
                     return true;
                 }
 
-                mErrorMessage = "Invalid spectrum index: " + intSpectrumIndex.ToString();
-                objSpectrumInfo = null;
+                mErrorMessage = "Invalid spectrum index: " + spectrumIndex.ToString();
+                spectrumInfo = null;
             }
             else
             {
                 mErrorMessage = "Cached data not in memory";
-                objSpectrumInfo = null;
+                spectrumInfo = null;
             }
 
             return false;
@@ -539,17 +539,17 @@ namespace MSDataFileReader
 
         /// <summary>
         /// Get the spectrum for the given scan number by
-        /// looking for the first entry in mCachedSpectra with .ScanNumber = intScanNumber
+        /// looking for the first entry in mCachedSpectra with .ScanNumber = scanNumber
         /// </summary>
         /// <remarks>
         /// Only valid if we have Cached data in memory
         /// </remarks>
-        /// <param name="intScanNumber"></param>
-        /// <param name="objSpectrumInfo"></param>
+        /// <param name="scanNumber"></param>
+        /// <param name="spectrumInfo"></param>
         /// <returns>True if successful, false if an error or invalid scan number</returns>
-        public virtual bool GetSpectrumByScanNumber(int intScanNumber, out SpectrumInfo objSpectrumInfo)
+        public virtual bool GetSpectrumByScanNumber(int scanNumber, out SpectrumInfo spectrumInfo)
         {
-            objSpectrumInfo = null;
+            spectrumInfo = null;
 
             try
             {
@@ -559,27 +559,27 @@ namespace MSDataFileReader
                 {
                     if (mCachedSpectraScanToIndex.Count == 0)
                     {
-                        var intIndexEnd = mCachedSpectrumCount - 1;
+                        var indexEnd = mCachedSpectrumCount - 1;
 
-                        for (var intSpectrumIndex = 0; intSpectrumIndex <= intIndexEnd; intSpectrumIndex++)
+                        for (var spectrumIndex = 0; spectrumIndex <= indexEnd; spectrumIndex++)
                         {
-                            if (mCachedSpectra[intSpectrumIndex].ScanNumber == intScanNumber)
+                            if (mCachedSpectra[spectrumIndex].ScanNumber == scanNumber)
                             {
-                                objSpectrumInfo = mCachedSpectra[intSpectrumIndex];
+                                spectrumInfo = mCachedSpectra[spectrumIndex];
                                 return true;
                             }
                         }
                     }
                     else
                     {
-                        var index = mCachedSpectraScanToIndex[intScanNumber];
-                        objSpectrumInfo = mCachedSpectra[index];
+                        var index = mCachedSpectraScanToIndex[scanNumber];
+                        spectrumInfo = mCachedSpectra[index];
                         return true;
                     }
 
                     if (string.IsNullOrWhiteSpace(mErrorMessage))
                     {
-                        mErrorMessage = "Invalid scan number: " + intScanNumber;
+                        mErrorMessage = "Invalid scan number: " + scanNumber;
                     }
                 }
                 else
@@ -616,11 +616,11 @@ namespace MSDataFileReader
             mAutoShrinkDataLists = true;
         }
 
-        public static bool IsNumber(string strValue)
+        public static bool IsNumber(string value)
         {
             try
             {
-                return double.TryParse(strValue, out _);
+                return double.TryParse(value, out _);
             }
             catch (Exception ex)
             {
@@ -629,34 +629,34 @@ namespace MSDataFileReader
         }
 
         // ReSharper disable once UnusedMemberInSuper.Global
-        public abstract bool OpenFile(string strInputFilePath);
+        public abstract bool OpenFile(string inputFilePath);
 
-        public abstract bool OpenTextStream(string strTextStream);
+        public abstract bool OpenTextStream(string textStream);
 
         /// <summary>
-        /// Validates that strInputFilePath exists
+        /// Validates that inputFilePath exists
         /// </summary>
-        /// <param name="strInputFilePath"></param>
+        /// <param name="inputFilePath"></param>
         /// <returns>True if the file exists, otherwise false</returns>
         /// <remarks>Updates mFilePath if the file is valid</remarks>
-        protected bool OpenFileInit(string strInputFilePath)
+        protected bool OpenFileInit(string inputFilePath)
         {
             // Make sure any open file or text stream is closed
             CloseFile();
 
-            if (string.IsNullOrEmpty(strInputFilePath))
+            if (string.IsNullOrEmpty(inputFilePath))
             {
                 mErrorMessage = "Error opening file: input file path is blank";
                 return false;
             }
 
-            if (!File.Exists(strInputFilePath))
+            if (!File.Exists(inputFilePath))
             {
-                mErrorMessage = "File not found: " + strInputFilePath;
+                mErrorMessage = "File not found: " + inputFilePath;
                 return false;
             }
 
-            mInputFilePath = strInputFilePath;
+            mInputFilePath = inputFilePath;
             return true;
         }
 
@@ -665,7 +665,7 @@ namespace MSDataFileReader
             ProgressComplete?.Invoke();
         }
 
-        public abstract bool ReadNextSpectrum(out SpectrumInfo objSpectrumInfo);
+        public abstract bool ReadNextSpectrum(out SpectrumInfo spectrumInfo);
 
         /// <summary>
         /// Cache the entire file in memory
@@ -680,42 +680,42 @@ namespace MSDataFileReader
                 mReadingAndStoringSpectra = true;
                 ResetProgress();
 
-                while (ReadNextSpectrum(out var objSpectrumInfo) && !mAbortProcessing)
+                while (ReadNextSpectrum(out var spectrumInfo) && !mAbortProcessing)
                 {
                     if (mCachedSpectrumCount >= mCachedSpectra.Length)
                     {
                         Array.Resize(ref mCachedSpectra, mCachedSpectra.Length * 2);
                     }
 
-                    if (objSpectrumInfo != null)
+                    if (spectrumInfo != null)
                     {
-                        mCachedSpectra[mCachedSpectrumCount] = objSpectrumInfo;
+                        mCachedSpectra[mCachedSpectrumCount] = spectrumInfo;
 
-                        if (!mCachedSpectraScanToIndex.ContainsKey(objSpectrumInfo.ScanNumber))
+                        if (!mCachedSpectraScanToIndex.ContainsKey(spectrumInfo.ScanNumber))
                         {
-                            mCachedSpectraScanToIndex.Add(objSpectrumInfo.ScanNumber, mCachedSpectrumCount);
+                            mCachedSpectraScanToIndex.Add(spectrumInfo.ScanNumber, mCachedSpectrumCount);
                         }
 
                         mCachedSpectrumCount++;
 
                         mInputFileStats.ScanCount = mCachedSpectrumCount;
-                        var intScanNumber = objSpectrumInfo.ScanNumber;
+                        var scanNumber = spectrumInfo.ScanNumber;
 
                         if (mInputFileStats.ScanCount == 1)
                         {
-                            mInputFileStats.ScanNumberMaximum = intScanNumber;
-                            mInputFileStats.ScanNumberMinimum = intScanNumber;
+                            mInputFileStats.ScanNumberMaximum = scanNumber;
+                            mInputFileStats.ScanNumberMinimum = scanNumber;
                         }
                         else
                         {
-                            if (intScanNumber < mInputFileStats.ScanNumberMinimum)
+                            if (scanNumber < mInputFileStats.ScanNumberMinimum)
                             {
-                                mInputFileStats.ScanNumberMinimum = intScanNumber;
+                                mInputFileStats.ScanNumberMinimum = scanNumber;
                             }
 
-                            if (intScanNumber > mInputFileStats.ScanNumberMaximum)
+                            if (scanNumber > mInputFileStats.ScanNumberMaximum)
                             {
-                                mInputFileStats.ScanNumberMaximum = intScanNumber;
+                                mInputFileStats.ScanNumberMaximum = scanNumber;
                             }
                         }
                     }
@@ -744,74 +744,74 @@ namespace MSDataFileReader
             ProgressReset?.Invoke();
         }
 
-        protected void ResetProgress(string strProgressStepDescription)
+        protected void ResetProgress(string progressStepDescription)
         {
-            UpdateProgress(strProgressStepDescription, 0f);
+            UpdateProgress(progressStepDescription, 0f);
             ProgressReset?.Invoke();
         }
 
-        protected void UpdateFileStats(int intScanNumber)
+        protected void UpdateFileStats(int scanNumber)
         {
-            UpdateFileStats(mInputFileStats.ScanCount + 1, intScanNumber);
+            UpdateFileStats(mInputFileStats.ScanCount + 1, scanNumber);
         }
 
-        protected void UpdateFileStats(int intScanCount, int intScanNumber)
+        protected void UpdateFileStats(int scanCount, int scanNumber)
         {
-            mInputFileStats.ScanCount = intScanCount;
+            mInputFileStats.ScanCount = scanCount;
 
-            if (intScanCount <= 1)
+            if (scanCount <= 1)
             {
-                mInputFileStats.ScanNumberMinimum = intScanNumber;
-                mInputFileStats.ScanNumberMaximum = intScanNumber;
+                mInputFileStats.ScanNumberMinimum = scanNumber;
+                mInputFileStats.ScanNumberMaximum = scanNumber;
             }
             else
             {
-                if (intScanNumber < mInputFileStats.ScanNumberMinimum)
+                if (scanNumber < mInputFileStats.ScanNumberMinimum)
                 {
-                    mInputFileStats.ScanNumberMinimum = intScanNumber;
+                    mInputFileStats.ScanNumberMinimum = scanNumber;
                 }
 
-                if (intScanNumber > mInputFileStats.ScanNumberMaximum)
+                if (scanNumber > mInputFileStats.ScanNumberMaximum)
                 {
-                    mInputFileStats.ScanNumberMaximum = intScanNumber;
+                    mInputFileStats.ScanNumberMaximum = scanNumber;
                 }
             }
         }
 
-        public void UpdateProgressDescription(string strProgressStepDescription)
+        public void UpdateProgressDescription(string progressStepDescription)
         {
-            mProgressStepDescription = strProgressStepDescription;
+            mProgressStepDescription = progressStepDescription;
         }
 
-        protected void UpdateProgress(string strProgressStepDescription)
+        protected void UpdateProgress(string progressStepDescription)
         {
-            UpdateProgress(strProgressStepDescription, mProgressPercentComplete);
+            UpdateProgress(progressStepDescription, mProgressPercentComplete);
         }
 
-        protected void UpdateProgress(double dblPercentComplete)
+        protected void UpdateProgress(double percentComplete)
         {
-            UpdateProgress(ProgressStepDescription, (float)dblPercentComplete);
+            UpdateProgress(ProgressStepDescription, (float)percentComplete);
         }
 
-        protected void UpdateProgress(float sngPercentComplete)
+        protected void UpdateProgress(float percentComplete)
         {
-            UpdateProgress(ProgressStepDescription, sngPercentComplete);
+            UpdateProgress(ProgressStepDescription, percentComplete);
         }
 
-        protected void UpdateProgress(string strProgressStepDescription, float sngPercentComplete)
+        protected void UpdateProgress(string progressStepDescription, float percentComplete)
         {
-            mProgressStepDescription = strProgressStepDescription;
+            mProgressStepDescription = progressStepDescription;
 
-            if (sngPercentComplete < 0f)
+            if (percentComplete < 0f)
             {
-                sngPercentComplete = 0f;
+                percentComplete = 0f;
             }
-            else if (sngPercentComplete > 100f)
+            else if (percentComplete > 100f)
             {
-                sngPercentComplete = 100f;
+                percentComplete = 100f;
             }
 
-            mProgressPercentComplete = sngPercentComplete;
+            mProgressPercentComplete = percentComplete;
             ProgressChanged?.Invoke(ProgressStepDescription, ProgressPercentComplete);
         }
     }

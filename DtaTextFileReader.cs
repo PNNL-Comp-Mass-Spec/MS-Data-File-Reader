@@ -21,9 +21,9 @@ namespace MSDataFileReader
         {
         }
 
-        public DtaTextFileReader(bool blnCombineIdenticalSpectra)
+        public DtaTextFileReader(bool combineIdenticalSpectra)
         {
-            CombineIdenticalSpectra = blnCombineIdenticalSpectra;
+            CombineIdenticalSpectra = combineIdenticalSpectra;
             InitializeLocalVariables();
         }
 
@@ -57,11 +57,11 @@ namespace MSDataFileReader
         /// <remarks>
         /// If mCombineIdenticalSpectra is true, combines spectra that have the same scan number but different charge state
         /// </remarks>
-        /// <param name="objSpectrumInfo"></param>
+        /// <param name="spectrumInfo"></param>
         /// <returns>True if a spectrum is found, otherwise false</returns>
-        public override bool ReadNextSpectrum(out SpectrumInfo objSpectrumInfo)
+        public override bool ReadNextSpectrum(out SpectrumInfo spectrumInfo)
         {
-            var blnSpectrumFound = false;
+            var spectrumFound = false;
 
             try
             {
@@ -78,39 +78,39 @@ namespace MSDataFileReader
 
                 if (mFileReader is null)
                 {
-                    objSpectrumInfo = new SpectrumInfo();
+                    spectrumInfo = new SpectrumInfo();
                     mErrorMessage = "Data file not currently open";
                 }
                 else
                 {
                     AddNewRecentFileText(string.Empty, true, false);
-                    var intLastProgressUpdateLine = mInFileLineNumber;
+                    var lastProgressUpdateLine = mInFileLineNumber;
 
-                    while (!blnSpectrumFound && mFileReader.Peek() > -1 && !mAbortProcessing)
+                    while (!spectrumFound && mFileReader.Peek() > -1 && !mAbortProcessing)
                     {
-                        string strLineIn;
+                        string lineIn;
 
                         if (mHeaderSaved.Length > 0)
                         {
-                            strLineIn = string.Copy(mHeaderSaved);
+                            lineIn = string.Copy(mHeaderSaved);
                             mHeaderSaved = string.Empty;
                         }
                         else
                         {
-                            strLineIn = mFileReader.ReadLine();
+                            lineIn = mFileReader.ReadLine();
 
-                            if (strLineIn != null)
-                                mTotalBytesRead += strLineIn.Length + 2;
+                            if (lineIn != null)
+                                mTotalBytesRead += lineIn.Length + 2;
                             mInFileLineNumber++;
                         }
 
-                        // See if strLineIn is nothing or starts with the comment line character (equals sign)
-                        if (strLineIn != null && strLineIn.Trim().StartsWith(CommentLineStartChar.ToString()))
+                        // See if lineIn is nothing or starts with the comment line character (equals sign)
+                        if (lineIn != null && lineIn.Trim().StartsWith(CommentLineStartChar.ToString()))
                         {
-                            AddNewRecentFileText(strLineIn);
+                            AddNewRecentFileText(lineIn);
                             {
-                                mCurrentSpectrum.SpectrumTitleWithCommentChars = strLineIn;
-                                mCurrentSpectrum.SpectrumTitle = CleanupComment(strLineIn, CommentLineStartChar, true);
+                                mCurrentSpectrum.SpectrumTitleWithCommentChars = lineIn;
+                                mCurrentSpectrum.SpectrumTitle = CleanupComment(lineIn, CommentLineStartChar, true);
 
                                 ExtractScanInfoFromDtaHeader(mCurrentSpectrum.SpectrumTitle, out var scanNumberStart, out var scanNumberEnd, out var scanCount);
                                 mCurrentSpectrum.ScanNumber = scanNumberStart;
@@ -123,36 +123,36 @@ namespace MSDataFileReader
                             // Read the next line, which should have the parent ion MH value and charge
                             if (mFileReader.Peek() > -1)
                             {
-                                strLineIn = mFileReader.ReadLine();
+                                lineIn = mFileReader.ReadLine();
                             }
                             else
                             {
-                                strLineIn = string.Empty;
+                                lineIn = string.Empty;
                             }
 
-                            if (strLineIn != null)
-                                mTotalBytesRead += strLineIn.Length + 2;
+                            if (lineIn != null)
+                                mTotalBytesRead += lineIn.Length + 2;
 
                             mInFileLineNumber++;
 
-                            if (string.IsNullOrWhiteSpace(strLineIn))
+                            if (string.IsNullOrWhiteSpace(lineIn))
                             {
                                 // Spectrum header is not followed by a parent ion value and charge; ignore the line
                             }
                             else
                             {
-                                AddNewRecentFileText(strLineIn);
+                                AddNewRecentFileText(lineIn);
 
                                 // Parse the parent ion info and read the MsMs Data
-                                blnSpectrumFound = ReadSingleSpectrum(
-                                    mFileReader, strLineIn,
+                                spectrumFound = ReadSingleSpectrum(
+                                    mFileReader, lineIn,
                                     out mCurrentMsMsDataList,
                                     mCurrentSpectrum,
                                     ref mInFileLineNumber,
-                                    ref intLastProgressUpdateLine,
-                                    out var strMostRecentLineIn);
+                                    ref lastProgressUpdateLine,
+                                    out var mostRecentLineIn);
 
-                                if (blnSpectrumFound)
+                                if (spectrumFound)
                                 {
                                     if (ReadTextDataOnly)
                                     {
@@ -169,36 +169,36 @@ namespace MSDataFileReader
                                         catch (Exception ex)
                                         {
                                             mCurrentSpectrum.DataCount = 0;
-                                            blnSpectrumFound = false;
+                                            spectrumFound = false;
                                         }
                                     }
                                 }
 
-                                if (blnSpectrumFound && CombineIdenticalSpectra && mCurrentSpectrum.ParentIonCharges[0] == 2)
+                                if (spectrumFound && CombineIdenticalSpectra && mCurrentSpectrum.ParentIonCharges[0] == 2)
                                 {
                                     // See if the next spectrum is the identical data, but the charge is 3 (this is a common situation with .dta files prepared by Lcq_Dta)
 
-                                    strLineIn = string.Copy(strMostRecentLineIn);
+                                    lineIn = string.Copy(mostRecentLineIn);
 
-                                    if (string.IsNullOrWhiteSpace(strLineIn) && mFileReader.Peek() > -1)
+                                    if (string.IsNullOrWhiteSpace(lineIn) && mFileReader.Peek() > -1)
                                     {
                                         // Read the next line
-                                        strLineIn = mFileReader.ReadLine();
+                                        lineIn = mFileReader.ReadLine();
 
-                                        if (strLineIn != null)
-                                            mTotalBytesRead += strLineIn.Length + 2;
+                                        if (lineIn != null)
+                                            mTotalBytesRead += lineIn.Length + 2;
 
                                         mInFileLineNumber++;
                                     }
 
-                                    if (strLineIn != null && strLineIn.StartsWith(CommentLineStartChar.ToString()))
+                                    if (lineIn != null && lineIn.StartsWith(CommentLineStartChar.ToString()))
                                     {
-                                        mHeaderSaved = string.Copy(strLineIn);
-                                        var strCompareTitle = CleanupComment(mHeaderSaved, CommentLineStartChar, true);
+                                        mHeaderSaved = string.Copy(lineIn);
+                                        var compareTitle = CleanupComment(mHeaderSaved, CommentLineStartChar, true);
 
-                                        if (strCompareTitle.EndsWith("3.dta", StringComparison.OrdinalIgnoreCase))
+                                        if (compareTitle.EndsWith("3.dta", StringComparison.OrdinalIgnoreCase))
                                         {
-                                            if (string.Equals(mCurrentSpectrum.SpectrumTitle.Substring(0, mCurrentSpectrum.SpectrumTitle.Length - 5), strCompareTitle.Substring(0, strCompareTitle.Length - 5), StringComparison.OrdinalIgnoreCase))
+                                            if (string.Equals(mCurrentSpectrum.SpectrumTitle.Substring(0, mCurrentSpectrum.SpectrumTitle.Length - 5), compareTitle.Substring(0, compareTitle.Length - 5), StringComparison.OrdinalIgnoreCase))
                                             {
                                                 // Yes, the spectra match
                                                 mCurrentSpectrum.ParentIonChargeCount = 2;
@@ -210,22 +210,22 @@ namespace MSDataFileReader
                                                 // Read the next set of lines until the next blank line or comment line is found
                                                 while (mFileReader.Peek() > -1)
                                                 {
-                                                    strLineIn = mFileReader.ReadLine();
+                                                    lineIn = mFileReader.ReadLine();
                                                     mInFileLineNumber++;
 
-                                                    // See if strLineIn is blank or starts with an equals sign
-                                                    if (strLineIn != null)
+                                                    // See if lineIn is blank or starts with an equals sign
+                                                    if (lineIn != null)
                                                     {
-                                                        mTotalBytesRead += strLineIn.Length + 2;
+                                                        mTotalBytesRead += lineIn.Length + 2;
 
-                                                        if (strLineIn.Trim().Length == 0)
+                                                        if (lineIn.Trim().Length == 0)
                                                         {
                                                             break;
                                                         }
 
-                                                        if (strLineIn.Trim().StartsWith(CommentLineStartChar.ToString()))
+                                                        if (lineIn.Trim().StartsWith(CommentLineStartChar.ToString()))
                                                         {
-                                                            mHeaderSaved = string.Copy(strLineIn);
+                                                            mHeaderSaved = string.Copy(lineIn);
                                                             break;
                                                         }
                                                     }
@@ -234,108 +234,108 @@ namespace MSDataFileReader
                                         }
                                     }
                                 }
-                                else if (strMostRecentLineIn.StartsWith(CommentLineStartChar.ToString()))
+                                else if (mostRecentLineIn.StartsWith(CommentLineStartChar.ToString()))
                                 {
-                                    mHeaderSaved = string.Copy(strMostRecentLineIn);
+                                    mHeaderSaved = string.Copy(mostRecentLineIn);
                                 }
-                            }  // EndIf for blnSpectrumFound = True
-                        }  // EndIf for strLineIn.Trim.StartsWith(mCommentLineStartChar)
+                            }  // EndIf for spectrumFound = True
+                        }  // EndIf for lineIn.Trim.StartsWith(mCommentLineStartChar)
 
-                        if (mInFileLineNumber - intLastProgressUpdateLine >= 250 || blnSpectrumFound)
+                        if (mInFileLineNumber - lastProgressUpdateLine >= 250 || spectrumFound)
                         {
-                            intLastProgressUpdateLine = mInFileLineNumber;
+                            lastProgressUpdateLine = mInFileLineNumber;
                             UpdateStreamReaderProgress();
                         }
                     }
 
-                    objSpectrumInfo = mCurrentSpectrum;
+                    spectrumInfo = mCurrentSpectrum;
 
-                    if (blnSpectrumFound && !ReadingAndStoringSpectra)
+                    if (spectrumFound && !ReadingAndStoringSpectra)
                     {
-                        UpdateFileStats(objSpectrumInfo.ScanNumber);
+                        UpdateFileStats(spectrumInfo.ScanNumber);
                     }
                 }
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in ReadNextSpectrum", ex);
-                objSpectrumInfo = new SpectrumInfo();
+                spectrumInfo = new SpectrumInfo();
             }
 
-            return blnSpectrumFound;
+            return spectrumFound;
         }
 
         /// <summary>
         /// Read a single .dta file
         /// </summary>
-        /// <param name="strInputFilePath"></param>
-        /// <param name="strMsMsDataList"></param>
-        /// <param name="intMsMsDataCount"></param>
-        /// <param name="objSpectrumInfoMsMsText"></param>
+        /// <param name="inputFilePath"></param>
+        /// <param name="msmsDataList"></param>
+        /// <param name="msmsDataCount"></param>
+        /// <param name="spectrumInfoMsMsText"></param>
         /// <returns>True if the file was successfully opened and a spectrum was read</returns>
         // ReSharper disable once UnusedMember.Global
-        public bool ReadSingleDtaFile(string strInputFilePath, out string[] strMsMsDataList, out int intMsMsDataCount, out SpectrumInfoMsMsText objSpectrumInfoMsMsText)
+        public bool ReadSingleDtaFile(string inputFilePath, out string[] msmsDataList, out int msmsDataCount, out SpectrumInfoMsMsText spectrumInfoMsMsText)
         {
-            var blnSpectrumFound = false;
-            var lstMsMsDataList = new List<string>();
-            intMsMsDataCount = 0;
-            objSpectrumInfoMsMsText = new SpectrumInfoMsMsText();
+            var spectrumFound = false;
+            var msMsDataList = new List<string>();
+            msmsDataCount = 0;
+            spectrumInfoMsMsText = new SpectrumInfoMsMsText();
 
             try
             {
-                using var fileReader = new StreamReader(strInputFilePath);
+                using var fileReader = new StreamReader(inputFilePath);
 
                 mTotalBytesRead = 0L;
-                ResetProgress("Parsing " + Path.GetFileName(strInputFilePath));
+                ResetProgress("Parsing " + Path.GetFileName(inputFilePath));
                 mInFileLineNumber = 0;
-                var intLastProgressUpdateLine = mInFileLineNumber;
+                var lastProgressUpdateLine = mInFileLineNumber;
 
                 while (!fileReader.EndOfStream && !mAbortProcessing)
                 {
-                    var strLineIn = fileReader.ReadLine();
+                    var lineIn = fileReader.ReadLine();
                     mInFileLineNumber++;
 
-                    if (strLineIn != null)
-                        mTotalBytesRead += strLineIn.Length + 2;
+                    if (lineIn != null)
+                        mTotalBytesRead += lineIn.Length + 2;
 
-                    if (!string.IsNullOrWhiteSpace(strLineIn))
+                    if (!string.IsNullOrWhiteSpace(lineIn))
                     {
-                        if (char.IsDigit(strLineIn.Trim(), 0))
+                        if (char.IsDigit(lineIn.Trim(), 0))
                         {
-                            blnSpectrumFound = ReadSingleSpectrum(
+                            spectrumFound = ReadSingleSpectrum(
                                 fileReader,
-                                strLineIn,
-                                out lstMsMsDataList,
-                                objSpectrumInfoMsMsText,
+                                lineIn,
+                                out msMsDataList,
+                                spectrumInfoMsMsText,
                                 ref mInFileLineNumber,
-                                ref intLastProgressUpdateLine,
+                                ref lastProgressUpdateLine,
                                 out _);
                             break;
                         }
                     }
 
-                    if (mInFileLineNumber - intLastProgressUpdateLine >= 100)
+                    if (mInFileLineNumber - lastProgressUpdateLine >= 100)
                     {
-                        intLastProgressUpdateLine = mInFileLineNumber;
-                        // MyBase.UpdateProgress(srInFile.BaseStream.Position / srInFile.BaseStream.Length * 100.0)
+                        lastProgressUpdateLine = mInFileLineNumber;
+                        // MyBase.UpdateProgress(inFile.BaseStream.Position / inFile.BaseStream.Length * 100.0)
                         UpdateProgress(mTotalBytesRead / (double)fileReader.BaseStream.Length * 100.0d);
                     }
                 }
 
-                if (blnSpectrumFound)
+                if (spectrumFound)
                 {
-                    // Try to determine the scan numbers by parsing strInputFilePath
-                    ExtractScanInfoFromDtaHeader(Path.GetFileName(strInputFilePath), out var scanNumberStart, out var scanNumberEnd, out var scanCount);
-                    objSpectrumInfoMsMsText.ScanNumber = scanNumberStart;
-                    objSpectrumInfoMsMsText.ScanNumberEnd = scanNumberEnd;
-                    objSpectrumInfoMsMsText.ScanCount = scanCount;
+                    // Try to determine the scan numbers by parsing inputFilePath
+                    ExtractScanInfoFromDtaHeader(Path.GetFileName(inputFilePath), out var scanNumberStart, out var scanNumberEnd, out var scanCount);
+                    spectrumInfoMsMsText.ScanNumber = scanNumberStart;
+                    spectrumInfoMsMsText.ScanNumberEnd = scanNumberEnd;
+                    spectrumInfoMsMsText.ScanCount = scanCount;
 
-                    strMsMsDataList = new string[lstMsMsDataList.Count];
-                    lstMsMsDataList.CopyTo(strMsMsDataList);
+                    msmsDataList = new string[msMsDataList.Count];
+                    msMsDataList.CopyTo(msmsDataList);
                 }
                 else
                 {
-                    strMsMsDataList = new string[1];
+                    msmsDataList = new string[1];
                 }
 
                 if (!mAbortProcessing)
@@ -346,110 +346,110 @@ namespace MSDataFileReader
             catch (Exception ex)
             {
                 OnErrorEvent("Error in ReadSingleDtaFile", ex);
-                objSpectrumInfoMsMsText = new SpectrumInfoMsMsText();
-                strMsMsDataList = new string[1];
+                spectrumInfoMsMsText = new SpectrumInfoMsMsText();
+                msmsDataList = new string[1];
             }
 
-            return blnSpectrumFound;
+            return spectrumFound;
         }
 
         /// <summary>
         /// Read a single mass spectrum
         /// </summary>
-        /// <param name="srReader"></param>
-        /// <param name="strParentIonLineText"></param>
-        /// <param name="lstMsMsDataList"></param>
-        /// <param name="objSpectrumInfoMsMsText"></param>
-        /// <param name="intLinesRead"></param>
-        /// <param name="intLastProgressUpdateLine"></param>
-        /// <param name="strMostRecentLineIn"></param>
+        /// <param name="reader"></param>
+        /// <param name="parentIonLineText"></param>
+        /// <param name="msMsDataList"></param>
+        /// <param name="spectrumInfoMsMsText"></param>
+        /// <param name="linesRead"></param>
+        /// <param name="lastProgressUpdateLine"></param>
+        /// <param name="mostRecentLineIn"></param>
         /// <returns>if a valid spectrum is found, otherwise, false</returns>
         private bool ReadSingleSpectrum(
-            TextReader srReader,
-            string strParentIonLineText,
-            out List<string> lstMsMsDataList,
-            SpectrumInfoMsMsText objSpectrumInfoMsMsText,
-            ref int intLinesRead,
-            ref int intLastProgressUpdateLine,
-            out string strMostRecentLineIn)
+            TextReader reader,
+            string parentIonLineText,
+            out List<string> msMsDataList,
+            SpectrumInfoMsMsText spectrumInfoMsMsText,
+            ref int linesRead,
+            ref int lastProgressUpdateLine,
+            out string mostRecentLineIn)
         {
-            var blnSpectrumFound = false;
-            objSpectrumInfoMsMsText.ParentIonLineText = string.Copy(strParentIonLineText);
-            strParentIonLineText = strParentIonLineText.Trim();
+            var spectrumFound = false;
+            spectrumInfoMsMsText.ParentIonLineText = string.Copy(parentIonLineText);
+            parentIonLineText = parentIonLineText.Trim();
 
             // Look for the first space
-            var intCharIndex = strParentIonLineText.IndexOf(' ');
+            var charIndex = parentIonLineText.IndexOf(' ');
 
-            if (intCharIndex >= 1)
+            if (charIndex >= 1)
             {
-                var strValue = strParentIonLineText.Substring(0, intCharIndex);
+                var parentIonInfo = parentIonLineText.Substring(0, charIndex);
 
-                if (double.TryParse(strValue, out var dblValue))
+                if (double.TryParse(parentIonInfo, out var parentIonMH))
                 {
-                    objSpectrumInfoMsMsText.ParentIonMH = dblValue;
-                    strValue = strParentIonLineText.Substring(intCharIndex + 1);
+                    spectrumInfoMsMsText.ParentIonMH = parentIonMH;
+                    var chargeText = parentIonLineText.Substring(charIndex + 1);
 
-                    // See if strValue contains another space
-                    intCharIndex = strValue.IndexOf(' ');
+                    // See if chargeText contains another space
+                    var spaceIndex = chargeText.IndexOf(' ');
 
-                    if (intCharIndex > 0)
+                    if (spaceIndex > 0)
                     {
-                        strValue = strValue.Substring(0, intCharIndex);
+                        chargeText = chargeText.Substring(0, spaceIndex);
                     }
 
-                    if (int.TryParse(strValue, out var intCharge))
+                    if (int.TryParse(chargeText, out var charge))
                     {
-                        objSpectrumInfoMsMsText.ParentIonChargeCount = 1;
-                        objSpectrumInfoMsMsText.ParentIonCharges[0] = intCharge;
+                        spectrumInfoMsMsText.ParentIonChargeCount = 1;
+                        spectrumInfoMsMsText.ParentIonCharges[0] = charge;
 
                         // Note: DTA files have Parent Ion MH defined but not Parent Ion m/z
                         // Thus, compute .ParentIonMZ using .ParentIonMH
-                        if (objSpectrumInfoMsMsText.ParentIonCharges[0] <= 1)
+                        if (spectrumInfoMsMsText.ParentIonCharges[0] <= 1)
                         {
-                            objSpectrumInfoMsMsText.ParentIonMZ = objSpectrumInfoMsMsText.ParentIonMH;
-                            objSpectrumInfoMsMsText.ParentIonCharges[0] = 1;
+                            spectrumInfoMsMsText.ParentIonMZ = spectrumInfoMsMsText.ParentIonMH;
+                            spectrumInfoMsMsText.ParentIonCharges[0] = 1;
                         }
                         else
                         {
-                            objSpectrumInfoMsMsText.ParentIonMZ = ConvoluteMass(objSpectrumInfoMsMsText.ParentIonMH, 1, objSpectrumInfoMsMsText.ParentIonCharges[0]);
+                            spectrumInfoMsMsText.ParentIonMZ = ConvoluteMass(spectrumInfoMsMsText.ParentIonMH, 1, spectrumInfoMsMsText.ParentIonCharges[0]);
                         }
 
-                        blnSpectrumFound = true;
+                        spectrumFound = true;
                     }
                 }
             }
 
-            strMostRecentLineIn = string.Empty;
-            lstMsMsDataList = new List<string>();
+            mostRecentLineIn = string.Empty;
+            msMsDataList = new List<string>();
 
-            if (!blnSpectrumFound)
+            if (!spectrumFound)
                 return false;
 
             // Read all of the MS/MS spectrum ions up to the next blank line or up to the next line starting with COMMENT_LINE_START_CHAR
-            while (srReader.Peek() > -1)
+            while (reader.Peek() > -1)
             {
-                var strLineIn = srReader.ReadLine();
-                intLinesRead++;
+                var lineIn = reader.ReadLine();
+                linesRead++;
 
-                // See if strLineIn is blank
-                if (strLineIn != null)
+                // See if lineIn is blank
+                if (lineIn != null)
                 {
-                    mTotalBytesRead += strLineIn.Length + 2;
-                    strMostRecentLineIn = string.Copy(strLineIn);
+                    mTotalBytesRead += lineIn.Length + 2;
+                    mostRecentLineIn = string.Copy(lineIn);
 
-                    if (strLineIn.Trim().Length == 0 || strLineIn.StartsWith(COMMENT_LINE_START_CHAR.ToString()))
+                    if (lineIn.Trim().Length == 0 || lineIn.StartsWith(COMMENT_LINE_START_CHAR.ToString()))
                     {
                         break;
                     }
 
                     // Add to MS/MS data string list
-                    lstMsMsDataList.Add(strLineIn.Trim());
-                    AddNewRecentFileText(strLineIn);
+                    msMsDataList.Add(lineIn.Trim());
+                    AddNewRecentFileText(lineIn);
                 }
 
-                if (intLinesRead - intLastProgressUpdateLine >= 250)
+                if (linesRead - lastProgressUpdateLine >= 250)
                 {
-                    intLastProgressUpdateLine = intLinesRead;
+                    lastProgressUpdateLine = linesRead;
                     UpdateStreamReaderProgress();
                 }
             }

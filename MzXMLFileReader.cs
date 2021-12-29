@@ -279,7 +279,7 @@ namespace MSDataFileReader
             return mCurrentSpectrum;
         }
 
-        protected override void InitializeCurrentSpectrum(bool blnAutoShrinkDataLists)
+        protected override void InitializeCurrentSpectrum(bool autoShrinkDataLists)
         {
             if (ReadingAndStoringSpectra || mCurrentSpectrum is null)
             {
@@ -290,7 +290,7 @@ namespace MSDataFileReader
                 mCurrentSpectrum.Clear();
             }
 
-            mCurrentSpectrum.AutoShrinkDataLists = blnAutoShrinkDataLists;
+            mCurrentSpectrum.AutoShrinkDataLists = autoShrinkDataLists;
         }
 
         protected sealed override void InitializeLocalVariables()
@@ -304,28 +304,28 @@ namespace MSDataFileReader
             mInputFileStatsAddnl.IsCentroid = false;
         }
 
-        public override bool OpenFile(string strInputFilePath)
+        public override bool OpenFile(string inputFilePath)
         {
             InitializeLocalVariables();
-            return base.OpenFile(strInputFilePath);
+            return base.OpenFile(inputFilePath);
         }
 
         /// <summary>
-        /// Parse strMSMSDataBase64Encoded and store the data in mIntensityList() and mMZList()
+        /// Parse msmsDataBase64Encoded and store the data in mIntensityList() and mMZList()
         /// </summary>
-        /// <param name="strMSMSDataBase64Encoded"></param>
-        /// <param name="strCompressionType"></param>
+        /// <param name="msmsDataBase64Encoded"></param>
+        /// <param name="compressionType"></param>
         /// <returns>True if successful, false if an error</returns>
-        private void ParseBinaryData(string strMSMSDataBase64Encoded, string strCompressionType)
+        private void ParseBinaryData(string msmsDataBase64Encoded, string compressionType)
         {
-            var eEndianMode = Base64EncodeDecode.EndianType.BigEndian;
+            var endianMode = Base64EncodeDecode.EndianType.BigEndian;
 
             if (mCurrentSpectrum is null)
             {
                 return;
             }
 
-            if (strMSMSDataBase64Encoded is null || strMSMSDataBase64Encoded.Length == 0)
+            if (msmsDataBase64Encoded is null || msmsDataBase64Encoded.Length == 0)
             {
                 mCurrentSpectrum.DataCount = 0;
                 mCurrentSpectrum.MZList = Array.Empty<double>();
@@ -335,40 +335,40 @@ namespace MSDataFileReader
 
             try
             {
-                var zLibCompressed = strCompressionType.Equals(SpectrumInfoMzXML.CompressionTypes.zlib);
+                var zLibCompressed = compressionType.Equals(SpectrumInfoMzXML.CompressionTypes.zlib);
 
                 var success = false;
 
                 switch (mCurrentSpectrum.NumericPrecisionOfData)
                 {
                     case 32:
-                        if (Base64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out float[] sngDataArray, zLibCompressed, eEndianMode))
+                        if (Base64EncodeDecode.DecodeNumericArray(msmsDataBase64Encoded, out float[] floatArray, zLibCompressed, endianMode))
                         {
-                            // sngDataArray now contains pairs of singles, either m/z and intensity or intensity and m/z
+                            // floatArray now contains pairs of singles, either m/z and intensity or intensity and m/z
                             // Need to split this apart into two arrays
 
-                            mCurrentSpectrum.MZList = new double[(int)Math.Round(sngDataArray.Length / 2d)];
-                            mCurrentSpectrum.IntensityList = new float[(int)Math.Round(sngDataArray.Length / 2d)];
+                            mCurrentSpectrum.MZList = new double[(int)Math.Round(floatArray.Length / 2d)];
+                            mCurrentSpectrum.IntensityList = new float[(int)Math.Round(floatArray.Length / 2d)];
 
                             if (mCurrentSpectrum.PeaksPairOrder.Equals(SpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ))
                             {
-                                var intIndexEnd = sngDataArray.Length - 1;
+                                var indexEnd = floatArray.Length - 1;
 
-                                for (var intIndex = 0; intIndex <= intIndexEnd; intIndex += 2)
+                                for (var index = 0; index <= indexEnd; index += 2)
                                 {
-                                    mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex];
-                                    mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex + 1];
+                                    mCurrentSpectrum.IntensityList[(int)Math.Round(index / 2d)] = floatArray[index];
+                                    mCurrentSpectrum.MZList[(int)Math.Round(index / 2d)] = floatArray[index + 1];
                                 }
                             }
                             else
                             {
                                 // Assume PairOrderTypes.MZandIntensity
-                                var intIndexEnd = sngDataArray.Length - 1;
+                                var indexEnd = floatArray.Length - 1;
 
-                                for (var intIndex = 0; intIndex <= intIndexEnd; intIndex += 2)
+                                for (var index = 0; index <= indexEnd; index += 2)
                                 {
-                                    mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex];
-                                    mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex + 1];
+                                    mCurrentSpectrum.MZList[(int)Math.Round(index / 2d)] = floatArray[index];
+                                    mCurrentSpectrum.IntensityList[(int)Math.Round(index / 2d)] = floatArray[index + 1];
                                 }
                             }
 
@@ -378,33 +378,33 @@ namespace MSDataFileReader
                         break;
 
                     case 64:
-                        if (Base64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
+                        if (Base64EncodeDecode.DecodeNumericArray(msmsDataBase64Encoded, out double[] doubleArray, zLibCompressed, endianMode))
                         {
-                            // dblDataArray now contains pairs of doubles, either m/z and intensity or intensity and m/z
+                            // doubleArray now contains pairs of doubles, either m/z and intensity or intensity and m/z
                             // Need to split this apart into two arrays
 
-                            mCurrentSpectrum.MZList = new double[(int)Math.Round(dblDataArray.Length / 2d)];
-                            mCurrentSpectrum.IntensityList = new float[(int)Math.Round(dblDataArray.Length / 2d)];
+                            mCurrentSpectrum.MZList = new double[(int)Math.Round(doubleArray.Length / 2d)];
+                            mCurrentSpectrum.IntensityList = new float[(int)Math.Round(doubleArray.Length / 2d)];
 
                             if (mCurrentSpectrum.PeaksPairOrder.Equals(SpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ))
                             {
-                                var intIndexEnd = dblDataArray.Length - 1;
+                                var indexEnd = doubleArray.Length - 1;
 
-                                for (var intIndex = 0; intIndex <= intIndexEnd; intIndex += 2)
+                                for (var index = 0; index <= indexEnd; index += 2)
                                 {
-                                    mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = (float)dblDataArray[intIndex];
-                                    mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = dblDataArray[intIndex + 1];
+                                    mCurrentSpectrum.IntensityList[(int)Math.Round(index / 2d)] = (float)doubleArray[index];
+                                    mCurrentSpectrum.MZList[(int)Math.Round(index / 2d)] = doubleArray[index + 1];
                                 }
                             }
                             else
                             {
                                 // Assume PairOrderTypes.MZandIntensity
-                                var intIndexEnd = dblDataArray.Length - 1;
+                                var indexEnd = doubleArray.Length - 1;
 
-                                for (var intIndex = 0; intIndex <= intIndexEnd; intIndex += 2)
+                                for (var index = 0; index <= indexEnd; index += 2)
                                 {
-                                    mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = dblDataArray[intIndex];
-                                    mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = (float)dblDataArray[intIndex + 1];
+                                    mCurrentSpectrum.MZList[(int)Math.Round(index / 2d)] = doubleArray[index];
+                                    mCurrentSpectrum.IntensityList[(int)Math.Round(index / 2d)] = (float)doubleArray[index + 1];
                                 }
                             }
 
@@ -586,11 +586,11 @@ namespace MSDataFileReader
 
                     mCurrentSpectrum.Clear();
                     mScanDepth++;
-                    bool blnAttributeMissing;
+                    bool attributeMissing;
 
                     if (!mXMLReader.HasAttributes)
                     {
-                        blnAttributeMissing = true;
+                        attributeMissing = true;
                     }
                     else
                     {
@@ -598,11 +598,11 @@ namespace MSDataFileReader
 
                         if (mCurrentSpectrum.ScanNumber == int.MinValue)
                         {
-                            blnAttributeMissing = true;
+                            attributeMissing = true;
                         }
                         else
                         {
-                            blnAttributeMissing = false;
+                            attributeMissing = false;
                             {
                                 mCurrentSpectrum.ScanCount = 1;
                                 mCurrentSpectrum.ScanNumberEnd = mCurrentSpectrum.ScanNumber;
@@ -618,7 +618,7 @@ namespace MSDataFileReader
                                 }
 
                                 // ReSharper disable once UnusedVariable
-                                var intInstrumentID = GetAttribValue(ScanAttributeNames.msInstrumentID, 1);
+                                var instrumentID = GetAttribValue(ScanAttributeNames.msInstrumentID, 1);
                                 mCurrentSpectrum.DataCount = GetAttribValue(ScanAttributeNames.peaksCount, 0);
                                 mCurrentSpectrum.Polarity = GetAttribValue(ScanAttributeNames.polarity, "+");
                                 mCurrentSpectrum.RetentionTimeMin = GetAttribTimeValueMinutes(ScanAttributeNames.retentionTime);
@@ -635,7 +635,7 @@ namespace MSDataFileReader
                         }
                     }
 
-                    if (blnAttributeMissing)
+                    if (attributeMissing)
                     {
                         mCurrentSpectrum.ScanNumber = 0;
                         OnErrorEvent("Unable to read the 'num' attribute for the current scan since it is missing");
@@ -694,15 +694,15 @@ namespace MSDataFileReader
                     if (mXMLReader.HasAttributes)
                     {
                         // First look for attribute xmlns
-                        var strValue = GetAttribValue(mzXMLRootAttributeNames.xmlns, string.Empty);
+                        var value = GetAttribValue(mzXMLRootAttributeNames.xmlns, string.Empty);
 
-                        if (strValue is null || strValue.Length == 0)
+                        if (value is null || value.Length == 0)
                         {
                             // Attribute not found; look for attribute xsi:schemaLocation
-                            strValue = GetAttribValue(mzXMLRootAttributeNames.xsi_schemaLocation, string.Empty);
+                            value = GetAttribValue(mzXMLRootAttributeNames.xsi_schemaLocation, string.Empty);
                         }
 
-                        ValidateMZXmlFileVersion(strValue);
+                        ValidateMZXmlFileVersion(value);
                     }
 
                     break;
@@ -791,18 +791,18 @@ namespace MSDataFileReader
         /// <returns>True if the version could be determined, otherwise false</returns>
         public static bool ExtractMzXmlFileVersion(string xmlWithFileVersion, out string xmlFileVersion)
         {
-            var objFileVersionRegEx = new System.Text.RegularExpressions.Regex(@"mzXML_[^\s""/]+", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
+            var fileVersionRegEx = new System.Text.RegularExpressions.Regex(@"mzXML_[^\s""/]+", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
             // Validate the mzXML file version
             if (!string.IsNullOrWhiteSpace(xmlWithFileVersion))
             {
                 // Parse out the version number
-                var objMatch = objFileVersionRegEx.Match(xmlWithFileVersion);
+                var match = fileVersionRegEx.Match(xmlWithFileVersion);
 
-                if (objMatch.Success)
+                if (match.Success)
                 {
                     // Record the version
-                    xmlFileVersion = objMatch.Value;
+                    xmlFileVersion = match.Value;
                     return true;
                 }
             }
@@ -816,23 +816,23 @@ namespace MSDataFileReader
             try
             {
                 mFileVersion = string.Empty;
-                string strMessage;
+                string message;
 
                 if (!ExtractMzXmlFileVersion(xmlWithFileVersion, out mFileVersion))
                 {
-                    strMessage = "Unknown mzXML file version; expected text not found in xmlWithFileVersion";
+                    message = "Unknown mzXML file version; expected text not found in xmlWithFileVersion";
 
                     if (mParseFilesWithUnknownVersion)
                     {
-                        strMessage += "; attempting to parse since ParseFilesWithUnknownVersion = True";
+                        message += "; attempting to parse since ParseFilesWithUnknownVersion = True";
                     }
                     else
                     {
                         mAbortProcessing = true;
-                        strMessage += "; aborting read";
+                        message += "; aborting read";
                     }
 
-                    OnErrorEvent(strMessage);
+                    OnErrorEvent(message);
                     return;
                 }
 
@@ -845,22 +845,22 @@ namespace MSDataFileReader
                     return;
                 }
 
-                // strFileVersion contains mzXML_ but not mxXML_2 or mxXML_3
+                // fileVersion contains mzXML_ but not mxXML_2 or mxXML_3
                 // Thus, assume unknown version
                 // Log error and abort if mParseFilesWithUnknownVersion = False
-                strMessage = "Unknown mzXML file version: " + mFileVersion;
+                message = "Unknown mzXML file version: " + mFileVersion;
 
                 if (mParseFilesWithUnknownVersion)
                 {
-                    strMessage += "; attempting to parse since ParseFilesWithUnknownVersion = True";
+                    message += "; attempting to parse since ParseFilesWithUnknownVersion = True";
                 }
                 else
                 {
                     mAbortProcessing = true;
-                    strMessage += "; aborting read";
+                    message += "; aborting read";
                 }
 
-                OnErrorEvent(strMessage);
+                OnErrorEvent(message);
             }
             catch (Exception ex)
             {

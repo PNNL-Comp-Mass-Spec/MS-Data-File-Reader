@@ -130,51 +130,51 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-        /// Use the binary reader to look for the given element type (as specified by eElementMatchMode)
+        /// Use the binary reader to look for the given element type (as specified by elementMatchMode)
         /// </summary>
-        /// <param name="eElementMatchMode"></param>
+        /// <param name="elementMatchMode"></param>
         /// <returns>True if successful, false if an error</returns>
-        protected override bool AdvanceFileReaders(ElementMatchMode eElementMatchMode)
+        protected override bool AdvanceFileReaders(ElementMatchMode elementMatchMode)
         {
-            bool blnMatchFound;
-            var lngByteOffsetForRewind = default(long);
+            bool matchFound;
+            var byteOffsetForRewind = default(long);
 
             try
             {
                 mInFileCurrentLineText ??= string.Empty;
 
-                var strInFileCurrentLineSubstring = string.Empty;
-                var blnAppendingText = false;
-                blnMatchFound = false;
+                var inFileCurrentLineSubstring = string.Empty;
+                var appendingText = false;
+                matchFound = false;
 
                 while (!mAbortProcessing)
                 {
                     if (mInFileCurrentCharIndex + 1 < mInFileCurrentLineText.Length)
                     {
-                        if (blnAppendingText)
+                        if (appendingText)
                         {
-                            strInFileCurrentLineSubstring += Environment.NewLine + mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1);
+                            inFileCurrentLineSubstring += Environment.NewLine + mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1);
                         }
                         else
                         {
-                            strInFileCurrentLineSubstring = mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1);
+                            inFileCurrentLineSubstring = mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1);
                         }
 
-                        int intCharIndex;
+                        int charIndex;
 
                         if (mAddNewLinesToHeader)
                         {
                             // We haven't yet found the first scan; look for "<scan"
-                            intCharIndex = mInFileCurrentLineText.IndexOf(SCAN_START_ELEMENT, mInFileCurrentCharIndex + 1, StringComparison.Ordinal);
+                            charIndex = mInFileCurrentLineText.IndexOf(SCAN_START_ELEMENT, mInFileCurrentCharIndex + 1, StringComparison.Ordinal);
 
-                            if (intCharIndex >= 0)
+                            if (charIndex >= 0)
                             {
                                 // Only add a portion of mInFileCurrentLineText to mXmlFileHeader
                                 // since it contains SCAN_START_ELEMENT
 
-                                if (intCharIndex > 0)
+                                if (charIndex > 0)
                                 {
-                                    mXmlFileHeader += mInFileCurrentLineText.Substring(0, intCharIndex);
+                                    mXmlFileHeader += mInFileCurrentLineText.Substring(0, charIndex);
                                 }
 
                                 mAddNewLinesToHeader = false;
@@ -188,21 +188,21 @@ namespace MSDataFileReader
                             }
                         }
 
-                        Match objMatch;
+                        Match match;
 
                         if (!mMSRunFound)
                         {
                             // We haven't yet found msRun; look for "<msRun" and the Scan Count value
-                            objMatch = mMSRunRegEx.Match(mXmlFileHeader);
+                            match = mMSRunRegEx.Match(mXmlFileHeader);
 
-                            if (objMatch.Success)
+                            if (match.Success)
                             {
                                 // Record the Scan Count value
-                                if (objMatch.Groups.Count > 1)
+                                if (match.Groups.Count > 1)
                                 {
                                     try
                                     {
-                                        mInputFileStats.ScanCount = int.Parse(objMatch.Groups[1].Captures[0].Value);
+                                        mInputFileStats.ScanCount = int.Parse(match.Groups[1].Captures[0].Value);
                                     }
                                     catch (Exception ex)
                                     {
@@ -215,43 +215,43 @@ namespace MSDataFileReader
                         }
 
                         // Look for the appropriate search text in mInFileCurrentLineText, starting at mInFileCurrentCharIndex + 1
-                        switch (eElementMatchMode)
+                        switch (elementMatchMode)
                         {
                             case ElementMatchMode.StartElement:
-                                objMatch = mScanStartElementRegEx.Match(strInFileCurrentLineSubstring);
+                                match = mScanStartElementRegEx.Match(inFileCurrentLineSubstring);
                                 break;
 
                             case ElementMatchMode.EndElement:
                                 // Since mzXml files can have scans embedded within another scan, we'll look for </peaks>
                                 // rather than looking for </scan>
-                                objMatch = mPeaksEndElementRegEx.Match(strInFileCurrentLineSubstring);
+                                match = mPeaksEndElementRegEx.Match(inFileCurrentLineSubstring);
                                 break;
 
                             default:
                                 // Unknown mode
-                                OnErrorEvent("Unknown mode for eElementMatchMode in AdvanceFileReaders: {0}", eElementMatchMode);
+                                OnErrorEvent("Unknown mode for elementMatchMode in AdvanceFileReaders: {0}", elementMatchMode);
                                 return false;
                         }
 
-                        if (objMatch.Success)
+                        if (match.Success)
                         {
                             // Match Found
-                            blnMatchFound = true;
-                            intCharIndex = objMatch.Index + 1 + mInFileCurrentCharIndex;
+                            matchFound = true;
+                            charIndex = match.Index + 1 + mInFileCurrentCharIndex;
 
-                            switch (eElementMatchMode)
+                            switch (elementMatchMode)
                             {
                                 case ElementMatchMode.StartElement:
                                     // Look for the scan number after <scan
-                                    objMatch = mScanNumberRegEx.Match(strInFileCurrentLineSubstring);
+                                    match = mScanNumberRegEx.Match(inFileCurrentLineSubstring);
 
-                                    if (objMatch.Success)
+                                    if (match.Success)
                                     {
-                                        if (objMatch.Groups.Count > 1)
+                                        if (match.Groups.Count > 1)
                                         {
                                             try
                                             {
-                                                mCurrentSpectrumInfo.ScanNumber = int.Parse(objMatch.Groups[1].Captures[0].Value);
+                                                mCurrentSpectrumInfo.ScanNumber = int.Parse(match.Groups[1].Captures[0].Value);
                                             }
                                             catch (Exception ex)
                                             {
@@ -261,18 +261,18 @@ namespace MSDataFileReader
                                     }
 
                                     // Could not find the num attribute
-                                    // If strInFileCurrentLineSubstring does not contain PEAKS_END_ELEMENT,
-                                    // set blnAppendingText to True and continue reading
-                                    else if (strInFileCurrentLineSubstring.IndexOf(PEAKS_END_ELEMENT, StringComparison.Ordinal) < 0)
+                                    // If inFileCurrentLineSubstring does not contain PEAKS_END_ELEMENT,
+                                    // set appendingText to True and continue reading
+                                    else if (inFileCurrentLineSubstring.IndexOf(PEAKS_END_ELEMENT, StringComparison.Ordinal) < 0)
                                     {
-                                        blnMatchFound = false;
+                                        matchFound = false;
 
-                                        if (!blnAppendingText)
+                                        if (!appendingText)
                                         {
-                                            blnAppendingText = true;
+                                            appendingText = true;
                                             // Record the byte offset of the start of the current line
                                             // We will use this offset to "rewind" the file pointer once the num attribute is found
-                                            lngByteOffsetForRewind = mBinaryTextReader.CurrentLineByteOffsetStart;
+                                            byteOffsetForRewind = mBinaryTextReader.CurrentLineByteOffsetStart;
                                         }
                                     }
 
@@ -280,28 +280,28 @@ namespace MSDataFileReader
 
                                 case ElementMatchMode.EndElement:
                                     // Move to the end of the element
-                                    intCharIndex += objMatch.Value.Length - 1;
+                                    charIndex += match.Value.Length - 1;
 
-                                    if (intCharIndex >= mInFileCurrentLineText.Length)
+                                    if (charIndex >= mInFileCurrentLineText.Length)
                                     {
                                         // This shouldn't happen
-                                        OnErrorEvent("Unexpected condition in AdvanceFileReaders: intCharIndex >= mInFileCurrentLineText.Length");
-                                        intCharIndex = mInFileCurrentLineText.Length - 1;
+                                        OnErrorEvent("Unexpected condition in AdvanceFileReaders: charIndex >= mInFileCurrentLineText.Length");
+                                        charIndex = mInFileCurrentLineText.Length - 1;
                                     }
 
                                     break;
 
                                 default:
-                                    throw new ArgumentOutOfRangeException(nameof(eElementMatchMode), eElementMatchMode, null);
+                                    throw new ArgumentOutOfRangeException(nameof(elementMatchMode), elementMatchMode, null);
                             }
 
-                            mInFileCurrentCharIndex = intCharIndex;
+                            mInFileCurrentCharIndex = charIndex;
 
-                            if (blnMatchFound)
+                            if (matchFound)
                             {
-                                if (blnAppendingText)
+                                if (appendingText)
                                 {
-                                    mBinaryTextReader.MoveToByteOffset(lngByteOffsetForRewind);
+                                    mBinaryTextReader.MoveToByteOffset(byteOffsetForRewind);
                                     mBinaryTextReader.ReadLine();
                                     mInFileCurrentLineText = mBinaryTextReader.CurrentLine;
                                 }
@@ -324,74 +324,74 @@ namespace MSDataFileReader
             catch (Exception ex)
             {
                 OnErrorEvent("Error in AdvanceFileReaders", ex);
-                blnMatchFound = false;
+                matchFound = false;
             }
 
-            return blnMatchFound;
+            return matchFound;
         }
 
         /// <summary>
         /// Look for the number following the indexOffset tag
         /// </summary>
-        /// <param name="strTextStream"></param>
+        /// <param name="textStream"></param>
         /// <returns>Byte offset if found, otherwise 0</returns>
-        private long ExtractIndexOffsetFromTextStream(string strTextStream)
+        private long ExtractIndexOffsetFromTextStream(string textStream)
         {
-            var lngIndexOffset = default(long);
+            var indexOffset = default(long);
 
             try
             {
-                // Look for <indexOffset in strTextStream
-                var intMatchIndex = strTextStream.IndexOf(INDEX_OFFSET_START_ELEMENT, StringComparison.Ordinal);
+                // Look for <indexOffset in textStream
+                var matchIndex = textStream.IndexOf(INDEX_OFFSET_START_ELEMENT, StringComparison.Ordinal);
 
-                if (intMatchIndex >= 0)
+                if (matchIndex >= 0)
                 {
                     // Look for the next >
-                    intMatchIndex = strTextStream.IndexOf('>', intMatchIndex + 1);
+                    matchIndex = textStream.IndexOf('>', matchIndex + 1);
 
-                    if (intMatchIndex >= 0)
+                    if (matchIndex >= 0)
                     {
                         // Remove the leading text
-                        strTextStream = strTextStream.Substring(intMatchIndex + 1);
+                        textStream = textStream.Substring(matchIndex + 1);
 
                         // Look for the next <
-                        intMatchIndex = strTextStream.IndexOf('<');
+                        matchIndex = textStream.IndexOf('<');
 
-                        if (intMatchIndex >= 0)
+                        if (matchIndex >= 0)
                         {
-                            strTextStream = strTextStream.Substring(0, intMatchIndex);
+                            textStream = textStream.Substring(0, matchIndex);
 
-                            // Try to convert strTextStream to a number
+                            // Try to convert textStream to a number
                             try
                             {
-                                lngIndexOffset = int.Parse(strTextStream);
+                                indexOffset = int.Parse(textStream);
                             }
                             catch (Exception ex)
                             {
-                                lngIndexOffset = 0L;
+                                indexOffset = 0L;
                             }
 
-                            if (lngIndexOffset == 0L)
+                            if (indexOffset == 0L)
                             {
                                 // Number conversion failed; probably have carriage returns in the text
-                                // Look for the next number in strTextStream
-                                var intIndexEnd = strTextStream.Length - 1;
+                                // Look for the next number in textStream
+                                var indexEnd = textStream.Length - 1;
 
-                                for (var intIndex = 0; intIndex <= intIndexEnd; intIndex++)
+                                for (var index = 0; index <= indexEnd; index++)
                                 {
-                                    if (IsNumber(strTextStream[intIndex].ToString()))
+                                    if (IsNumber(textStream[index].ToString()))
                                     {
                                         // First number found
-                                        var strNumber = strTextStream[intIndex].ToString();
+                                        var number = textStream[index].ToString();
 
-                                        // Append any additional numbers to strNumber
-                                        while (intIndex + 1 < strTextStream.Length)
+                                        // Append any additional numbers to number
+                                        while (index + 1 < textStream.Length)
                                         {
-                                            intIndex++;
+                                            index++;
 
-                                            if (IsNumber(strTextStream[intIndex].ToString()))
+                                            if (IsNumber(textStream[index].ToString()))
                                             {
-                                                strNumber += strTextStream[intIndex].ToString();
+                                                number += textStream[index].ToString();
                                             }
                                             else
                                             {
@@ -401,11 +401,11 @@ namespace MSDataFileReader
 
                                         try
                                         {
-                                            lngIndexOffset = int.Parse(strNumber);
+                                            indexOffset = int.Parse(number);
                                         }
                                         catch (Exception ex)
                                         {
-                                            lngIndexOffset = 0L;
+                                            indexOffset = 0L;
                                         }
 
                                         break;
@@ -419,15 +419,15 @@ namespace MSDataFileReader
             catch (Exception ex)
             {
                 OnErrorEvent("Error in ExtractIndexOffsetFromTextStream", ex);
-                lngIndexOffset = 0L;
+                indexOffset = 0L;
             }
 
-            return lngIndexOffset;
+            return indexOffset;
         }
 
-        protected override bool GetSpectrumByIndexWork(int intSpectrumIndex, out SpectrumInfo objCurrentSpectrumInfo, bool blnHeaderInfoOnly)
+        protected override bool GetSpectrumByIndexWork(int spectrumIndex, out SpectrumInfo currentSpectrumInfo, bool headerInfoOnly)
         {
-            objCurrentSpectrumInfo = null;
+            currentSpectrumInfo = null;
 
             try
             {
@@ -447,14 +447,14 @@ namespace MSDataFileReader
                     return false;
                 }
 
-                if (intSpectrumIndex < 0 || intSpectrumIndex >= mIndexedSpectrumInfoCount)
+                if (spectrumIndex < 0 || spectrumIndex >= mIndexedSpectrumInfoCount)
                 {
-                    mErrorMessage = "Invalid spectrum index: " + intSpectrumIndex.ToString();
+                    mErrorMessage = "Invalid spectrum index: " + spectrumIndex.ToString();
                     return false;
                 }
 
                 // Move the binary file reader to .ByteOffsetStart and instantiate an XMLReader at that position
-                mBinaryReader.Position = mIndexedSpectrumInfo[intSpectrumIndex].ByteOffsetStart;
+                mBinaryReader.Position = mIndexedSpectrumInfo[spectrumIndex].ByteOffsetStart;
                 UpdateProgress(mBinaryReader.Position / (double)mBinaryReader.Length * 100.0d);
 
                 bool success;
@@ -464,7 +464,7 @@ namespace MSDataFileReader
                 {
                     reader.MoveToContent();
                     mXmlFileReader.SetXMLReaderForSpectrum(reader.ReadSubtree());
-                    success = mXmlFileReader.ReadNextSpectrum(out objCurrentSpectrumInfo);
+                    success = mXmlFileReader.ReadNextSpectrum(out currentSpectrumInfo);
                 }
 
                 if (!string.IsNullOrWhiteSpace(mXmlFileReader.FileVersion))
@@ -522,8 +522,8 @@ namespace MSDataFileReader
         /// <returns>True if index elements are successfully loaded, otherwise false</returns>
         protected override bool LoadExistingIndex()
         {
-            var blnExtractTextToEOF = false;
-            bool blnIndexLoaded;
+            var extractTextToEOF = false;
+            bool indexLoaded;
 
             try
             {
@@ -532,60 +532,60 @@ namespace MSDataFileReader
                     return false;
                 }
 
-                blnIndexLoaded = false;
+                indexLoaded = false;
 
                 // Move to the end of the file
                 mBinaryTextReader.MoveToEnd();
 
                 while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirection.Reverse))
                 {
-                    var strCurrentLine = mBinaryTextReader.CurrentLine;
-                    var intCharIndex = strCurrentLine.IndexOf(INDEX_OFFSET_START_ELEMENT, StringComparison.Ordinal);
-                    var intCharIndexEnd = strCurrentLine.IndexOf(INDEX_OFFSET_END_ELEMENT, intCharIndex + INDEX_OFFSET_START_ELEMENT.Length, StringComparison.Ordinal);
+                    var currentLine = mBinaryTextReader.CurrentLine;
+                    var charIndex = currentLine.IndexOf(INDEX_OFFSET_START_ELEMENT, StringComparison.Ordinal);
+                    var charIndexEnd = currentLine.IndexOf(INDEX_OFFSET_END_ELEMENT, charIndex + INDEX_OFFSET_START_ELEMENT.Length, StringComparison.Ordinal);
 
-                    if (intCharIndex >= 0)
+                    if (charIndex >= 0)
                     {
                         // The offset to the index has been specified
                         // Parse out the number between <indexOffset> and </indexOffset>
                         // (normally on the same line, though this code can handle white space between the tags)
 
-                        var lngByteOffsetSaved = mBinaryTextReader.CurrentLineByteOffsetStart + intCharIndex * mBinaryTextReader.CharSize;
+                        var byteOffsetSaved = mBinaryTextReader.CurrentLineByteOffsetStart + charIndex * mBinaryTextReader.CharSize;
 
-                        if (intCharIndexEnd <= 0)
+                        if (charIndexEnd <= 0)
                         {
                             // Need to read the next few lines to find </indexOffset>
                             mBinaryTextReader.MoveToByteOffset(mBinaryTextReader.CurrentLineByteOffsetEndWithTerminator + 1L);
 
                             while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirection.Forward))
                             {
-                                strCurrentLine += " " + mBinaryTextReader.CurrentLine;
-                                intCharIndexEnd = strCurrentLine.IndexOf(INDEX_OFFSET_END_ELEMENT, intCharIndex + INDEX_OFFSET_START_ELEMENT.Length, StringComparison.Ordinal);
+                                currentLine += " " + mBinaryTextReader.CurrentLine;
+                                charIndexEnd = currentLine.IndexOf(INDEX_OFFSET_END_ELEMENT, charIndex + INDEX_OFFSET_START_ELEMENT.Length, StringComparison.Ordinal);
 
-                                if (intCharIndexEnd > 0)
+                                if (charIndexEnd > 0)
                                 {
                                     break;
                                 }
                             }
                         }
 
-                        if (intCharIndexEnd > 0)
+                        if (charIndexEnd > 0)
                         {
-                            var lngIndexOffset = ExtractIndexOffsetFromTextStream(strCurrentLine);
+                            var indexOffset = ExtractIndexOffsetFromTextStream(currentLine);
 
-                            if (lngIndexOffset > 0L)
+                            if (indexOffset > 0L)
                             {
-                                // Move the binary reader to lngIndexOffset
-                                mBinaryTextReader.MoveToByteOffset(lngIndexOffset);
+                                // Move the binary reader to indexOffset
+                                mBinaryTextReader.MoveToByteOffset(indexOffset);
 
-                                // Read the text at offset lngIndexOffset
+                                // Read the text at offset indexOffset
                                 mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirection.Forward);
-                                strCurrentLine = mBinaryTextReader.CurrentLine;
+                                currentLine = mBinaryTextReader.CurrentLine;
 
-                                // Verify that strCurrentLine contains "<index"
-                                if (strCurrentLine.IndexOf(INDEX_START_ELEMENT, StringComparison.Ordinal) >= 0)
+                                // Verify that currentLine contains "<index"
+                                if (currentLine.IndexOf(INDEX_START_ELEMENT, StringComparison.Ordinal) >= 0)
                                 {
-                                    strCurrentLine = MZXML_START_ELEMENT + ">" + Environment.NewLine + strCurrentLine;
-                                    blnExtractTextToEOF = true;
+                                    currentLine = MZXML_START_ELEMENT + ">" + Environment.NewLine + currentLine;
+                                    extractTextToEOF = true;
                                 }
                                 else
                                 {
@@ -594,71 +594,71 @@ namespace MSDataFileReader
                             }
                         }
 
-                        if (!blnExtractTextToEOF)
+                        if (!extractTextToEOF)
                         {
-                            // Move the reader back to byte lngByteOffsetSaved
-                            mBinaryTextReader.MoveToByteOffset(lngByteOffsetSaved);
-                            strCurrentLine = string.Empty;
+                            // Move the reader back to byte byteOffsetSaved
+                            mBinaryTextReader.MoveToByteOffset(byteOffsetSaved);
+                            currentLine = string.Empty;
                         }
                     }
 
-                    if (!blnExtractTextToEOF)
+                    if (!extractTextToEOF)
                     {
-                        intCharIndex = strCurrentLine.IndexOf(MSRUN_END_ELEMENT, StringComparison.Ordinal);
+                        charIndex = currentLine.IndexOf(MSRUN_END_ELEMENT, StringComparison.Ordinal);
 
-                        if (intCharIndex >= 0)
+                        if (charIndex >= 0)
                         {
                             // </msRun> element found
                             // Extract the text from here to the end of the file and parse with ParseMzXMLOffsetIndex
-                            blnExtractTextToEOF = true;
-                            strCurrentLine = MZXML_START_ELEMENT + ">";
+                            extractTextToEOF = true;
+                            currentLine = MZXML_START_ELEMENT + ">";
                         }
                     }
 
-                    if (blnExtractTextToEOF)
+                    if (extractTextToEOF)
                     {
-                        var objStringBuilder = new StringBuilder() { Length = 0 };
+                        var stringBuilder = new StringBuilder() { Length = 0 };
 
-                        if (strCurrentLine.Length > 0)
+                        if (currentLine.Length > 0)
                         {
-                            objStringBuilder.Append(strCurrentLine + mBinaryTextReader.CurrentLineTerminator);
+                            stringBuilder.Append(currentLine + mBinaryTextReader.CurrentLineTerminator);
                         }
 
                         // Read all of the lines to the end of the file
                         while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirection.Forward))
                         {
-                            strCurrentLine = mBinaryTextReader.CurrentLine;
-                            objStringBuilder.Append(strCurrentLine + mBinaryTextReader.CurrentLineTerminator);
+                            currentLine = mBinaryTextReader.CurrentLine;
+                            stringBuilder.Append(currentLine + mBinaryTextReader.CurrentLineTerminator);
                         }
 
-                        blnIndexLoaded = ParseMzXMLOffsetIndex(objStringBuilder.ToString());
+                        indexLoaded = ParseMzXMLOffsetIndex(stringBuilder.ToString());
 
-                        if (blnIndexLoaded)
+                        if (indexLoaded)
                         {
                             // Validate the first entry of the index to make sure the index is valid
 
-                            // For now, set blnIndexLoaded to False
-                            // If the test read works, we'll set blnIndexLoaded to True
-                            blnIndexLoaded = false;
+                            // For now, set indexLoaded to False
+                            // If the test read works, we'll set indexLoaded to True
+                            indexLoaded = false;
 
                             if (mIndexedSpectrumInfoCount > 0)
                             {
                                 // Set up the default error message
                                 mErrorMessage = "Index embedded in the input file (" + Path.GetFileName(mInputFilePath) + ") is corrupt: first byte offset (" + mIndexedSpectrumInfo[0].ByteOffsetStart.ToString() + ") does not point to a " + SCAN_START_ELEMENT + " element";
-                                var strExtractedText = ExtractTextBetweenOffsets(mInputFilePath, mIndexedSpectrumInfo[0].ByteOffsetStart, mIndexedSpectrumInfo[0].ByteOffsetEnd);
+                                var extractedText = ExtractTextBetweenOffsets(mInputFilePath, mIndexedSpectrumInfo[0].ByteOffsetStart, mIndexedSpectrumInfo[0].ByteOffsetEnd);
 
-                                if (!string.IsNullOrEmpty(strExtractedText))
+                                if (!string.IsNullOrEmpty(extractedText))
                                 {
-                                    // Make sure the first text in strExtractedText is <scan
-                                    var intStartElementIndex = strExtractedText.IndexOf(SCAN_START_ELEMENT, StringComparison.Ordinal);
+                                    // Make sure the first text in extractedText is <scan
+                                    var startElementIndex = extractedText.IndexOf(SCAN_START_ELEMENT, StringComparison.Ordinal);
 
-                                    if (intStartElementIndex >= 0)
+                                    if (startElementIndex >= 0)
                                     {
-                                        var intFirstBracketIndex = strExtractedText.IndexOf('<');
+                                        var firstBracketIndex = extractedText.IndexOf('<');
 
-                                        if (intFirstBracketIndex == intStartElementIndex)
+                                        if (firstBracketIndex == startElementIndex)
                                         {
-                                            blnIndexLoaded = true;
+                                            indexLoaded = true;
                                             mErrorMessage = string.Empty;
                                         }
                                     }
@@ -666,7 +666,7 @@ namespace MSDataFileReader
                             }
                         }
 
-                        if (blnIndexLoaded)
+                        if (indexLoaded)
                         {
                             // Move back to the beginning of the file and extract the header tags
                             mBinaryTextReader.MoveToBeginning();
@@ -674,24 +674,24 @@ namespace MSDataFileReader
 
                             while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirection.Forward))
                             {
-                                strCurrentLine = mBinaryTextReader.CurrentLine;
-                                intCharIndex = strCurrentLine.IndexOf(SCAN_START_ELEMENT, StringComparison.Ordinal);
+                                currentLine = mBinaryTextReader.CurrentLine;
+                                charIndex = currentLine.IndexOf(SCAN_START_ELEMENT, StringComparison.Ordinal);
 
-                                if (intCharIndex >= 0)
+                                if (charIndex >= 0)
                                 {
                                     // SCAN_START_ELEMENT found
-                                    if (intCharIndex > 0)
+                                    if (charIndex > 0)
                                     {
-                                        // Only add a portion of strCurrentLine to mXmlFileHeader
+                                        // Only add a portion of currentLine to mXmlFileHeader
                                         // since it contains SCAN_START_ELEMENT
-                                        mXmlFileHeader += strCurrentLine.Substring(0, intCharIndex);
+                                        mXmlFileHeader += currentLine.Substring(0, charIndex);
                                     }
 
                                     break;
                                 }
 
-                                // Append strCurrentLine to mXmlFileHeader
-                                mXmlFileHeader += strCurrentLine + Environment.NewLine;
+                                // Append currentLine to mXmlFileHeader
+                                mXmlFileHeader += currentLine + Environment.NewLine;
                             }
                         }
                         else
@@ -718,78 +718,78 @@ namespace MSDataFileReader
             catch (Exception ex)
             {
                 OnErrorEvent("Error in LoadExistingIndex", ex);
-                blnIndexLoaded = false;
+                indexLoaded = false;
             }
 
-            return blnIndexLoaded;
+            return indexLoaded;
         }
 
-        private bool ParseMzXMLOffsetIndex(string strTextStream)
+        private bool ParseMzXMLOffsetIndex(string textStream)
         {
-            var blnIndexLoaded = false;
+            var indexLoaded = false;
 
             try
             {
-                var blnParseIndexValues = true;
-                var intCurrentScanNumber = -1;
-                var intPreviousScanNumber = -1;
-                long lngCurrentScanByteOffsetStart = -1;
-                var strCurrentElement = string.Empty;
+                var parseIndexValues = true;
+                var currentScanNumber = -1;
+                var previousScanNumber = -1;
+                long currentScanByteOffsetStart = -1;
+                var currentElement = string.Empty;
 
-                using var objXMLReader = new XmlTextReader(new StringReader(strTextStream));
+                using var xmlreader = new XmlTextReader(new StringReader(textStream));
 
                 // Skip all whitespace
-                objXMLReader.WhitespaceHandling = WhitespaceHandling.None;
+                xmlreader.WhitespaceHandling = WhitespaceHandling.None;
                 var validData = true;
 
-                while (validData && objXMLReader.ReadState == ReadState.Initial || objXMLReader.ReadState == ReadState.Interactive)
+                while (validData && xmlreader.ReadState == ReadState.Initial || xmlreader.ReadState == ReadState.Interactive)
                 {
-                    validData = objXMLReader.Read();
+                    validData = xmlreader.Read();
 
-                    if (validData && objXMLReader.ReadState == ReadState.Interactive)
+                    if (validData && xmlreader.ReadState == ReadState.Interactive)
                     {
-                        if (objXMLReader.NodeType == XmlNodeType.Element)
+                        if (xmlreader.NodeType == XmlNodeType.Element)
                         {
-                            strCurrentElement = objXMLReader.Name;
+                            currentElement = xmlreader.Name;
 
-                            if (strCurrentElement == INDEX_ELEMENT_NAME)
+                            if (currentElement == INDEX_ELEMENT_NAME)
                             {
-                                if (objXMLReader.HasAttributes)
+                                if (xmlreader.HasAttributes)
                                 {
                                     // Validate that this is the "scan" index
 
-                                    string strValue;
+                                    string value;
 
                                     try
                                     {
-                                        strValue = objXMLReader.GetAttribute(INDEX_ATTRIBUTE_NAME);
+                                        value = xmlreader.GetAttribute(INDEX_ATTRIBUTE_NAME);
                                     }
                                     catch (Exception ex)
                                     {
-                                        strValue = string.Empty;
+                                        value = string.Empty;
                                     }
 
-                                    if (!string.IsNullOrEmpty(strValue))
+                                    if (!string.IsNullOrEmpty(value))
                                     {
-                                        if (strValue == "scan")
+                                        if (value == "scan")
                                         {
-                                            blnParseIndexValues = true;
+                                            parseIndexValues = true;
                                         }
                                         else
                                         {
-                                            blnParseIndexValues = false;
+                                            parseIndexValues = false;
                                         }
                                     }
                                 }
                             }
-                            else if (strCurrentElement == OFFSET_ELEMENT_NAME)
+                            else if (currentElement == OFFSET_ELEMENT_NAME)
                             {
-                                if (blnParseIndexValues && objXMLReader.HasAttributes)
+                                if (parseIndexValues && xmlreader.HasAttributes)
                                 {
                                     // Extract the scan number from the id attribute
-                                    intPreviousScanNumber = intCurrentScanNumber;
+                                    previousScanNumber = currentScanNumber;
 
-                                    if (!int.TryParse(objXMLReader.GetAttribute(OFFSET_ATTRIBUTE_ID), out intCurrentScanNumber))
+                                    if (!int.TryParse(xmlreader.GetAttribute(OFFSET_ATTRIBUTE_ID), out currentScanNumber))
                                     {
                                         // Index is corrupted (or of an unknown format); do not continue parsing
                                         break;
@@ -797,35 +797,35 @@ namespace MSDataFileReader
                                 }
                             }
                         }
-                        else if (objXMLReader.NodeType == XmlNodeType.EndElement)
+                        else if (xmlreader.NodeType == XmlNodeType.EndElement)
                         {
-                            if (blnParseIndexValues && objXMLReader.Name == INDEX_ELEMENT_NAME)
+                            if (parseIndexValues && xmlreader.Name == INDEX_ELEMENT_NAME)
                             {
                                 // Store the final index value
                                 // This is tricky since we don't know the ending offset for the given scan
-                                // Thus, need to use the binary text reader to jump to lngCurrentScanByteOffsetStart and then read line-by-line until the next </peaks> tag is found
-                                StoreFinalIndexEntry(intCurrentScanNumber, lngCurrentScanByteOffsetStart);
-                                blnIndexLoaded = true;
+                                // Thus, need to use the binary text reader to jump to currentScanByteOffsetStart and then read line-by-line until the next </peaks> tag is found
+                                StoreFinalIndexEntry(currentScanNumber, currentScanByteOffsetStart);
+                                indexLoaded = true;
                                 break;
                             }
 
-                            strCurrentElement = string.Empty;
+                            currentElement = string.Empty;
                         }
-                        else if (objXMLReader.NodeType == XmlNodeType.Text)
+                        else if (xmlreader.NodeType == XmlNodeType.Text)
                         {
-                            if (blnParseIndexValues && strCurrentElement == OFFSET_ELEMENT_NAME)
+                            if (parseIndexValues && currentElement == OFFSET_ELEMENT_NAME)
                             {
-                                if (objXMLReader.NodeType != XmlNodeType.Whitespace && objXMLReader.HasValue)
+                                if (xmlreader.NodeType != XmlNodeType.Whitespace && xmlreader.HasValue)
                                 {
                                     try
                                     {
-                                        var lngPreviousScanByteOffsetStart = lngCurrentScanByteOffsetStart;
-                                        lngCurrentScanByteOffsetStart = long.Parse(objXMLReader.Value);
+                                        var previousScanByteOffsetStart = currentScanByteOffsetStart;
+                                        currentScanByteOffsetStart = long.Parse(xmlreader.Value);
 
-                                        if (lngPreviousScanByteOffsetStart >= 0L && intCurrentScanNumber >= 0)
+                                        if (previousScanByteOffsetStart >= 0L && currentScanNumber >= 0)
                                         {
                                             // Store the previous scan info
-                                            StoreIndexEntry(intPreviousScanNumber, lngPreviousScanByteOffsetStart, lngCurrentScanByteOffsetStart - 1L);
+                                            StoreIndexEntry(previousScanNumber, previousScanByteOffsetStart, currentScanByteOffsetStart - 1L);
                                         }
                                     }
                                     catch (Exception ex)
@@ -842,10 +842,10 @@ namespace MSDataFileReader
             catch (Exception ex)
             {
                 OnErrorEvent("Error in ParseMzXMLOffsetIndex", ex);
-                blnIndexLoaded = false;
+                indexLoaded = false;
             }
 
-            return blnIndexLoaded;
+            return indexLoaded;
         }
 
         /// <summary>
@@ -916,8 +916,8 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         private bool ReadMZXmlFile()
         {
-            var lngCurrentSpectrumByteOffsetStart = default(long);
-            var lngCurrentSpectrumByteOffsetEnd = default(long);
+            var currentSpectrumByteOffsetStart = default(long);
+            var currentSpectrumByteOffsetEnd = default(long);
 
             try
             {
@@ -926,7 +926,7 @@ namespace MSDataFileReader
                     return true;
                 }
 
-                bool blnSpectrumFound;
+                bool spectrumFound;
 
                 do
                 {
@@ -939,37 +939,37 @@ namespace MSDataFileReader
                         mCurrentSpectrumInfo.Clear();
                     }
 
-                    blnSpectrumFound = AdvanceFileReaders(ElementMatchMode.StartElement);
+                    spectrumFound = AdvanceFileReaders(ElementMatchMode.StartElement);
 
-                    if (blnSpectrumFound)
+                    if (spectrumFound)
                     {
                         if (mInFileCurrentCharIndex < 0)
                         {
                             // This shouldn't normally happen
-                            lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart;
+                            currentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart;
                             OnErrorEvent("Unexpected condition in ReadMZXmlFile: mInFileCurrentCharIndex < 0");
                         }
                         else
                         {
-                            lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex * mCharSize;
+                            currentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex * mCharSize;
                         }
 
-                        blnSpectrumFound = AdvanceFileReaders(ElementMatchMode.EndElement);
+                        spectrumFound = AdvanceFileReaders(ElementMatchMode.EndElement);
 
-                        if (blnSpectrumFound)
+                        if (spectrumFound)
                         {
                             if (mCharSize > 1)
                             {
-                                lngCurrentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex * mCharSize + (mCharSize - 1);
+                                currentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex * mCharSize + (mCharSize - 1);
                             }
                             else
                             {
-                                lngCurrentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex;
+                                currentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex;
                             }
                         }
                     }
 
-                    if (!blnSpectrumFound)
+                    if (!spectrumFound)
                         continue;
 
                     // Make sure mAddNewLinesToHeader is now false
@@ -979,7 +979,7 @@ namespace MSDataFileReader
                         mAddNewLinesToHeader = false;
                     }
 
-                    StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, lngCurrentSpectrumByteOffsetStart, lngCurrentSpectrumByteOffsetEnd);
+                    StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, currentSpectrumByteOffsetStart, currentSpectrumByteOffsetEnd);
 
                     // Update the progress
                     if (mBinaryTextReader.FileLengthBytes > 0L)
@@ -992,7 +992,7 @@ namespace MSDataFileReader
                         break;
                     }
                 }
-                while (blnSpectrumFound);
+                while (spectrumFound);
                 return true;
             }
             catch (Exception ex)
@@ -1003,55 +1003,55 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-        /// Use the binary reader to jump to lngByteOffsetStart, then read line-by-line until the next closing peaks tag is found
+        /// Use the binary reader to jump to byteOffsetStart, then read line-by-line until the next closing peaks tag is found
         /// </summary>
-        /// <param name="intScanNumber"></param>
-        /// <param name="lngByteOffsetStart"></param>
-        private void StoreFinalIndexEntry(int intScanNumber, long lngByteOffsetStart)
+        /// <param name="scanNumber"></param>
+        /// <param name="byteOffsetStart"></param>
+        private void StoreFinalIndexEntry(int scanNumber, long byteOffsetStart)
         {
             // The byte offset of the end of </peaks>
 
-            mBinaryTextReader.MoveToByteOffset(lngByteOffsetStart);
+            mBinaryTextReader.MoveToByteOffset(byteOffsetStart);
 
             while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirection.Forward))
             {
-                var strCurrentLine = mBinaryTextReader.CurrentLine;
-                var intMatchIndex = strCurrentLine.IndexOf(PEAKS_END_ELEMENT, StringComparison.Ordinal);
+                var currentLine = mBinaryTextReader.CurrentLine;
+                var matchIndex = currentLine.IndexOf(PEAKS_END_ELEMENT, StringComparison.Ordinal);
 
-                if (intMatchIndex >= 0)
+                if (matchIndex >= 0)
                 {
-                    var lngByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + (intMatchIndex + PEAKS_END_ELEMENT.Length) * mBinaryTextReader.CharSize - 1L;
-                    StoreIndexEntry(intScanNumber, lngByteOffsetStart, lngByteOffsetEnd);
+                    var byteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + (matchIndex + PEAKS_END_ELEMENT.Length) * mBinaryTextReader.CharSize - 1L;
+                    StoreIndexEntry(scanNumber, byteOffsetStart, byteOffsetEnd);
                     break;
                 }
             }
         }
 
-        private void UpdateXmlFileHeaderScanCount(ref string strHeaderText)
+        private void UpdateXmlFileHeaderScanCount(ref string headerText)
         {
-            UpdateXmlFileHeaderScanCount(ref strHeaderText, 1);
+            UpdateXmlFileHeaderScanCount(ref headerText, 1);
         }
 
         /// <summary>
-        /// Examine strHeaderText to look for the number after the scanCount attribute of msRun,
-        /// then replace the number with intScanCountTotal
+        /// Examine headerText to look for the number after the scanCount attribute of msRun,
+        /// then replace the number with scanCountTotal
         /// </summary>
-        /// <param name="strHeaderText"></param>
-        /// <param name="intScanCountTotal"></param>
-        private void UpdateXmlFileHeaderScanCount(ref string strHeaderText, int intScanCountTotal)
+        /// <param name="headerText"></param>
+        /// <param name="scanCountTotal"></param>
+        private void UpdateXmlFileHeaderScanCount(ref string headerText, int scanCountTotal)
         {
-            if (!string.IsNullOrWhiteSpace(strHeaderText))
+            if (!string.IsNullOrWhiteSpace(headerText))
             {
-                var objMatch = mMSRunRegEx.Match(strHeaderText);
+                var match = mMSRunRegEx.Match(headerText);
 
-                if (objMatch.Success)
+                if (match.Success)
                 {
-                    // Replace the scan count value with intScanCountTotal
-                    if (objMatch.Groups.Count > 1)
+                    // Replace the scan count value with scanCountTotal
+                    if (match.Groups.Count > 1)
                     {
                         try
                         {
-                            strHeaderText = strHeaderText.Substring(0, objMatch.Groups[1].Index) + intScanCountTotal.ToString() + strHeaderText.Substring(objMatch.Groups[1].Index + objMatch.Groups[1].Length);
+                            headerText = headerText.Substring(0, match.Groups[1].Index) + scanCountTotal.ToString() + headerText.Substring(match.Groups[1].Index + match.Groups[1].Length);
                         }
                         catch (Exception ex)
                         {

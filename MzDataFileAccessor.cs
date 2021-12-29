@@ -114,60 +114,60 @@ namespace MSDataFileReader
         }
 
         /// <summary>
-        /// Use the binary reader to look for strTextToFind
+        /// Use the binary reader to look for textToFind
         /// </summary>
-        /// <param name="eElementMatchMode"></param>
+        /// <param name="elementMatchMode"></param>
         /// <returns>True if successful, false if an error</returns>
-        protected override bool AdvanceFileReaders(ElementMatchMode eElementMatchMode)
+        protected override bool AdvanceFileReaders(ElementMatchMode elementMatchMode)
         {
-            bool blnMatchFound;
-            var lngByteOffsetForRewind = 0L;
-            var blnLookForScanCountOnNextRead = false;
-            var strScanCountSearchText = string.Empty;
+            bool matchFound;
+            var byteOffsetForRewind = 0L;
+            var lookForScanCountOnNextRead = false;
+            var scanCountSearchText = string.Empty;
 
             try
             {
                 mInFileCurrentLineText ??= string.Empty;
 
-                var strInFileCurrentLineSubstring = string.Empty;
-                var blnAppendingText = false;
-                var strAcqNumberSearchText = string.Empty;
-                var blnAcqNumberFound = false;
-                blnMatchFound = false;
+                var inFileCurrentLineSubstring = string.Empty;
+                var appendingText = false;
+                var acqNumberSearchText = string.Empty;
+                var acqNumberFound = false;
+                matchFound = false;
 
                 while (!mAbortProcessing)
                 {
                     if (mInFileCurrentCharIndex + 1 < mInFileCurrentLineText.Length)
                     {
-                        if (blnAppendingText)
+                        if (appendingText)
                         {
-                            strInFileCurrentLineSubstring += Environment.NewLine + mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1);
+                            inFileCurrentLineSubstring += Environment.NewLine + mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1);
                         }
                         else
                         {
-                            strInFileCurrentLineSubstring = mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1);
+                            inFileCurrentLineSubstring = mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1);
                         }
 
-                        int intCharIndex;
+                        int charIndex;
 
                         if (mAddNewLinesToHeader)
                         {
                             // We haven't yet found the first scan; look for "<spectrumList"
-                            intCharIndex = mInFileCurrentLineText.IndexOf(SPECTRUM_LIST_START_ELEMENT, mInFileCurrentCharIndex + 1, StringComparison.Ordinal);
+                            charIndex = mInFileCurrentLineText.IndexOf(SPECTRUM_LIST_START_ELEMENT, mInFileCurrentCharIndex + 1, StringComparison.Ordinal);
 
-                            if (intCharIndex >= 0)
+                            if (charIndex >= 0)
                             {
                                 // Only add a portion of mInFileCurrentLineText to mXmlFileHeader
                                 // since it contains SPECTRUM_LIST_START_ELEMENT
 
-                                if (intCharIndex > 0)
+                                if (charIndex > 0)
                                 {
-                                    mXmlFileHeader += mInFileCurrentLineText.Substring(0, intCharIndex);
+                                    mXmlFileHeader += mInFileCurrentLineText.Substring(0, charIndex);
                                 }
 
                                 mAddNewLinesToHeader = false;
-                                strScanCountSearchText = strInFileCurrentLineSubstring.Substring(intCharIndex);
-                                blnLookForScanCountOnNextRead = true;
+                                scanCountSearchText = inFileCurrentLineSubstring.Substring(charIndex);
+                                lookForScanCountOnNextRead = true;
                             }
                             else
                             {
@@ -175,26 +175,26 @@ namespace MSDataFileReader
                                 mXmlFileHeader += mInFileCurrentLineText + Environment.NewLine;
                             }
                         }
-                        else if (blnLookForScanCountOnNextRead)
+                        else if (lookForScanCountOnNextRead)
                         {
-                            strScanCountSearchText += Environment.NewLine + strInFileCurrentLineSubstring;
+                            scanCountSearchText += Environment.NewLine + inFileCurrentLineSubstring;
                         }
 
-                        Match objMatch;
+                        Match match;
 
-                        if (blnLookForScanCountOnNextRead)
+                        if (lookForScanCountOnNextRead)
                         {
-                            // Look for the Scan Count value in strScanCountSearchText
-                            objMatch = mSpectrumListRegEx.Match(strScanCountSearchText);
+                            // Look for the Scan Count value in scanCountSearchText
+                            match = mSpectrumListRegEx.Match(scanCountSearchText);
 
-                            if (objMatch.Success)
+                            if (match.Success)
                             {
                                 // Record the Scan Count value
-                                if (objMatch.Groups.Count > 1)
+                                if (match.Groups.Count > 1)
                                 {
                                     try
                                     {
-                                        mInputFileStats.ScanCount = int.Parse(objMatch.Groups[1].Captures[0].Value);
+                                        mInputFileStats.ScanCount = int.Parse(match.Groups[1].Captures[0].Value);
                                     }
                                     catch (Exception ex)
                                     {
@@ -202,35 +202,35 @@ namespace MSDataFileReader
                                     }
                                 }
 
-                                blnLookForScanCountOnNextRead = false;
+                                lookForScanCountOnNextRead = false;
                             }
 
                             // The count attribute is not on the same line as the <spectrumList element
-                            // Set blnLookForScanCountOnNextRead to true if strScanCountSearchText does not contain the end element symbol, i.e. >
-                            else if (strScanCountSearchText.IndexOf('>') >= 0)
+                            // Set lookForScanCountOnNextRead to true if scanCountSearchText does not contain the end element symbol, i.e. >
+                            else if (scanCountSearchText.IndexOf('>') >= 0)
                             {
-                                blnLookForScanCountOnNextRead = false;
+                                lookForScanCountOnNextRead = false;
                             }
                         }
 
-                        if (eElementMatchMode == ElementMatchMode.EndElement && !blnAcqNumberFound)
+                        if (elementMatchMode == ElementMatchMode.EndElement && !acqNumberFound)
                         {
-                            strAcqNumberSearchText += Environment.NewLine + strInFileCurrentLineSubstring;
+                            acqNumberSearchText += Environment.NewLine + inFileCurrentLineSubstring;
 
                             // Look for the acquisition number
-                            // Because strAcqNumberSearchText contains all of the text from <spectrum on (i.e. not just the text for the current line)
+                            // Because acqNumberSearchText contains all of the text from <spectrum on (i.e. not just the text for the current line)
                             // the test by mAcquisitionNumberRegEx should match the acqNumber attribute even if it is not
                             // on the same line as <acquisition or if it is not the first attribute following <acquisition
-                            objMatch = mAcquisitionNumberRegEx.Match(strAcqNumberSearchText);
+                            match = mAcquisitionNumberRegEx.Match(acqNumberSearchText);
 
-                            if (objMatch.Success)
+                            if (match.Success)
                             {
-                                if (objMatch.Groups.Count > 1)
+                                if (match.Groups.Count > 1)
                                 {
                                     try
                                     {
-                                        blnAcqNumberFound = true;
-                                        mCurrentSpectrumInfo.ScanNumber = int.Parse(objMatch.Groups[1].Captures[0].Value);
+                                        acqNumberFound = true;
+                                        mCurrentSpectrumInfo.ScanNumber = int.Parse(match.Groups[1].Captures[0].Value);
                                     }
                                     catch (Exception ex)
                                     {
@@ -241,41 +241,41 @@ namespace MSDataFileReader
                         }
 
                         // Look for the appropriate search text in mInFileCurrentLineText, starting at mInFileCurrentCharIndex + 1
-                        switch (eElementMatchMode)
+                        switch (elementMatchMode)
                         {
                             case ElementMatchMode.StartElement:
-                                objMatch = mSpectrumStartElementRegEx.Match(strInFileCurrentLineSubstring);
+                                match = mSpectrumStartElementRegEx.Match(inFileCurrentLineSubstring);
                                 break;
 
                             case ElementMatchMode.EndElement:
-                                objMatch = mSpectrumEndElementRegEx.Match(strInFileCurrentLineSubstring);
+                                match = mSpectrumEndElementRegEx.Match(inFileCurrentLineSubstring);
                                 break;
 
                             default:
                                 // Unknown mode
-                                OnErrorEvent("Unknown mode for eElementMatchMode in AdvanceFileReaders: {0}", eElementMatchMode);
+                                OnErrorEvent("Unknown mode for elementMatchMode in AdvanceFileReaders: {0}", elementMatchMode);
                                 return false;
                         }
 
-                        if (objMatch.Success)
+                        if (match.Success)
                         {
                             // Match Found
-                            blnMatchFound = true;
-                            intCharIndex = objMatch.Index + 1 + mInFileCurrentCharIndex;
+                            matchFound = true;
+                            charIndex = match.Index + 1 + mInFileCurrentCharIndex;
 
-                            switch (eElementMatchMode)
+                            switch (elementMatchMode)
                             {
                                 case ElementMatchMode.StartElement:
                                     // Look for the id value after <spectrum
-                                    objMatch = mSpectrumIDRegEx.Match(strInFileCurrentLineSubstring);
+                                    match = mSpectrumIDRegEx.Match(inFileCurrentLineSubstring);
 
-                                    if (objMatch.Success)
+                                    if (match.Success)
                                     {
-                                        if (objMatch.Groups.Count > 1)
+                                        if (match.Groups.Count > 1)
                                         {
                                             try
                                             {
-                                                mCurrentSpectrumInfo.SpectrumID = int.Parse(objMatch.Groups[1].Captures[0].Value);
+                                                mCurrentSpectrumInfo.SpectrumID = int.Parse(match.Groups[1].Captures[0].Value);
                                             }
                                             catch (Exception ex)
                                             {
@@ -285,18 +285,18 @@ namespace MSDataFileReader
                                     }
 
                                     // Could not find the id attribute
-                                    // If strInFileCurrentLineSubstring does not contain SPECTRUM_END_ELEMENT,
-                                    // set blnAppendingText to True and continue reading
-                                    else if (strInFileCurrentLineSubstring.IndexOf(SPECTRUM_END_ELEMENT, StringComparison.Ordinal) < 0)
+                                    // If inFileCurrentLineSubstring does not contain SPECTRUM_END_ELEMENT,
+                                    // set appendingText to True and continue reading
+                                    else if (inFileCurrentLineSubstring.IndexOf(SPECTRUM_END_ELEMENT, StringComparison.Ordinal) < 0)
                                     {
-                                        blnMatchFound = false;
+                                        matchFound = false;
 
-                                        if (!blnAppendingText)
+                                        if (!appendingText)
                                         {
-                                            blnAppendingText = true;
+                                            appendingText = true;
                                             // Record the byte offset of the start of the current line
                                             // We will use this offset to "rewind" the file pointer once the id attribute is found
-                                            lngByteOffsetForRewind = mBinaryTextReader.CurrentLineByteOffsetStart;
+                                            byteOffsetForRewind = mBinaryTextReader.CurrentLineByteOffsetStart;
                                         }
                                     }
 
@@ -304,28 +304,28 @@ namespace MSDataFileReader
 
                                 case ElementMatchMode.EndElement:
                                     // Move to the end of the element
-                                    intCharIndex += objMatch.Value.Length - 1;
+                                    charIndex += match.Value.Length - 1;
 
-                                    if (intCharIndex >= mInFileCurrentLineText.Length)
+                                    if (charIndex >= mInFileCurrentLineText.Length)
                                     {
                                         // This shouldn't happen
-                                        OnErrorEvent("Unexpected condition in AdvanceFileReaders: intCharIndex >= mInFileCurrentLineText.Length");
-                                        intCharIndex = mInFileCurrentLineText.Length - 1;
+                                        OnErrorEvent("Unexpected condition in AdvanceFileReaders: charIndex >= mInFileCurrentLineText.Length");
+                                        charIndex = mInFileCurrentLineText.Length - 1;
                                     }
 
                                     break;
 
                                 default:
-                                    throw new ArgumentOutOfRangeException(nameof(eElementMatchMode), eElementMatchMode, null);
+                                    throw new ArgumentOutOfRangeException(nameof(elementMatchMode), elementMatchMode, null);
                             }
 
-                            mInFileCurrentCharIndex = intCharIndex;
+                            mInFileCurrentCharIndex = charIndex;
 
-                            if (blnMatchFound)
+                            if (matchFound)
                             {
-                                if (blnAppendingText)
+                                if (appendingText)
                                 {
-                                    mBinaryTextReader.MoveToByteOffset(lngByteOffsetForRewind);
+                                    mBinaryTextReader.MoveToByteOffset(byteOffsetForRewind);
                                     mBinaryTextReader.ReadLine();
                                     mInFileCurrentLineText = mBinaryTextReader.CurrentLine;
                                 }
@@ -348,15 +348,15 @@ namespace MSDataFileReader
             catch (Exception ex)
             {
                 OnErrorEvent("Error in AdvanceFileReaders", ex);
-                blnMatchFound = false;
+                matchFound = false;
             }
 
-            return blnMatchFound;
+            return matchFound;
         }
 
-        protected override bool GetSpectrumByIndexWork(int intSpectrumIndex, out SpectrumInfo objCurrentSpectrumInfo, bool blnHeaderInfoOnly)
+        protected override bool GetSpectrumByIndexWork(int spectrumIndex, out SpectrumInfo currentSpectrumInfo, bool headerInfoOnly)
         {
-            objCurrentSpectrumInfo = null;
+            currentSpectrumInfo = null;
 
             try
             {
@@ -376,14 +376,14 @@ namespace MSDataFileReader
                     return false;
                 }
 
-                if (intSpectrumIndex < 0 || intSpectrumIndex >= mIndexedSpectrumInfoCount)
+                if (spectrumIndex < 0 || spectrumIndex >= mIndexedSpectrumInfoCount)
                 {
-                    mErrorMessage = "Invalid spectrum index: " + intSpectrumIndex;
+                    mErrorMessage = "Invalid spectrum index: " + spectrumIndex;
                     return false;
                 }
 
                 // Move the binary file reader to .ByteOffsetStart and instantiate an XMLReader at that position
-                mBinaryReader.Position = mIndexedSpectrumInfo[intSpectrumIndex].ByteOffsetStart;
+                mBinaryReader.Position = mIndexedSpectrumInfo[spectrumIndex].ByteOffsetStart;
                 UpdateProgress(mBinaryReader.Position / (double)mBinaryReader.Length * 100.0d);
 
                 bool success;
@@ -393,7 +393,7 @@ namespace MSDataFileReader
                 {
                     reader.MoveToContent();
                     mXmlFileReader.SetXMLReaderForSpectrum(reader.ReadSubtree());
-                    success = mXmlFileReader.ReadNextSpectrum(out objCurrentSpectrumInfo);
+                    success = mXmlFileReader.ReadNextSpectrum(out currentSpectrumInfo);
                 }
 
                 if (!string.IsNullOrWhiteSpace(mXmlFileReader.FileVersion))
@@ -416,12 +416,12 @@ namespace MSDataFileReader
         /// <remarks>
         /// Only valid if we have Indexed data in memory
         /// </remarks>
-        /// <param name="intSpectrumID"></param>
-        /// <param name="objSpectrumInfo"></param>
+        /// <param name="spectrumID"></param>
+        /// <param name="spectrumInfo"></param>
         /// <returns>True if successful, false if an error or invalid spectrum ID</returns>
-        public bool GetSpectrumBySpectrumID(int intSpectrumID, out SpectrumInfo objSpectrumInfo)
+        public bool GetSpectrumBySpectrumID(int spectrumID, out SpectrumInfo spectrumInfo)
         {
-            return GetSpectrumBySpectrumIDWork(intSpectrumID, out objSpectrumInfo, false);
+            return GetSpectrumBySpectrumIDWork(spectrumID, out spectrumInfo, false);
         }
 
         /// <summary>
@@ -430,13 +430,13 @@ namespace MSDataFileReader
         /// <remarks>
         /// Only valid if we have Indexed data in memory
         /// </remarks>
-        /// <param name="intSpectrumID"></param>
-        /// <param name="objSpectrumInfo"></param>
-        /// <param name="blnHeaderInfoOnly"></param>
+        /// <param name="spectrumID"></param>
+        /// <param name="spectrumInfo"></param>
+        /// <param name="headerInfoOnly"></param>
         /// <returns>True if successful, false if an error or invalid spectrum ID</returns>
-        private bool GetSpectrumBySpectrumIDWork(int intSpectrumID, out SpectrumInfo objSpectrumInfo, bool blnHeaderInfoOnly)
+        private bool GetSpectrumBySpectrumIDWork(int spectrumID, out SpectrumInfo spectrumInfo, bool headerInfoOnly)
         {
-            objSpectrumInfo = null;
+            spectrumInfo = null;
 
             try
             {
@@ -463,27 +463,27 @@ namespace MSDataFileReader
 
                 if (mIndexedSpectraSpectrumIDToIndex.Count == 0)
                 {
-                    var intIndexEnd = mIndexedSpectrumInfoCount - 1;
+                    var indexEnd = mIndexedSpectrumInfoCount - 1;
 
-                    for (var intSpectrumIndex = 0; intSpectrumIndex <= intIndexEnd; intSpectrumIndex++)
+                    for (var spectrumIndex = 0; spectrumIndex <= indexEnd; spectrumIndex++)
                     {
-                        if (mIndexedSpectrumInfo[intSpectrumIndex].SpectrumID == intSpectrumID)
+                        if (mIndexedSpectrumInfo[spectrumIndex].SpectrumID == spectrumID)
                         {
-                            success = GetSpectrumByIndexWork(intSpectrumIndex, out objSpectrumInfo, blnHeaderInfoOnly);
+                            success = GetSpectrumByIndexWork(spectrumIndex, out spectrumInfo, headerInfoOnly);
                             break;
                         }
                     }
                 }
                 else
                 {
-                    // Look for intSpectrumID in mIndexedSpectraSpectrumIDToIndex
-                    var index = mIndexedSpectraSpectrumIDToIndex[intSpectrumID];
-                    success = GetSpectrumByIndexWork(index, out objSpectrumInfo, blnHeaderInfoOnly);
+                    // Look for spectrumID in mIndexedSpectraSpectrumIDToIndex
+                    var index = mIndexedSpectraSpectrumIDToIndex[spectrumID];
+                    success = GetSpectrumByIndexWork(index, out spectrumInfo, headerInfoOnly);
                 }
 
                 if (!success && string.IsNullOrWhiteSpace(mErrorMessage))
                 {
-                    mErrorMessage = "Invalid spectrum ID: " + intSpectrumID.ToString();
+                    mErrorMessage = "Invalid spectrum ID: " + spectrumID.ToString();
                 }
 
                 return success;
@@ -495,9 +495,9 @@ namespace MSDataFileReader
             }
         }
 
-        public bool GetSpectrumHeaderInfoBySpectrumID(int intSpectrumID, out SpectrumInfo objSpectrumInfo)
+        public bool GetSpectrumHeaderInfoBySpectrumID(int spectrumID, out SpectrumInfo spectrumInfo)
         {
-            return GetSpectrumBySpectrumIDWork(intSpectrumID, out objSpectrumInfo, true);
+            return GetSpectrumBySpectrumIDWork(spectrumID, out spectrumInfo, true);
         }
 
         /// <summary>
@@ -523,11 +523,11 @@ namespace MSDataFileReader
                     else
                     {
                         SpectrumIDList = new int[mIndexedSpectrumInfoCount];
-                        var intIndexEnd = SpectrumIDList.Length - 1;
+                        var indexEnd = SpectrumIDList.Length - 1;
 
-                        for (var intSpectrumIndex = 0; intSpectrumIndex <= intIndexEnd; intSpectrumIndex++)
+                        for (var spectrumIndex = 0; spectrumIndex <= indexEnd; spectrumIndex++)
                         {
-                            SpectrumIDList[intSpectrumIndex] = mIndexedSpectrumInfo[intSpectrumIndex].SpectrumID;
+                            SpectrumIDList[spectrumIndex] = mIndexedSpectrumInfo[spectrumIndex].SpectrumID;
                         }
 
                         return true;
@@ -653,8 +653,8 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         private bool ReadMZDataFile()
         {
-            var lngCurrentSpectrumByteOffsetStart = 0L;
-            var lngCurrentSpectrumByteOffsetEnd = 0L;
+            var currentSpectrumByteOffsetStart = 0L;
+            var currentSpectrumByteOffsetEnd = 0L;
 
             try
             {
@@ -663,7 +663,7 @@ namespace MSDataFileReader
                     return true;
                 }
 
-                bool blnSpectrumFound;
+                bool spectrumFound;
                 do
                 {
                     if (mCurrentSpectrumInfo is null)
@@ -675,37 +675,37 @@ namespace MSDataFileReader
                         mCurrentSpectrumInfo.Clear();
                     }
 
-                    blnSpectrumFound = AdvanceFileReaders(ElementMatchMode.StartElement);
+                    spectrumFound = AdvanceFileReaders(ElementMatchMode.StartElement);
 
-                    if (blnSpectrumFound)
+                    if (spectrumFound)
                     {
                         if (mInFileCurrentCharIndex < 0)
                         {
                             // This shouldn't normally happen
-                            lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart;
+                            currentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart;
                             OnErrorEvent("Unexpected condition in ReadMZDataFile: mInFileCurrentCharIndex < 0");
                         }
                         else
                         {
-                            lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex * mCharSize;
+                            currentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex * mCharSize;
                         }
 
-                        blnSpectrumFound = AdvanceFileReaders(ElementMatchMode.EndElement);
+                        spectrumFound = AdvanceFileReaders(ElementMatchMode.EndElement);
 
-                        if (blnSpectrumFound)
+                        if (spectrumFound)
                         {
                             if (mCharSize > 1)
                             {
-                                lngCurrentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex * mCharSize + (mCharSize - 1);
+                                currentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex * mCharSize + (mCharSize - 1);
                             }
                             else
                             {
-                                lngCurrentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex;
+                                currentSpectrumByteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex;
                             }
                         }
                     }
 
-                    if (!blnSpectrumFound)
+                    if (!spectrumFound)
                         continue;
 
                     // Make sure mAddNewLinesToHeader is now false
@@ -715,7 +715,7 @@ namespace MSDataFileReader
                         mAddNewLinesToHeader = false;
                     }
 
-                    StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, lngCurrentSpectrumByteOffsetStart, lngCurrentSpectrumByteOffsetEnd);
+                    StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, currentSpectrumByteOffsetStart, currentSpectrumByteOffsetEnd);
 
                     // Note that StoreIndexEntry will have incremented mIndexedSpectrumInfoCount
                     mIndexedSpectrumInfo[mIndexedSpectrumInfoCount - 1].SpectrumID = mCurrentSpectrumInfo.SpectrumID;
@@ -739,7 +739,7 @@ namespace MSDataFileReader
                         break;
                     }
                 }
-                while (blnSpectrumFound);
+                while (spectrumFound);
 
                 return true;
             }
@@ -750,25 +750,25 @@ namespace MSDataFileReader
             }
         }
 
-        private void UpdateFileStats(int intScanCount, int intScanNumber, int intSpectrumID)
+        private void UpdateFileStats(int scanCount, int scanNumber, int spectrumID)
         {
-            UpdateFileStats(intScanCount, intScanNumber);
+            UpdateFileStats(scanCount, scanNumber);
 
-            if (intScanCount <= 1)
+            if (scanCount <= 1)
             {
-                mInputFileStatsSpectrumIDMinimum = intSpectrumID;
-                mInputFileStatsSpectrumIDMaximum = intSpectrumID;
+                mInputFileStatsSpectrumIDMinimum = spectrumID;
+                mInputFileStatsSpectrumIDMaximum = spectrumID;
             }
             else
             {
-                if (intSpectrumID < mInputFileStatsSpectrumIDMinimum)
+                if (spectrumID < mInputFileStatsSpectrumIDMinimum)
                 {
-                    mInputFileStatsSpectrumIDMinimum = intSpectrumID;
+                    mInputFileStatsSpectrumIDMinimum = spectrumID;
                 }
 
-                if (intSpectrumID > mInputFileStatsSpectrumIDMaximum)
+                if (spectrumID > mInputFileStatsSpectrumIDMaximum)
                 {
-                    mInputFileStatsSpectrumIDMaximum = intSpectrumID;
+                    mInputFileStatsSpectrumIDMaximum = spectrumID;
                 }
             }
         }
