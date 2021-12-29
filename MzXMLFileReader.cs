@@ -617,8 +617,8 @@ namespace MSDataFileReader
                                 mCurrentSpectrum.DataCount = GetAttribValue(ScanAttributeNames.peaksCount, 0);
                                 mCurrentSpectrum.Polarity = GetAttribValue(ScanAttributeNames.polarity, "+");
                                 mCurrentSpectrum.RetentionTimeMin = GetAttribTimeValueMinutes(ScanAttributeNames.retentionTime);
-                                mCurrentSpectrum.ScanType = GetAttribValue(ScanAttributeNames.scanType, "");
-                                mCurrentSpectrum.FilterLine = GetAttribValue(ScanAttributeNames.filterLine, "");
+                                mCurrentSpectrum.ScanType = GetAttribValue(ScanAttributeNames.scanType, string.Empty);
+                                mCurrentSpectrum.FilterLine = GetAttribValue(ScanAttributeNames.filterLine, string.Empty);
                                 mCurrentSpectrum.StartMZ = GetAttribValue(ScanAttributeNames.startMz, 0);
                                 mCurrentSpectrum.EndMZ = GetAttribValue(ScanAttributeNames.endMz, 0);
                                 mCurrentSpectrum.mzRangeStart = GetAttribValue(ScanAttributeNames.lowMz, 0);
