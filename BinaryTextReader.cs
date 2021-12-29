@@ -78,10 +78,25 @@ namespace MSDataFileReader
 
         public enum InputFileEncodings
         {
-            ASCII = 0,                  // No Byte Order Mark
-            UTF8 = 1,                   // Byte Order Mark: EF BB BF (UTF-8)
-            UnicodeNormal = 2,          // Byte Order Mark: FF FE (Little Endian Unicode)
-            UnicodeBigEndian = 3        // Byte Order Mark: FE FF (Big Endian Unicode)
+            /// <summary>
+            /// No Byte Order Mark
+            /// </summary>
+            ASCII = 0,
+
+            /// <summary>
+            /// Byte Order Mark: EF BB BF (UTF-8)
+            /// </summary>
+            UTF8 = 1,
+
+            /// <summary>
+            /// Byte Order Mark: FF FE (Little Endian Unicode)
+            /// </summary>
+            UnicodeNormal = 2,
+
+            /// <summary>
+            /// Byte Order Mark: FE FF (Big Endian Unicode)
+            /// </summary>
+            UnicodeBigEndian = 3
         }
 
         public enum ReadDirection
