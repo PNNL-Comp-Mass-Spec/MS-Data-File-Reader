@@ -25,45 +25,65 @@ namespace MSDataFileReader
         #region Constants and Enums
         // Note: The extensions must be in all caps
         public const string MZDATA_FILE_EXTENSION = ".MZDATA";
+
         public const string MZDATA_FILE_EXTENSION_XML = "_MZDATA.XML";
 
         // Note that I'm using classes to group the constants
         private class XMLSectionNames
         {
             public const string RootName = "mzData";
+
             public const string CVParam = "cvParam";
         }
 
         private class HeaderSectionNames
         {
             public const string Description = "description";
+
             public const string admin = "admin";
+
             public const string instrument = "instrument";
+
             public const string dataProcessing = "dataProcessing";
+
             public const string processingMethod = "processingMethod";
         }
 
         private class ScanSectionNames
         {
             public const string spectrumList = "spectrumList";
+
             public const string spectrum = "spectrum";
+
             public const string spectrumSettings = "spectrumSettings";
+
             public const string acqSpecification = "acqSpecification";
+
             public const string acquisition = "acquisition";
+
             public const string spectrumInstrument = "spectrumInstrument";
+
             public const string precursorList = "precursorList";
+
             public const string precursor = "precursor";
+
             public const string ionSelection = "ionSelection";
+
             public const string activation = "activation";
+
             public const string mzArrayBinary = "mzArrayBinary";
+
             public const string intenArrayBinary = "intenArrayBinary";
+
             public const string ArrayData = "data";
         }
 
         private class mzDataRootAttrbuteNames
         {
             public const string version = "version";
+
             public const string accessionNumber = "accessionNumber";
+
             public const string xmlns_xsi = "xmlns:xsi";
         }
 
@@ -80,14 +100,18 @@ namespace MSDataFileReader
         private class ProcessingMethodCVParamNames
         {
             public const string Deisotoping = "Deisotoping";
+
             public const string ChargeDeconvolution = "ChargeDeconvolution";
+
             public const string PeakProcessing = "PeakProcessing";
         }
 
         private class AcqSpecificationAttributeNames
         {
             public const string spectrumType = "spectrumType";
+
             public const string methodOfCombination = "methodOfCombination";
+
             public const string count = "count";
         }
 
@@ -99,40 +123,50 @@ namespace MSDataFileReader
         private class SpectrumInstrumentAttributeNames
         {
             public const string msLevel = "msLevel";
+
             public const string mzRangeStart = "mzRangeStart";
+
             public const string mzRangeStop = "mzRangeStop";
         }
 
         private class SpectrumInstrumentCVParamNames
         {
             public const string ScanMode = "ScanMode";
+
             public const string Polarity = "Polarity";
+
             public const string TimeInMinutes = "TimeInMinutes";
         }
 
         private class PrecursorAttributeNames
         {
             public const string msLevel = "msLevel";
+
             public const string spectrumRef = "spectrumRef";
         }
 
         private class PrecursorIonSelectionCVParamNames
         {
             public const string MassToChargeRatio = "MassToChargeRatio";
+
             public const string ChargeState = "ChargeState";
         }
 
         private class PrecursorActivationCVParamNames
         {
             public const string Method = "Method";
+
             public const string CollisionEnergy = "CollisionEnergy";
+
             public const string EnergyUnits = "EnergyUnits";
         }
 
         private class BinaryDataAttributeNames
         {
             public const string precision = "precision";
+
             public const string endian = "endian";
+
             public const string length = "length";
         }
 
@@ -165,8 +199,10 @@ namespace MSDataFileReader
         private struct udtFileStatsAddnlType
         {
             public string PeakProcessing;
+
             public bool IsCentroid;      // True if centroid (aka stick) data; False if profile (aka continuum) data
             public bool IsDeisotoped;
+
             public bool HasChargeDeconvolution;
         }
 
@@ -175,9 +211,13 @@ namespace MSDataFileReader
         #region Classwide Variables
 
         private eCurrentMZDataFileSectionConstants mCurrentXMLDataFileSection;
+
         private clsSpectrumInfoMzData mCurrentSpectrum;
+
         private int mAcquisitionElementCount;
+
         private Queue mMostRecentSurveyScanSpectra;
+
         private udtFileStatsAddnlType mInputFileStatsAddnl;
 
         #endregion
@@ -229,6 +269,7 @@ namespace MSDataFileReader
                 while (objEnumerator.MoveNext())
                 {
                     var objSpectrum = (clsSpectrumInfoMzData)objEnumerator.Current;
+
                     if (objSpectrum.SpectrumID == intSpectrumIDToFind)
                     {
                         sngIntensityMatch = objSpectrum.LookupIonIntensityByMZ(dblMZToFind, 0f);
@@ -534,6 +575,7 @@ namespace MSDataFileReader
         {
             if (mAbortProcessing)
                 return;
+
             if (mCurrentSpectrum is null)
                 return;
 
@@ -573,11 +615,13 @@ namespace MSDataFileReader
 
             // Store name of the element we just entered
             mCurrentElement = mXMLReader.Name;
+
             switch (mXMLReader.Name ?? "")
             {
                 case XMLSectionNames.CVParam:
                     string strCVName;
                     string strValue;
+
                     switch (mCurrentXMLDataFileSection)
                     {
                         case eCurrentMZDataFileSectionConstants.DataProcessingMethod:
@@ -601,6 +645,7 @@ namespace MSDataFileReader
                                         case ProcessingMethodCVParamNames.PeakProcessing:
                                             {
                                                 mInputFileStatsAddnl.PeakProcessing = strValue;
+
                                                 if (strValue.ToLower().IndexOf("centroid", StringComparison.Ordinal) >= 0)
                                                 {
                                                     mInputFileStatsAddnl.IsCentroid = true;
@@ -706,6 +751,7 @@ namespace MSDataFileReader
                     if ((GetParentElement() ?? "") == XMLSectionNames.RootName)
                     {
                         mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumList;
+
                         if (mXMLReader.HasAttributes)
                         {
                             mInputFileStats.ScanCount = GetAttribValue(SpectrumListAttributeNames.count, 1);
@@ -723,9 +769,11 @@ namespace MSDataFileReader
                     {
                         mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumList;
                         mCurrentSpectrum.Clear();
+
                         if (mXMLReader.HasAttributes)
                         {
                             mCurrentSpectrum.SpectrumID = GetAttribValue(SpectrumAttributeNames.id, int.MinValue);
+
                             if (mCurrentSpectrum.SpectrumID == int.MinValue)
                             {
                                 mCurrentSpectrum.SpectrumID = 0;
@@ -762,6 +810,7 @@ namespace MSDataFileReader
                         // Only update mCurrentSpectrum.ScanNumber if mCurrentSpectrum.ScanCount = 1 or
                         // mAcquisitionElementCount = 1
                         mAcquisitionElementCount += 1;
+
                         if (mAcquisitionElementCount == 1 || mCurrentSpectrum.ScanCount == 1)
                         {
                             mCurrentSpectrum.ScanNumber = GetAttribValue(AcquisitionAttributeNames.acqNumber, 0);
@@ -856,6 +905,7 @@ namespace MSDataFileReader
 
                 case XMLSectionNames.RootName:
                     mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.Start;
+
                     if (mXMLReader.HasAttributes)
                     {
                         ValidateMZDataFileVersion(GetAttribValue(mzDataRootAttrbuteNames.version, ""));
@@ -944,11 +994,13 @@ namespace MSDataFileReader
                 {
                     mFileVersion = string.Copy(strFileVersion);
                     var objMatch = objFileVersionRegEx.Match(strFileVersion);
+
                     if (!objMatch.Success)
                     {
                         // Unknown version
                         // Log error and abort if mParseFilesWithUnknownVersion = False
                         var strMessage = "Unknown mzData file version: " + mFileVersion;
+
                         if (mParseFilesWithUnknownVersion)
                         {
                             strMessage += "; attempting to parse since ParseFilesWithUnknownVersion = True";

@@ -23,16 +23,26 @@ namespace MSDataFileReader
         }
 
         #region Constants and Enums
+
         // Note: The extension must be in all caps
         public const string MGF_FILE_EXTENSION = ".MGF";
-        private const char COMMENT_LINE_START_CHAR = '#';        // The comment character is an Equals sign
+
+        private const char COMMENT_LINE_START_CHAR = '#';
+
         private const string LINE_START_BEGIN_IONS = "BEGIN IONS";
+
         private const string LINE_START_END_IONS = "END IONS";
+
         private const string LINE_START_MSMS = "MSMS:";
+
         private const string LINE_START_PEPMASS = "PEPMASS=";
+
         private const string LINE_START_CHARGE = "CHARGE=";
+
         private const string LINE_START_TITLE = "TITLE=";
+
         private const string LINE_START_RT = "RTINSECONDS=";
+
         private const string LINE_START_SCANS = "SCANS=";
 
         #endregion
@@ -61,14 +71,17 @@ namespace MSDataFileReader
         {
             var scanNumberFound = false;
             var charIndex = strData.IndexOf('-');
+
             if (charIndex > 0)
             {
                 // strData contains a dash, and thus a range of scans
                 var strRemaining = strData.Substring(charIndex + 1).Trim();
                 strData = strData.Substring(0, charIndex).Trim();
+
                 if (IsNumber(strData))
                 {
                     spectrumInfo.ScanNumber = int.Parse(strData);
+
                     if (IsNumber(strRemaining))
                     {
                         if (spectrumInfo.ScanNumberEnd == 0)
@@ -87,6 +100,7 @@ namespace MSDataFileReader
             else if (IsNumber(strData))
             {
                 spectrumInfo.ScanNumber = int.Parse(strData);
+
                 if (spectrumInfo.ScanNumberEnd == 0)
                 {
                     spectrumInfo.ScanNumberEnd = spectrumInfo.ScanNumber;
@@ -101,6 +115,7 @@ namespace MSDataFileReader
             }
 
             mCurrentSpectrum.SpectrumID = mCurrentSpectrum.ScanNumber;
+
             if (spectrumInfo.ScanNumber == spectrumInfo.ScanNumberEnd || spectrumInfo.ScanNumber > spectrumInfo.ScanNumberEnd)
             {
                 mCurrentSpectrum.ScanCount = 1;
@@ -167,10 +182,12 @@ namespace MSDataFileReader
                     while (!blnSpectrumFound && mFileReader.Peek() > -1 && !mAbortProcessing)
                     {
                         var strLineIn = mFileReader.ReadLine();
+
                         if (strLineIn != null)
                             mTotalBytesRead += strLineIn.Length + 2;
 
                         mInFileLineNumber += 1;
+
                         if (strLineIn != null && strLineIn.Trim().Length > 0)
                         {
                             AddNewRecentFileText(strLineIn);
@@ -201,9 +218,11 @@ namespace MSDataFileReader
                                     // ###MSMS: 4459/4488/
                                     // The / sign is used to indicate that several MS/MS scans were combined to make the given spectrum; we'll just keep the first one
                                     var charIndex = strLineIn.IndexOf('/');
+
                                     if (charIndex > 0)
                                     {
                                         string strTemp;
+
                                         if (charIndex < strLineIn.Length - 1)
                                         {
                                             strTemp = strLineIn.Substring(charIndex + 1).Trim();
@@ -215,14 +234,17 @@ namespace MSDataFileReader
 
                                         strLineIn = strLineIn.Substring(0, charIndex).Trim();
                                         mCurrentSpectrum.ScanCount = 1;
+
                                         if (strTemp.Length > 0)
                                         {
                                             do
                                             {
                                                 charIndex = strTemp.IndexOf('/');
+
                                                 if (charIndex > 0)
                                                 {
                                                     mCurrentSpectrum.ScanCount += 1;
+
                                                     if (charIndex < strTemp.Length - 1)
                                                     {
                                                         strTemp = strTemp.Substring(charIndex + 1).Trim();
@@ -239,6 +261,7 @@ namespace MSDataFileReader
                                                 }
                                             }
                                             while (true);
+
                                             if (IsNumber(strTemp))
                                             {
                                                 mCurrentSpectrum.ScanNumberEnd = int.Parse(strTemp);
@@ -249,6 +272,7 @@ namespace MSDataFileReader
                                     blnScanNumberFound = ExtractScanRange(strLineIn, mCurrentSpectrum);
                                 }
                             }
+
                             // Line does not start with a comment character
                             // Look for LINE_START_BEGIN_IONS in strLineIn
                             else if (strLineIn.ToUpper().StartsWith(LINE_START_BEGIN_IONS))
@@ -271,14 +295,17 @@ namespace MSDataFileReader
                                 {
                                     strLineIn = mFileReader.ReadLine();
                                     mInFileLineNumber += 1;
+
                                     if (strLineIn != null)
                                     {
                                         mTotalBytesRead += strLineIn.Length + 2;
                                         AddNewRecentFileText(strLineIn);
+
                                         if (strLineIn.Trim().Length > 0)
                                         {
                                             strLineIn = strLineIn.Trim();
                                             string[] strSplitLine;
+
                                             if (strLineIn.ToUpper().StartsWith(LINE_START_PEPMASS))
                                             {
                                                 // This line defines the peptide mass as an m/z value
@@ -287,6 +314,7 @@ namespace MSDataFileReader
                                                 // We do not save the intensity value since it cannot be included in a .Dta file
                                                 strLineIn = strLineIn.Substring(LINE_START_PEPMASS.Length).Trim();
                                                 strSplitLine = strLineIn.Split(strSepChars);
+
                                                 if (strSplitLine.Length > 0 && IsNumber(strSplitLine[0]))
                                                 {
                                                     mCurrentSpectrum.ParentIonMZ = double.Parse(strSplitLine[0]);
@@ -309,6 +337,7 @@ namespace MSDataFileReader
 
                                                 // Remove any + signs in the line
                                                 strLineIn = strLineIn.Replace("+", string.Empty);
+
                                                 if (strLineIn.IndexOf(' ') > 0)
                                                 {
                                                     // Multiple charges may be present
@@ -342,6 +371,7 @@ namespace MSDataFileReader
                                                 mCurrentSpectrum.SpectrumTitle = string.Copy(strLineIn);
                                                 strLineIn = strLineIn.Substring(LINE_START_TITLE.Length).Trim();
                                                 mCurrentSpectrum.SpectrumTitleWithCommentChars = string.Copy(strLineIn);
+
                                                 if (!blnScanNumberFound)
                                                 {
                                                     // We didn't find a scan number in a ### MSMS: comment line
@@ -362,6 +392,7 @@ namespace MSDataFileReader
                                             else if (strLineIn.ToUpper().StartsWith(LINE_START_RT))
                                             {
                                                 strLineIn = strLineIn.Substring(LINE_START_RT.Length).Trim();
+
                                                 if (double.TryParse(strLineIn, out var rtSeconds))
                                                 {
                                                     mCurrentSpectrum.RetentionTimeMin = (float)(rtSeconds / 60.0d);
@@ -416,6 +447,7 @@ namespace MSDataFileReader
                                         {
                                             mTotalBytesRead += strLineIn.Length + 2;
                                             AddNewRecentFileText(strLineIn);
+
                                             if (strLineIn.Trim().Length > 0)
                                             {
                                                 if (strLineIn.Trim().ToUpper().StartsWith(LINE_START_END_IONS))
@@ -438,6 +470,7 @@ namespace MSDataFileReader
                                     }
 
                                     blnSpectrumFound = true;
+
                                     if (mReadTextDataOnly)
                                     {
                                         // Do not parse the text data to populate .MZList and .IntensityList
@@ -469,6 +502,7 @@ namespace MSDataFileReader
                         if (mInFileLineNumber - intLastProgressUpdateLine >= 250 || blnSpectrumFound)
                         {
                             intLastProgressUpdateLine = mInFileLineNumber;
+
                             if (mFileReader is StreamReader objStreamReader)
                             {
                                 UpdateProgress(objStreamReader.BaseStream.Position / (double)objStreamReader.BaseStream.Length * 100.0d);
@@ -481,6 +515,7 @@ namespace MSDataFileReader
                     }
 
                     objSpectrumInfo = mCurrentSpectrum;
+
                     if (blnSpectrumFound && !ReadingAndStoringSpectra)
                     {
                         UpdateFileStats(objSpectrumInfo.ScanNumber);

@@ -71,8 +71,10 @@ namespace MSDataFileReader
         protected struct udtIndexedSpectrumInfoType
         {
             public int ScanNumber;
+
             public int SpectrumID;        // Only used by mzData files
             public long ByteOffsetStart;
+
             public long ByteOffsetEnd;
 
             public override string ToString()
@@ -86,20 +88,28 @@ namespace MSDataFileReader
         #region Classwide Variables
 
         protected clsBinaryTextReader.InputFileEncodingConstants mInputFileEncoding;
+
         protected byte mCharSize;
+
         protected bool mIndexingComplete;
+
         protected FileStream mBinaryReader;
+
         protected clsBinaryTextReader mBinaryTextReader;
+
         protected string mInFileCurrentLineText;
+
         protected int mInFileCurrentCharIndex;
 
         // This dictionary maps scan number to index in mIndexedSpectrumInfo()
         // If more than one spectrum comes from the same scan, tracks the first one read
         protected readonly Dictionary<int, int> mIndexedSpectraScanToIndex = new();
+
         protected int mLastSpectrumIndexRead;
 
         // These variables are used when mDataReaderMode = Indexed
         protected int mIndexedSpectrumInfoCount;
+
         protected udtIndexedSpectrumInfoType[] mIndexedSpectrumInfo;
 
         #endregion
@@ -158,10 +168,12 @@ namespace MSDataFileReader
                 {
                     mBinaryReader.Seek(lngStartByteOffset, SeekOrigin.Begin);
                     var intBytesToRead = (int)(lngEndByteOffset - lngStartByteOffset + 1L);
+
                     if (intBytesToRead > 0)
                     {
                         var bytData = new byte[intBytesToRead];
                         intBytesToRead = mBinaryReader.Read(bytData, 0, intBytesToRead);
+
                         switch (mInputFileEncoding)
                         {
                             case clsBinaryTextReader.InputFileEncodingConstants.ASCII:
@@ -441,6 +453,7 @@ namespace MSDataFileReader
             try
             {
                 mErrorMessage = string.Empty;
+
                 if (mDataReaderMode == drmDataReaderModeConstants.Cached)
                 {
                     return base.GetSpectrumByScanNumber(intScanNumber, out objSpectrumInfo);
@@ -572,6 +585,7 @@ namespace MSDataFileReader
             try
             {
                 var initSuccess = OpenFileInit(strInputFilePath);
+
                 if (!initSuccess)
                     return false;
 

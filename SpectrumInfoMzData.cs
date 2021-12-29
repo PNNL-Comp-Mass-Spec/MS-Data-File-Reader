@@ -26,6 +26,7 @@ namespace MSDataFileReader
         public class EndianModes
         {
             public const string littleEndian = "little";
+
             public const string bigEndian = "big";
         }
 
@@ -34,11 +35,17 @@ namespace MSDataFileReader
         #region Spectrum Variables
 
         protected float mCollisionEnergy;
+
         protected string mCollisionEnergyUnits;
+
         protected string mCollisionMethod;
+
         protected string mScanMode;
+
         protected int mParentIonCharge;
+
         protected int mParentIonSpectrumMSLevel;
+
         protected int mParentIonSpectrumID;
 
         // Typically 32 or 64
@@ -294,6 +301,7 @@ namespace MSDataFileReader
         public override void Validate(bool blnComputeBasePeakAndTIC, bool blnUpdateMZRange)
         {
             base.Validate(blnComputeBasePeakAndTIC, blnUpdateMZRange);
+
             if (ScanNumber == 0 && SpectrumID != 0)
             {
                 ScanNumber = SpectrumID;

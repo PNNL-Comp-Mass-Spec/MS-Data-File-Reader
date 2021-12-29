@@ -46,9 +46,13 @@ namespace MSDataFileReader
         #region Constants and Enums
 
         public const string PROGRAM_DATE = "December 28, 2021";
+
         public const double CHARGE_CARRIER_MASS_AVG = 1.00739d;
+
         public const double CHARGE_CARRIER_MASS_MONOISO = 1.00727649d;
+
         public const double MASS_HYDROGEN = 1.0078246d;
+
         protected const int DEFAULT_MAX_CACHE_MEMORY_USAGE_MB = 128;
 
         public enum drmDataReaderModeConstants
@@ -95,17 +99,26 @@ namespace MSDataFileReader
         #region Classwide Variables
 
         protected double mChargeCarrierMass;
+
         protected string mErrorMessage;
+
         protected string mFileVersion;
+
         protected drmDataReaderModeConstants mDataReaderMode;
+
         protected bool mReadingAndStoringSpectra;
+
         protected bool mAbortProcessing;
+
         protected bool mParseFilesWithUnknownVersion = false;
+
         protected string mInputFilePath = string.Empty;
+
         protected udtFileStatsType mInputFileStats;
 
         // These variables are used when mDataReaderMode = Cached
         protected int mCachedSpectrumCount;
+
         protected clsSpectrumInfo[] mCachedSpectra;
 
         // This dictionary maps scan number to index in mCachedSpectra()
@@ -356,6 +369,7 @@ namespace MSDataFileReader
         public static double ConvoluteMass(double dblMassMZ, int intCurrentCharge, int intDesiredCharge, double dblChargeCarrierMass)
         {
             double dblNewMZ;
+
             if (intCurrentCharge == intDesiredCharge)
             {
                 dblNewMZ = dblMassMZ;
@@ -425,6 +439,7 @@ namespace MSDataFileReader
 
                 var strFileName = Path.GetFileName(strFileNameOrPath.ToUpper());
                 var strFileExtension = Path.GetExtension(strFileName);
+
                 if (string.IsNullOrWhiteSpace(strFileExtension))
                 {
                     return false;
@@ -437,6 +452,7 @@ namespace MSDataFileReader
 
                 // Assume known file type for now
                 blnKnownType = true;
+
                 switch (strFileExtension ?? "")
                 {
                     case clsMzDataFileReader.MZDATA_FILE_EXTENSION:
@@ -714,6 +730,7 @@ namespace MSDataFileReader
         }
 
         public abstract bool OpenFile(string strInputFilePath);
+
         public abstract bool OpenTextStream(string strTextStream);
 
         /// <summary>
@@ -726,6 +743,7 @@ namespace MSDataFileReader
         {
             // Make sure any open file or text stream is closed
             CloseFile();
+
             if (string.IsNullOrEmpty(strInputFilePath))
             {
                 mErrorMessage = "Error opening file: input file path is blank";
@@ -772,6 +790,7 @@ namespace MSDataFileReader
                     if (objSpectrumInfo != null)
                     {
                         mCachedSpectra[mCachedSpectrumCount] = objSpectrumInfo;
+
                         if (!mCachedSpectraScanToIndex.ContainsKey(objSpectrumInfo.ScanNumber))
                         {
                             mCachedSpectraScanToIndex.Add(objSpectrumInfo.ScanNumber, mCachedSpectrumCount);
@@ -781,6 +800,7 @@ namespace MSDataFileReader
 
                         mInputFileStats.ScanCount = mCachedSpectrumCount;
                         var intScanNumber = objSpectrumInfo.ScanNumber;
+
                         if (mInputFileStats.ScanCount == 1)
                         {
                             mInputFileStats.ScanNumberMaximum = intScanNumber;
@@ -838,6 +858,7 @@ namespace MSDataFileReader
         protected void UpdateFileStats(int intScanCount, int intScanNumber)
         {
             mInputFileStats.ScanCount = intScanCount;
+
             if (intScanCount <= 1)
             {
                 mInputFileStats.ScanNumberMinimum = intScanNumber;
@@ -880,6 +901,7 @@ namespace MSDataFileReader
         protected void UpdateProgress(string strProgressStepDescription, float sngPercentComplete)
         {
             mProgressStepDescription = strProgressStepDescription;
+
             if (sngPercentComplete < 0f)
             {
                 sngPercentComplete = 0f;

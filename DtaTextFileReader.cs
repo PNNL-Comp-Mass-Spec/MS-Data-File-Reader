@@ -30,6 +30,7 @@ namespace MSDataFileReader
         #region Constants and Enums
         // Note: The extension must be in all caps
         public const string DTA_TEXT_FILE_EXTENSION = "_DTA.TXT";
+
         private const char COMMENT_LINE_START_CHAR = '=';        // The comment character is an Equals sign
 
         #endregion
@@ -94,6 +95,7 @@ namespace MSDataFileReader
 
                 mCurrentSpectrum.AutoShrinkDataLists = AutoShrinkDataLists;
                 blnSpectrumFound = false;
+
                 if (mFileReader is null)
                 {
                     objSpectrumInfo = new clsSpectrumInfo();
@@ -107,6 +109,7 @@ namespace MSDataFileReader
                     while (!blnSpectrumFound && mFileReader.Peek() > -1 && !mAbortProcessing)
                     {
                         string strLineIn;
+
                         if (mHeaderSaved.Length > 0)
                         {
                             strLineIn = string.Copy(mHeaderSaved);
@@ -115,6 +118,7 @@ namespace MSDataFileReader
                         else
                         {
                             strLineIn = mFileReader.ReadLine();
+
                             if (strLineIn != null)
                                 mTotalBytesRead += strLineIn.Length + 2;
                             mInFileLineNumber += 1;
@@ -150,10 +154,11 @@ namespace MSDataFileReader
                                 mTotalBytesRead += strLineIn.Length + 2;
 
                             mInFileLineNumber += 1;
+
                             if (string.IsNullOrWhiteSpace(strLineIn))
                             {
+                                // Spectrum header is not followed by a parent ion value and charge; ignore the line
                             }
-                            // Spectrum header is not followed by a parent ion value and charge; ignore the line
                             else
                             {
                                 AddNewRecentFileText(strLineIn);
@@ -194,10 +199,12 @@ namespace MSDataFileReader
                                     // See if the next spectrum is the identical data, but the charge is 3 (this is a common situation with .dta files prepared by Lcq_Dta)
 
                                     strLineIn = string.Copy(strMostRecentLineIn);
+
                                     if (string.IsNullOrWhiteSpace(strLineIn) && mFileReader.Peek() > -1)
                                     {
                                         // Read the next line
                                         strLineIn = mFileReader.ReadLine();
+
                                         if (strLineIn != null)
                                             mTotalBytesRead += strLineIn.Length + 2;
 
@@ -208,6 +215,7 @@ namespace MSDataFileReader
                                     {
                                         mHeaderSaved = string.Copy(strLineIn);
                                         var strCompareTitle = CleanupComment(mHeaderSaved, mCommentLineStartChar, true);
+
                                         if (strCompareTitle.ToLower().EndsWith("3.dta"))
                                         {
                                             if (string.Equals(mCurrentSpectrum.SpectrumTitle.Substring(0, mCurrentSpectrum.SpectrumTitle.Length - 5), strCompareTitle.Substring(0, strCompareTitle.Length - 5), StringComparison.InvariantCultureIgnoreCase))
@@ -232,6 +240,7 @@ namespace MSDataFileReader
                                                     if (strLineIn != null)
                                                     {
                                                         mTotalBytesRead += strLineIn.Length + 2;
+
                                                         if (strLineIn.Trim().Length == 0)
                                                         {
                                                             break;
@@ -262,6 +271,7 @@ namespace MSDataFileReader
                     }
 
                     objSpectrumInfo = mCurrentSpectrum;
+
                     if (blnSpectrumFound && !ReadingAndStoringSpectra)
                     {
                         UpdateFileStats(objSpectrumInfo.ScanNumber);
@@ -305,8 +315,10 @@ namespace MSDataFileReader
                     {
                         var strLineIn = fileReader.ReadLine();
                         mInFileLineNumber += 1;
+
                         if (strLineIn != null)
                             mTotalBytesRead += strLineIn.Length + 2;
+
                         if (!string.IsNullOrWhiteSpace(strLineIn))
                         {
                             if (char.IsDigit(strLineIn.Trim(), 0))
@@ -389,6 +401,7 @@ namespace MSDataFileReader
 
             // Look for the first space
             var intCharIndex = strParentIonLineText.IndexOf(' ');
+
             if (intCharIndex >= 1)
             {
                 var strValue = strParentIonLineText.Substring(0, intCharIndex);
@@ -400,6 +413,7 @@ namespace MSDataFileReader
 
                     // See if strValue contains another space
                     intCharIndex = strValue.IndexOf(' ');
+
                     if (intCharIndex > 0)
                     {
                         strValue = strValue.Substring(0, intCharIndex);
@@ -444,6 +458,7 @@ namespace MSDataFileReader
                 {
                     mTotalBytesRead += strLineIn.Length + 2;
                     strMostRecentLineIn = string.Copy(strLineIn);
+
                     if (strLineIn.Trim().Length == 0 || strLineIn.StartsWith(COMMENT_LINE_START_CHAR.ToString()))
                     {
                         break;

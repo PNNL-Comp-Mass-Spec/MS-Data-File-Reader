@@ -59,6 +59,7 @@ namespace MSDataFileReader
         private struct udtElementInfoType
         {
             public string Name;
+
             public int Depth;
         }
 
@@ -67,7 +68,9 @@ namespace MSDataFileReader
         #region Classwide Variables
 
         protected TextReader mDataFileOrTextStream;
+
         protected XmlReader mXMLReader;
+
         protected bool mSpectrumFound;
 
         /// <summary>
@@ -77,10 +80,12 @@ namespace MSDataFileReader
         protected bool mSkipBinaryData = false;
 
         protected bool mSkipNextReaderAdvance;
+
         protected bool mSkippedStartElementAdvance;
 
         // Last element name handed off from reader; set to "" when an End Element is encountered
         protected string mCurrentElement;
+
         protected Stack mParentElementStack;
 
         #endregion
@@ -205,6 +210,7 @@ namespace MSDataFileReader
                 }
 
                 strXMLDuration = System.Runtime.Remoting.Metadata.W3cXsd2001.SoapDuration.ToString(dtTimeSpan);
+
                 if (strXMLDuration.Length == 0)
                 {
                     isZero = true;
@@ -221,6 +227,7 @@ namespace MSDataFileReader
                     // Look for "M\.\d+S"
                     var reSecondsRegEx = new Regex(@"M(\d+\.\d+)S");
                     var objMatch = reSecondsRegEx.Match(strXMLDuration);
+
                     if (objMatch.Success && objMatch.Groups.Count > 1 && IsNumber(objMatch.Groups[1].Captures[0].Value))
                     {
                         var dblSeconds = double.Parse(objMatch.Groups[1].Captures[0].Value);
@@ -244,6 +251,7 @@ namespace MSDataFileReader
                         {
                             intCharIndex = intCharIndex2 + 1;
                             intCharIndex2 = strXMLDuration.IndexOf("M0D", intCharIndex, StringComparison.Ordinal);
+
                             if (intCharIndex2 > 0 && intCharIndex < intTimeIndex)
                             {
                                 intCharIndex = intCharIndex2 + 1;
@@ -256,10 +264,12 @@ namespace MSDataFileReader
                         strXMLDuration = strXMLDuration.Substring(0, intDateIndex + 1) + strXMLDuration.Substring(intCharIndex + 2);
                         intTimeIndex = strXMLDuration.IndexOf('T');
                         intCharIndex = strXMLDuration.IndexOf("T0H", intTimeIndex, StringComparison.Ordinal);
+
                         if (intCharIndex > 0)
                         {
                             intCharIndex += 1;
                             var intCharIndex2 = strXMLDuration.IndexOf("H0M", intCharIndex, StringComparison.Ordinal);
+
                             if (intCharIndex2 > 0)
                             {
                                 intCharIndex = intCharIndex2 + 1;
@@ -334,9 +344,11 @@ namespace MSDataFileReader
             try
             {
                 string strValue;
+
                 if (mXMLReader.HasAttributes)
                 {
                     strValue = mXMLReader.GetAttribute(strAttributeName);
+
                     if (strValue is null)
                         strValue = string.Copy(DefaultValue);
                 }
@@ -452,6 +464,7 @@ namespace MSDataFileReader
             mSkippedStartElementAdvance = false;
             mSpectrumFound = false;
             mCurrentElement = string.Empty;
+
             if (mParentElementStack is null)
             {
                 mParentElementStack = new Stack();
@@ -472,6 +485,7 @@ namespace MSDataFileReader
             try
             {
                 var success = OpenFileInit(strInputFilePath);
+
                 if (!success)
                     return false;
 
@@ -549,9 +563,11 @@ namespace MSDataFileReader
             // If the depth values are not the same, we push the new element on
 
             udtElementInfoType udtElementInfo;
+
             if (mParentElementStack.Count > 0)
             {
                 udtElementInfo = (udtElementInfoType)mParentElementStack.Peek();
+
                 if (udtElementInfo.Depth == objXMLReader.Depth)
                 {
                     mParentElementStack.Pop();
@@ -564,7 +580,9 @@ namespace MSDataFileReader
         }
 
         protected abstract void ParseStartElement();
+
         protected abstract void ParseElementContent();
+
         protected abstract void ParseEndElement();
 
         /// <summary>
@@ -578,6 +596,7 @@ namespace MSDataFileReader
             {
                 InitializeCurrentSpectrum(mAutoShrinkDataLists);
                 mSpectrumFound = false;
+
                 if (mXMLReader is null)
                 {
                     objSpectrumInfo = new clsSpectrumInfo();
@@ -609,6 +628,7 @@ namespace MSDataFileReader
                     while (!mSpectrumFound && validData && !mAbortProcessing && mXMLReader.ReadState == ReadState.Initial || mXMLReader.ReadState == ReadState.Interactive)
                     {
                         mSpectrumFound = false;
+
                         if (mSkipNextReaderAdvance)
                         {
                             mSkipNextReaderAdvance = false;
@@ -652,6 +672,7 @@ namespace MSDataFileReader
                     }
 
                     objSpectrumInfo = GetCurrentSpectrum();
+
                     if (mSpectrumFound && !ReadingAndStoringSpectra)
                     {
                         if (mInputFileStats.ScanCount == 0)

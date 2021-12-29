@@ -53,10 +53,15 @@ namespace MSDataFileReader
         #region Constants and Enums
 
         private const string SPECTRUM_LIST_START_ELEMENT = "<spectrumList";
+
         private const string SPECTRUM_LIST_END_ELEMENT = "</spectrumList>";
+
         private const string SPECTRUM_START_ELEMENT = "<spectrum";
+
         private const string SPECTRUM_END_ELEMENT = "</spectrum>";
+
         private const string MZDATA_START_ELEMENT = "<mzData";
+
         private const string MZDATA_END_ELEMENT = "</mzData>";
 
         #endregion
@@ -64,20 +69,31 @@ namespace MSDataFileReader
         #region Classwide Variables
 
         private clsMzDataFileReader mXmlFileReader;
+
         private clsSpectrumInfoMzData mCurrentSpectrumInfo;
+
         private int mInputFileStatsSpectrumIDMinimum;
+
         private int mInputFileStatsSpectrumIDMaximum;
+
         private string mXmlFileHeader;
+
         private bool mAddNewLinesToHeader;
+
         private Regex mSpectrumStartElementRegEx;
+
         private Regex mSpectrumEndElementRegEx;
+
         private Regex mSpectrumListRegEx;
+
         private Regex mAcquisitionNumberRegEx;
+
         private Regex mSpectrumIDRegEx;
 
         // This dictionary maps spectrum ID to index in mCachedSpectra()
         // If more than one spectrum has the same spectrum ID, tracks the first one read
         private readonly Dictionary<int, int> mIndexedSpectraSpectrumIDToIndex = new();
+
         private XmlReaderSettings mXMLReaderSettings;
 
         #endregion
@@ -110,6 +126,7 @@ namespace MSDataFileReader
             set
             {
                 base.ParseFilesWithUnknownVersion = value;
+
                 if (mXmlFileReader != null)
                 {
                     mXmlFileReader.ParseFilesWithUnknownVersion = value;
@@ -158,10 +175,12 @@ namespace MSDataFileReader
                         }
 
                         int intCharIndex;
+
                         if (mAddNewLinesToHeader)
                         {
                             // We haven't yet found the first scan; look for "<spectrumList"
                             intCharIndex = mInFileCurrentLineText.IndexOf(SPECTRUM_LIST_START_ELEMENT, mInFileCurrentCharIndex + 1, StringComparison.Ordinal);
+
                             if (intCharIndex >= 0)
                             {
                                 // Only add a portion of mInFileCurrentLineText to mXmlFileHeader
@@ -188,10 +207,12 @@ namespace MSDataFileReader
                         }
 
                         Match objMatch;
+
                         if (blnLookForScanCountOnNextRead)
                         {
                             // Look for the Scan Count value in strScanCountSearchText
                             objMatch = mSpectrumListRegEx.Match(strScanCountSearchText);
+
                             if (objMatch.Success)
                             {
                                 // Record the Scan Count value
@@ -208,6 +229,7 @@ namespace MSDataFileReader
 
                                 blnLookForScanCountOnNextRead = false;
                             }
+
                             // The count attribute is not on the same line as the <spectrumList element
                             // Set blnLookForScanCountOnNextRead to true if strScanCountSearchText does not contain the end element symbol, i.e. >
                             else if (strScanCountSearchText.IndexOf('>') >= 0)
@@ -225,6 +247,7 @@ namespace MSDataFileReader
                             // the test by mAcquisitionNumberRegEx should match the acqNumber attribute even if it is not
                             // on the same line as <acquisition or if it is not the first attribute following <acquisition
                             objMatch = mAcquisitionNumberRegEx.Match(strAcqNumberSearchText);
+
                             if (objMatch.Success)
                             {
                                 if (objMatch.Groups.Count > 1)
@@ -291,6 +314,7 @@ namespace MSDataFileReader
                                     else if (strInFileCurrentLineSubstring.IndexOf(SPECTRUM_END_ELEMENT, StringComparison.Ordinal) < 0)
                                     {
                                         blnMatchFound = false;
+
                                         if (!blnAppendingText)
                                         {
                                             blnAppendingText = true;
@@ -307,6 +331,7 @@ namespace MSDataFileReader
                                 {
                                     // Move to the end of the element
                                     intCharIndex += objMatch.Value.Length - 1;
+
                                     if (intCharIndex >= mInFileCurrentLineText.Length)
                                     {
                                         // This shouldn't happen
@@ -322,6 +347,7 @@ namespace MSDataFileReader
                             }
 
                             mInFileCurrentCharIndex = intCharIndex;
+
                             if (blnMatchFound)
                             {
                                 if (blnAppendingText)
@@ -442,6 +468,7 @@ namespace MSDataFileReader
             try
             {
                 mErrorMessage = string.Empty;
+
                 if (mDataReaderMode == drmDataReaderModeConstants.Cached)
                 {
                     mErrorMessage = "Cannot obtain spectrum by spectrum ID when data is cached in memory; only valid when the data is indexed";
@@ -675,6 +702,7 @@ namespace MSDataFileReader
                     }
 
                     blnSpectrumFound = AdvanceFileReaders(emmElementMatchModeConstants.StartElement);
+
                     if (blnSpectrumFound)
                     {
                         if (mInFileCurrentCharIndex < 0)
@@ -689,6 +717,7 @@ namespace MSDataFileReader
                         }
 
                         blnSpectrumFound = AdvanceFileReaders(emmElementMatchModeConstants.EndElement);
+
                         if (blnSpectrumFound)
                         {
                             if (mCharSize > 1)
@@ -750,6 +779,7 @@ namespace MSDataFileReader
         private void UpdateFileStats(int intScanCount, int intScanNumber, int intSpectrumID)
         {
             UpdateFileStats(intScanCount, intScanNumber);
+
             if (intScanCount <= 1)
             {
                 mInputFileStatsSpectrumIDMinimum = intSpectrumID;

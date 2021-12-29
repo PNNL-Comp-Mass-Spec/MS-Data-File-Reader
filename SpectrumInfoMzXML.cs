@@ -31,6 +31,7 @@ namespace MSDataFileReader
         public class CompressionTypes
         {
             public const string none = "none";
+
             public const string zlib = "zlib";
         }
 
@@ -42,24 +43,37 @@ namespace MSDataFileReader
         public class PairOrderTypes
         {
             public const string MZandIntensity = "m/z-int";
+
             public const string IntensityAndMZ = "int-m/z";
+
             public const string MZ = "m/z";
+
             public const string Intensity = "intensity";
+
             public const string SN = "S/N";
+
             public const string Charge = "charge";
+
             public const string MZRuler = "m/z ruler";
+
             public const string TOF = "TOF";
         }
 
         public class ScanTypeNames
         {
             public const string Full = "Full";
+
             public const string zoom = "zoom";
+
             public const string SIM = "SIM";
+
             public const string SRM = "SRM";      // MRM is synonymous with SRM
             public const string CRM = "CRM";
+
             public const string Q1 = "Q1";
+
             public const string Q3 = "Q3";
+
             public const string MRM = "MRM";
         }
 
@@ -92,10 +106,15 @@ namespace MSDataFileReader
 
         // See class CompressionTypes for values; will be "none" or "zlib"
         protected string mCompressionType;
+
         protected int mCompressedLen;
+
         protected string mActivationMethod;
+
         protected float mIsolationWindow;
+
         protected int mParentIonCharge;
+
         protected int mPrecursorScanNum;
 
         #endregion
@@ -364,6 +383,7 @@ namespace MSDataFileReader
         public override void Validate(bool blnComputeBasePeakAndTIC, bool blnUpdateMZRange)
         {
             base.Validate(blnComputeBasePeakAndTIC, blnUpdateMZRange);
+
             if (SpectrumID == 0 && ScanNumber != 0)
             {
                 SpectrumID = ScanNumber;

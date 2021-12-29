@@ -67,15 +67,22 @@ namespace MSDataFileReader
 
         protected System.IO.TextReader mFileReader;
         protected char mCommentLineStartChar = '=';
+
         private string mSecondMostRecentSpectrumFileText;
+
         private System.Text.StringBuilder mMostRecentSpectrumFileText;
+
         protected int mInFileLineNumber;
+
         protected clsSpectrumInfoMsMsText mCurrentSpectrum;
+
         protected List<string> mCurrentMsMsDataList;
 
         // When true, read the data and populate mCurrentMsMsDataList but do not populate mCurrentSpectrum.MZList() or mCurrentSpectrum.IntensityList()
         protected bool mReadTextDataOnly;
+
         protected long mTotalBytesRead;
+
         protected long mInFileStreamLength;
 
         #endregion
@@ -165,6 +172,7 @@ namespace MSDataFileReader
             {
                 strCommentIn = strCommentIn.TrimStart(strCommentChar).Trim();
                 strCommentIn = strCommentIn.TrimEnd(strCommentChar).Trim();
+
                 if (blnRemoveQuoteMarks)
                 {
                     strCommentIn = strCommentIn.TrimStart('"');
@@ -228,6 +236,7 @@ namespace MSDataFileReader
             for (intIndex = 0; intIndex <= loopTo; intIndex++)
             {
                 dblTotalIntensitySum += sngIntensityList[intIndex];
+
                 if (dblMZList[intIndex] > dblThresholdMZ)
                 {
                     intCountAboveThreshold += 1;
@@ -280,6 +289,7 @@ namespace MSDataFileReader
                 if (strSpectrumHeader != null)
                 {
                     strSpectrumHeader = strSpectrumHeader.Trim();
+
                     if (strSpectrumHeader.ToLower().EndsWith(".dta"))
                     {
                         // Remove the trailing .dta
@@ -288,6 +298,7 @@ namespace MSDataFileReader
 
                     // Extract the scans and charge using a RegEx
                     var reMatch = mDtaHeaderScanAndCharge.Match(strSpectrumHeader);
+
                     if (reMatch.Success)
                     {
                         if (int.TryParse(reMatch.Groups[1].Value, out intScanNumberStart))
@@ -423,6 +434,7 @@ namespace MSDataFileReader
                 // This shouldn't happen, but we'll handle it anyway
                 objSpectrumInfo.AddOrUpdateChargeList(1, false);
             }
+
             // Test 1: See if all m/z values are less than the parent ion m/z
             // Assume the data in .IonList() is sorted by ascending m/z
 
@@ -445,6 +457,7 @@ namespace MSDataFileReader
                 else
                 {
                     int intChargeStart;
+
                     if (sngPctByCount >= mThresholdIonPctForDoubleCharge && sngPctByIntensity >= mThresholdIonPctForDoubleCharge)
                     {
                         // Both percentages are above the threshold for definitively double charge (or higher)
@@ -461,6 +474,7 @@ namespace MSDataFileReader
                     do
                     {
                         var dblParentIonMH = ConvoluteMass(objSpectrumInfo.ParentIonMZ, intChargeEnd, 1);
+
                         if (dblParentIonMH < objSpectrumInfo.MZList[objSpectrumInfo.DataCount - 1] + 3d)
                         {
                             intChargeEnd += 1;
@@ -471,6 +485,7 @@ namespace MSDataFileReader
                         }
                     }
                     while (intChargeEnd < clsSpectrumInfoMsMsText.MAX_CHARGE_COUNT);
+
                     if (blnAddToExistingChargeList)
                     {
                         if (!blnForceChargeAddnFor2and3Plus && intChargeStart == 2 && intChargeEnd == 3)
@@ -526,6 +541,7 @@ namespace MSDataFileReader
             try
             {
                 var success = OpenFileInit(strInputFilePath);
+
                 if (!success)
                     return false;
 
@@ -592,6 +608,7 @@ namespace MSDataFileReader
         {
             int intDataCount;
             var strSepChars = new char[] { ' ', '\t' };
+
             if (lstMSMSData != null && lstMSMSData.Count > 0)
             {
                 dblMasses = new double[lstMSMSData.Count];
@@ -603,6 +620,7 @@ namespace MSDataFileReader
                     // MGF files sometimes contain a third number, the charge of the ion
                     // Use .Split() to parse the numbers in the line to extract the mass and intensity, and ignore the charge (if present)
                     var strSplitLine = strItem.Split(strSepChars);
+
                     if (strSplitLine.Length >= 2)
                     {
                         if (IsNumber(strSplitLine[0]) && IsNumber(strSplitLine[1]))

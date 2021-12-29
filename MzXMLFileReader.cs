@@ -24,38 +24,46 @@ namespace MSDataFileReader
         #region Constants and Enums
         // Note: The extensions must be in all caps
         public const string MZXML_FILE_EXTENSION = ".MZXML";
+
         public const string MZXML_FILE_EXTENSION_XML = "_MZXML.XML";
 
         // Note that I'm using classes to group the constants
         private class XMLSectionNames
         {
             public const string RootName = "mzXML";
+
             public const string msRun = "msRun";
         }
 
         private class mzXMLRootAttrbuteNames
         {
             public const string xmlns = "xmlns";
+
             public const string xsi_schemaLocation = "xsi:schemaLocation";
         }
 
         private class HeaderSectionNames
         {
             public const string msInstrument = "msInstrument";
+
             public const string dataProcessing = "dataProcessing";
         }
 
         private class ScanSectionNames
         {
             public const string scan = "scan";
+
             public const string precursorMz = "precursorMz";
+
             public const string peaks = "peaks";
         }
 
         private class MSRunAttributeNames
         {
             public const string scanCount = "scanCount";
+
             public const string startTime = "startTime";
+
             public const string endTime = "endTime";
         }
 
@@ -67,11 +75,14 @@ namespace MSDataFileReader
         private class ScanAttributeNames
         {
             public const string num = "num";
+
             public const string msLevel = "msLevel";
 
             // 0 or 1
             public const string centroided = "centroided";
+
             public const string peaksCount = "peaksCount";
+
             public const string polarity = "polarity";
 
             // Options are: Full, zoom, SIM, SRM, MRM, CRM, Q1, or Q3; note that MRM and SRM and functionally equivalent; ReadW uses SRM
@@ -106,6 +117,7 @@ namespace MSDataFileReader
 
             // Total ion current (total intensity in the scan)
             public const string totIonCurrent = "totIonCurrent";
+
             public const string msInstrumentID = "msInstrumentID";
         }
 
@@ -130,6 +142,7 @@ namespace MSDataFileReader
         private class PeaksAttributeNames
         {
             public const string precision = "precision";
+
             public const string byteOrder = "byteOrder";
 
             // For example, "m/z-int"  ; superseded by "contentType" in mzXML 3
@@ -162,7 +175,9 @@ namespace MSDataFileReader
         private struct udtFileStatsAddnlType
         {
             public float StartTimeMin;
+
             public float EndTimeMin;
+
             public bool IsCentroid;      // True if centroid (aka stick) data; False if profile (aka continuum) data
         }
 
@@ -171,8 +186,10 @@ namespace MSDataFileReader
         #region Classwide Variables
 
         private eCurrentMZXMLDataFileSectionConstants mCurrentXMLDataFileSection;
+
         private int mScanDepth;       // > 0 if we're inside a scan element
         private clsSpectrumInfoMzXML mCurrentSpectrum;
+
         private udtFileStatsAddnlType mInputFileStatsAddnl;
 
         #endregion
@@ -315,6 +332,7 @@ namespace MSDataFileReader
 
                             mCurrentSpectrum.MZList = new double[(int)Math.Round(dblDataArray.Length / 2d)];
                             mCurrentSpectrum.IntensityList = new float[(int)Math.Round(dblDataArray.Length / 2d)];
+
                             if ((mCurrentSpectrum.PeaksPairOrder ?? "") == clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ)
                             {
                                 var loopTo2 = dblDataArray.Length - 1;
@@ -393,6 +411,7 @@ namespace MSDataFileReader
         {
             if (mAbortProcessing)
                 return;
+
             if (mCurrentSpectrum is null)
                 return;
 
@@ -440,6 +459,7 @@ namespace MSDataFileReader
         {
             if (mAbortProcessing)
                 return;
+
             if (mCurrentSpectrum is null)
                 return;
 
@@ -455,6 +475,7 @@ namespace MSDataFileReader
                     }
 
                     mScanDepth -= 1;
+
                     if (mScanDepth < 0)
                     {
                         // This shouldn't happen
@@ -478,8 +499,10 @@ namespace MSDataFileReader
         {
             if (mAbortProcessing)
                 return;
+
             if (mCurrentSpectrum is null)
                 return;
+
             if (!mSkippedStartElementAdvance)
             {
                 // Add mXMLReader.Name to mParentElementStack
@@ -488,10 +511,12 @@ namespace MSDataFileReader
 
             // Store name of the element we just entered
             mCurrentElement = mXMLReader.Name;
+
             switch (mXMLReader.Name ?? "")
             {
                 case ScanSectionNames.scan:
                     mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.ScanList;
+
                     if (mScanDepth > 0 && !mSkippedStartElementAdvance)
                     {
                         if (mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Initialized && mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Validated)
@@ -506,6 +531,7 @@ namespace MSDataFileReader
                     mCurrentSpectrum.Clear();
                     mScanDepth += 1;
                     bool blnAttributeMissing;
+
                     if (!mXMLReader.HasAttributes)
                     {
                         blnAttributeMissing = true;
@@ -513,6 +539,7 @@ namespace MSDataFileReader
                     else
                     {
                         mCurrentSpectrum.ScanNumber = GetAttribValue(ScanAttributeNames.num, int.MinValue);
+
                         if (mCurrentSpectrum.ScanNumber == int.MinValue)
                         {
                             blnAttributeMissing = true;
@@ -524,6 +551,7 @@ namespace MSDataFileReader
                                 mCurrentSpectrum.ScanCount = 1;
                                 mCurrentSpectrum.ScanNumberEnd = mCurrentSpectrum.ScanNumber;
                                 mCurrentSpectrum.MSLevel = GetAttribValue(ScanAttributeNames.msLevel, 1);
+
                                 if (GetAttribValue(ScanAttributeNames.centroided, 0) == 0)
                                 {
                                     mCurrentSpectrum.Centroided = false;
@@ -578,6 +606,7 @@ namespace MSDataFileReader
                         // Earlier versions will have a pairOrder attribute
 
                         mCurrentSpectrum.PeaksPairOrder = GetAttribValue(PeaksAttributeNames.contentType, string.Empty);
+
                         if (!string.IsNullOrEmpty(mCurrentSpectrum.PeaksPairOrder))
                         {
                             // mzXML v3.x
@@ -605,10 +634,12 @@ namespace MSDataFileReader
 
                 case XMLSectionNames.RootName:
                     mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.Start;
+
                     if (mXMLReader.HasAttributes)
                     {
                         // First look for attribute xlmns
                         var strValue = GetAttribValue(mzXMLRootAttrbuteNames.xmlns, string.Empty);
+
                         if (strValue is null || strValue.Length == 0)
                         {
                             // Attribute not found; look for attribute xsi:schemaLocation
@@ -630,6 +661,7 @@ namespace MSDataFileReader
 
                 case XMLSectionNames.msRun:
                     mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.msRun;
+
                     if (mXMLReader.HasAttributes)
                     {
                         mInputFileStats.ScanCount = GetAttribValue(MSRunAttributeNames.scanCount, 0);
@@ -710,6 +742,7 @@ namespace MSDataFileReader
             {
                 // Parse out the version number
                 var objMatch = objFileVersionRegEx.Match(xmlWithFileVersion);
+
                 if (objMatch.Success)
                 {
                     // Record the version
@@ -732,6 +765,7 @@ namespace MSDataFileReader
                 if (!ExtractMzXmlFileVersion(xmlWithFileVersion, out mFileVersion))
                 {
                     strMessage = "Unknown mzXML file version; expected text not found in xmlWithFileVersion";
+
                     if (mParseFilesWithUnknownVersion)
                     {
                         strMessage += "; attempting to parse since ParseFilesWithUnknownVersion = True";
@@ -754,6 +788,7 @@ namespace MSDataFileReader
                         // Thus, assume unknown version
                         // Log error and abort if mParseFilesWithUnknownVersion = False
                         strMessage = "Unknown mzXML file version: " + mFileVersion;
+
                         if (mParseFilesWithUnknownVersion)
                         {
                             strMessage += "; attempting to parse since ParseFilesWithUnknownVersion = True";

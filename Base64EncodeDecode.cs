@@ -50,6 +50,7 @@ namespace MSDataFileReader
             var bytArrayOneValue = new byte[2];
             int intIndex;
             string conversionSource;
+
             if (zLibCompressed)
             {
                 conversionSource = "DecompressZLib";
@@ -107,6 +108,7 @@ namespace MSDataFileReader
             var bytArrayOneValue = new byte[4];
             int intIndex;
             string conversionSource;
+
             if (zLibCompressed)
             {
                 conversionSource = "DecompressZLib";
@@ -166,6 +168,7 @@ namespace MSDataFileReader
             var bytArrayOneValue = new byte[4];
             int intIndex;
             string conversionSource;
+
             if (zLibCompressed)
             {
                 conversionSource = "DecompressZLib";
@@ -225,6 +228,7 @@ namespace MSDataFileReader
             var bytArrayOneValue = new byte[8];
             int intIndex;
             string conversionSource;
+
             if (zLibCompressed)
             {
                 conversionSource = "DecompressZLib";
@@ -290,6 +294,7 @@ namespace MSDataFileReader
                 while (inflater.CanRead)
                 {
                     var intBytesRead = inflater.Read(bytBuffer, 0, bytBuffer.Length);
+
                     if (intBytesRead == 0)
                         break;
                     msInflated.Write(bytBuffer, 0, intBytesRead);
@@ -300,6 +305,7 @@ namespace MSDataFileReader
 
             byte[] bytArray;
             var intTotalBytesDecompressed = (int)msInflated.Length;
+
             if (intTotalBytesDecompressed > 0)
             {
                 bytArray = new byte[intTotalBytesDecompressed];
@@ -327,6 +333,7 @@ namespace MSDataFileReader
             const string DATA_TYPE_NAME = "byte";
             intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
             strDataTypeNameReturn = DATA_TYPE_NAME;
+
             if (dataArray is null || dataArray.Length == -1)
             {
                 return string.Empty;
@@ -354,6 +361,7 @@ namespace MSDataFileReader
 
             intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
             strDataTypeNameReturn = DATA_TYPE_NAME;
+
             if (dataArray is null || dataArray.Length == -1)
             {
                 return string.Empty;
@@ -404,6 +412,7 @@ namespace MSDataFileReader
             const string DATA_TYPE_NAME = "int";
             intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
             strDataTypeNameReturn = DATA_TYPE_NAME;
+
             if (dataArray is null || dataArray.Length == -1)
             {
                 return string.Empty;
@@ -456,6 +465,7 @@ namespace MSDataFileReader
             const string DATA_TYPE_NAME = "float";
             intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
             strDataTypeNameReturn = DATA_TYPE_NAME;
+
             if (dataArray is null || dataArray.Length == -1)
             {
                 return string.Empty;
@@ -508,6 +518,7 @@ namespace MSDataFileReader
             const string DATA_TYPE_NAME = "float";
             intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
             strDataTypeNameReturn = DATA_TYPE_NAME;
+
             if (dataArray is null || dataArray.Length == -1)
             {
                 return string.Empty;

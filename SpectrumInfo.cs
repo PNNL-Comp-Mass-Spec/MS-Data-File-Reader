@@ -27,6 +27,7 @@ namespace MSDataFileReader
         public class SpectrumTypeNames
         {
             public const string discrete = "discrete";
+
             public const string continuous = "continuous";
         }
 
@@ -47,21 +48,32 @@ namespace MSDataFileReader
         private int mScanNumberEnd;             // Last scan if more than one scan was combined to make this spectrum
         private string mSpectrumType;               // See Class SpectrumTypeNames for typical names (discrete or continuous)
         private string mSpectrumCombinationMethod;
+
         private int mMSLevel;                   // 1 for MS, 2 for MS/MS, 3 for MS^3, etc.
         private bool mCentroided;                // True if the data is centroided (supported by mzXML v3.x)
         private string mPolarity;
+
         private float mRetentionTimeMin;
+
         private float mmzRangeStart;
+
         private float mmzRangeEnd;
+
         private double mBasePeakMZ;
+
         private float mBasePeakIntensity;
+
         private double mTotalIonCurrent;
+
         private double mParentIonMZ;
+
         private float mParentIonIntensity;
 
         // Number of m/z and intensity pairs in this spectrum; see note concerning mAutoShrinkDataLists below
         public int DataCount;
+
         public double[] MZList;
+
         public float[] IntensityList;
 
         #endregion
@@ -379,6 +391,7 @@ namespace MSDataFileReader
             mParentIonMZ = 0d;
             mParentIonIntensity = 0f;
             DataCount = 0;
+
             if (mAutoShrinkDataLists || MZList is null)
             {
                 MZList = new double[0];
@@ -487,6 +500,7 @@ namespace MSDataFileReader
                 dblTotalIonCurrent = 0d;
                 dblBasePeakMZ = 0d;
                 sngBasePeakIntensity = 0f;
+
                 if (DataCount > 0 && MZList != null && IntensityList != null)
                 {
                     dblBasePeakMZ = MZList[0];
@@ -497,6 +511,7 @@ namespace MSDataFileReader
                     for (intIndex = 1; intIndex <= loopTo; intIndex++)
                     {
                         dblTotalIonCurrent += IntensityList[intIndex];
+
                         if (IntensityList[intIndex] >= sngBasePeakIntensity)
                         {
                             dblBasePeakMZ = MZList[intIndex];
@@ -533,6 +548,7 @@ namespace MSDataFileReader
                 // Define the minimum MZ value to consider
                 var dblMZMinimum = dblMZToFind - sngMatchTolerance;
                 sngIntensityMatch = sngIntensityIfNotFound;
+
                 if (!(MZList is null || IntensityList is null))
                 {
                     int intIndex;
@@ -543,6 +559,7 @@ namespace MSDataFileReader
                             if (MZList[intIndex] >= dblMZMinimum)
                             {
                                 var dblMZDifference = dblMZToFind - MZList[intIndex];
+
                                 if (Math.Abs(dblMZDifference) <= sngMatchTolerance)
                                 {
                                     if (IntensityList[intIndex] > sngIntensityMatch)

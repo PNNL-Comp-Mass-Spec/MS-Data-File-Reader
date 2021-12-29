@@ -26,15 +26,19 @@ namespace MSDataFileReader
         #region Spectrum Variables
 
         private string mSpectrumTitleWithCommentChars;
+
         private string mSpectrumTitle;
+
         private string mParentIonLineText;
 
         // DTA files include this value, but not the MZ value
         private double mParentIonMH;
+
         public int ParentIonChargeCount;
 
         // 0 if unknown, otherwise typically 1, 2, or 3; Max index is MAX_CHARGE_COUNT-1
         public int[] ParentIonCharges;
+
         private bool mChargeIs2And3Plus;
 
         #endregion
@@ -138,6 +142,7 @@ namespace MSDataFileReader
                 {
                     if (ParentIonChargeCount < 0)
                         ParentIonChargeCount = 0;
+
                     if (ParentIonChargeCount < MAX_CHARGE_COUNT)
                     {
                         // Insert intNewCharge into ParentIonCharges() in the appropriate slot
@@ -242,6 +247,7 @@ namespace MSDataFileReader
         public override void Validate(bool blnComputeBasePeakAndTIC, bool blnUpdateMZRange)
         {
             base.Validate(blnComputeBasePeakAndTIC, blnUpdateMZRange);
+
             if (Math.Abs(ParentIonMZ) > float.Epsilon && Math.Abs(ParentIonMH) < float.Epsilon)
             {
                 if (ParentIonChargeCount > 0)
