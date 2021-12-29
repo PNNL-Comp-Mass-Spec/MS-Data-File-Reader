@@ -44,10 +44,7 @@ namespace MSDataFileReader
 
         ~clsMzDataFileAccessor()
         {
-            if (mXmlFileReader != null)
-            {
-                mXmlFileReader = null;
-            }
+            mXmlFileReader = null;
         }
 
         private const string SPECTRUM_LIST_START_ELEMENT = "<spectrumList";

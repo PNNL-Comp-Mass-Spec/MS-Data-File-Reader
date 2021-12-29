@@ -59,7 +59,7 @@ namespace MSDataFileReader
                 bytArray = Convert.FromBase64String(strBase64EncodedText);
             }
 
-            if (!(bytArray.Length % DATA_TYPE_PRECISION_BYTES == 0))
+            if (bytArray.Length % DATA_TYPE_PRECISION_BYTES != 0)
             {
                 throw new Exception("Array length of the Byte Array returned by " + conversionSource + " is not divisible by " + DATA_TYPE_PRECISION_BYTES + " bytes;" + " not the correct length for an encoded array of 16-bit integers");
             }
@@ -117,7 +117,7 @@ namespace MSDataFileReader
                 bytArray = Convert.FromBase64String(strBase64EncodedText);
             }
 
-            if (!(bytArray.Length % DATA_TYPE_PRECISION_BYTES == 0))
+            if (bytArray.Length % DATA_TYPE_PRECISION_BYTES != 0)
             {
                 throw new Exception("Array length of the Byte Array returned by " + conversionSource + " is not divisible by " + DATA_TYPE_PRECISION_BYTES + " bytes;" + " not the correct length for an encoded array of 32-bit integers");
             }
@@ -177,7 +177,7 @@ namespace MSDataFileReader
                 bytArray = Convert.FromBase64String(strBase64EncodedText);
             }
 
-            if (!(bytArray.Length % DATA_TYPE_PRECISION_BYTES == 0))
+            if (bytArray.Length % DATA_TYPE_PRECISION_BYTES != 0)
             {
                 throw new Exception("Array length of the Byte Array returned by " + conversionSource + " is not divisible by " + DATA_TYPE_PRECISION_BYTES + " bytes;" + " not the correct length for an encoded array of floats (aka singles)");
             }
@@ -237,7 +237,7 @@ namespace MSDataFileReader
                 bytArray = Convert.FromBase64String(strBase64EncodedText);
             }
 
-            if (!(bytArray.Length % DATA_TYPE_PRECISION_BYTES == 0))
+            if (bytArray.Length % DATA_TYPE_PRECISION_BYTES != 0)
             {
                 throw new Exception("Array length of the Byte Array returned by " + conversionSource + " is not divisible by " + DATA_TYPE_PRECISION_BYTES + " bytes;" + " not the correct length for an encoded array of doubles");
             }
