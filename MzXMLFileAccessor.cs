@@ -160,6 +160,7 @@ namespace MSDataFileReader
                             inFileCurrentLineSubstring = mInFileCurrentLineText.Substring(mInFileCurrentCharIndex + 1);
                         }
 
+                        // This variable gets updated multiple times, and eventually gets stored in mInFileCurrentCharIndex
                         int charIndex;
 
                         if (mAddNewLinesToHeader)
@@ -188,43 +189,40 @@ namespace MSDataFileReader
                             }
                         }
 
-                        Match match;
-
                         if (!mMSRunFound)
                         {
                             // We haven't yet found msRun; look for "<msRun" and the Scan Count value
-                            match = mMSRunRegEx.Match(mXmlFileHeader);
+                            var msRunMatch = mMSRunRegEx.Match(mXmlFileHeader);
 
-                            if (match.Success)
+                            if (msRunMatch.Success)
                             {
                                 // Record the Scan Count value
-                                if (match.Groups.Count > 1)
+                                try
                                 {
-                                    try
-                                    {
-                                        mInputFileStats.ScanCount = int.Parse(match.Groups[1].Captures[0].Value);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        // Ignore errors here
-                                    }
+                                    mInputFileStats.ScanCount = int.Parse(msRunMatch.Groups[1].Captures[0].Value);
+                                }
+                                catch (Exception ex)
+                                {
+                                    // Ignore errors here
                                 }
 
                                 mMSRunFound = true;
                             }
                         }
 
+                        Match scanInfoMatch;
+
                         // Look for the appropriate search text in mInFileCurrentLineText, starting at mInFileCurrentCharIndex + 1
                         switch (elementMatchMode)
                         {
                             case ElementMatchMode.StartElement:
-                                match = mScanStartElementRegEx.Match(inFileCurrentLineSubstring);
+                                scanInfoMatch = mScanStartElementRegEx.Match(inFileCurrentLineSubstring);
                                 break;
 
                             case ElementMatchMode.EndElement:
                                 // Since mzXml files can have scans embedded within another scan, we'll look for </peaks>
                                 // rather than looking for </scan>
-                                match = mPeaksEndElementRegEx.Match(inFileCurrentLineSubstring);
+                                scanInfoMatch = mPeaksEndElementRegEx.Match(inFileCurrentLineSubstring);
                                 break;
 
                             default:
@@ -233,30 +231,27 @@ namespace MSDataFileReader
                                 return false;
                         }
 
-                        if (match.Success)
+                        if (scanInfoMatch.Success)
                         {
                             // Match Found
                             matchFound = true;
-                            charIndex = match.Index + 1 + mInFileCurrentCharIndex;
+                            charIndex = scanInfoMatch.Index + 1 + mInFileCurrentCharIndex;
 
                             switch (elementMatchMode)
                             {
                                 case ElementMatchMode.StartElement:
                                     // Look for the scan number after <scan
-                                    match = mScanNumberRegEx.Match(inFileCurrentLineSubstring);
+                                    var match = mScanNumberRegEx.Match(inFileCurrentLineSubstring);
 
                                     if (match.Success)
                                     {
-                                        if (match.Groups.Count > 1)
+                                        try
                                         {
-                                            try
-                                            {
-                                                mCurrentSpectrumInfo.ScanNumber = int.Parse(match.Groups[1].Captures[0].Value);
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                // Ignore errors here
-                                            }
+                                            mCurrentSpectrumInfo.ScanNumber = int.Parse(match.Groups[1].Captures[0].Value);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            // Ignore errors here
                                         }
                                     }
 
@@ -280,7 +275,7 @@ namespace MSDataFileReader
 
                                 case ElementMatchMode.EndElement:
                                     // Move to the end of the element
-                                    charIndex += match.Value.Length - 1;
+                                    charIndex += scanInfoMatch.Value.Length - 1;
 
                                     if (charIndex >= mInFileCurrentLineText.Length)
                                     {
@@ -735,25 +730,25 @@ namespace MSDataFileReader
                 long currentScanByteOffsetStart = -1;
                 var currentElement = string.Empty;
 
-                using var xmlreader = new XmlTextReader(new StringReader(textStream));
+                using var xmlReader = new XmlTextReader(new StringReader(textStream));
 
                 // Skip all whitespace
-                xmlreader.WhitespaceHandling = WhitespaceHandling.None;
+                xmlReader.WhitespaceHandling = WhitespaceHandling.None;
                 var validData = true;
 
-                while (validData && xmlreader.ReadState == ReadState.Initial || xmlreader.ReadState == ReadState.Interactive)
+                while (validData && xmlReader.ReadState == ReadState.Initial || xmlReader.ReadState == ReadState.Interactive)
                 {
-                    validData = xmlreader.Read();
+                    validData = xmlReader.Read();
 
-                    if (validData && xmlreader.ReadState == ReadState.Interactive)
+                    if (validData && xmlReader.ReadState == ReadState.Interactive)
                     {
-                        if (xmlreader.NodeType == XmlNodeType.Element)
+                        if (xmlReader.NodeType == XmlNodeType.Element)
                         {
-                            currentElement = xmlreader.Name;
+                            currentElement = xmlReader.Name;
 
                             if (currentElement == INDEX_ELEMENT_NAME)
                             {
-                                if (xmlreader.HasAttributes)
+                                if (xmlReader.HasAttributes)
                                 {
                                     // Validate that this is the "scan" index
 
@@ -761,7 +756,7 @@ namespace MSDataFileReader
 
                                     try
                                     {
-                                        value = xmlreader.GetAttribute(INDEX_ATTRIBUTE_NAME);
+                                        value = xmlReader.GetAttribute(INDEX_ATTRIBUTE_NAME);
                                     }
                                     catch (Exception ex)
                                     {
@@ -776,12 +771,12 @@ namespace MSDataFileReader
                             }
                             else if (currentElement == OFFSET_ELEMENT_NAME)
                             {
-                                if (parseIndexValues && xmlreader.HasAttributes)
+                                if (parseIndexValues && xmlReader.HasAttributes)
                                 {
                                     // Extract the scan number from the id attribute
                                     previousScanNumber = currentScanNumber;
 
-                                    if (!int.TryParse(xmlreader.GetAttribute(OFFSET_ATTRIBUTE_ID), out currentScanNumber))
+                                    if (!int.TryParse(xmlReader.GetAttribute(OFFSET_ATTRIBUTE_ID), out currentScanNumber))
                                     {
                                         // Index is corrupted (or of an unknown format); do not continue parsing
                                         break;
@@ -789,9 +784,9 @@ namespace MSDataFileReader
                                 }
                             }
                         }
-                        else if (xmlreader.NodeType == XmlNodeType.EndElement)
+                        else if (xmlReader.NodeType == XmlNodeType.EndElement)
                         {
-                            if (parseIndexValues && xmlreader.Name == INDEX_ELEMENT_NAME)
+                            if (parseIndexValues && xmlReader.Name == INDEX_ELEMENT_NAME)
                             {
                                 // Store the final index value
                                 // This is tricky since we don't know the ending offset for the given scan
@@ -803,16 +798,16 @@ namespace MSDataFileReader
 
                             currentElement = string.Empty;
                         }
-                        else if (xmlreader.NodeType == XmlNodeType.Text)
+                        else if (xmlReader.NodeType == XmlNodeType.Text)
                         {
                             if (parseIndexValues && currentElement == OFFSET_ELEMENT_NAME)
                             {
-                                if (xmlreader.NodeType != XmlNodeType.Whitespace && xmlreader.HasValue)
+                                if (xmlReader.NodeType != XmlNodeType.Whitespace && xmlReader.HasValue)
                                 {
                                     try
                                     {
                                         var previousScanByteOffsetStart = currentScanByteOffsetStart;
-                                        currentScanByteOffsetStart = long.Parse(xmlreader.Value);
+                                        currentScanByteOffsetStart = long.Parse(xmlReader.Value);
 
                                         if (previousScanByteOffsetStart >= 0L && currentScanNumber >= 0)
                                         {

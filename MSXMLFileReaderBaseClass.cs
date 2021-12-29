@@ -508,8 +508,8 @@ namespace MSDataFileReader
         /// <summary>
         /// Adds a new entry to the end of mParentElementStack
         /// </summary>
-        /// <param name="xmlreader"></param>
-        protected void ParentElementStackAdd(XmlReader xmlreader)
+        /// <param name="xmlReader"></param>
+        protected void ParentElementStackAdd(XmlReader xmlReader)
         {
             // Since the XML Text Reader doesn't recognize implicit end elements (e.g. the "/>" characters at
             // the end of <City name="Laramie" />) we need to compare the depth of the current element with
@@ -523,14 +523,14 @@ namespace MSDataFileReader
             {
                 elementInfo = (ElementInfoType)mParentElementStack.Peek();
 
-                if (elementInfo.Depth == xmlreader.Depth)
+                if (elementInfo.Depth == xmlReader.Depth)
                 {
                     mParentElementStack.Pop();
                 }
             }
 
-            elementInfo.Name = xmlreader.Name;
-            elementInfo.Depth = xmlreader.Depth;
+            elementInfo.Name = xmlReader.Name;
+            elementInfo.Depth = xmlReader.Depth;
             mParentElementStack.Push(elementInfo);
         }
 
