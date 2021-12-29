@@ -69,7 +69,7 @@ namespace MSDataFileReader
         /// When true, the base-64 encoded data in the file is not parsed,
         /// thus speeding up the reader
         /// </summary>
-        protected bool mSkipBinaryData = false;
+        protected bool mSkipBinaryData;
 
         protected bool mSkipNextReaderAdvance;
 

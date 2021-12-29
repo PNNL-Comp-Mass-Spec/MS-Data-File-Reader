@@ -100,7 +100,7 @@ namespace MSDataFileReader
 
         protected bool mAbortProcessing;
 
-        protected bool mParseFilesWithUnknownVersion = false;
+        protected bool mParseFilesWithUnknownVersion;
 
         protected string mInputFilePath = string.Empty;
 
