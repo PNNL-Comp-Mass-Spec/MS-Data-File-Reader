@@ -65,9 +65,6 @@ namespace MSDataFileReader
             Close();
         }
 
-        // In order to support Unicode files, it is important that the buffer length always be a power of 2
-        private const int INITIAL_BUFFER_LENGTH = 10000;
-
         private const byte LINE_TERMINATOR_CODE_LF = 10;
 
         private const byte LINE_TERMINATOR_CODE_CR = 13;

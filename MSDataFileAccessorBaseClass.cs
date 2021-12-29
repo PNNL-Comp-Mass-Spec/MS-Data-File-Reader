@@ -56,8 +56,6 @@ namespace MSDataFileReader
             }
         }
 
-        protected const int INITIAL_SCAN_RESERVE_COUNT = 1000;
-
         protected enum emmElementMatchModeConstants
         {
             StartElement = 0,
