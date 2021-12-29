@@ -659,24 +659,21 @@ namespace MSDataFileReader
                         if (!string.IsNullOrEmpty(mCurrentSpectrum.PeaksPairOrder))
                         {
                             // mzXML v3.x
-                            mCurrentSpectrum.CompressionType = GetAttribValue(PeaksAttributeNames.CompressionType,
-                                SpectrumInfoMzXML.CompressionTypes.None);
+                            mCurrentSpectrum.CompressionType = GetAttribValue(PeaksAttributeNames.CompressionType, SpectrumInfoMzXML.CompressionTypes.None);
 
                             mCurrentSpectrum.CompressedLen = GetAttribValue(PeaksAttributeNames.CompressedLength, 0);
                         }
                         else
                         {
                             // mzXML v1.x or v2.x
-                            mCurrentSpectrum.PeaksPairOrder = GetAttribValue(PeaksAttributeNames.PairOrder,
-                                SpectrumInfoMzXML.PairOrderTypes.MzAndIntensity);
+                            mCurrentSpectrum.PeaksPairOrder = GetAttribValue(PeaksAttributeNames.PairOrder, SpectrumInfoMzXML.PairOrderTypes.MzAndIntensity);
 
                             mCurrentSpectrum.CompressionType = SpectrumInfoMzXML.CompressionTypes.None;
                             mCurrentSpectrum.CompressedLen = 0;
                         }
 
                         mCurrentSpectrum.NumericPrecisionOfData = GetAttribValue(PeaksAttributeNames.Precision, 32);
-                        mCurrentSpectrum.PeaksByteOrder =
-                            GetAttribValue(PeaksAttributeNames.ByteOrder, SpectrumInfoMzXML.ByteOrderTypes.Network);
+                        mCurrentSpectrum.PeaksByteOrder = GetAttribValue(PeaksAttributeNames.ByteOrder, SpectrumInfoMzXML.ByteOrderTypes.Network);
                     }
 
                     break;

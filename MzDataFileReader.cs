@@ -744,11 +744,9 @@ namespace MSDataFileReader
                 case ScanSectionNames.AcqSpecification:
                     if (GetParentElement().Equals(ScanSectionNames.SpectrumSettings))
                     {
-                        mCurrentSpectrum.SpectrumType = GetAttribValue(AcqSpecificationAttributeNames.SpectrumType,
-                            SpectrumInfo.SpectrumTypeNames.Discrete);
+                        mCurrentSpectrum.SpectrumType = GetAttribValue(AcqSpecificationAttributeNames.SpectrumType, SpectrumInfo.SpectrumTypeNames.Discrete);
 
-                        mCurrentSpectrum.SpectrumCombinationMethod =
-                            GetAttribValue(AcqSpecificationAttributeNames.MethodOfCombination, string.Empty);
+                        mCurrentSpectrum.SpectrumCombinationMethod = GetAttribValue(AcqSpecificationAttributeNames.MethodOfCombination, string.Empty);
 
                         mCurrentSpectrum.ScanCount = GetAttribValue(AcqSpecificationAttributeNames.Count, 1);
 
