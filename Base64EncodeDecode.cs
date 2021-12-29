@@ -336,7 +336,7 @@ namespace MSDataFileReader
             intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
             strDataTypeNameReturn = DATA_TYPE_NAME;
 
-            if (dataArray is null || dataArray.Length == -1)
+            if (dataArray is null || dataArray.Length == 0)
             {
                 return string.Empty;
             }
@@ -362,7 +362,7 @@ namespace MSDataFileReader
             intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
             strDataTypeNameReturn = DATA_TYPE_NAME;
 
-            if (dataArray is null || dataArray.Length == -1)
+            if (dataArray is null || dataArray.Length == 0)
             {
                 return string.Empty;
             }
@@ -411,7 +411,7 @@ namespace MSDataFileReader
             intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
             strDataTypeNameReturn = DATA_TYPE_NAME;
 
-            if (dataArray is null || dataArray.Length == -1)
+            if (dataArray is null || dataArray.Length == 0)
             {
                 return string.Empty;
             }
@@ -462,7 +462,7 @@ namespace MSDataFileReader
             intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
             strDataTypeNameReturn = DATA_TYPE_NAME;
 
-            if (dataArray is null || dataArray.Length == -1)
+            if (dataArray is null || dataArray.Length == 0)
             {
                 return string.Empty;
             }
@@ -513,7 +513,7 @@ namespace MSDataFileReader
             intPrecisionBitsReturn = DATA_TYPE_PRECISION_BYTES * 8;
             strDataTypeNameReturn = DATA_TYPE_NAME;
 
-            if (dataArray is null || dataArray.Length == -1)
+            if (dataArray is null || dataArray.Length == 0)
             {
                 return string.Empty;
             }
