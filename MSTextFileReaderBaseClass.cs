@@ -245,27 +245,23 @@ namespace MSDataFileReader
                     // Extract the scans and charge using a RegEx
                     var reMatch = mDtaHeaderScanAndCharge.Match(spectrumHeader);
 
-                    if (reMatch.Success)
+                    if (reMatch.Success &&
+                        int.TryParse(reMatch.Groups[1].Value, out scanNumberStart) &&
+                        int.TryParse(reMatch.Groups[2].Value, out scanNumberEnd))
                     {
-                        if (int.TryParse(reMatch.Groups[1].Value, out scanNumberStart))
+                        if (scanNumberEnd > scanNumberStart)
                         {
-                            if (int.TryParse(reMatch.Groups[2].Value, out scanNumberEnd))
-                            {
-                                if (scanNumberEnd > scanNumberStart)
-                                {
-                                    scanCount = scanNumberEnd - scanNumberStart + 1;
-                                }
-                                else
-                                {
-                                    scanCount = 1;
-                                }
-
-                                scanNumberFound = true;
-
-                                // Also try to parse out the charge
-                                int.TryParse(reMatch.Groups[3].Value, out charge);
-                            }
+                            scanCount = scanNumberEnd - scanNumberStart + 1;
                         }
+                        else
+                        {
+                            scanCount = 1;
+                        }
+
+                        scanNumberFound = true;
+
+                        // Also try to parse out the charge
+                        int.TryParse(reMatch.Groups[3].Value, out charge);
                     }
                 }
             }

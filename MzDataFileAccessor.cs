@@ -190,16 +190,13 @@ namespace MSDataFileReader
                             if (match.Success)
                             {
                                 // Record the Scan Count value
-                                if (match.Groups.Count > 1)
+                                try
                                 {
-                                    try
-                                    {
-                                        mInputFileStats.ScanCount = int.Parse(match.Groups[1].Captures[0].Value);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        // Ignore errors here
-                                    }
+                                    mInputFileStats.ScanCount = int.Parse(match.Groups[1].Captures[0].Value);
+                                }
+                                catch (Exception ex)
+                                {
+                                    // Ignore errors here
                                 }
 
                                 lookForScanCountOnNextRead = false;
@@ -225,17 +222,14 @@ namespace MSDataFileReader
 
                             if (match.Success)
                             {
-                                if (match.Groups.Count > 1)
+                                try
                                 {
-                                    try
-                                    {
-                                        acqNumberFound = true;
-                                        mCurrentSpectrumInfo.ScanNumber = int.Parse(match.Groups[1].Captures[0].Value);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        // Ignore errors here
-                                    }
+                                    acqNumberFound = true;
+                                    mCurrentSpectrumInfo.ScanNumber = int.Parse(match.Groups[1].Captures[0].Value);
+                                }
+                                catch (Exception ex)
+                                {
+                                    // Ignore errors here
                                 }
                             }
                         }
@@ -271,16 +265,13 @@ namespace MSDataFileReader
 
                                     if (match.Success)
                                     {
-                                        if (match.Groups.Count > 1)
+                                        try
                                         {
-                                            try
-                                            {
-                                                mCurrentSpectrumInfo.SpectrumID = int.Parse(match.Groups[1].Captures[0].Value);
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                // Ignore errors here
-                                            }
+                                            mCurrentSpectrumInfo.SpectrumID = int.Parse(match.Groups[1].Captures[0].Value);
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            // Ignore errors here
                                         }
                                     }
 

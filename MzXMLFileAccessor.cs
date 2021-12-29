@@ -1027,25 +1027,22 @@ namespace MSDataFileReader
         /// <param name="scanCountTotal"></param>
         private void UpdateXmlFileHeaderScanCount(ref string headerText, int scanCountTotal)
         {
-            if (!string.IsNullOrWhiteSpace(headerText))
-            {
-                var match = mMSRunRegEx.Match(headerText);
+            if (string.IsNullOrWhiteSpace(headerText))
+                return;
 
-                if (match.Success)
-                {
-                    // Replace the scan count value with scanCountTotal
-                    if (match.Groups.Count > 1)
-                    {
-                        try
-                        {
-                            headerText = headerText.Substring(0, match.Groups[1].Index) + scanCountTotal + headerText.Substring(match.Groups[1].Index + match.Groups[1].Length);
-                        }
-                        catch (Exception)
-                        {
-                            // Ignore errors here
-                        }
-                    }
-                }
+            var match = mMSRunRegEx.Match(headerText);
+
+            if (!match.Success)
+                return;
+
+            // Replace the scan count value with scanCountTotal
+            try
+            {
+                headerText = headerText.Substring(0, match.Groups[1].Index) + scanCountTotal + headerText.Substring(match.Groups[1].Index + match.Groups[1].Length);
+            }
+            catch (Exception)
+            {
+                // Ignore errors here
             }
         }
     }
