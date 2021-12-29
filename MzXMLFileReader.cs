@@ -35,7 +35,7 @@ namespace MSDataFileReader
             public const string msRun = "msRun";
         }
 
-        private class mzXMLRootAttrbuteNames
+        private static class mzXMLRootAttributeNames
         {
             public const string xmlns = "xmlns";
 
@@ -605,13 +605,13 @@ namespace MSDataFileReader
 
                     if (mXMLReader.HasAttributes)
                     {
-                        // First look for attribute xlmns
-                        var strValue = GetAttribValue(mzXMLRootAttrbuteNames.xmlns, string.Empty);
+                        // First look for attribute xmlns
+                        var strValue = GetAttribValue(mzXMLRootAttributeNames.xmlns, string.Empty);
 
                         if (strValue is null || strValue.Length == 0)
                         {
                             // Attribute not found; look for attribute xsi:schemaLocation
-                            strValue = GetAttribValue(mzXMLRootAttrbuteNames.xsi_schemaLocation, string.Empty);
+                            strValue = GetAttribValue(mzXMLRootAttributeNames.xsi_schemaLocation, string.Empty);
                         }
 
                         ValidateMZXmlFileVersion(strValue);
