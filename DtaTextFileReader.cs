@@ -287,65 +287,64 @@ namespace MSDataFileReader
 
             try
             {
-                using (var fileReader = new StreamReader(strInputFilePath))
+                using var fileReader = new StreamReader(strInputFilePath);
+
+                mTotalBytesRead = 0L;
+                ResetProgress("Parsing " + Path.GetFileName(strInputFilePath));
+                mInFileLineNumber = 0;
+                var intLastProgressUpdateLine = mInFileLineNumber;
+
+                while (!fileReader.EndOfStream && !mAbortProcessing)
                 {
-                    mTotalBytesRead = 0L;
-                    ResetProgress("Parsing " + Path.GetFileName(strInputFilePath));
-                    mInFileLineNumber = 0;
-                    var intLastProgressUpdateLine = mInFileLineNumber;
+                    var strLineIn = fileReader.ReadLine();
+                    mInFileLineNumber += 1;
 
-                    while (!fileReader.EndOfStream && !mAbortProcessing)
+                    if (strLineIn != null)
+                        mTotalBytesRead += strLineIn.Length + 2;
+
+                    if (!string.IsNullOrWhiteSpace(strLineIn))
                     {
-                        var strLineIn = fileReader.ReadLine();
-                        mInFileLineNumber += 1;
-
-                        if (strLineIn != null)
-                            mTotalBytesRead += strLineIn.Length + 2;
-
-                        if (!string.IsNullOrWhiteSpace(strLineIn))
+                        if (char.IsDigit(strLineIn.Trim(), 0))
                         {
-                            if (char.IsDigit(strLineIn.Trim(), 0))
-                            {
-                                blnSpectrumFound = ReadSingleSpectrum(
-                                    fileReader,
-                                    strLineIn,
-                                    out lstMsMsDataList,
-                                    objSpectrumInfoMsMsText,
-                                    ref mInFileLineNumber,
-                                    ref intLastProgressUpdateLine,
-                                    out _);
-                                break;
-                            }
-                        }
-
-                        if (mInFileLineNumber - intLastProgressUpdateLine >= 100)
-                        {
-                            intLastProgressUpdateLine = mInFileLineNumber;
-                            // MyBase.UpdateProgress(srInFile.BaseStream.Position / srInFile.BaseStream.Length * 100.0)
-                            UpdateProgress(mTotalBytesRead / (double)fileReader.BaseStream.Length * 100.0d);
+                            blnSpectrumFound = ReadSingleSpectrum(
+                                fileReader,
+                                strLineIn,
+                                out lstMsMsDataList,
+                                objSpectrumInfoMsMsText,
+                                ref mInFileLineNumber,
+                                ref intLastProgressUpdateLine,
+                                out _);
+                            break;
                         }
                     }
 
-                    if (blnSpectrumFound)
+                    if (mInFileLineNumber - intLastProgressUpdateLine >= 100)
                     {
-                        // Try to determine the scan numbers by parsing strInputFilePath
-                        ExtractScanInfoFromDtaHeader(Path.GetFileName(strInputFilePath), out var scanNumberStart, out var scanNumberEnd, out var scanCount);
-                        objSpectrumInfoMsMsText.ScanNumber = scanNumberStart;
-                        objSpectrumInfoMsMsText.ScanNumberEnd = scanNumberEnd;
-                        objSpectrumInfoMsMsText.ScanCount = scanCount;
+                        intLastProgressUpdateLine = mInFileLineNumber;
+                        // MyBase.UpdateProgress(srInFile.BaseStream.Position / srInFile.BaseStream.Length * 100.0)
+                        UpdateProgress(mTotalBytesRead / (double)fileReader.BaseStream.Length * 100.0d);
+                    }
+                }
 
-                        strMsMsDataList = new string[lstMsMsDataList.Count];
-                        lstMsMsDataList.CopyTo(strMsMsDataList);
-                    }
-                    else
-                    {
-                        strMsMsDataList = new string[1];
-                    }
+                if (blnSpectrumFound)
+                {
+                    // Try to determine the scan numbers by parsing strInputFilePath
+                    ExtractScanInfoFromDtaHeader(Path.GetFileName(strInputFilePath), out var scanNumberStart, out var scanNumberEnd, out var scanCount);
+                    objSpectrumInfoMsMsText.ScanNumber = scanNumberStart;
+                    objSpectrumInfoMsMsText.ScanNumberEnd = scanNumberEnd;
+                    objSpectrumInfoMsMsText.ScanCount = scanCount;
 
-                    if (!mAbortProcessing)
-                    {
-                        OperationComplete();
-                    }
+                    strMsMsDataList = new string[lstMsMsDataList.Count];
+                    lstMsMsDataList.CopyTo(strMsMsDataList);
+                }
+                else
+                {
+                    strMsMsDataList = new string[1];
+                }
+
+                if (!mAbortProcessing)
+                {
+                    OperationComplete();
                 }
             }
             catch (Exception ex)

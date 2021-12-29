@@ -739,106 +739,105 @@ namespace MSDataFileReader
                 long lngCurrentScanByteOffsetStart = -1;
                 var strCurrentElement = string.Empty;
 
-                using (var objXMLReader = new XmlTextReader(new StringReader(strTextStream)))
+                using var objXMLReader = new XmlTextReader(new StringReader(strTextStream));
+
+                // Skip all whitespace
+                objXMLReader.WhitespaceHandling = WhitespaceHandling.None;
+                var validData = true;
+
+                while (validData && objXMLReader.ReadState == ReadState.Initial || objXMLReader.ReadState == ReadState.Interactive)
                 {
-                    // Skip all whitespace
-                    objXMLReader.WhitespaceHandling = WhitespaceHandling.None;
-                    var validData = true;
+                    validData = objXMLReader.Read();
 
-                    while (validData && objXMLReader.ReadState == ReadState.Initial || objXMLReader.ReadState == ReadState.Interactive)
+                    if (validData && objXMLReader.ReadState == ReadState.Interactive)
                     {
-                        validData = objXMLReader.Read();
-
-                        if (validData && objXMLReader.ReadState == ReadState.Interactive)
+                        if (objXMLReader.NodeType == XmlNodeType.Element)
                         {
-                            if (objXMLReader.NodeType == XmlNodeType.Element)
+                            strCurrentElement = objXMLReader.Name;
+
+                            if ((strCurrentElement ?? "") == INDEX_ELEMENT_NAME)
                             {
-                                strCurrentElement = objXMLReader.Name;
-
-                                if ((strCurrentElement ?? "") == INDEX_ELEMENT_NAME)
+                                if (objXMLReader.HasAttributes)
                                 {
-                                    if (objXMLReader.HasAttributes)
+                                    // Validate that this is the "scan" index
+
+                                    string strValue;
+
+                                    try
                                     {
-                                        // Validate that this is the "scan" index
-
-                                        string strValue;
-
-                                        try
-                                        {
-                                            strValue = objXMLReader.GetAttribute(INDEX_ATTRIBUTE_NAME);
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            strValue = string.Empty;
-                                        }
-
-                                        if (!string.IsNullOrEmpty(strValue))
-                                        {
-                                            if (strValue == "scan")
-                                            {
-                                                blnParseIndexValues = true;
-                                            }
-                                            else
-                                            {
-                                                blnParseIndexValues = false;
-                                            }
-                                        }
+                                        strValue = objXMLReader.GetAttribute(INDEX_ATTRIBUTE_NAME);
                                     }
-                                }
-                                else if ((strCurrentElement ?? "") == OFFSET_ELEMENT_NAME)
-                                {
-                                    if (blnParseIndexValues && objXMLReader.HasAttributes)
+                                    catch (Exception ex)
                                     {
-                                        // Extract the scan number from the id attribute
-                                        try
+                                        strValue = string.Empty;
+                                    }
+
+                                    if (!string.IsNullOrEmpty(strValue))
+                                    {
+                                        if (strValue == "scan")
                                         {
-                                            intPreviousScanNumber = intCurrentScanNumber;
-                                            intCurrentScanNumber = int.Parse(objXMLReader.GetAttribute(OFFSET_ATTRIBUTE_ID));
+                                            blnParseIndexValues = true;
                                         }
-                                        catch (Exception ex)
+                                        else
                                         {
-                                            // Index is corrupted (or of an unknown format); do not continue parsing
-                                            break;
+                                            blnParseIndexValues = false;
                                         }
                                     }
                                 }
                             }
-                            else if (objXMLReader.NodeType == XmlNodeType.EndElement)
+                            else if ((strCurrentElement ?? "") == OFFSET_ELEMENT_NAME)
                             {
-                                if (blnParseIndexValues && (objXMLReader.Name ?? "") == INDEX_ELEMENT_NAME)
+                                if (blnParseIndexValues && objXMLReader.HasAttributes)
                                 {
-                                    // Store the final index value
-                                    // This is tricky since we don't know the ending offset for the given scan
-                                    // Thus, need to use the binary text reader to jump to lngCurrentScanByteOffsetStart and then read line-by-line until the next </peaks> tag is found
-                                    StoreFinalIndexEntry(intCurrentScanNumber, lngCurrentScanByteOffsetStart);
-                                    blnIndexLoaded = true;
-                                    break;
-                                }
-
-                                strCurrentElement = string.Empty;
-                            }
-                            else if (objXMLReader.NodeType == XmlNodeType.Text)
-                            {
-                                if (blnParseIndexValues && (strCurrentElement ?? "") == OFFSET_ELEMENT_NAME)
-                                {
-                                    if (objXMLReader.NodeType != XmlNodeType.Whitespace && objXMLReader.HasValue)
+                                    // Extract the scan number from the id attribute
+                                    try
                                     {
-                                        try
-                                        {
-                                            var lngPreviousScanByteOffsetStart = lngCurrentScanByteOffsetStart;
-                                            lngCurrentScanByteOffsetStart = long.Parse(objXMLReader.Value);
+                                        intPreviousScanNumber = intCurrentScanNumber;
+                                        intCurrentScanNumber = int.Parse(objXMLReader.GetAttribute(OFFSET_ATTRIBUTE_ID));
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        // Index is corrupted (or of an unknown format); do not continue parsing
+                                        break;
+                                    }
+                                }
+                            }
+                        }
+                        else if (objXMLReader.NodeType == XmlNodeType.EndElement)
+                        {
+                            if (blnParseIndexValues && (objXMLReader.Name ?? "") == INDEX_ELEMENT_NAME)
+                            {
+                                // Store the final index value
+                                // This is tricky since we don't know the ending offset for the given scan
+                                // Thus, need to use the binary text reader to jump to lngCurrentScanByteOffsetStart and then read line-by-line until the next </peaks> tag is found
+                                StoreFinalIndexEntry(intCurrentScanNumber, lngCurrentScanByteOffsetStart);
+                                blnIndexLoaded = true;
+                                break;
+                            }
 
-                                            if (lngPreviousScanByteOffsetStart >= 0L && intCurrentScanNumber >= 0)
-                                            {
-                                                // Store the previous scan info
-                                                StoreIndexEntry(intPreviousScanNumber, lngPreviousScanByteOffsetStart, lngCurrentScanByteOffsetStart - 1L);
-                                            }
-                                        }
-                                        catch (Exception ex)
+                            strCurrentElement = string.Empty;
+                        }
+                        else if (objXMLReader.NodeType == XmlNodeType.Text)
+                        {
+                            if (blnParseIndexValues && (strCurrentElement ?? "") == OFFSET_ELEMENT_NAME)
+                            {
+                                if (objXMLReader.NodeType != XmlNodeType.Whitespace && objXMLReader.HasValue)
+                                {
+                                    try
+                                    {
+                                        var lngPreviousScanByteOffsetStart = lngCurrentScanByteOffsetStart;
+                                        lngCurrentScanByteOffsetStart = long.Parse(objXMLReader.Value);
+
+                                        if (lngPreviousScanByteOffsetStart >= 0L && intCurrentScanNumber >= 0)
                                         {
-                                            // Index is corrupted (or of an unknown format); do not continue parsing
-                                            break;
+                                            // Store the previous scan info
+                                            StoreIndexEntry(intPreviousScanNumber, lngPreviousScanByteOffsetStart, lngCurrentScanByteOffsetStart - 1L);
                                         }
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        // Index is corrupted (or of an unknown format); do not continue parsing
+                                        break;
                                     }
                                 }
                             }
