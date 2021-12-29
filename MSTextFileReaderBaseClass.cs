@@ -536,55 +536,59 @@ namespace MSDataFileReader
         /// <param name="intensities"></param>
         /// <param name="shrinkDataArrays">If true and any invalid lines were encountered, shrink the arrays</param>
         /// <returns>The number of data points in the output arrays</returns>
+        [Obsolete("Use the method that returns two lists")]
         public int ParseMsMsDataList(List<string> msmsData, out double[] masses, out float[] intensities, bool shrinkDataArrays)
         {
-            int dataCount;
-            var sepChars = new[] { ' ', '\t' };
+            var dataCount = ParseMsMsDataList(msmsData, out var massList, out var intensityList);
+
+            if (dataCount == 0)
+            {
+                masses = Array.Empty<double>();
+                intensities = Array.Empty<float>();
+                return 0;
+            }
+
+            masses = massList.ToArray();
+            intensities = intensityList.ToArray();
+            return dataCount;
+        }
+
+        /// <summary>
+        /// Parse a space or tab separated list of list of mass and intensity pairs
+        /// </summary>
+        /// <param name="msmsData"></param>
+        /// <param name="masses"></param>
+        /// <param name="intensities"></param>
+        /// <returns>The number of data points in the output lists</returns>
+        public int ParseMsMsDataList(List<string> msmsData, out List<double> masses, out List<float> intensities)
+        {
+            masses = new List<double>();
+            intensities = new List<float>();
 
             // ReSharper disable once MergeIntoPattern
-            if (msmsData?.Count > 0)
+            if (msmsData == null || msmsData.Count == 0)
+                return 0;
+
+            var sepChars = new[] { ' ', '\t' };
+
+            foreach (var item in msmsData)
             {
-                masses = new double[msmsData.Count];
-                intensities = new float[msmsData.Count];
-                dataCount = 0;
+                // Each line in msmsData should contain a mass and intensity pair, separated by a space or Tab
+                // MGF files sometimes contain a third number, the charge of the ion
+                // Use .Split() to parse the numbers in the line to extract the mass and intensity, and ignore the charge (if present)
+                var splitLine = item.Split(sepChars);
 
-                foreach (var item in msmsData)
-                {
-                    // Each line in msmsData should contain a mass and intensity pair, separated by a space or Tab
-                    // MGF files sometimes contain a third number, the charge of the ion
-                    // Use .Split() to parse the numbers in the line to extract the mass and intensity, and ignore the charge (if present)
-                    var splitLine = item.Split(sepChars);
+                if (splitLine.Length < 2)
+                    continue;
 
-                    if (splitLine.Length >= 2)
-                    {
-                        if (IsNumber(splitLine[0]) && IsNumber(splitLine[1]))
-                        {
-                            masses[dataCount] = double.Parse(splitLine[0]);
-                            intensities[dataCount] = float.Parse(splitLine[1]);
-                            dataCount++;
-                        }
-                    }
-                }
+                if (!double.TryParse(splitLine[0], out var mz) || !float.TryParse(splitLine[1], out var intensity))
+                    continue;
 
-                if (dataCount <= 0)
-                {
-                    masses = new double[1];
-                    intensities = new float[1];
-                }
-                else if (dataCount != msmsData.Count && shrinkDataArrays)
-                {
-                    Array.Resize(ref masses, dataCount);
-                    Array.Resize(ref intensities, dataCount);
-                }
-            }
-            else
-            {
-                dataCount = 0;
-                masses = new double[1];
-                intensities = new float[1];
+                masses.Add(mz);
+                intensities.Add(intensity);
             }
 
-            return dataCount;
+            return masses.Count;
         }
 
         protected void UpdateStreamReaderProgress()
