@@ -149,11 +149,10 @@ namespace MSDataFileReader
         /// <summary>
         /// Extracts the text between startByteOffset and endByteOffset in filePath and returns it
         /// </summary>
-        /// <param name="filePath"></param>
         /// <param name="startByteOffset"></param>
         /// <param name="endByteOffset"></param>
         /// <returns>Extracted text</returns>
-        protected string ExtractTextBetweenOffsets(string filePath, long startByteOffset, long endByteOffset)
+        protected string ExtractTextBetweenOffsets(long startByteOffset, long endByteOffset)
         {
             try
             {
@@ -295,10 +294,7 @@ namespace MSDataFileReader
                 }
 
                 // Move the binary file reader to .ByteOffsetStart and populate sourceXML with the text for the given spectrum
-                sourceXML = ExtractTextBetweenOffsets(
-                    mInputFilePath,
-                    mIndexedSpectrumInfo[spectrumIndex].ByteOffsetStart,
-                    mIndexedSpectrumInfo[spectrumIndex].ByteOffsetEnd);
+                sourceXML = ExtractTextBetweenOffsets(mIndexedSpectrumInfo[spectrumIndex].ByteOffsetStart, mIndexedSpectrumInfo[spectrumIndex].ByteOffsetEnd);
 
                 return !string.IsNullOrWhiteSpace(sourceXML);
             }

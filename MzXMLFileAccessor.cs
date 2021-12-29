@@ -645,7 +645,7 @@ namespace MSDataFileReader
                             {
                                 // Set up the default error message
                                 mErrorMessage = "Index embedded in the input file (" + Path.GetFileName(mInputFilePath) + ") is corrupt: first byte offset (" + mIndexedSpectrumInfo[0].ByteOffsetStart + ") does not point to a " + SCAN_START_ELEMENT + " element";
-                                var extractedText = ExtractTextBetweenOffsets(mInputFilePath, mIndexedSpectrumInfo[0].ByteOffsetStart, mIndexedSpectrumInfo[0].ByteOffsetEnd);
+                                var extractedText = ExtractTextBetweenOffsets(mIndexedSpectrumInfo[0].ByteOffsetStart, mIndexedSpectrumInfo[0].ByteOffsetEnd);
 
                                 if (!string.IsNullOrEmpty(extractedText))
                                 {
