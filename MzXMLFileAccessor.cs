@@ -787,12 +787,9 @@ namespace MSDataFileReader
                                 if (blnParseIndexValues && objXMLReader.HasAttributes)
                                 {
                                     // Extract the scan number from the id attribute
-                                    try
-                                    {
-                                        intPreviousScanNumber = intCurrentScanNumber;
-                                        intCurrentScanNumber = int.Parse(objXMLReader.GetAttribute(OFFSET_ATTRIBUTE_ID));
-                                    }
-                                    catch (Exception ex)
+                                    intPreviousScanNumber = intCurrentScanNumber;
+
+                                    if (!int.TryParse(objXMLReader.GetAttribute(OFFSET_ATTRIBUTE_ID), out intCurrentScanNumber))
                                     {
                                         // Index is corrupted (or of an unknown format); do not continue parsing
                                         break;
