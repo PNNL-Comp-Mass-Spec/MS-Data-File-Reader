@@ -84,12 +84,9 @@ namespace MSDataFileReader
         {
             get
             {
-                if (mXMLReader is null)
+                if (mXMLReader is XmlTextReader xmlReader)
                 {
-                    if (mXMLReader is XmlTextReader xmlReader)
-                    {
-                        return xmlReader.LineNumber;
-                    }
+                    return xmlReader.LineNumber;
                 }
 
                 return 0;
@@ -100,12 +97,9 @@ namespace MSDataFileReader
         {
             get
             {
-                if (mXMLReader is null)
+                if (mXMLReader is XmlTextReader xmlReader)
                 {
-                    if (mXMLReader is XmlTextReader xmlReader)
-                    {
-                        return xmlReader.LinePosition;
-                    }
+                    return xmlReader.LinePosition;
                 }
 
                 return 0;
