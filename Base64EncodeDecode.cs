@@ -7,7 +7,7 @@ namespace MSDataFileReader
     {
         // Ignore Spelling: endian
 
-        public enum eEndianTypeConstants : int
+        public enum eEndianTypeConstants
         {
             LittleEndian = 0,
             BigEndian = 1

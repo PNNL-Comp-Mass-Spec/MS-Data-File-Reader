@@ -552,7 +552,7 @@ namespace MSDataFileReader
         public int ParseMsMsDataList(List<string> lstMSMSData, out double[] dblMasses, out float[] sngIntensities, bool blnShrinkDataArrays)
         {
             int intDataCount;
-            var strSepChars = new char[] { ' ', '\t' };
+            var strSepChars = new[] { ' ', '\t' };
 
             if (lstMSMSData != null && lstMSMSData.Count > 0)
             {

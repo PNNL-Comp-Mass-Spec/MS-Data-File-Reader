@@ -169,7 +169,7 @@ namespace MSDataFileReader
             public const string contentType = "contentType";
         }
 
-        private enum eCurrentMZXMLDataFileSectionConstants : int
+        private enum eCurrentMZXMLDataFileSectionConstants
         {
             UnknownFile = 0,
             Start = 1,

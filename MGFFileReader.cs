@@ -133,7 +133,8 @@ namespace MSDataFileReader
         /// <returns>True if a spectrum is found, otherwise false</returns>
         public override bool ReadNextSpectrum(out clsSpectrumInfo objSpectrumInfo)
         {
-            var strSepChars = new char[] { ' ', '\t' };
+            var strSepChars = new[] { ' ', '\t' };
+
             var blnSpectrumFound = false;
 
             try
