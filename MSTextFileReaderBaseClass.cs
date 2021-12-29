@@ -174,12 +174,12 @@ namespace MSDataFileReader
 
         protected void ComputePercentageDataAboveThreshold(int intDataCount, double[] dblMZList, float[] sngIntensityList, double dblThresholdMZ, out float sngPctByCount, out float sngPctByIntensity)
         {
-            int intIndex;
             var intCountAboveThreshold = 0;
             var dblIntensitySumAboveThreshold = 0d;
             var dblTotalIntensitySum = 0d;
-            var loopTo = intDataCount - 1;
-            for (intIndex = 0; intIndex <= loopTo; intIndex++)
+            var intIndexEnd = intDataCount - 1;
+
+            for (var intIndex = 0; intIndex <= intIndexEnd; intIndex++)
             {
                 dblTotalIntensitySum += sngIntensityList[intIndex];
 
@@ -441,9 +441,9 @@ namespace MSDataFileReader
                         objSpectrumInfo.ParentIonChargeCount = 0;
                     }
 
-                    var loopTo = intChargeEnd - intChargeStart;
-                    int intChargeIndex;
-                    for (intChargeIndex = 0; intChargeIndex <= loopTo; intChargeIndex++)
+                    var intIndexEnd = intChargeEnd - intChargeStart;
+
+                    for (var intChargeIndex = 0; intChargeIndex <= intIndexEnd; intChargeIndex++)
                     {
                         objSpectrumInfo.AddOrUpdateChargeList(intChargeStart + intChargeIndex, true);
                     }
@@ -522,7 +522,9 @@ namespace MSDataFileReader
         public int ParseMsMsDataList(string[] strMSMSData, int intMsMsDataCount, out double[] dblMasses, out float[] sngIntensities, bool blnShrinkDataArrays)
         {
             var lstMSMSData = new List<string>();
-            for (int intIndex = 0, loopTo = intMsMsDataCount - 1; intIndex <= loopTo; intIndex++)
+            var intIndexEnd = intMsMsDataCount - 1;
+
+            for (var intIndex = 0; intIndex <= intIndexEnd; intIndex++)
             {
                 lstMSMSData.Add(strMSMSData[intIndex]);
             }

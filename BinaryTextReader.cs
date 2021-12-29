@@ -449,9 +449,9 @@ namespace MSDataFileReader
                             {
                                 var intCharCheckCount = 0;
                                 var intAlternatedZeroMatchCount = 0;
-                                var loopTo = mByteBufferCount - 2;
-                                int intIndex;
-                                for (intIndex = intIndexStart; intIndex <= loopTo; intIndex += 2)
+                                var intIndexEnd = mByteBufferCount - 2;
+
+                                for (var intIndex = intIndexStart; intIndex <= intIndexEnd; intIndex += 2)
                                 {
                                     intCharCheckCount++;
 
@@ -651,7 +651,7 @@ namespace MSDataFileReader
                     while (!blnMatchFound)
                     {
                         // Note that intSearchIndexStartOffset will be >=0 if searching forward and <=-2 if searching backward
-                        var intIndex = mByteBufferNextLineStartIndex + intSearchIndexStartOffset;
+                        var currentIndex = mByteBufferNextLineStartIndex + intSearchIndexStartOffset;
 
                         // Define the minimum and maximum allowable indices for searching for mLineTerminator2Code
                         var intIndexMinimum = mCharSize - 1;
@@ -671,8 +671,8 @@ namespace MSDataFileReader
                         var intTerminatorCheckCountValueZero = 0;
                         var blnStartIndexShifted = false;
 
-                        if (eDirection == ReadDirectionConstants.Reverse && intIndex >= intIndexMinimum ||
-                            eDirection == ReadDirectionConstants.Forward && intIndex <= intIndexMaximum)
+                        if (eDirection == ReadDirectionConstants.Reverse && currentIndex >= intIndexMinimum ||
+                            eDirection == ReadDirectionConstants.Forward && currentIndex <= intIndexMaximum)
                         {
                             do
                             {
@@ -681,7 +681,7 @@ namespace MSDataFileReader
                                     case InputFileEncodingConstants.ASCII:
                                     case InputFileEncodingConstants.UTF8:
                                         // ASCII or UTF-8 encoding; Assure mCharSize = 1
-                                        if (mByteBuffer[intIndex] == mLineTerminator2Code)
+                                        if (mByteBuffer[currentIndex] == mLineTerminator2Code)
                                         {
                                             blnTerminatorFound = true;
                                         }
@@ -690,12 +690,12 @@ namespace MSDataFileReader
 
                                     case InputFileEncodingConstants.UnicodeNormal:
                                         // Look for the LF symbol followed by a byte with value 0 in mByteBuffer
-                                        if (mByteBuffer[intIndex] == mLineTerminator2Code && mByteBuffer[intIndex + 1] == 0)
+                                        if (mByteBuffer[currentIndex] == mLineTerminator2Code && mByteBuffer[currentIndex + 1] == 0)
                                         {
                                             blnTerminatorFound = true;
                                             break;
                                         }
-                                        else if (mByteBuffer[intIndex] == 0)
+                                        else if (mByteBuffer[currentIndex] == 0)
                                         {
                                             intTerminatorCheckCountValueZero++;
                                         }
@@ -705,12 +705,12 @@ namespace MSDataFileReader
 
                                     case InputFileEncodingConstants.UnicodeBigEndian:
                                         // Unicode (Big Endian) encoding; Assure mCharSize = 2
-                                        if (mByteBuffer[intIndex] == 0 && mByteBuffer[intIndex + 1] == mLineTerminator2Code)
+                                        if (mByteBuffer[currentIndex] == 0 && mByteBuffer[currentIndex + 1] == mLineTerminator2Code)
                                         {
                                             blnTerminatorFound = true;
                                             break;
                                         }
-                                        else if (mByteBuffer[intIndex + 1] == 0)
+                                        else if (mByteBuffer[currentIndex + 1] == 0)
                                         {
                                             intTerminatorCheckCountValueZero++;
                                         }
@@ -721,9 +721,9 @@ namespace MSDataFileReader
 
                                 if (eDirection == ReadDirectionConstants.Forward)
                                 {
-                                    if (intIndex + mCharSize <= intIndexMaximum)
+                                    if (currentIndex + mCharSize <= intIndexMaximum)
                                     {
-                                        intIndex += mCharSize;
+                                        currentIndex += mCharSize;
                                     }
                                     else
                                     {
@@ -731,9 +731,9 @@ namespace MSDataFileReader
                                         break;
                                     }
                                 }
-                                else if (intIndex - mCharSize >= intIndexMinimum)
+                                else if (currentIndex - mCharSize >= intIndexMinimum)
                                 {
-                                    intIndex -= mCharSize;
+                                    currentIndex -= mCharSize;
                                 }
                                 else
                                 {
@@ -798,20 +798,20 @@ namespace MSDataFileReader
                             else if (eDirection == ReadDirectionConstants.Forward)
                             {
                                 // Searching forward; are we at the end of the file?
-                                if (ByteAtEOF(mByteBufferFileOffsetStart + intIndex + mCharSize))
+                                if (ByteAtEOF(mByteBufferFileOffsetStart + currentIndex + mCharSize))
                                 {
                                     // Yes, we're at the end of the file
                                     blnTerminatorFound = true;
-                                    intIndex = mByteBufferCount - 1;
+                                    currentIndex = mByteBufferCount - 1;
                                 }
                             }
 
                             // Searching backward; are we at the beginning of the file?
-                            else if (ByteAtBOF(mByteBufferFileOffsetStart + intIndex))
+                            else if (ByteAtBOF(mByteBufferFileOffsetStart + currentIndex))
                             {
                                 // Yes, we're at the beginning of the file
                                 blnTerminatorFound = true;
-                                intIndex = mByteOrderMarkLength - mCharSize;
+                                currentIndex = mByteOrderMarkLength - mCharSize;
                             }
                         }
 
@@ -823,11 +823,11 @@ namespace MSDataFileReader
                             if (eDirection == ReadDirectionConstants.Forward)
                             {
                                 intMatchingTextIndexStart = mByteBufferNextLineStartIndex;
-                                intMatchingTextIndexEnd = intIndex;
+                                intMatchingTextIndexEnd = currentIndex;
                             }
                             else
                             {
-                                intMatchingTextIndexStart = intIndex + mCharSize;
+                                intMatchingTextIndexStart = currentIndex + mCharSize;
                                 intMatchingTextIndexEnd = mByteBufferNextLineStartIndex - mCharSize;
                             }
 
@@ -1023,8 +1023,9 @@ namespace MSDataFileReader
                             if (mByteBufferNextLineStartIndex > 0)
                             {
                                 // First, shift all of the data so that element mByteBufferNextLineStartIndex moves to element 0
-                                var loopTo = mByteBufferCount - 1;
-                                for (intIndex = mByteBufferNextLineStartIndex; intIndex <= loopTo; intIndex++)
+                                var intIndexEnd = mByteBufferCount - 1;
+
+                                for (var intIndex = mByteBufferNextLineStartIndex; intIndex <= intIndexEnd; intIndex++)
                                 {
                                     mByteBuffer[intIndex - mByteBufferNextLineStartIndex] = mByteBuffer[intIndex];
                                 }
@@ -1106,7 +1107,7 @@ namespace MSDataFileReader
                             }
 
                             // Shift the data
-                            for (intIndex = mByteBufferCount - intShiftIncrement - 1; intIndex >= 0; intIndex--)
+                            for (var intIndex = mByteBufferCount - intShiftIncrement - 1; intIndex >= 0; intIndex--)
                             {
                                 mByteBuffer[intShiftIncrement + intIndex] = mByteBuffer[intIndex];
                             }

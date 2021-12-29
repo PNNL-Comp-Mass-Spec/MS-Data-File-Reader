@@ -497,9 +497,9 @@ namespace MSDataFileReader
                 if (mDataReaderMode == drmDataReaderModeConstants.Cached && mCachedSpectra != null)
                 {
                     ScanNumberList = new int[mCachedSpectrumCount];
-                    var loopTo = ScanNumberList.Length - 1;
-                    int intSpectrumIndex;
-                    for (intSpectrumIndex = 0; intSpectrumIndex <= loopTo; intSpectrumIndex++)
+                    var intIndexEnd = ScanNumberList.Length - 1;
+
+                    for (var intSpectrumIndex = 0; intSpectrumIndex <= intIndexEnd; intSpectrumIndex++)
                     {
                         ScanNumberList[intSpectrumIndex] = mCachedSpectra[intSpectrumIndex].ScanNumber;
                     }
@@ -571,7 +571,9 @@ namespace MSDataFileReader
                 {
                     if (mCachedSpectraScanToIndex.Count == 0)
                     {
-                        for (int intSpectrumIndex = 0, loopTo = mCachedSpectrumCount - 1; intSpectrumIndex <= loopTo; intSpectrumIndex++)
+                        var intIndexEnd = mCachedSpectrumCount - 1;
+
+                        for (var intSpectrumIndex = 0; intSpectrumIndex <= intIndexEnd; intSpectrumIndex++)
                         {
                             if (mCachedSpectra[intSpectrumIndex].ScanNumber == intScanNumber)
                             {

@@ -340,9 +340,9 @@ namespace MSDataFileReader
                                                 {
                                                     // Multiple charges may be present
                                                     strSplitLine = strLineIn.Split(strSepChars);
-                                                    var loopTo = strSplitLine.Length - 1;
-                                                    int intIndex;
-                                                    for (intIndex = 0; intIndex <= loopTo; intIndex++)
+                                                    var intIndexEnd = strSplitLine.Length - 1;
+
+                                                    for (var intIndex = 0; intIndex <= intIndexEnd; intIndex++)
                                                     {
                                                         // Step through the split line and add any numbers to the charge list
                                                         // Typically, strSplitLine(1) will contain "and"

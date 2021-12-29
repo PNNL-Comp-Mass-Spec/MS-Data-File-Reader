@@ -374,9 +374,9 @@ namespace MSDataFileReader
                         if (clsBase64EncodeDecode.DecodeNumericArray(strMSMSDataBase64Encoded, out double[] dblDataArray, zLibCompressed, eEndianMode))
                         {
                             sngValues = new float[dblDataArray.Length];
-                            var loopTo = dblDataArray.Length - 1;
-                            int intIndex;
-                            for (intIndex = 0; intIndex <= loopTo; intIndex++)
+                            var intIndexEnd = dblDataArray.Length - 1;
+
+                            for (var intIndex = 0; intIndex <= intIndexEnd; intIndex++)
                             {
                                 sngValues[intIndex] = (float)dblDataArray[intIndex];
                             }

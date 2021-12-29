@@ -275,7 +275,6 @@ namespace MSDataFileReader
             {
                 var zLibCompressed = strCompressionType.Equals(clsSpectrumInfoMzXML.CompressionTypes.zlib);
 
-                int intIndex;
                 var success = false;
 
                 switch (mCurrentSpectrum.NumericPrecisionOfData)
@@ -291,8 +290,9 @@ namespace MSDataFileReader
 
                             if ((mCurrentSpectrum.PeaksPairOrder ?? "") == clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ)
                             {
-                                var loopTo = sngDataArray.Length - 1;
-                                for (intIndex = 0; intIndex <= loopTo; intIndex += 2)
+                                var intIndexEnd = sngDataArray.Length - 1;
+
+                                for (var intIndex = 0; intIndex <= intIndexEnd; intIndex += 2)
                                 {
                                     mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex];
                                     mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex + 1];
@@ -301,8 +301,9 @@ namespace MSDataFileReader
                             else
                             {
                                 // Assume PairOrderTypes.MZandIntensity
-                                var loopTo1 = sngDataArray.Length - 1;
-                                for (intIndex = 0; intIndex <= loopTo1; intIndex += 2)
+                                var intIndexEnd = sngDataArray.Length - 1;
+
+                                for (var intIndex = 0; intIndex <= intIndexEnd; intIndex += 2)
                                 {
                                     mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex];
                                     mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = sngDataArray[intIndex + 1];
@@ -325,8 +326,9 @@ namespace MSDataFileReader
 
                             if ((mCurrentSpectrum.PeaksPairOrder ?? "") == clsSpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ)
                             {
-                                var loopTo2 = dblDataArray.Length - 1;
-                                for (intIndex = 0; intIndex <= loopTo2; intIndex += 2)
+                                var intIndexEnd = dblDataArray.Length - 1;
+
+                                for (var intIndex = 0; intIndex <= intIndexEnd; intIndex += 2)
                                 {
                                     mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = (float)dblDataArray[intIndex];
                                     mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = dblDataArray[intIndex + 1];
@@ -335,8 +337,9 @@ namespace MSDataFileReader
                             else
                             {
                                 // Assume PairOrderTypes.MZandIntensity
-                                var loopTo3 = dblDataArray.Length - 1;
-                                for (intIndex = 0; intIndex <= loopTo3; intIndex += 2)
+                                var intIndexEnd = dblDataArray.Length - 1;
+
+                                for (var intIndex = 0; intIndex <= intIndexEnd; intIndex += 2)
                                 {
                                     mCurrentSpectrum.MZList[(int)Math.Round(intIndex / 2d)] = dblDataArray[intIndex];
                                     mCurrentSpectrum.IntensityList[(int)Math.Round(intIndex / 2d)] = (float)dblDataArray[intIndex + 1];

@@ -240,9 +240,9 @@ namespace MSDataFileReader
                 }
 
                 ScanNumberList = new int[mIndexedSpectrumInfoCount];
-                var loopTo = ScanNumberList.Length - 1;
-                int intSpectrumIndex;
-                for (intSpectrumIndex = 0; intSpectrumIndex <= loopTo; intSpectrumIndex++)
+                var intIndexEnd = ScanNumberList.Length - 1;
+
+                for (var intSpectrumIndex = 0; intSpectrumIndex <= intIndexEnd; intSpectrumIndex++)
                 {
                     ScanNumberList[intSpectrumIndex] = mIndexedSpectrumInfo[intSpectrumIndex].ScanNumber;
                 }
@@ -353,7 +353,9 @@ namespace MSDataFileReader
 
                 if (mIndexedSpectraScanToIndex.Count == 0)
                 {
-                    for (int intSpectrumIndex = 0, loopTo = mIndexedSpectrumInfoCount - 1; intSpectrumIndex <= loopTo; intSpectrumIndex++)
+                    var intIndexEnd = mIndexedSpectrumInfoCount - 1;
+
+                    for (var intSpectrumIndex = 0; intSpectrumIndex <= intIndexEnd; intSpectrumIndex++)
                     {
                         if (mIndexedSpectrumInfo[intSpectrumIndex].ScanNumber == intScanNumber)
                         {
@@ -463,7 +465,9 @@ namespace MSDataFileReader
 
                 if (mIndexedSpectraScanToIndex.Count == 0)
                 {
-                    for (int intSpectrumIndex = 0, loopTo = mIndexedSpectrumInfoCount - 1; intSpectrumIndex <= loopTo; intSpectrumIndex++)
+                    var intIndexEnd = mIndexedSpectrumInfoCount - 1;
+
+                    for (var intSpectrumIndex = 0; intSpectrumIndex <= intIndexEnd; intSpectrumIndex++)
                     {
                         if (mIndexedSpectrumInfo[intSpectrumIndex].ScanNumber == intScanNumber)
                         {

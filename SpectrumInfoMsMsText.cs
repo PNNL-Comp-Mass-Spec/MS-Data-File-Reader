@@ -114,9 +114,9 @@ namespace MSDataFileReader
                     {
                         // Insert intNewCharge into ParentIonCharges() in the appropriate slot
                         var blnChargeAdded = false;
-                        var loopTo = ParentIonChargeCount - 1;
-                        int intIndex;
-                        for (intIndex = 0; intIndex <= loopTo; intIndex++)
+                        var intIndexEnd = ParentIonChargeCount - 1;
+
+                        for (var intIndex = 0; intIndex <= intIndexEnd; intIndex++)
                         {
                             if (ParentIonCharges[intIndex] == intNewCharge)
                             {
@@ -128,9 +128,9 @@ namespace MSDataFileReader
                             if (ParentIonCharges[intIndex] > intNewCharge)
                             {
                                 // Need to shift each of the existing charges up one
-                                var loopTo1 = intIndex + 1;
-                                int intCopyIndex;
-                                for (intCopyIndex = ParentIonChargeCount; intCopyIndex >= loopTo1; intCopyIndex--)
+                                var intCopyIndexEnd = intIndex + 1;
+
+                                for (var intCopyIndex = ParentIonChargeCount; intCopyIndex >= intCopyIndexEnd; intCopyIndex--)
                                 {
                                     ParentIonCharges[intCopyIndex] = ParentIonCharges[intCopyIndex - 1];
                                 }

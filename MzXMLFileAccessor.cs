@@ -371,9 +371,9 @@ namespace MSDataFileReader
                             {
                                 // Number conversion failed; probably have carriage returns in the text
                                 // Look for the next number in strTextStream
-                                var loopTo = strTextStream.Length - 1;
-                                int intIndex;
-                                for (intIndex = 0; intIndex <= loopTo; intIndex++)
+                                var intIndexEnd = strTextStream.Length - 1;
+
+                                for (var intIndex = 0; intIndex <= intIndexEnd; intIndex++)
                                 {
                                     if (IsNumber(strTextStream[intIndex].ToString()))
                                     {

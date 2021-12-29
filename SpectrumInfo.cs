@@ -442,9 +442,9 @@ namespace MSDataFileReader
                     dblBasePeakMZ = MZList[0];
                     sngBasePeakIntensity = IntensityList[0];
                     dblTotalIonCurrent = IntensityList[0];
-                    var loopTo = DataCount - 1;
-                    int intIndex;
-                    for (intIndex = 1; intIndex <= loopTo; intIndex++)
+                    var intIndexEnd = DataCount - 1;
+
+                    for (var intIndex = 1; intIndex <= intIndexEnd; intIndex++)
                     {
                         dblTotalIonCurrent += IntensityList[intIndex];
 
