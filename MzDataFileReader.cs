@@ -84,7 +84,7 @@ namespace MSDataFileReader
 
             public const string mzArrayBinary = "mzArrayBinary";
 
-            public const string intenArrayBinary = "intenArrayBinary";
+            public const string intensityArrayBinary = "intenArrayBinary";
 
             public const string ArrayData = "data";
         }
@@ -510,7 +510,7 @@ namespace MSDataFileReader
                     return;
 
                 // Note: We could use GetParentElement() to determine whether this base-64 encoded data
-                // belongs to mzArrayBinary or intenArrayBinary, but it is faster to use mCurrentXMLDataFileSection
+                // belongs to mzArrayBinary or intensityArrayBinary, but it is faster to use mCurrentXMLDataFileSection
 
                 switch (mCurrentXMLDataFileSection)
                 {
@@ -848,7 +848,7 @@ namespace MSDataFileReader
                     mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumDataArrayMZ;
                     break;
 
-                case ScanSectionNames.intenArrayBinary:
+                case ScanSectionNames.intensityArrayBinary:
                     mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumDataArrayIntensity;
                     break;
 

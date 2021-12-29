@@ -220,14 +220,14 @@ namespace MSDataFileReader
             {
                 if (ParentIonChargeCount > 0)
                 {
-                    ParentIonMH = clsMSDataFileReaderBaseClass.ConvoluteMass(ParentIonMZ, ParentIonCharges[0], 1, clsMSDataFileReaderBaseClass.CHARGE_CARRIER_MASS_MONOISO);
+                    ParentIonMH = clsMSDataFileReaderBaseClass.ConvoluteMass(ParentIonMZ, ParentIonCharges[0], 1, clsMSDataFileReaderBaseClass.CHARGE_CARRIER_MASS_MONOISOTOPIC);
                 }
             }
             else if (Math.Abs(ParentIonMZ) < float.Epsilon && Math.Abs(ParentIonMH) > float.Epsilon)
             {
                 if (ParentIonChargeCount > 0)
                 {
-                    ParentIonMZ = clsMSDataFileReaderBaseClass.ConvoluteMass(ParentIonMH, 1, ParentIonCharges[0], clsMSDataFileReaderBaseClass.CHARGE_CARRIER_MASS_MONOISO);
+                    ParentIonMZ = clsMSDataFileReaderBaseClass.ConvoluteMass(ParentIonMH, 1, ParentIonCharges[0], clsMSDataFileReaderBaseClass.CHARGE_CARRIER_MASS_MONOISOTOPIC);
                 }
             }
         }

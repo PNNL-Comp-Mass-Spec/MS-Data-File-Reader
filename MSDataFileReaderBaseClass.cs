@@ -616,7 +616,7 @@ namespace MSDataFileReader
 
         protected virtual void InitializeLocalVariables()
         {
-            mChargeCarrierMass = CHARGE_CARRIER_MASS_MONOISO;
+            mChargeCarrierMass = CHARGE_CARRIER_MASS_MONOISOTOPIC;
             mErrorMessage = string.Empty;
             mFileVersion = string.Empty;
             mProgressStepDescription = string.Empty;

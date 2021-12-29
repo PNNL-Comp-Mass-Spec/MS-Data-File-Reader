@@ -312,8 +312,8 @@ namespace MSDataFileReader
         /// </summary>
         /// <param name="objSpectrumInfo"></param>
         /// <param name="blnAddToExistingChargeList"></param>
-        /// <param name="blnForceChargeAddnFor2and3Plus"></param>
-        public void GuesstimateCharge(clsSpectrumInfoMsMsText objSpectrumInfo, bool blnAddToExistingChargeList = false, bool blnForceChargeAddnFor2and3Plus = false)
+        /// <param name="blnForceChargeAdditionFor2and3Plus"></param>
+        public void GuesstimateCharge(clsSpectrumInfoMsMsText objSpectrumInfo, bool blnAddToExistingChargeList = false, bool blnForceChargeAdditionFor2and3Plus = false)
         {
             // Strategy:
             // 1) If all fragmentation ions have m/z values less than the parent ion m/z, definitely assume a 1+ parent ion
@@ -420,7 +420,7 @@ namespace MSDataFileReader
 
                     if (blnAddToExistingChargeList)
                     {
-                        if (!blnForceChargeAddnFor2and3Plus && intChargeStart == 2 && intChargeEnd == 3)
+                        if (!blnForceChargeAdditionFor2and3Plus && intChargeStart == 2 && intChargeEnd == 3)
                         {
                             // See if objSpectrumInfo already contains a single entry and it is 2+ or 3+
                             // If so, do not alter the charge list
