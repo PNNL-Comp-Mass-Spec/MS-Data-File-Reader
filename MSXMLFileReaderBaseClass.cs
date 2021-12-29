@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections;
+using System.Globalization;
 using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
@@ -305,77 +306,68 @@ namespace MSDataFileReader
             }
         }
 
-        protected string GetAttribValue(string strAttributeName, string DefaultValue)
+        protected string GetAttribValue(string strAttributeName, string defaultValue)
         {
             try
             {
-                string strValue;
-
                 if (mXMLReader.HasAttributes)
                 {
-                    strValue = mXMLReader.GetAttribute(strAttributeName);
-
-                    if (strValue is null)
-                        strValue = string.Copy(DefaultValue);
-                }
-                else
-                {
-                    strValue = string.Copy(DefaultValue);
+                    return mXMLReader.GetAttribute(strAttributeName) ?? defaultValue;
                 }
 
-                return strValue;
+                return defaultValue;
             }
             catch (Exception ex)
             {
-                return DefaultValue;
+                return defaultValue;
             }
         }
 
-        protected int GetAttribValue(string strAttributeName, int DefaultValue)
+        protected int GetAttribValue(string strAttributeName, int defaultValue)
         {
             try
             {
-                return int.Parse(GetAttribValue(strAttributeName, DefaultValue.ToString()));
+                return int.Parse(GetAttribValue(strAttributeName, defaultValue.ToString()));
             }
             catch (Exception ex)
             {
-                return DefaultValue;
+                return defaultValue;
             }
         }
 
-        protected float GetAttribValue(string strAttributeName, float DefaultValue)
+        protected float GetAttribValue(string strAttributeName, float defaultValue)
         {
             try
             {
-                return float.Parse(GetAttribValue(strAttributeName, DefaultValue.ToString()));
+                return float.Parse(GetAttribValue(strAttributeName, defaultValue.ToString(CultureInfo.InvariantCulture)));
             }
             catch (Exception ex)
             {
-                return DefaultValue;
+                return defaultValue;
             }
         }
 
-        protected bool GetAttribValue(string strAttributeName, bool DefaultValue)
+        protected bool GetAttribValue(string strAttributeName, bool defaultValue)
         {
             try
             {
-                return CBoolSafe(GetAttribValue(strAttributeName, DefaultValue.ToString()), DefaultValue);
+                return CBoolSafe(GetAttribValue(strAttributeName, defaultValue.ToString()), defaultValue);
             }
             catch (Exception ex)
             {
-                return DefaultValue;
+                return defaultValue;
             }
         }
 
-        protected double GetAttribValue(string strAttributeName, double DefaultValue)
+        protected double GetAttribValue(string strAttributeName, double defaultValue)
         {
             try
             {
-                return double.Parse(GetAttribValue(strAttributeName, DefaultValue.ToString()));
+                return double.Parse(GetAttribValue(strAttributeName, defaultValue.ToString(CultureInfo.InvariantCulture)));
             }
             catch (Exception ex)
             {
-                return DefaultValue;
+                return defaultValue;
             }
         }
 
