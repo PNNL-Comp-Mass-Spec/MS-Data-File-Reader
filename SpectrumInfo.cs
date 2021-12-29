@@ -84,15 +84,15 @@ namespace MSDataFileReader
         /// <summary>
         /// 1 for MS, 2 for MS/MS, 3 for MS^3, etc.
         /// </summary>
-        private int mMSLevel;
+        private int mMsLevel;
 
         private string mPolarity;
 
         private float mRetentionTimeMin;
 
-        private float mmzRangeStart;
+        private float mMzRangeStart;
 
-        private float mmzRangeEnd;
+        private float mMzRangeEnd;
 
         private double mBasePeakMZ;
 
@@ -183,12 +183,12 @@ namespace MSDataFileReader
 
         public int MSLevel
         {
-            get => mMSLevel;
+            get => mMsLevel;
 
             set
             {
                 mSpectrumStatus = SpectrumStatusMode.DataDefined;
-                mMSLevel = value;
+                mMsLevel = value;
             }
         }
 
@@ -221,23 +221,23 @@ namespace MSDataFileReader
 
         public float mzRangeStart
         {
-            get => mmzRangeStart;
+            get => mMzRangeStart;
 
             set
             {
                 mSpectrumStatus = SpectrumStatusMode.DataDefined;
-                mmzRangeStart = value;
+                mMzRangeStart = value;
             }
         }
 
         public float mzRangeEnd
         {
-            get => mmzRangeEnd;
+            get => mMzRangeEnd;
 
             set
             {
                 mSpectrumStatus = SpectrumStatusMode.DataDefined;
-                mmzRangeEnd = value;
+                mMzRangeEnd = value;
             }
         }
 
@@ -318,12 +318,12 @@ namespace MSDataFileReader
             mScanNumberEnd = 0;
             mSpectrumType = SpectrumTypeNames.discrete;
             mSpectrumCombinationMethod = string.Empty;
-            mMSLevel = 1;
+            mMsLevel = 1;
             Centroided = false;
             mPolarity = "Positive";
             mRetentionTimeMin = 0f;
-            mmzRangeStart = 0f;
-            mmzRangeEnd = 0f;
+            mMzRangeStart = 0f;
+            mMzRangeEnd = 0f;
             mBasePeakMZ = 0d;
             mBasePeakIntensity = 0f;
             mTotalIonCurrent = 0d;
@@ -406,25 +406,19 @@ namespace MSDataFileReader
 
         public void UpdateMZRange()
         {
-            var mzRangeStart = 0f;
-            var mzRangeEnd = 0f;
-
             try
             {
-                if (DataCount > 0 && MZList != null)
-                {
-                    mzRangeStart = (float)MZList[0];
-                    mzRangeEnd = (float)MZList[DataCount - 1];
-                }
+                if (DataCount <= 0 || MZList == null)
+                    return;
+
+                MzRangeStart = (float)MZList[0];
+                MzRangeEnd = (float)MZList[DataCount - 1];
             }
             catch (Exception ex)
             {
                 mErrorMessage = "Error in UpdateMZRange: " + ex.Message;
-            }
-            finally
-            {
-                mzRangeStart = mzRangeStart;
-                mzRangeEnd = mzRangeEnd;
+                MzRangeStart = 0;
+                MzRangeEnd = 0;
             }
         }
 
