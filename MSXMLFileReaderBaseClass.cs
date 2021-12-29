@@ -195,11 +195,11 @@ namespace MSDataFileReader
                     var reSecondsRegEx = new Regex(@"M(\d+\.\d+)S");
                     var match = reSecondsRegEx.Match(xmlDuration);
 
-                    if (match.Success && match.Groups.Count > 1 && IsNumber(match.Groups[1].Captures[0].Value))
+                    if (match.Success && double.TryParse(match.Groups[1].Captures[0].Value, out var seconds))
                     {
-                        var seconds = double.Parse(match.Groups[1].Captures[0].Value);
-                        xmlDuration = xmlDuration.Substring(0, match.Groups[1].Index) +
-                                         Math.Round(seconds, secondsValueDigitsAfterDecimal) + "S";
+                        xmlDuration = string.Format("{0}{1}S",
+                            xmlDuration.Substring(0, match.Groups[1].Index),
+                            Math.Round(seconds, secondsValueDigitsAfterDecimal));
                     }
                 }
 
