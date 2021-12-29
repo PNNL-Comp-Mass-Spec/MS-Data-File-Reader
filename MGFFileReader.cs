@@ -198,7 +198,7 @@ namespace MSDataFileReader
 
                                 // Look for LINE_START_MSMS in strLineIn
                                 // This will be present in MGF files created using Agilent's DataAnalysis software
-                                if (strLineIn.ToUpper().StartsWith(LINE_START_MSMS))
+                                if (strLineIn.StartsWith(LINE_START_MSMS, StringComparison.OrdinalIgnoreCase))
                                 {
                                     strLineIn = strLineIn.Substring(LINE_START_MSMS.Length).Trim();
 
@@ -272,7 +272,7 @@ namespace MSDataFileReader
 
                             // Line does not start with a comment character
                             // Look for LINE_START_BEGIN_IONS in strLineIn
-                            else if (strLineIn.ToUpper().StartsWith(LINE_START_BEGIN_IONS))
+                            else if (strLineIn.StartsWith(LINE_START_BEGIN_IONS, StringComparison.OrdinalIgnoreCase))
                             {
                                 if (!blnScanNumberFound)
                                 {
@@ -303,7 +303,7 @@ namespace MSDataFileReader
                                             strLineIn = strLineIn.Trim();
                                             string[] strSplitLine;
 
-                                            if (strLineIn.ToUpper().StartsWith(LINE_START_PEPMASS))
+                                            if (strLineIn.StartsWith(LINE_START_PEPMASS, StringComparison.OrdinalIgnoreCase))
                                             {
                                                 // This line defines the peptide mass as an m/z value
                                                 // It may simply contain the m/z value, or it may also contain an intensity value
@@ -324,7 +324,7 @@ namespace MSDataFileReader
                                                     break;
                                                 }
                                             }
-                                            else if (strLineIn.ToUpper().StartsWith(LINE_START_CHARGE))
+                                            else if (strLineIn.StartsWith(LINE_START_CHARGE, StringComparison.OrdinalIgnoreCase))
                                             {
                                                 // This line defines the peptide charge
                                                 // It may simply contain a single charge, like 1+ or 2+
@@ -363,7 +363,7 @@ namespace MSDataFileReader
                                                     mCurrentSpectrum.ParentIonCharges[0] = int.Parse(strLineIn);
                                                 }
                                             }
-                                            else if (strLineIn.ToUpper().StartsWith(LINE_START_TITLE))
+                                            else if (strLineIn.StartsWith(LINE_START_TITLE, StringComparison.OrdinalIgnoreCase))
                                             {
                                                 mCurrentSpectrum.SpectrumTitle = string.Copy(strLineIn);
                                                 strLineIn = strLineIn.Substring(LINE_START_TITLE.Length).Trim();
@@ -381,12 +381,12 @@ namespace MSDataFileReader
                                                     }
                                                 }
                                             }
-                                            else if (strLineIn.ToUpper().StartsWith(LINE_START_END_IONS))
+                                            else if (strLineIn.StartsWith(LINE_START_END_IONS, StringComparison.OrdinalIgnoreCase))
                                             {
                                                 // Empty ion list
                                                 break;
                                             }
-                                            else if (strLineIn.ToUpper().StartsWith(LINE_START_RT))
+                                            else if (strLineIn.StartsWith(LINE_START_RT, StringComparison.OrdinalIgnoreCase))
                                             {
                                                 strLineIn = strLineIn.Substring(LINE_START_RT.Length).Trim();
 
@@ -395,7 +395,7 @@ namespace MSDataFileReader
                                                     mCurrentSpectrum.RetentionTimeMin = (float)(rtSeconds / 60.0d);
                                                 }
                                             }
-                                            else if (strLineIn.ToUpper().StartsWith(LINE_START_SCANS))
+                                            else if (strLineIn.StartsWith(LINE_START_SCANS, StringComparison.OrdinalIgnoreCase))
                                             {
                                                 strLineIn = strLineIn.Substring(LINE_START_SCANS.Length).Trim();
                                                 blnScanNumberFound = ExtractScanRange(strLineIn, mCurrentSpectrum);
@@ -447,7 +447,7 @@ namespace MSDataFileReader
 
                                             if (strLineIn.Trim().Length > 0)
                                             {
-                                                if (strLineIn.Trim().ToUpper().StartsWith(LINE_START_END_IONS))
+                                                if (strLineIn.Trim().StartsWith(LINE_START_END_IONS, StringComparison.OrdinalIgnoreCase))
                                                 {
                                                     break;
                                                 }

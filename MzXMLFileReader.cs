@@ -772,8 +772,8 @@ namespace MSDataFileReader
                 if (string.IsNullOrWhiteSpace(mFileVersion))
                     return;
 
-                if (mFileVersion.IndexOf("mzxml_2", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
-                    mFileVersion.IndexOf("mzxml_3", StringComparison.InvariantCultureIgnoreCase) >= 0)
+                if (mFileVersion.IndexOf("mzxml_2", StringComparison.OrdinalIgnoreCase) >= 0 ||
+                    mFileVersion.IndexOf("mzxml_3", StringComparison.OrdinalIgnoreCase) >= 0)
                 {
                     return;
                 }

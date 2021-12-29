@@ -249,7 +249,7 @@ namespace MSDataFileReader
                 {
                     strSpectrumHeader = strSpectrumHeader.Trim();
 
-                    if (strSpectrumHeader.ToLower().EndsWith(".dta"))
+                    if (strSpectrumHeader.EndsWith(".dta", StringComparison.OrdinalIgnoreCase))
                     {
                         // Remove the trailing .dta
                         strSpectrumHeader = strSpectrumHeader.Substring(0, strSpectrumHeader.Length - 4);

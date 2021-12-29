@@ -203,9 +203,9 @@ namespace MSDataFileReader
                                         mHeaderSaved = string.Copy(strLineIn);
                                         var strCompareTitle = CleanupComment(mHeaderSaved, mCommentLineStartChar, true);
 
-                                        if (strCompareTitle.ToLower().EndsWith("3.dta"))
+                                        if (strCompareTitle.EndsWith("3.dta", StringComparison.OrdinalIgnoreCase))
                                         {
-                                            if (string.Equals(mCurrentSpectrum.SpectrumTitle.Substring(0, mCurrentSpectrum.SpectrumTitle.Length - 5), strCompareTitle.Substring(0, strCompareTitle.Length - 5), StringComparison.InvariantCultureIgnoreCase))
+                                            if (string.Equals(mCurrentSpectrum.SpectrumTitle.Substring(0, mCurrentSpectrum.SpectrumTitle.Length - 5), strCompareTitle.Substring(0, strCompareTitle.Length - 5), StringComparison.OrdinalIgnoreCase))
                                             {
                                                 // Yes, the spectra match
                                                 mCurrentSpectrum.ParentIonChargeCount = 2;

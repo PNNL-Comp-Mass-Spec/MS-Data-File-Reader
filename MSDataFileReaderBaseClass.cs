@@ -345,8 +345,9 @@ namespace MSDataFileReader
                     return false;
                 }
 
-                var strFileName = Path.GetFileName(strFileNameOrPath.ToUpper());
-                var strFileExtension = Path.GetExtension(strFileName);
+                var strFileName = Path.GetFileName(strFileNameOrPath);
+
+                var strFileExtension = Path.GetExtension(strFileName).ToUpper();
 
                 if (string.IsNullOrWhiteSpace(strFileExtension))
                 {
@@ -361,7 +362,7 @@ namespace MSDataFileReader
                 // Assume known file type for now
                 blnKnownType = true;
 
-                switch (strFileExtension ?? "")
+                switch (strFileExtension)
                 {
                     case clsMzDataFileReader.MZDATA_FILE_EXTENSION:
                         eFileType = dftDataFileTypeConstants.mzData;
@@ -377,15 +378,15 @@ namespace MSDataFileReader
 
                     default:
                         // See if the filename ends with MZDATA_FILE_EXTENSION_XML or MZXML_FILE_EXTENSION_XML
-                        if (strFileName.EndsWith(clsMzDataFileReader.MZDATA_FILE_EXTENSION_XML))
+                        if (strFileName.EndsWith(clsMzDataFileReader.MZDATA_FILE_EXTENSION_XML, StringComparison.OrdinalIgnoreCase))
                         {
                             eFileType = dftDataFileTypeConstants.mzData;
                         }
-                        else if (strFileName.EndsWith(clsMzXMLFileReader.MZXML_FILE_EXTENSION_XML))
+                        else if (strFileName.EndsWith(clsMzXMLFileReader.MZXML_FILE_EXTENSION_XML, StringComparison.OrdinalIgnoreCase))
                         {
                             eFileType = dftDataFileTypeConstants.mzXML;
                         }
-                        else if (strFileName.EndsWith(clsDtaTextFileReader.DTA_TEXT_FILE_EXTENSION))
+                        else if (strFileName.EndsWith(clsDtaTextFileReader.DTA_TEXT_FILE_EXTENSION, StringComparison.OrdinalIgnoreCase))
                         {
                             eFileType = dftDataFileTypeConstants.DtaText;
                         }
