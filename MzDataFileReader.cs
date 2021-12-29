@@ -626,14 +626,7 @@ namespace MSDataFileReader
                                     case ProcessingMethodCVParamNames.PeakProcessing:
                                         mInputFileStatsAddnl.PeakProcessing = cvValue;
 
-                                        if (cvValue.ToLower().IndexOf("centroid", StringComparison.Ordinal) >= 0)
-                                        {
-                                            mInputFileStatsAddnl.IsCentroid = true;
-                                        }
-                                        else
-                                        {
-                                            mInputFileStatsAddnl.IsCentroid = false;
-                                        }
+                                        mInputFileStatsAddnl.IsCentroid = cvValue.ToLower().IndexOf("centroid", StringComparison.Ordinal) >= 0;
 
                                         break;
                                 }

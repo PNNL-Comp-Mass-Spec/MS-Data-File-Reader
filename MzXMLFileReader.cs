@@ -608,14 +608,7 @@ namespace MSDataFileReader
                                 mCurrentSpectrum.ScanNumberEnd = mCurrentSpectrum.ScanNumber;
                                 mCurrentSpectrum.MSLevel = GetAttribValue(ScanAttributeNames.msLevel, 1);
 
-                                if (GetAttribValue(ScanAttributeNames.centroided, 0) == 0)
-                                {
-                                    mCurrentSpectrum.Centroided = false;
-                                }
-                                else
-                                {
-                                    mCurrentSpectrum.Centroided = true;
-                                }
+                                mCurrentSpectrum.Centroided = GetAttribValue(ScanAttributeNames.centroided, 0) != 0;
 
                                 // ReSharper disable once UnusedVariable
                                 var instrumentID = GetAttribValue(ScanAttributeNames.msInstrumentID, 1);
