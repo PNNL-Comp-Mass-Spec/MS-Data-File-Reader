@@ -256,6 +256,9 @@ namespace MSDataFileReader
                 {
                     var objSpectrum = (clsSpectrumInfoMzData)objEnumerator.Current;
 
+                    if (objSpectrum == null)
+                        continue;
+
                     if (objSpectrum.SpectrumID == intSpectrumIDToFind)
                     {
                         sngIntensityMatch = objSpectrum.LookupIonIntensityByMZ(dblMZToFind, 0f);
