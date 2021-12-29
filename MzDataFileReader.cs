@@ -295,19 +295,16 @@ namespace MSDataFileReader
 
         protected override void InitializeCurrentSpectrum(bool blnAutoShrinkDataLists)
         {
-            if (mCurrentSpectrum != null)
+            if (mCurrentSpectrum is { MSLevel: 1 })
             {
-                if (mCurrentSpectrum.MSLevel == 1)
+                if (mMostRecentSurveyScanSpectra.Count >= MOST_RECENT_SURVEY_SCANS_TO_CACHE)
                 {
-                    if (mMostRecentSurveyScanSpectra.Count >= MOST_RECENT_SURVEY_SCANS_TO_CACHE)
-                    {
-                        mMostRecentSurveyScanSpectra.Dequeue();
-                    }
-
-                    // Add mCurrentSpectrum to mMostRecentSurveyScanSpectra
-                    mCurrentSpectrum.CopyTo(out var objSpectrumCopy);
-                    mMostRecentSurveyScanSpectra.Enqueue(objSpectrumCopy);
+                    mMostRecentSurveyScanSpectra.Dequeue();
                 }
+
+                // Add mCurrentSpectrum to mMostRecentSurveyScanSpectra
+                mCurrentSpectrum.CopyTo(out var objSpectrumCopy);
+                mMostRecentSurveyScanSpectra.Enqueue(objSpectrumCopy);
             }
 
             if (ReadingAndStoringSpectra || mCurrentSpectrum is null)
