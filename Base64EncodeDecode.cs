@@ -62,7 +62,9 @@ namespace MSDataFileReader
 
             if (byteArray.Length % DATA_TYPE_PRECISION_BYTES != 0)
             {
-                throw new Exception("Array length of the Byte Array returned by " + conversionSource + " is not divisible by " + DATA_TYPE_PRECISION_BYTES + " bytes;" + " not the correct length for an encoded array of 16-bit integers");
+                throw new Exception(string.Format(
+                    "Array length of the Byte Array returned by {0} is not divisible by {1} bytes; not the correct length for an encoded array of 16-bit integers",
+                    conversionSource, DATA_TYPE_PRECISION_BYTES));
             }
 
             dataArray = new short[(int)Math.Round(byteArray.Length / (double)DATA_TYPE_PRECISION_BYTES)];
@@ -120,7 +122,9 @@ namespace MSDataFileReader
 
             if (byteArray.Length % DATA_TYPE_PRECISION_BYTES != 0)
             {
-                throw new Exception("Array length of the Byte Array returned by " + conversionSource + " is not divisible by " + DATA_TYPE_PRECISION_BYTES + " bytes;" + " not the correct length for an encoded array of 32-bit integers");
+                throw new Exception(string.Format(
+                    "Array length of the Byte Array returned by {0} is not divisible by {1} bytes; not the correct length for an encoded array of 32-bit integers",
+                    conversionSource, DATA_TYPE_PRECISION_BYTES));
             }
 
             dataArray = new int[(int)Math.Round(byteArray.Length / (double)DATA_TYPE_PRECISION_BYTES)];
@@ -184,7 +188,9 @@ namespace MSDataFileReader
 
             if (byteArray.Length % DATA_TYPE_PRECISION_BYTES != 0)
             {
-                throw new Exception("Array length of the Byte Array returned by " + conversionSource + " is not divisible by " + DATA_TYPE_PRECISION_BYTES + " bytes;" + " not the correct length for an encoded array of floats (aka singles)");
+                throw new Exception(string.Format(
+                    "Array length of the Byte Array returned by {0} is not divisible by {1} bytes; not the correct length for an encoded array of floats",
+                    conversionSource, DATA_TYPE_PRECISION_BYTES));
             }
 
             dataArray = new float[(int)Math.Round(byteArray.Length / (double)DATA_TYPE_PRECISION_BYTES)];
@@ -244,7 +250,9 @@ namespace MSDataFileReader
 
             if (byteArray.Length % DATA_TYPE_PRECISION_BYTES != 0)
             {
-                throw new Exception("Array length of the Byte Array returned by " + conversionSource + " is not divisible by " + DATA_TYPE_PRECISION_BYTES + " bytes;" + " not the correct length for an encoded array of doubles");
+                throw new Exception(string.Format(
+                    "Array length of the Byte Array returned by {0} is not divisible by {1} bytes; not the correct length for an encoded array of doubles",
+                    conversionSource, DATA_TYPE_PRECISION_BYTES));
             }
 
             dataArray = new double[(int)Math.Round(byteArray.Length / (double)DATA_TYPE_PRECISION_BYTES)];
