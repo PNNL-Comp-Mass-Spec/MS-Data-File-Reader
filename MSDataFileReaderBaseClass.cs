@@ -45,9 +45,15 @@ namespace MSDataFileReader
 
         public const string PROGRAM_DATE = "December 28, 2021";
 
+        /// <summary>
+        /// Charge carrier for average mass mode
+        /// </summary>
         public const double CHARGE_CARRIER_MASS_AVG = 1.00739d;
 
-        public const double CHARGE_CARRIER_MASS_MONOISO = 1.00727649d;
+        /// <summary>
+        /// Charge carrier for monoisotopic mass mode
+        /// </summary>
+        public const double CHARGE_CARRIER_MASS_MONOISOTOPIC = 1.00727649d;
 
         public const double MASS_HYDROGEN = 1.0078246d;
 

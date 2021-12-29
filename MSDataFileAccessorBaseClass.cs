@@ -632,7 +632,6 @@ namespace MSDataFileReader
         /// </summary>
         /// <param name="strTextStream"></param>
         /// <returns>Always returns false</returns>
-        /// <remarks></remarks>
         public override bool OpenTextStream(string strTextStream)
         {
             mErrorMessage = "The OpenTextStream method is not valid for clsMSDataFileAccessorBaseClass";

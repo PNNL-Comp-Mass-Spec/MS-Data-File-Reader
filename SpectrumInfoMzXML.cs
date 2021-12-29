@@ -39,7 +39,6 @@ namespace MSDataFileReader
         /// Tracks pairOrder for mzXML v1.x and v2.x
         /// Tracks contentType for mzXML 3.x files
         /// </summary>
-        /// <remarks></remarks>
         public static class PairOrderTypes
         {
             public const string MZandIntensity = "m/z-int";

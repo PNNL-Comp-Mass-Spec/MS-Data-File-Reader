@@ -89,44 +89,81 @@ namespace MSDataFileReader
 
             public const string msLevel = "msLevel";
 
-            // 0 or 1
+            /// <summary>
+            /// 0 means not centroided, 1 means centroided
+            /// </summary>
             public const string centroided = "centroided";
 
             public const string peaksCount = "peaksCount";
 
             public const string polarity = "polarity";
 
-            // Options are: Full, zoom, SIM, SRM, MRM, CRM, Q1, or Q3; note that MRM and SRM and functionally equivalent; ReadW uses SRM
+            /// <summary>
+            /// Scan type: Full, zoom, SIM, SRM, MRM, CRM, Q1, or Q3
+            /// </summary>
+            /// <remarks>
+            /// MRM and SRM and functionally equivalent; ReadW uses SRM
+            /// </remarks>
             public const string scanType = "scanType";
 
-            // Thermo-specific filter-line text; added by ReadW
+            /// <summary>
+            /// Thermo-specific filter-line text; added by ReadW
+            /// </summary>
             public const string filterLine = "filterLine";
 
-            // Example retention time: PT1.0373S
+            /// <summary>
+            /// Retention time
+            /// </summary>
+            /// <remarks>
+            /// Example: PT1.0373S
+            /// </remarks>
             public const string retentionTime = "retentionTime";
 
-            // Collision energy used to fragment the parent ion
+            /// <summary>
+            /// Collision energy used to fragment the parent ion
+            /// </summary>
+            // ReSharper disable once UnusedMember.Local
             public const string collisionEnergy = "collisionEnergy";
 
-            // Low m/z boundary (this is the instrumental setting); not present in .mzXML files created with ReadW
+            /// <summary>
+            /// Low m/z boundary (this is the instrumental setting)
+            /// </summary>
+            /// <remarks>
+            /// Not present in .mzXML files created with ReadW
+            /// </remarks>
             public const string startMz = "startMz";
 
-            // High m/z boundary (this is the instrumental setting); not present in .mzXML files created with ReadW
+            /// <summary>
+            /// High m/z boundary (this is the instrumental setting)
+            /// </summary>
+            /// <remarks>
+            /// Not present in .mzXML files created with ReadW
+            /// </remarks>
             public const string endMz = "endMz";
 
-            // Observed low m/z (this is what the actual data looks like
+            /// <summary>
+            /// Observed low m/z (this is the m/z of the first ion observed)
+            /// </summary>
             public const string lowMz = "lowMz";
 
-            // Observed high m/z (this is what the actual data looks like
+            /// <summary>
+            /// Observed high m/z (this is the m/z of the last ion observed)
+            /// </summary>
             public const string highMz = "highMz";
 
-            // m/z of the base peak (most intense peak)
+            /// <summary>
+            /// m/z of the base peak (most intense peak)
+            /// </summary>
             public const string basePeakMz = "basePeakMz";
 
-            // Intensity of the base peak (most intense peak)
+            /// <summary>
+            /// Intensity of the base peak (most intense peak)
+            /// </summary>
             public const string basePeakIntensity = "basePeakIntensity";
 
-            // Total ion current (total intensity in the scan)
+            /// <summary>
+            /// Total ion current (total intensity in the scan)
+            /// </summary>
             public const string totIonCurrent = "totIonCurrent";
 
             public const string msInstrumentID = "msInstrumentID";
@@ -134,19 +171,29 @@ namespace MSDataFileReader
 
         private static class PrecursorAttributeNames
         {
-            // Scan number of the precursor
+            /// <summary>
+            /// Scan number of the precursor
+            /// </summary>
             public const string precursorScanNum = "precursorScanNum";
 
-            // Intensity of the precursor ion
+            /// <summary>
+            /// Intensity of the precursor ion
+            /// </summary>
             public const string precursorIntensity = "precursorIntensity";
 
-            // Charge of the precursor, typically determined at time of acquisition by the mass spectrometer
+            /// <summary>
+            /// Charge of the precursor, typically determined at time of acquisition by the mass spectrometer
+            /// </summary>
             public const string precursorCharge = "precursorCharge";
 
-            // Fragmentation method, e.g. CID, ETD, or HCD
+            /// <summary>
+            /// Fragmentation method, e.g. CID, ETD, or HCD
+            /// </summary>
             public const string activationMethod = "activationMethod";
 
-            // Isolation window width, e.g. 2.0
+            /// <summary>
+            /// Isolation window width, e.g. 2.0
+            /// </summary>
             public const string windowWideness = "windowWideness";
         }
 
@@ -156,16 +203,27 @@ namespace MSDataFileReader
 
             public const string byteOrder = "byteOrder";
 
-            // For example, "m/z-int"  ; superseded by "contentType" in mzXML 3
+            /// <summary>
+            /// Pair order, for example: "m/z-int"
+            /// </summary>
+            /// <remarks>
+            /// Superseded by "contentType" in mzXML 3
+            /// </remarks>
             public const string pairOrder = "pairOrder";
 
-            // Allowed values are: "none" or "zlib"
+            /// <summary>
+            /// Compression type: "none" or "zlib"
+            /// </summary>
             public const string compressionType = "compressionType";
 
-            // Integer value required when using zlib compression
+            /// <summary>
+            /// Integer value required when using zlib compression
+            /// </summary>
             public const string compressedLen = "compressedLen";
 
-            // Allowed values are: "m/z-int", "m/z", "intensity", "S/N", "charge", "m/z ruler", "TOF"
+            /// <summary>
+            /// Content type: "m/z-int", "m/z", "intensity", "S/N", "charge", "m/z ruler", or "TOF"
+            /// </summary>
             public const string contentType = "contentType";
         }
 
