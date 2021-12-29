@@ -22,8 +22,6 @@ namespace MSDataFileReader
             InitializeLocalVariables();
         }
 
-        #region Constants and Enums
-
         // Note: The extension must be in all caps
         public const string MGF_FILE_EXTENSION = ".MGF";
 
@@ -45,14 +43,9 @@ namespace MSDataFileReader
 
         private const string LINE_START_SCANS = "SCANS=";
 
-        #endregion
-
-        #region Classwide Variables
         // mScanNumberStartSaved is used to create fake scan numbers when reading .MGF files that do not have
         // scan numbers defined using   ###MSMS: #1234   or   TITLE=Filename.1234.1234.2.dta  or  TITLE=Filename.1234.1234.2
         private int mScanNumberStartSaved;
-
-        #endregion
 
         protected override void InitializeLocalVariables()
         {

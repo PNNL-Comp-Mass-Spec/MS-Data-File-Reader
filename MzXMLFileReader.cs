@@ -21,7 +21,6 @@ namespace MSDataFileReader
             InitializeLocalVariables();
         }
 
-        #region Constants and Enums
         // Note: The extensions must be in all caps
         public const string MZXML_FILE_EXTENSION = ".MZXML";
 
@@ -168,10 +167,6 @@ namespace MSDataFileReader
             ScanList = 5
         }
 
-        #endregion
-
-        #region Structures
-
         private struct udtFileStatsAddnlType
         {
             public float StartTimeMin;
@@ -181,20 +176,12 @@ namespace MSDataFileReader
             public bool IsCentroid;      // True if centroid (aka stick) data; False if profile (aka continuum) data
         }
 
-        #endregion
-
-        #region Classwide Variables
-
         private eCurrentMZXMLDataFileSectionConstants mCurrentXMLDataFileSection;
 
         private int mScanDepth;       // > 0 if we're inside a scan element
         private clsSpectrumInfoMzXML mCurrentSpectrum;
 
         private udtFileStatsAddnlType mInputFileStatsAddnl;
-
-        #endregion
-
-        #region Processing Options and Interface Functions
 
         public float FileInfoStartTimeMin
         {
@@ -219,8 +206,6 @@ namespace MSDataFileReader
                 return mInputFileStatsAddnl.IsCentroid;
             }
         }
-
-        #endregion
 
         protected override clsSpectrumInfo GetCurrentSpectrum()
         {

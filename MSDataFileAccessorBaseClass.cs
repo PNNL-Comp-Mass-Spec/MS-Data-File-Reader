@@ -54,8 +54,6 @@ namespace MSDataFileReader
             }
         }
 
-        #region Constants and Enums
-
         protected const int INITIAL_SCAN_RESERVE_COUNT = 1000;
 
         protected enum emmElementMatchModeConstants
@@ -63,10 +61,6 @@ namespace MSDataFileReader
             StartElement = 0,
             EndElement = 1
         }
-
-        #endregion
-
-        #region Structures
 
         protected struct udtIndexedSpectrumInfoType
         {
@@ -82,10 +76,6 @@ namespace MSDataFileReader
                 return "Scan " + ScanNumber + ", bytes " + ByteOffsetStart + " to " + ByteOffsetEnd;
             }
         }
-
-        #endregion
-
-        #region Classwide Variables
 
         protected clsBinaryTextReader.InputFileEncodingConstants mInputFileEncoding;
 
@@ -112,10 +102,6 @@ namespace MSDataFileReader
 
         protected udtIndexedSpectrumInfoType[] mIndexedSpectrumInfo;
 
-        #endregion
-
-        #region Processing Options and Interface Functions
-
         public override int CachedSpectrumCount
         {
             get
@@ -130,8 +116,6 @@ namespace MSDataFileReader
                 }
             }
         }
-
-        #endregion
 
         protected abstract bool AdvanceFileReaders(emmElementMatchModeConstants eElementMatchMode);
 

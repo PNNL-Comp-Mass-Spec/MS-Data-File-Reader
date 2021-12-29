@@ -23,8 +23,6 @@ namespace MSDataFileReader
 
         public const int MAX_CHARGE_COUNT = 5;
 
-        #region Spectrum Variables
-
         private string mSpectrumTitleWithCommentChars;
 
         private string mSpectrumTitle;
@@ -40,10 +38,6 @@ namespace MSDataFileReader
         public int[] ParentIonCharges;
 
         private bool mChargeIs2And3Plus;
-
-        #endregion
-
-        #region Spectrum Variable Interface Functions
 
         public string SpectrumTitleWithCommentChars
         {
@@ -113,8 +107,6 @@ namespace MSDataFileReader
                 mChargeIs2And3Plus = value;
             }
         }
-
-        #endregion
 
         public override void Clear()
         {

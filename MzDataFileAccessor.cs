@@ -50,8 +50,6 @@ namespace MSDataFileReader
             }
         }
 
-        #region Constants and Enums
-
         private const string SPECTRUM_LIST_START_ELEMENT = "<spectrumList";
 
         private const string SPECTRUM_LIST_END_ELEMENT = "</spectrumList>";
@@ -63,10 +61,6 @@ namespace MSDataFileReader
         private const string MZDATA_START_ELEMENT = "<mzData";
 
         private const string MZDATA_END_ELEMENT = "</mzData>";
-
-        #endregion
-
-        #region Classwide Variables
 
         private clsMzDataFileReader mXmlFileReader;
 
@@ -95,10 +89,6 @@ namespace MSDataFileReader
         private readonly Dictionary<int, int> mIndexedSpectraSpectrumIDToIndex = new();
 
         private XmlReaderSettings mXMLReaderSettings;
-
-        #endregion
-
-        #region Processing Options and Interface Functions
 
         public int CachedSpectraSpectrumIDMinimum
         {
@@ -133,8 +123,6 @@ namespace MSDataFileReader
                 }
             }
         }
-
-        #endregion
 
         /// <summary>
         /// Use the binary reader to look for strTextToFind

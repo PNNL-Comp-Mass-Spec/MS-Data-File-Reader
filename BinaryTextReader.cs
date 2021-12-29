@@ -65,8 +65,6 @@ namespace MSDataFileReader
             Close();
         }
 
-        #region Constants and Enums
-
         // In order to support Unicode files, it is important that the buffer length always be a power of 2
         private const int INITIAL_BUFFER_LENGTH = 10000;
 
@@ -94,14 +92,6 @@ namespace MSDataFileReader
             Forward = 0,
             Reverse = 1
         }
-
-        #endregion
-
-        #region Structures
-
-        #endregion
-
-        #region Classwide Variables
 
         private string mInputFilePath;
 
@@ -149,10 +139,6 @@ namespace MSDataFileReader
         private string mCurrentLineTextSaved;
 
         private string mCurrentLineTerminator;
-
-        #endregion
-
-        #region Processing Options and Interface Functions
 
         public long ByteBufferFileOffsetStart
         {
@@ -333,8 +319,6 @@ namespace MSDataFileReader
                 SetInputFileEncoding(value);
             }
         }
-
-        #endregion
 
         public bool ByteAtBOF(long lngBytePosition)
         {

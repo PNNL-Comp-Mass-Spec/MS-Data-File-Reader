@@ -37,16 +37,6 @@ namespace MSDataFileReader
             }
         }
 
-        #region Constants and Enums
-
-        #endregion
-
-        #region Structures
-
-        #endregion
-
-        #region Classwide Variables
-
         private readonly Regex mDtaHeaderScanAndCharge = new Regex(@".+\.(\d+)\.(\d+)\.(\d*)$", RegexOptions.Compiled);
 
         /// <summary>
@@ -85,10 +75,6 @@ namespace MSDataFileReader
         protected long mTotalBytesRead;
 
         protected long mInFileStreamLength;
-
-        #endregion
-
-        #region Processing Options and Interface Functions
 
         public char CommentLineStartChar
         {
@@ -153,8 +139,6 @@ namespace MSDataFileReader
                 mThresholdIonPctForDoubleCharge = value;
             }
         }
-
-        #endregion
 
         /// <summary>
         /// Remove any instance of strCommentChar from the beginning and end of strCommentIn

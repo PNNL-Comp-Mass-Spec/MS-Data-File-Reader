@@ -21,8 +21,6 @@ namespace MSDataFileReader
             Clear();
         }
 
-        #region Constants and Enums
-
         public class ByteOrderTypes
         {
             public const string network = "network";
@@ -77,10 +75,6 @@ namespace MSDataFileReader
             public const string MRM = "MRM";
         }
 
-        #endregion
-
-        #region Spectrum Variables
-
         protected float mCollisionEnergy;
 
         // See class ScanTypeNames for typical names
@@ -116,14 +110,6 @@ namespace MSDataFileReader
         protected int mParentIonCharge;
 
         protected int mPrecursorScanNum;
-
-        #endregion
-
-        #region Classwide Variables
-
-        #endregion
-
-        #region Spectrum Variable Interface Functions
 
         public string ActivationMethod
         {
@@ -314,8 +300,6 @@ namespace MSDataFileReader
                 mScanType = value;
             }
         }
-
-        #endregion
 
         public override void Clear()
         {

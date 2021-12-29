@@ -47,8 +47,6 @@ namespace MSDataFileReader
             mXmlFileReader = null;
         }
 
-        #region Constants and Enums
-
         private const string MSRUN_START_ELEMENT = "<msRun";
 
         private const string MSRUN_END_ELEMENT = "</msRun>";
@@ -81,10 +79,6 @@ namespace MSDataFileReader
 
         private const string OFFSET_ATTRIBUTE_ID = "id";
 
-        #endregion
-
-        #region Classwide Variables
-
         private clsMzXMLFileReader mXmlFileReader;
 
         private clsSpectrumInfoMzXML mCurrentSpectrumInfo;
@@ -106,10 +100,6 @@ namespace MSDataFileReader
         private Regex mScanNumberRegEx;
 
         private XmlReaderSettings mXMLReaderSettings;
-
-        #endregion
-
-        #region Processing Options and Interface Functions
 
         public bool IgnoreEmbeddedIndex
         {
@@ -141,8 +131,6 @@ namespace MSDataFileReader
                 }
             }
         }
-
-        #endregion
 
         /// <summary>
         /// Use the binary reader to look for the given element type (as specified by eElementMatchMode)

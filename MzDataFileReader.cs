@@ -22,7 +22,6 @@ namespace MSDataFileReader
             InitializeLocalVariables();
         }
 
-        #region Constants and Enums
         // Note: The extensions must be in all caps
         public const string MZDATA_FILE_EXTENSION = ".MZDATA";
 
@@ -192,10 +191,6 @@ namespace MSDataFileReader
             SpectrumDataArrayIntensity = 15
         }
 
-        #endregion
-
-        #region Structures
-
         private struct udtFileStatsAddnlType
         {
             public string PeakProcessing;
@@ -206,10 +201,6 @@ namespace MSDataFileReader
             public bool HasChargeDeconvolution;
         }
 
-        #endregion
-
-        #region Classwide Variables
-
         private eCurrentMZDataFileSectionConstants mCurrentXMLDataFileSection;
 
         private clsSpectrumInfoMzData mCurrentSpectrum;
@@ -219,10 +210,6 @@ namespace MSDataFileReader
         private Queue mMostRecentSurveyScanSpectra;
 
         private udtFileStatsAddnlType mInputFileStatsAddnl;
-
-        #endregion
-
-        #region Processing Options and Interface Functions
 
         public string PeakProcessing
         {
@@ -255,8 +242,6 @@ namespace MSDataFileReader
                 return mInputFileStatsAddnl.HasChargeDeconvolution;
             }
         }
-
-        #endregion
 
         private float FindIonIntensityInRecentSpectra(int intSpectrumIDToFind, double dblMZToFind)
         {

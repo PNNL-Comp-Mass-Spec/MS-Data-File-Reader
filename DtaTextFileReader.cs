@@ -27,15 +27,10 @@ namespace MSDataFileReader
             InitializeLocalVariables();
         }
 
-        #region Constants and Enums
         // Note: The extension must be in all caps
         public const string DTA_TEXT_FILE_EXTENSION = "_DTA.TXT";
 
         private const char COMMENT_LINE_START_CHAR = '=';        // The comment character is an Equals sign
-
-        #endregion
-
-        #region Classwide Variables
 
         private bool mCombineIdenticalSpectra;
 
@@ -43,10 +38,6 @@ namespace MSDataFileReader
         // header was read for comparison with the current scan, but it didn't match, and thus
         // wasn't used for grouping
         private string mHeaderSaved;
-
-        #endregion
-
-        #region Processing Options and Interface Functions
 
         public bool CombineIdenticalSpectra
         {
@@ -60,8 +51,6 @@ namespace MSDataFileReader
                 mCombineIdenticalSpectra = value;
             }
         }
-
-        #endregion
 
         protected override void InitializeLocalVariables()
         {

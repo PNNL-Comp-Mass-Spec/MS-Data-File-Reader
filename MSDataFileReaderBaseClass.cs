@@ -43,8 +43,6 @@ namespace MSDataFileReader
             InitializeLocalVariables();
         }
 
-        #region Constants and Enums
-
         public const string PROGRAM_DATE = "December 28, 2021";
 
         public const double CHARGE_CARRIER_MASS_AVG = 1.00739d;
@@ -71,10 +69,6 @@ namespace MSDataFileReader
             MGF = 3
         }
 
-        #endregion
-
-        #region Structures
-
         protected struct udtFileStatsType
         {
             /// <summary>
@@ -93,10 +87,6 @@ namespace MSDataFileReader
             /// </summary>
             public int ScanNumberMaximum;
         }
-
-        #endregion
-
-        #region Classwide Variables
 
         protected double mChargeCarrierMass;
 
@@ -126,10 +116,6 @@ namespace MSDataFileReader
         protected readonly Dictionary<int, int> mCachedSpectraScanToIndex = new();
 
         protected bool mAutoShrinkDataLists;
-
-        #endregion
-
-        #region Processing Options and Interface Functions
 
         /// <summary>
         /// When mAutoShrinkDataLists is True, clsSpectrumInfo.MZList().Length and clsSpectrumInfo.IntensityList().Length will equal DataCount;
@@ -272,8 +258,6 @@ namespace MSDataFileReader
                 return mInputFileStats.ScanCount;
             }
         }
-
-        #endregion
 
         public void AbortProcessingNow()
         {

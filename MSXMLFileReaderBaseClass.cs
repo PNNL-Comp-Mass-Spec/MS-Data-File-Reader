@@ -50,22 +50,12 @@ namespace MSDataFileReader
             }
         }
 
-        #region Constants and Enums
-
-        #endregion
-
-        #region Structures
-
         private struct udtElementInfoType
         {
             public string Name;
 
             public int Depth;
         }
-
-        #endregion
-
-        #region Classwide Variables
 
         protected TextReader mDataFileOrTextStream;
 
@@ -87,10 +77,6 @@ namespace MSDataFileReader
         protected string mCurrentElement;
 
         protected Stack mParentElementStack;
-
-        #endregion
-
-        #region Processing Options and Interface Functions
 
         public int SAXParserLineNumber
         {
@@ -136,8 +122,6 @@ namespace MSDataFileReader
                 mSkipBinaryData = value;
             }
         }
-
-        #endregion
 
         public override void CloseFile()
         {

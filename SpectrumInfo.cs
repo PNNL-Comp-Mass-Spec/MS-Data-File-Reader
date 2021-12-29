@@ -22,8 +22,6 @@ namespace MSDataFileReader
             Clear();
         }
 
-        #region Constants and Enums
-
         public class SpectrumTypeNames
         {
             public const string discrete = "discrete";
@@ -37,10 +35,6 @@ namespace MSDataFileReader
             DataDefined = 1,                     // This is set when any of the values are set via a property
             Validated = 2                       // This is set when .Validate() is called
         }
-
-        #endregion
-
-        #region Spectrum Variables
 
         private int mSpectrumID;                // Spectrum ID number; often the same as ScanNumber
         private int mScanNumber;                // First scan number if ScanCount is > 1
@@ -76,10 +70,6 @@ namespace MSDataFileReader
 
         public float[] IntensityList;
 
-        #endregion
-
-        #region Classwide Variables
-
         /// <summary>
         /// When True, MZList().Length and IntensityList().Length will equal DataCount
         /// When False, the memory will not be freed when DataCount shrinks or .Clear() is called
@@ -92,10 +82,6 @@ namespace MSDataFileReader
         protected string mErrorMessage;
 
         protected eSpectrumStatusConstants mSpectrumStatus;
-
-        #endregion
-
-        #region Spectrum Variable Interface Functions
 
         public int SpectrumID
         {
@@ -342,10 +328,6 @@ namespace MSDataFileReader
             }
         }
 
-        #endregion
-
-        #region Processing Options
-
         public bool AutoShrinkDataLists
         {
             get
@@ -368,8 +350,6 @@ namespace MSDataFileReader
                 return mErrorMessage;
             }
         }
-
-        #endregion
 
         public virtual void Clear()
         {

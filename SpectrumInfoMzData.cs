@@ -21,18 +21,12 @@ namespace MSDataFileReader
             Clear();
         }
 
-        #region Constants and Enums
-
         public class EndianModes
         {
             public const string littleEndian = "little";
 
             public const string bigEndian = "big";
         }
-
-        #endregion
-
-        #region Spectrum Variables
 
         protected float mCollisionEnergy;
 
@@ -59,14 +53,6 @@ namespace MSDataFileReader
 
         // See class EndianModes for values; typically EndianModes.littleEndian
         protected string mPeaksEndianModeIntensity;
-
-        #endregion
-
-        #region Classwide Variables
-
-        #endregion
-
-        #region Spectrum Variable Interface Functions
 
         public float CollisionEnergy
         {
@@ -219,8 +205,6 @@ namespace MSDataFileReader
                 mPeaksEndianModeIntensity = value;
             }
         }
-
-        #endregion
 
         public override void Clear()
         {
