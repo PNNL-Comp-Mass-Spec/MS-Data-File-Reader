@@ -297,26 +297,12 @@ namespace MSDataFileReader
 
         public List<string> GetMSMSDataAsText()
         {
-            if (mCurrentMsMsDataList is null)
-            {
-                return new List<string>();
-            }
-            else
-            {
-                return mCurrentMsMsDataList;
-            }
+            return mCurrentMsMsDataList ?? new List<string>();
         }
 
         public string GetMostRecentSpectrumFileText()
         {
-            if (mMostRecentSpectrumFileText is null)
-            {
-                return string.Empty;
-            }
-            else
-            {
-                return mMostRecentSpectrumFileText.ToString();
-            }
+            return mMostRecentSpectrumFileText is null ? string.Empty : mMostRecentSpectrumFileText.ToString();
         }
 
         public string GetSecondMostRecentSpectrumFileText()

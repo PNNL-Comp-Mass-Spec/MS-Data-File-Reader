@@ -146,35 +146,9 @@ namespace MSDataFileReader
 
         public byte CharSize => mCharSize;
 
-        public string CurrentLine
-        {
-            get
-            {
-                if (mCurrentLineText is null)
-                {
-                    return string.Empty;
-                }
-                else
-                {
-                    return mCurrentLineText;
-                }
-            }
-        }
+        public string CurrentLine => mCurrentLineText ?? string.Empty;
 
-        public int CurrentLineLength
-        {
-            get
-            {
-                if (mCurrentLineText is null)
-                {
-                    return 0;
-                }
-                else
-                {
-                    return mCurrentLineText.Length;
-                }
-            }
-        }
+        public int CurrentLineLength => mCurrentLineText?.Length ?? 0;
 
         public long CurrentLineByteOffsetStart => mCurrentLineByteOffsetStart;
 
@@ -182,20 +156,7 @@ namespace MSDataFileReader
 
         public long CurrentLineByteOffsetEndWithTerminator => mCurrentLineByteOffsetEndWithTerminator;
 
-        public string CurrentLineTerminator
-        {
-            get
-            {
-                if (mCurrentLineTerminator is null)
-                {
-                    return string.Empty;
-                }
-                else
-                {
-                    return mCurrentLineTerminator;
-                }
-            }
-        }
+        public string CurrentLineTerminator => mCurrentLineTerminator ?? string.Empty;
 
         public string ErrorMessage => mErrorMessage;
 
@@ -205,14 +166,7 @@ namespace MSDataFileReader
             {
                 try
                 {
-                    if (mBinaryReader is null)
-                    {
-                        return 0L;
-                    }
-                    else
-                    {
-                        return mBinaryReader.Length;
-                    }
+                    return mBinaryReader?.Length ?? 0L;
                 }
                 catch (Exception ex)
                 {
@@ -259,14 +213,7 @@ namespace MSDataFileReader
 
         public bool ByteAtBOF(long lngBytePosition)
         {
-            if (lngBytePosition <= mByteOrderMarkLength)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return lngBytePosition <= mByteOrderMarkLength;
         }
 
         /// <summary>
@@ -276,14 +223,7 @@ namespace MSDataFileReader
         /// <returns>True if lngBytePosition is at or beyond the end of the file</returns>
         public bool ByteAtEOF(long lngBytePosition)
         {
-            if (lngBytePosition >= mBinaryReader.Length)
-            {
-                return true;
-            }
-            else
-            {
-                return false;
-            }
+            return lngBytePosition >= mBinaryReader.Length;
         }
 
         public void Close()

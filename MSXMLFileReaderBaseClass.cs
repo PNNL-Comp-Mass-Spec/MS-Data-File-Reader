@@ -147,10 +147,8 @@ namespace MSDataFileReader
                 {
                     return ZERO_SOAP_DURATION_SHORT;
                 }
-                else
-                {
-                    return ZERO_SOAP_DURATION_FULL;
-                }
+
+                return ZERO_SOAP_DURATION_FULL;
             }
 
             return strXMLDuration;

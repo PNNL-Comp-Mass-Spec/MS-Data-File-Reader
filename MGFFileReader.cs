@@ -452,11 +452,9 @@ namespace MSDataFileReader
                                                 {
                                                     break;
                                                 }
-                                                else
-                                                {
-                                                    // Add to MS/MS data sting list
-                                                    mCurrentMsMsDataList.Add(strLineIn.Trim());
-                                                }
+
+                                                // Add to MS/MS data sting list
+                                                mCurrentMsMsDataList.Add(strLineIn.Trim());
                                             }
                                         }
 

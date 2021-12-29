@@ -692,11 +692,9 @@ namespace MSDataFileReader
 
                                     break;
                                 }
-                                else
-                                {
-                                    // Append strCurrentLine to mXmlFileHeader
-                                    mXmlFileHeader += strCurrentLine + Environment.NewLine;
-                                }
+
+                                // Append strCurrentLine to mXmlFileHeader
+                                mXmlFileHeader += strCurrentLine + Environment.NewLine;
                             }
                         }
                         else
@@ -757,7 +755,7 @@ namespace MSDataFileReader
                         {
                             strCurrentElement = objXMLReader.Name;
 
-                            if ((strCurrentElement ?? "") == INDEX_ELEMENT_NAME)
+                            if (strCurrentElement == INDEX_ELEMENT_NAME)
                             {
                                 if (objXMLReader.HasAttributes)
                                 {
@@ -787,7 +785,7 @@ namespace MSDataFileReader
                                     }
                                 }
                             }
-                            else if ((strCurrentElement ?? "") == OFFSET_ELEMENT_NAME)
+                            else if (strCurrentElement == OFFSET_ELEMENT_NAME)
                             {
                                 if (blnParseIndexValues && objXMLReader.HasAttributes)
                                 {
@@ -807,7 +805,7 @@ namespace MSDataFileReader
                         }
                         else if (objXMLReader.NodeType == XmlNodeType.EndElement)
                         {
-                            if (blnParseIndexValues && (objXMLReader.Name ?? "") == INDEX_ELEMENT_NAME)
+                            if (blnParseIndexValues && objXMLReader.Name == INDEX_ELEMENT_NAME)
                             {
                                 // Store the final index value
                                 // This is tricky since we don't know the ending offset for the given scan
@@ -821,7 +819,7 @@ namespace MSDataFileReader
                         }
                         else if (objXMLReader.NodeType == XmlNodeType.Text)
                         {
-                            if (blnParseIndexValues && (strCurrentElement ?? "") == OFFSET_ELEMENT_NAME)
+                            if (blnParseIndexValues && strCurrentElement == OFFSET_ELEMENT_NAME)
                             {
                                 if (objXMLReader.NodeType != XmlNodeType.Whitespace && objXMLReader.HasValue)
                                 {

@@ -119,10 +119,8 @@ namespace MSDataFileReader
                 {
                     return base.CachedSpectrumCount;
                 }
-                else
-                {
-                    return mIndexedSpectrumInfoCount;
-                }
+
+                return mIndexedSpectrumInfoCount;
             }
         }
 
@@ -205,10 +203,8 @@ namespace MSDataFileReader
                 {
                     return string.Empty;
                 }
-                else
-                {
-                    return "Line " + mBinaryTextReader.LineNumber + ", Byte Offset " + mBinaryTextReader.CurrentLineByteOffsetStart;
-                }
+
+                return "Line " + mBinaryTextReader.LineNumber + ", Byte Offset " + mBinaryTextReader.CurrentLineByteOffsetStart;
             }
             catch (Exception ex)
             {

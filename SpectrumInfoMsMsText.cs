@@ -131,7 +131,8 @@ namespace MSDataFileReader
                                 blnChargeAdded = true;
                                 break;
                             }
-                            else if (ParentIonCharges[intIndex] > intNewCharge)
+
+                            if (ParentIonCharges[intIndex] > intNewCharge)
                             {
                                 // Need to shift each of the existing charges up one
                                 var loopTo1 = intIndex + 1;

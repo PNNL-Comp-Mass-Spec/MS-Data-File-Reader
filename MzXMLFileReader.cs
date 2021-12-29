@@ -456,7 +456,7 @@ namespace MSDataFileReader
             try
             {
                 // If we just moved out of a scan element, finalize the current scan
-                if ((mXMLReader.Name ?? "") == ScanSectionNames.scan)
+                if ((mXMLReader.Name) == ScanSectionNames.scan)
                 {
                     if (mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Initialized && mCurrentSpectrum.SpectrumStatus != clsSpectrumInfo.eSpectrumStatusConstants.Validated)
                     {
@@ -502,7 +502,7 @@ namespace MSDataFileReader
             // Store name of the element we just entered
             mCurrentElement = mXMLReader.Name;
 
-            switch (mXMLReader.Name ?? "")
+            switch (mXMLReader.Name)
             {
                 case ScanSectionNames.scan:
                     mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.ScanList;
@@ -769,28 +769,31 @@ namespace MSDataFileReader
                     return;
                 }
 
-                if (mFileVersion.Length > 0)
+                if (string.IsNullOrWhiteSpace(mFileVersion))
+                    return;
+
+                if (mFileVersion.IndexOf("mzxml_2", StringComparison.InvariantCultureIgnoreCase) >= 0 ||
+                    mFileVersion.IndexOf("mzxml_3", StringComparison.InvariantCultureIgnoreCase) >= 0)
                 {
-                    if (!(mFileVersion.IndexOf("mzxml_2", StringComparison.InvariantCultureIgnoreCase) >= 0 || mFileVersion.IndexOf("mzxml_3", StringComparison.InvariantCultureIgnoreCase) >= 0))
-                    {
-                        // strFileVersion contains mzXML_ but not mxXML_2 or mxXML_3
-                        // Thus, assume unknown version
-                        // Log error and abort if mParseFilesWithUnknownVersion = False
-                        strMessage = "Unknown mzXML file version: " + mFileVersion;
-
-                        if (mParseFilesWithUnknownVersion)
-                        {
-                            strMessage += "; attempting to parse since ParseFilesWithUnknownVersion = True";
-                        }
-                        else
-                        {
-                            mAbortProcessing = true;
-                            strMessage += "; aborting read";
-                        }
-
-                        OnErrorEvent(strMessage);
-                    }
+                    return;
                 }
+
+                // strFileVersion contains mzXML_ but not mxXML_2 or mxXML_3
+                // Thus, assume unknown version
+                // Log error and abort if mParseFilesWithUnknownVersion = False
+                strMessage = "Unknown mzXML file version: " + mFileVersion;
+
+                if (mParseFilesWithUnknownVersion)
+                {
+                    strMessage += "; attempting to parse since ParseFilesWithUnknownVersion = True";
+                }
+                else
+                {
+                    mAbortProcessing = true;
+                    strMessage += "; aborting read";
+                }
+
+                OnErrorEvent(strMessage);
             }
             catch (Exception ex)
             {

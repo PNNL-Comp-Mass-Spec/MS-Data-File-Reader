@@ -340,10 +340,8 @@ namespace MSDataFileReader
             {
                 return string.Empty;
             }
-            else
-            {
-                return B64encode(dataArray, removeTrailingPaddingChars);
-            }
+
+            return B64encode(dataArray, removeTrailingPaddingChars);
         }
 
         /// <summary>
@@ -368,35 +366,33 @@ namespace MSDataFileReader
             {
                 return string.Empty;
             }
-            else
+
+            var bytArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
+            var loopTo = dataArray.Length - 1;
+
+            for (var intIndex = 0; intIndex <= loopTo; intIndex++)
             {
-                var bytArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
-                var loopTo = dataArray.Length - 1;
-                int intIndex;
-                for (intIndex = 0; intIndex <= loopTo; intIndex++)
+                var intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
+                var bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
+
+                // I'm not sure if I've got Little and Big endian correct or not in the following If statement
+                // What I do know is that mzXML works with what I'm calling emBigEndian
+                // and mzData works with what I'm calling emLittleEndian
+                if (eEndianMode == eEndianTypeConstants.LittleEndian)
                 {
-                    var intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
-                    var bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
-
-                    // I'm not sure if I've got Little and Big endian correct or not in the following If statement
-                    // What I do know is that mzXML works with what I'm calling emBigEndian
-                    // and mzData works with what I'm calling emLittleEndian
-                    if (eEndianMode == eEndianTypeConstants.LittleEndian)
-                    {
-                        // Do not swap bytes
-                        Array.Copy(bytNewBytes, 0, bytArray, intBaseIndex, DATA_TYPE_PRECISION_BYTES);
-                    }
-                    else
-                    {
-                        // eEndianTypeConstants.BigEndian
-                        // Swap bytes when copying into bytArray
-                        bytArray[intBaseIndex + 0] = bytNewBytes[1];
-                        bytArray[intBaseIndex + 1] = bytNewBytes[0];
-                    }
+                    // Do not swap bytes
+                    Array.Copy(bytNewBytes, 0, bytArray, intBaseIndex, DATA_TYPE_PRECISION_BYTES);
                 }
-
-                return B64encode(bytArray, removeTrailingPaddingChars);
+                else
+                {
+                    // eEndianTypeConstants.BigEndian
+                    // Swap bytes when copying into bytArray
+                    bytArray[intBaseIndex + 0] = bytNewBytes[1];
+                    bytArray[intBaseIndex + 1] = bytNewBytes[0];
+                }
             }
+
+            return B64encode(bytArray, removeTrailingPaddingChars);
         }
 
         /// <summary>
@@ -419,37 +415,35 @@ namespace MSDataFileReader
             {
                 return string.Empty;
             }
-            else
+
+            var bytArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
+            var loopTo = dataArray.Length - 1;
+
+            for (var intIndex = 0; intIndex <= loopTo; intIndex++)
             {
-                var bytArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
-                var loopTo = dataArray.Length - 1;
-                int intIndex;
-                for (intIndex = 0; intIndex <= loopTo; intIndex++)
+                var intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
+                var bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
+
+                // I'm not sure if I've got Little and Big endian correct or not in the following If statement
+                // What I do know is that mzXML works with what I'm calling emBigEndian
+                // and mzData works with what I'm calling emLittleEndian
+                if (eEndianMode == eEndianTypeConstants.LittleEndian)
                 {
-                    var intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
-                    var bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
-
-                    // I'm not sure if I've got Little and Big endian correct or not in the following If statement
-                    // What I do know is that mzXML works with what I'm calling emBigEndian
-                    // and mzData works with what I'm calling emLittleEndian
-                    if (eEndianMode == eEndianTypeConstants.LittleEndian)
-                    {
-                        // Do not swap bytes
-                        Array.Copy(bytNewBytes, 0, bytArray, intBaseIndex, DATA_TYPE_PRECISION_BYTES);
-                    }
-                    else
-                    {
-                        // eEndianTypeConstants.BigEndian
-                        // Swap bytes when copying into bytArray
-                        bytArray[intBaseIndex + 0] = bytNewBytes[3];
-                        bytArray[intBaseIndex + 1] = bytNewBytes[2];
-                        bytArray[intBaseIndex + 2] = bytNewBytes[1];
-                        bytArray[intBaseIndex + 3] = bytNewBytes[0];
-                    }
+                    // Do not swap bytes
+                    Array.Copy(bytNewBytes, 0, bytArray, intBaseIndex, DATA_TYPE_PRECISION_BYTES);
                 }
-
-                return B64encode(bytArray, removeTrailingPaddingChars);
+                else
+                {
+                    // eEndianTypeConstants.BigEndian
+                    // Swap bytes when copying into bytArray
+                    bytArray[intBaseIndex + 0] = bytNewBytes[3];
+                    bytArray[intBaseIndex + 1] = bytNewBytes[2];
+                    bytArray[intBaseIndex + 2] = bytNewBytes[1];
+                    bytArray[intBaseIndex + 3] = bytNewBytes[0];
+                }
             }
+
+            return B64encode(bytArray, removeTrailingPaddingChars);
         }
 
         /// <summary>
@@ -472,37 +466,35 @@ namespace MSDataFileReader
             {
                 return string.Empty;
             }
-            else
+
+            var bytArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
+            var loopTo = dataArray.Length - 1;
+
+            for (var intIndex = 0; intIndex <= loopTo; intIndex++)
             {
-                var bytArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
-                var loopTo = dataArray.Length - 1;
-                int intIndex;
-                for (intIndex = 0; intIndex <= loopTo; intIndex++)
+                var intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
+                var bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
+
+                // I'm not sure if I've got Little and Big endian correct or not in the following If statement
+                // What I do know is that mzXML works with what I'm calling emBigEndian
+                // and mzData works with what I'm calling emLittleEndian
+                if (eEndianMode == eEndianTypeConstants.LittleEndian)
                 {
-                    var intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
-                    var bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
-
-                    // I'm not sure if I've got Little and Big endian correct or not in the following If statement
-                    // What I do know is that mzXML works with what I'm calling emBigEndian
-                    // and mzData works with what I'm calling emLittleEndian
-                    if (eEndianMode == eEndianTypeConstants.LittleEndian)
-                    {
-                        // Do not swap bytes
-                        Array.Copy(bytNewBytes, 0, bytArray, intBaseIndex, DATA_TYPE_PRECISION_BYTES);
-                    }
-                    else
-                    {
-                        // eEndianTypeConstants.BigEndian
-                        // Swap bytes when copying into bytArray
-                        bytArray[intBaseIndex + 0] = bytNewBytes[3];
-                        bytArray[intBaseIndex + 1] = bytNewBytes[2];
-                        bytArray[intBaseIndex + 2] = bytNewBytes[1];
-                        bytArray[intBaseIndex + 3] = bytNewBytes[0];
-                    }
+                    // Do not swap bytes
+                    Array.Copy(bytNewBytes, 0, bytArray, intBaseIndex, DATA_TYPE_PRECISION_BYTES);
                 }
-
-                return B64encode(bytArray, removeTrailingPaddingChars);
+                else
+                {
+                    // eEndianTypeConstants.BigEndian
+                    // Swap bytes when copying into bytArray
+                    bytArray[intBaseIndex + 0] = bytNewBytes[3];
+                    bytArray[intBaseIndex + 1] = bytNewBytes[2];
+                    bytArray[intBaseIndex + 2] = bytNewBytes[1];
+                    bytArray[intBaseIndex + 3] = bytNewBytes[0];
+                }
             }
+
+            return B64encode(bytArray, removeTrailingPaddingChars);
         }
 
         /// <summary>
@@ -525,41 +517,39 @@ namespace MSDataFileReader
             {
                 return string.Empty;
             }
-            else
+
+            var bytArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
+            var loopTo = dataArray.Length - 1;
+
+            for (var intIndex = 0; intIndex <= loopTo; intIndex++)
             {
-                var bytArray = new byte[dataArray.Length * DATA_TYPE_PRECISION_BYTES];
-                var loopTo = dataArray.Length - 1;
-                int intIndex;
-                for (intIndex = 0; intIndex <= loopTo; intIndex++)
+                var intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
+                var bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
+
+                // I'm not sure if I've got Little and Big endian correct or not in the following If statement
+                // What I do know is that mzXML works with what I'm calling emBigEndian
+                // and mzData works with what I'm calling emLittleEndian
+                if (eEndianMode == eEndianTypeConstants.LittleEndian)
                 {
-                    var intBaseIndex = intIndex * DATA_TYPE_PRECISION_BYTES;
-                    var bytNewBytes = BitConverter.GetBytes(dataArray[intIndex]);
-
-                    // I'm not sure if I've got Little and Big endian correct or not in the following If statement
-                    // What I do know is that mzXML works with what I'm calling emBigEndian
-                    // and mzData works with what I'm calling emLittleEndian
-                    if (eEndianMode == eEndianTypeConstants.LittleEndian)
-                    {
-                        // Do not swap bytes
-                        Array.Copy(bytNewBytes, 0, bytArray, intBaseIndex, DATA_TYPE_PRECISION_BYTES);
-                    }
-                    else
-                    {
-                        // eEndianTypeConstants.BigEndian
-                        // Swap bytes when copying into bytArray
-                        bytArray[intBaseIndex + 0] = bytNewBytes[7];
-                        bytArray[intBaseIndex + 1] = bytNewBytes[6];
-                        bytArray[intBaseIndex + 2] = bytNewBytes[5];
-                        bytArray[intBaseIndex + 3] = bytNewBytes[4];
-                        bytArray[intBaseIndex + 4] = bytNewBytes[3];
-                        bytArray[intBaseIndex + 5] = bytNewBytes[2];
-                        bytArray[intBaseIndex + 6] = bytNewBytes[1];
-                        bytArray[intBaseIndex + 7] = bytNewBytes[0];
-                    }
+                    // Do not swap bytes
+                    Array.Copy(bytNewBytes, 0, bytArray, intBaseIndex, DATA_TYPE_PRECISION_BYTES);
                 }
-
-                return B64encode(bytArray, removeTrailingPaddingChars);
+                else
+                {
+                    // eEndianTypeConstants.BigEndian
+                    // Swap bytes when copying into bytArray
+                    bytArray[intBaseIndex + 0] = bytNewBytes[7];
+                    bytArray[intBaseIndex + 1] = bytNewBytes[6];
+                    bytArray[intBaseIndex + 2] = bytNewBytes[5];
+                    bytArray[intBaseIndex + 3] = bytNewBytes[4];
+                    bytArray[intBaseIndex + 4] = bytNewBytes[3];
+                    bytArray[intBaseIndex + 5] = bytNewBytes[2];
+                    bytArray[intBaseIndex + 6] = bytNewBytes[1];
+                    bytArray[intBaseIndex + 7] = bytNewBytes[0];
+                }
             }
+
+            return B64encode(bytArray, removeTrailingPaddingChars);
         }
     }
 }

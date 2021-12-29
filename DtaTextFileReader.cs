@@ -209,12 +209,9 @@ namespace MSDataFileReader
                                             if (string.Equals(mCurrentSpectrum.SpectrumTitle.Substring(0, mCurrentSpectrum.SpectrumTitle.Length - 5), strCompareTitle.Substring(0, strCompareTitle.Length - 5), StringComparison.InvariantCultureIgnoreCase))
                                             {
                                                 // Yes, the spectra match
-
-                                                {
-                                                    mCurrentSpectrum.ParentIonChargeCount = 2;
-                                                    mCurrentSpectrum.ParentIonCharges[1] = 3;
-                                                    mCurrentSpectrum.ChargeIs2And3Plus = true;
-                                                }
+                                                mCurrentSpectrum.ParentIonChargeCount = 2;
+                                                mCurrentSpectrum.ParentIonCharges[1] = 3;
+                                                mCurrentSpectrum.ChargeIs2And3Plus = true;
 
                                                 mHeaderSaved = string.Empty;
 
@@ -233,7 +230,8 @@ namespace MSDataFileReader
                                                         {
                                                             break;
                                                         }
-                                                        else if (strLineIn.Trim().StartsWith(mCommentLineStartChar.ToString()))
+
+                                                        if (strLineIn.Trim().StartsWith(mCommentLineStartChar.ToString()))
                                                         {
                                                             mHeaderSaved = string.Copy(strLineIn);
                                                             break;
@@ -450,12 +448,10 @@ namespace MSDataFileReader
                     {
                         break;
                     }
-                    else
-                    {
-                        // Add to MS/MS data string list
-                        lstMsMsDataList.Add(strLineIn.Trim());
-                        AddNewRecentFileText(strLineIn);
-                    }
+
+                    // Add to MS/MS data string list
+                    lstMsMsDataList.Add(strLineIn.Trim());
+                    AddNewRecentFileText(strLineIn);
                 }
 
                 if (intLinesRead - intLastProgressUpdateLine >= 250)
