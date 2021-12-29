@@ -20,7 +20,7 @@ namespace MSDataFileReader
     /// </summary>
     public abstract class clsMSXMLFileReaderBaseClass : clsMSDataFileReaderBaseClass
     {
-        public clsMSXMLFileReaderBaseClass()
+        protected clsMSXMLFileReaderBaseClass()
         {
             InitializeLocalVariables();
         }

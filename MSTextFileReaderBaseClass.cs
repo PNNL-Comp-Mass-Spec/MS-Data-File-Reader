@@ -20,7 +20,7 @@ namespace MSDataFileReader
     {
         // Ignore Spelling: Da, deconvoluted
 
-        public clsMSTextFileReaderBaseClass()
+        protected clsMSTextFileReaderBaseClass()
         {
             InitializeLocalVariables();
         }

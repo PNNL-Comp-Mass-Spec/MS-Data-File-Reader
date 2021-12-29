@@ -38,7 +38,7 @@ namespace MSDataFileReader
         // Ranges from 0 to 100, but can contain decimal percentage values
         protected float mProgressPercentComplete;
 
-        public clsMSDataFileReaderBaseClass()
+        protected clsMSDataFileReaderBaseClass()
         {
             InitializeLocalVariables();
         }
