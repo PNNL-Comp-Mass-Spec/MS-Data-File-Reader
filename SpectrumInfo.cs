@@ -28,9 +28,10 @@ namespace MSDataFileReader
 
         public static class SpectrumTypeNames
         {
-            public const string discrete = "discrete";
+            public const string Discrete = "discrete";
 
-            public const string continuous = "continuous";
+            // ReSharper disable once UnusedMember.Global
+            public const string Continuous = "continuous";
         }
 
         public enum SpectrumStatusMode
@@ -316,7 +317,7 @@ namespace MSDataFileReader
             mScanNumber = 0;
             mScanCount = 0;
             mScanNumberEnd = 0;
-            mSpectrumType = SpectrumTypeNames.discrete;
+            mSpectrumType = SpectrumTypeNames.Discrete;
             mSpectrumCombinationMethod = string.Empty;
             mMsLevel = 1;
             Centroided = false;

@@ -43,60 +43,60 @@ namespace MSDataFileReader
         {
             public const string RootName = "mzXML";
 
-            public const string msRun = "msRun";
+            public const string MsRun = "msRun";
         }
 
         private static class MzXMLRootAttributeNames
         {
-            public const string xmlns = "xmlns";
+            public const string Xmlns = "xmlns";
 
-            public const string xsi_schemaLocation = "xsi:schemaLocation";
+            public const string XsiSchemaLocation = "xsi:schemaLocation";
         }
 
         private static class HeaderSectionNames
         {
-            public const string msInstrument = "msInstrument";
+            public const string MsInstrument = "msInstrument";
 
-            public const string dataProcessing = "dataProcessing";
+            public const string DataProcessing = "dataProcessing";
         }
 
         private static class ScanSectionNames
         {
-            public const string scan = "scan";
+            public const string Scan = "scan";
 
-            public const string precursorMz = "precursorMz";
+            public const string PrecursorMz = "precursorMz";
 
-            public const string peaks = "peaks";
+            public const string Peaks = "peaks";
         }
 
         private static class MSRunAttributeNames
         {
-            public const string scanCount = "scanCount";
+            public const string ScanCount = "scanCount";
 
-            public const string startTime = "startTime";
+            public const string StartTime = "startTime";
 
-            public const string endTime = "endTime";
+            public const string EndTime = "endTime";
         }
 
         private static class DataProcessingAttributeNames
         {
-            public const string centroided = "centroided";
+            public const string Centroided = "centroided";
         }
 
         private static class ScanAttributeNames
         {
-            public const string num = "num";
+            public const string ScanNumber = "num";
 
-            public const string msLevel = "msLevel";
+            public const string MsLevel = "msLevel";
 
             /// <summary>
             /// 0 means not centroided, 1 means centroided
             /// </summary>
-            public const string centroided = "centroided";
+            public const string Centroided = "centroided";
 
-            public const string peaksCount = "peaksCount";
+            public const string PeaksCount = "peaksCount";
 
-            public const string polarity = "polarity";
+            public const string Polarity = "polarity";
 
             /// <summary>
             /// Scan type: Full, zoom, SIM, SRM, MRM, CRM, Q1, or Q3
@@ -104,12 +104,12 @@ namespace MSDataFileReader
             /// <remarks>
             /// MRM and SRM and functionally equivalent; ReadW uses SRM
             /// </remarks>
-            public const string scanType = "scanType";
+            public const string ScanType = "scanType";
 
             /// <summary>
             /// Thermo-specific filter-line text; added by ReadW
             /// </summary>
-            public const string filterLine = "filterLine";
+            public const string FilterLine = "filterLine";
 
             /// <summary>
             /// Retention time
@@ -117,13 +117,13 @@ namespace MSDataFileReader
             /// <remarks>
             /// Example: PT1.0373S
             /// </remarks>
-            public const string retentionTime = "retentionTime";
+            public const string RetentionTime = "retentionTime";
 
             /// <summary>
             /// Collision energy used to fragment the parent ion
             /// </summary>
             // ReSharper disable once UnusedMember.Local
-            public const string collisionEnergy = "collisionEnergy";
+            public const string CollisionEnergy = "collisionEnergy";
 
             /// <summary>
             /// Low m/z boundary (this is the instrumental setting)
@@ -131,7 +131,7 @@ namespace MSDataFileReader
             /// <remarks>
             /// Not present in .mzXML files created with ReadW
             /// </remarks>
-            public const string startMz = "startMz";
+            public const string StartMz = "startMz";
 
             /// <summary>
             /// High m/z boundary (this is the instrumental setting)
@@ -139,34 +139,34 @@ namespace MSDataFileReader
             /// <remarks>
             /// Not present in .mzXML files created with ReadW
             /// </remarks>
-            public const string endMz = "endMz";
+            public const string EndMz = "endMz";
 
             /// <summary>
             /// Observed low m/z (this is the m/z of the first ion observed)
             /// </summary>
-            public const string lowMz = "lowMz";
+            public const string LowMz = "lowMz";
 
             /// <summary>
             /// Observed high m/z (this is the m/z of the last ion observed)
             /// </summary>
-            public const string highMz = "highMz";
+            public const string HighMz = "highMz";
 
             /// <summary>
             /// m/z of the base peak (most intense peak)
             /// </summary>
-            public const string basePeakMz = "basePeakMz";
+            public const string BasePeakMz = "basePeakMz";
 
             /// <summary>
             /// Intensity of the base peak (most intense peak)
             /// </summary>
-            public const string basePeakIntensity = "basePeakIntensity";
+            public const string BasePeakIntensity = "basePeakIntensity";
 
             /// <summary>
             /// Total ion current (total intensity in the scan)
             /// </summary>
-            public const string totIonCurrent = "totIonCurrent";
+            public const string TotalIonCurrent = "totIonCurrent";
 
-            public const string msInstrumentID = "msInstrumentID";
+            public const string MsInstrumentID = "msInstrumentID";
         }
 
         private static class PrecursorAttributeNames
@@ -174,34 +174,34 @@ namespace MSDataFileReader
             /// <summary>
             /// Scan number of the precursor
             /// </summary>
-            public const string precursorScanNum = "precursorScanNum";
+            public const string PrecursorScanNum = "precursorScanNum";
 
             /// <summary>
             /// Intensity of the precursor ion
             /// </summary>
-            public const string precursorIntensity = "precursorIntensity";
+            public const string PrecursorIntensity = "precursorIntensity";
 
             /// <summary>
             /// Charge of the precursor, typically determined at time of acquisition by the mass spectrometer
             /// </summary>
-            public const string precursorCharge = "precursorCharge";
+            public const string PrecursorCharge = "precursorCharge";
 
             /// <summary>
             /// Fragmentation method, e.g. CID, ETD, or HCD
             /// </summary>
-            public const string activationMethod = "activationMethod";
+            public const string ActivationMethod = "activationMethod";
 
             /// <summary>
             /// Isolation window width, e.g. 2.0
             /// </summary>
-            public const string windowWideness = "windowWideness";
+            public const string WindowWideness = "windowWideness";
         }
 
         private static class PeaksAttributeNames
         {
-            public const string precision = "precision";
+            public const string Precision = "precision";
 
-            public const string byteOrder = "byteOrder";
+            public const string ByteOrder = "byteOrder";
 
             /// <summary>
             /// Pair order, for example: "m/z-int"
@@ -209,22 +209,22 @@ namespace MSDataFileReader
             /// <remarks>
             /// Superseded by "contentType" in mzXML 3
             /// </remarks>
-            public const string pairOrder = "pairOrder";
+            public const string PairOrder = "pairOrder";
 
             /// <summary>
             /// Compression type: "none" or "zlib"
             /// </summary>
-            public const string compressionType = "compressionType";
+            public const string CompressionType = "compressionType";
 
             /// <summary>
             /// Integer value required when using zlib compression
             /// </summary>
-            public const string compressedLen = "compressedLen";
+            public const string CompressedLength = "compressedLen";
 
             /// <summary>
             /// Content type: "m/z-int", "m/z", "intensity", "S/N", "charge", "m/z ruler", or "TOF"
             /// </summary>
-            public const string contentType = "contentType";
+            public const string ContentType = "contentType";
         }
 
         private enum CurrentMzXMLDataFileSection
@@ -335,7 +335,7 @@ namespace MSDataFileReader
 
             try
             {
-                var zLibCompressed = compressionType.Equals(SpectrumInfoMzXML.CompressionTypes.zlib);
+                var zLibCompressed = compressionType.Equals(SpectrumInfoMzXML.CompressionTypes.ZLib);
 
                 var success = false;
 
@@ -350,7 +350,7 @@ namespace MSDataFileReader
                             mCurrentSpectrum.MZList = new double[(int)Math.Round(floatArray.Length / 2d)];
                             mCurrentSpectrum.IntensityList = new float[(int)Math.Round(floatArray.Length / 2d)];
 
-                            if (mCurrentSpectrum.PeaksPairOrder.Equals(SpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ))
+                            if (mCurrentSpectrum.PeaksPairOrder.Equals(SpectrumInfoMzXML.PairOrderTypes.IntensityAndMz))
                             {
                                 var indexEnd = floatArray.Length - 1;
 
@@ -386,7 +386,7 @@ namespace MSDataFileReader
                             mCurrentSpectrum.MZList = new double[(int)Math.Round(doubleArray.Length / 2d)];
                             mCurrentSpectrum.IntensityList = new float[(int)Math.Round(doubleArray.Length / 2d)];
 
-                            if (mCurrentSpectrum.PeaksPairOrder.Equals(SpectrumInfoMzXML.PairOrderTypes.IntensityAndMZ))
+                            if (mCurrentSpectrum.PeaksPairOrder.Equals(SpectrumInfoMzXML.PairOrderTypes.IntensityAndMz))
                             {
                                 var indexEnd = doubleArray.Length - 1;
 
@@ -475,7 +475,7 @@ namespace MSDataFileReader
                 // Skip the element if we aren't parsing a scan (inside a scan element)
                 // This is an easy way to skip whitespace
                 // We can do this since we only care about the data inside the
-                // ScanSectionNames.precursorMz and ScanSectionNames.peaks elements
+                // ScanSectionNames.PrecursorMz and ScanSectionNames.Peaks elements
 
                 if (mScanDepth > 0)
                 {
@@ -483,7 +483,7 @@ namespace MSDataFileReader
                     // what to do with the data we just received
                     switch (mCurrentElement)
                     {
-                        case ScanSectionNames.precursorMz:
+                        case ScanSectionNames.PrecursorMz:
                             try
                             {
                                 mCurrentSpectrum.ParentIonMZ = double.Parse(XMLTextReaderGetInnerText());
@@ -495,7 +495,7 @@ namespace MSDataFileReader
 
                             break;
 
-                        case ScanSectionNames.peaks:
+                        case ScanSectionNames.Peaks:
                             if (!mSkipBinaryData)
                             {
                                 ParseBinaryData(XMLTextReaderGetInnerText(), mCurrentSpectrum.CompressionType);
@@ -522,7 +522,7 @@ namespace MSDataFileReader
             try
             {
                 // If we just moved out of a scan element, finalize the current scan
-                if ((mXMLReader.Name) == ScanSectionNames.scan)
+                if ((mXMLReader.Name) == ScanSectionNames.Scan)
                 {
                     if (mCurrentSpectrum.SpectrumStatus != SpectrumInfo.SpectrumStatusMode.Initialized && mCurrentSpectrum.SpectrumStatus != SpectrumInfo.SpectrumStatusMode.Validated)
                     {
@@ -570,7 +570,7 @@ namespace MSDataFileReader
 
             switch (mXMLReader.Name)
             {
-                case ScanSectionNames.scan:
+                case ScanSectionNames.Scan:
                     mCurrentXMLDataFileSection = CurrentMzXMLDataFileSection.ScanList;
 
                     if (mScanDepth > 0 && !mSkippedStartElementAdvance)
@@ -594,7 +594,7 @@ namespace MSDataFileReader
                     }
                     else
                     {
-                        mCurrentSpectrum.ScanNumber = GetAttribValue(ScanAttributeNames.num, int.MinValue);
+                        mCurrentSpectrum.ScanNumber = GetAttribValue(ScanAttributeNames.ScanNumber, int.MinValue);
 
                         if (mCurrentSpectrum.ScanNumber == int.MinValue)
                         {
@@ -606,24 +606,24 @@ namespace MSDataFileReader
                             {
                                 mCurrentSpectrum.ScanCount = 1;
                                 mCurrentSpectrum.ScanNumberEnd = mCurrentSpectrum.ScanNumber;
-                                mCurrentSpectrum.MSLevel = GetAttribValue(ScanAttributeNames.msLevel, 1);
+                                mCurrentSpectrum.MSLevel = GetAttribValue(ScanAttributeNames.MsLevel, 1);
 
-                                mCurrentSpectrum.Centroided = GetAttribValue(ScanAttributeNames.centroided, 0) != 0;
+                                mCurrentSpectrum.Centroided = GetAttribValue(ScanAttributeNames.Centroided, 0) != 0;
 
                                 // ReSharper disable once UnusedVariable
-                                var instrumentID = GetAttribValue(ScanAttributeNames.msInstrumentID, 1);
-                                mCurrentSpectrum.DataCount = GetAttribValue(ScanAttributeNames.peaksCount, 0);
-                                mCurrentSpectrum.Polarity = GetAttribValue(ScanAttributeNames.polarity, "+");
-                                mCurrentSpectrum.RetentionTimeMin = GetAttribTimeValueMinutes(ScanAttributeNames.retentionTime);
-                                mCurrentSpectrum.ScanType = GetAttribValue(ScanAttributeNames.scanType, string.Empty);
-                                mCurrentSpectrum.FilterLine = GetAttribValue(ScanAttributeNames.filterLine, string.Empty);
-                                mCurrentSpectrum.StartMZ = GetAttribValue(ScanAttributeNames.startMz, 0);
-                                mCurrentSpectrum.EndMZ = GetAttribValue(ScanAttributeNames.endMz, 0);
-                                mCurrentSpectrum.MzRangeStart = GetAttribValue(ScanAttributeNames.lowMz, 0);
-                                mCurrentSpectrum.MzRangeEnd = GetAttribValue(ScanAttributeNames.highMz, 0);
-                                mCurrentSpectrum.BasePeakMZ = GetAttribValue(ScanAttributeNames.basePeakMz, 0);
-                                mCurrentSpectrum.BasePeakIntensity = GetAttribValue(ScanAttributeNames.basePeakIntensity, 0);
-                                mCurrentSpectrum.TotalIonCurrent = GetAttribValue(ScanAttributeNames.totIonCurrent, 0);
+                                var instrumentID = GetAttribValue(ScanAttributeNames.MsInstrumentID, 1);
+                                mCurrentSpectrum.DataCount = GetAttribValue(ScanAttributeNames.PeaksCount, 0);
+                                mCurrentSpectrum.Polarity = GetAttribValue(ScanAttributeNames.Polarity, "+");
+                                mCurrentSpectrum.RetentionTimeMin = GetAttribTimeValueMinutes(ScanAttributeNames.RetentionTime);
+                                mCurrentSpectrum.ScanType = GetAttribValue(ScanAttributeNames.ScanType, string.Empty);
+                                mCurrentSpectrum.FilterLine = GetAttribValue(ScanAttributeNames.FilterLine, string.Empty);
+                                mCurrentSpectrum.StartMZ = GetAttribValue(ScanAttributeNames.StartMz, 0);
+                                mCurrentSpectrum.EndMZ = GetAttribValue(ScanAttributeNames.EndMz, 0);
+                                mCurrentSpectrum.MzRangeStart = GetAttribValue(ScanAttributeNames.LowMz, 0);
+                                mCurrentSpectrum.MzRangeEnd = GetAttribValue(ScanAttributeNames.HighMz, 0);
+                                mCurrentSpectrum.BasePeakMZ = GetAttribValue(ScanAttributeNames.BasePeakMz, 0);
+                                mCurrentSpectrum.BasePeakIntensity = GetAttribValue(ScanAttributeNames.BasePeakIntensity, 0);
+                                mCurrentSpectrum.TotalIonCurrent = GetAttribValue(ScanAttributeNames.TotalIonCurrent, 0);
                             }
                         }
                     }
@@ -636,47 +636,47 @@ namespace MSDataFileReader
 
                     break;
 
-                case ScanSectionNames.precursorMz:
+                case ScanSectionNames.PrecursorMz:
                     if (mXMLReader.HasAttributes)
                     {
-                        mCurrentSpectrum.ParentIonIntensity = GetAttribValue(PrecursorAttributeNames.precursorIntensity, 0);
-                        mCurrentSpectrum.ActivationMethod = GetAttribValue(PrecursorAttributeNames.activationMethod, string.Empty);
-                        mCurrentSpectrum.ParentIonCharge = GetAttribValue(PrecursorAttributeNames.precursorCharge, 0);
-                        mCurrentSpectrum.PrecursorScanNum = GetAttribValue(PrecursorAttributeNames.precursorScanNum, 0);
-                        mCurrentSpectrum.IsolationWindow = GetAttribValue(PrecursorAttributeNames.windowWideness, 0);
+                        mCurrentSpectrum.ParentIonIntensity = GetAttribValue(PrecursorAttributeNames.PrecursorIntensity, 0);
+                        mCurrentSpectrum.ActivationMethod = GetAttribValue(PrecursorAttributeNames.ActivationMethod, string.Empty);
+                        mCurrentSpectrum.ParentIonCharge = GetAttribValue(PrecursorAttributeNames.PrecursorCharge, 0);
+                        mCurrentSpectrum.PrecursorScanNum = GetAttribValue(PrecursorAttributeNames.PrecursorScanNum, 0);
+                        mCurrentSpectrum.IsolationWindow = GetAttribValue(PrecursorAttributeNames.WindowWideness, 0);
                     }
 
                     break;
 
-                case ScanSectionNames.peaks:
+                case ScanSectionNames.Peaks:
                     if (mXMLReader.HasAttributes)
                     {
                         // mzXML 3.x files will have a contentType attribute
                         // Earlier versions will have a pairOrder attribute
 
-                        mCurrentSpectrum.PeaksPairOrder = GetAttribValue(PeaksAttributeNames.contentType, string.Empty);
+                        mCurrentSpectrum.PeaksPairOrder = GetAttribValue(PeaksAttributeNames.ContentType, string.Empty);
 
                         if (!string.IsNullOrEmpty(mCurrentSpectrum.PeaksPairOrder))
                         {
                             // mzXML v3.x
-                            mCurrentSpectrum.CompressionType = GetAttribValue(PeaksAttributeNames.compressionType,
-                                SpectrumInfoMzXML.CompressionTypes.none);
+                            mCurrentSpectrum.CompressionType = GetAttribValue(PeaksAttributeNames.CompressionType,
+                                SpectrumInfoMzXML.CompressionTypes.None);
 
-                            mCurrentSpectrum.CompressedLen = GetAttribValue(PeaksAttributeNames.compressedLen, 0);
+                            mCurrentSpectrum.CompressedLen = GetAttribValue(PeaksAttributeNames.CompressedLength, 0);
                         }
                         else
                         {
                             // mzXML v1.x or v2.x
-                            mCurrentSpectrum.PeaksPairOrder = GetAttribValue(PeaksAttributeNames.pairOrder,
-                                SpectrumInfoMzXML.PairOrderTypes.MZandIntensity);
+                            mCurrentSpectrum.PeaksPairOrder = GetAttribValue(PeaksAttributeNames.PairOrder,
+                                SpectrumInfoMzXML.PairOrderTypes.MzAndIntensity);
 
-                            mCurrentSpectrum.CompressionType = SpectrumInfoMzXML.CompressionTypes.none;
+                            mCurrentSpectrum.CompressionType = SpectrumInfoMzXML.CompressionTypes.None;
                             mCurrentSpectrum.CompressedLen = 0;
                         }
 
-                        mCurrentSpectrum.NumericPrecisionOfData = GetAttribValue(PeaksAttributeNames.precision, 32);
+                        mCurrentSpectrum.NumericPrecisionOfData = GetAttribValue(PeaksAttributeNames.Precision, 32);
                         mCurrentSpectrum.PeaksByteOrder =
-                            GetAttribValue(PeaksAttributeNames.byteOrder, SpectrumInfoMzXML.ByteOrderTypes.network);
+                            GetAttribValue(PeaksAttributeNames.ByteOrder, SpectrumInfoMzXML.ByteOrderTypes.Network);
                     }
 
                     break;
@@ -687,12 +687,12 @@ namespace MSDataFileReader
                     if (mXMLReader.HasAttributes)
                     {
                         // First look for attribute xmlns
-                        var value = GetAttribValue(MzXMLRootAttributeNames.xmlns, string.Empty);
+                        var value = GetAttribValue(MzXMLRootAttributeNames.Xmlns, string.Empty);
 
                         if (string.IsNullOrEmpty(value))
                         {
                             // Attribute not found; look for attribute xsi:schemaLocation
-                            value = GetAttribValue(MzXMLRootAttributeNames.xsi_schemaLocation, string.Empty);
+                            value = GetAttribValue(MzXMLRootAttributeNames.XsiSchemaLocation, string.Empty);
                         }
 
                         ValidateMZXmlFileVersion(value);
@@ -700,22 +700,22 @@ namespace MSDataFileReader
 
                     break;
 
-                case HeaderSectionNames.msInstrument:
-                    if (GetParentElement().Equals(XMLSectionNames.msRun))
+                case HeaderSectionNames.MsInstrument:
+                    if (GetParentElement().Equals(XMLSectionNames.MsRun))
                     {
                         mCurrentXMLDataFileSection = CurrentMzXMLDataFileSection.msInstrument;
                     }
 
                     break;
 
-                case XMLSectionNames.msRun:
+                case XMLSectionNames.MsRun:
                     mCurrentXMLDataFileSection = CurrentMzXMLDataFileSection.msRun;
 
                     if (mXMLReader.HasAttributes)
                     {
-                        mInputFileStats.ScanCount = GetAttribValue(MSRunAttributeNames.scanCount, 0);
-                        mInputFileStatsAddnl.StartTimeMin = GetAttribTimeValueMinutes(MSRunAttributeNames.startTime);
-                        mInputFileStatsAddnl.EndTimeMin = GetAttribTimeValueMinutes(MSRunAttributeNames.endTime);
+                        mInputFileStats.ScanCount = GetAttribValue(MSRunAttributeNames.ScanCount, 0);
+                        mInputFileStatsAddnl.StartTimeMin = GetAttribTimeValueMinutes(MSRunAttributeNames.StartTime);
+                        mInputFileStatsAddnl.EndTimeMin = GetAttribTimeValueMinutes(MSRunAttributeNames.EndTime);
 
                         // Note: The ReAdW software that creates mzXML files records the .StartTime and .EndTime values in minutes but labels them as seconds
                         // Check for this by computing the average seconds/scan
@@ -737,11 +737,11 @@ namespace MSDataFileReader
 
                     break;
 
-                case HeaderSectionNames.dataProcessing:
-                    if (GetParentElement().Equals(XMLSectionNames.msRun))
+                case HeaderSectionNames.DataProcessing:
+                    if (GetParentElement().Equals(XMLSectionNames.MsRun))
                     {
                         mCurrentXMLDataFileSection = CurrentMzXMLDataFileSection.dataProcessing;
-                        mInputFileStatsAddnl.IsCentroid = GetAttribValue(DataProcessingAttributeNames.centroided, false);
+                        mInputFileStatsAddnl.IsCentroid = GetAttribValue(DataProcessingAttributeNames.Centroided, false);
                     }
 
                     break;

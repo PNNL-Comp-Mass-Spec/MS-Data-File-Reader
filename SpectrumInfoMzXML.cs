@@ -25,14 +25,14 @@ namespace MSDataFileReader
 
         public static class ByteOrderTypes
         {
-            public const string network = "network";
+            public const string Network = "network";
         }
 
         public static class CompressionTypes
         {
-            public const string none = "none";
+            public const string None = "none";
 
-            public const string zlib = "zlib";
+            public const string ZLib = "zlib";
         }
 
         // ReSharper disable UnusedMember.Global
@@ -43,10 +43,9 @@ namespace MSDataFileReader
         /// </summary>
         public static class PairOrderTypes
         {
-            // ReSharper disable once IdentifierTypo
-            public const string MZandIntensity = "m/z-int";
+            public const string MzAndIntensity = "m/z-int";
 
-            public const string IntensityAndMZ = "int-m/z";
+            public const string IntensityAndMz = "int-m/z";
 
             public const string MZ = "m/z";
 
@@ -56,7 +55,7 @@ namespace MSDataFileReader
 
             public const string Charge = "charge";
 
-            public const string MZRuler = "m/z ruler";
+            public const string MzRuler = "m/z ruler";
 
             public const string TOF = "TOF";
         }
@@ -65,7 +64,7 @@ namespace MSDataFileReader
         {
             public const string Full = "Full";
 
-            public const string zoom = "zoom";
+            public const string Zoom = "zoom";
 
             public const string SIM = "SIM";
 
@@ -259,9 +258,9 @@ namespace MSDataFileReader
             mStartMZ = 0f;
             mEndMZ = 0f;
             mNumericPrecisionOfData = 32;            // Assume 32-bit for now
-            mPeaksByteOrder = ByteOrderTypes.network;
-            mPeaksPairOrder = PairOrderTypes.MZandIntensity;
-            mCompressionType = CompressionTypes.none;
+            mPeaksByteOrder = ByteOrderTypes.Network;
+            mPeaksPairOrder = PairOrderTypes.MzAndIntensity;
+            mCompressionType = CompressionTypes.None;
             mCompressedLen = 0;
             mParentIonCharge = 0;
             mActivationMethod = string.Empty;

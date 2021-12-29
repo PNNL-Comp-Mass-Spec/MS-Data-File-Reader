@@ -23,9 +23,9 @@ namespace MSDataFileReader
 
         public static class EndianModes
         {
-            public const string littleEndian = "little";
+            public const string LittleEndian = "little";
 
-            public const string bigEndian = "big";
+            public const string BigEndian = "big";
         }
 
         protected float mCollisionEnergy;
@@ -178,17 +178,17 @@ namespace MSDataFileReader
             mParentIonSpectrumMSLevel = 1;
             mParentIonSpectrumID = 0;
             mNumericPrecisionOfDataMZ = 32;                   // Assume 32-bit for now
-            mPeaksEndianModeMZ = EndianModes.littleEndian;
+            mPeaksEndianModeMZ = EndianModes.LittleEndian;
             mNumericPrecisionOfDataIntensity = 32;            // Assume 32-bit for now
-            mPeaksEndianModeIntensity = EndianModes.littleEndian;
+            mPeaksEndianModeIntensity = EndianModes.LittleEndian;
         }
 
         public Base64EncodeDecode.EndianType GetEndianModeValue(string endianModeText)
         {
             return endianModeText switch
             {
-                EndianModes.bigEndian => Base64EncodeDecode.EndianType.BigEndian,
-                EndianModes.littleEndian => Base64EncodeDecode.EndianType.LittleEndian,
+                EndianModes.BigEndian => Base64EncodeDecode.EndianType.BigEndian,
+                EndianModes.LittleEndian => Base64EncodeDecode.EndianType.LittleEndian,
                 _ => Base64EncodeDecode.EndianType.LittleEndian
             };
         }
