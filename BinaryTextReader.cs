@@ -288,30 +288,62 @@ namespace MSDataFileReader
         {
             try
             {
-                if (mBinaryReader != null && mBinaryReader.CanRead)
+                // ReSharper disable once MergeIntoNegatedPattern
+                if (mBinaryReader == null || !mBinaryReader.CanRead)
+                    return;
+
+                if (lngByteOffset < 0L)
                 {
-                    if (lngByteOffset < 0L)
+                    lngByteOffset = 0L;
+                }
+                else if (lngByteOffset > mBinaryReader.Length)
+                {
+                    lngByteOffset = mBinaryReader.Length;
+                }
+
+                int intBytesRead;
+
+                if (lngByteOffset < mByteBufferFileOffsetStart)
+                {
+                    // Need to slide the buffer window backward
+                    do
                     {
-                        lngByteOffset = 0L;
-                    }
-                    else if (lngByteOffset > mBinaryReader.Length)
+                        mByteBufferFileOffsetStart -= mByteBuffer.Length;
+                    } while (lngByteOffset < mByteBufferFileOffsetStart);
+
+                    if (mByteBufferFileOffsetStart < 0L)
                     {
-                        lngByteOffset = mBinaryReader.Length;
+                        mByteBufferFileOffsetStart = 0L;
                     }
 
-                    int intBytesRead;
+                    mBinaryReader.Seek(mByteBufferFileOffsetStart, SeekOrigin.Begin);
 
-                    if (lngByteOffset < mByteBufferFileOffsetStart)
+                    // Clear the buffer
+                    Array.Clear(mByteBuffer, 0, mByteBuffer.Length);
+                    intBytesRead = mBinaryReader.Read(mByteBuffer, 0, mByteBuffer.Length);
+                    mByteBufferCount = intBytesRead;
+                    mByteBufferNextLineStartIndex = (int)(lngByteOffset - mByteBufferFileOffsetStart);
+                }
+                else if (lngByteOffset > mByteBufferFileOffsetStart + mByteBufferCount)
+                {
+                    if (mByteBufferFileOffsetStart < mBinaryReader.Length)
                     {
-                        // Need to slide the buffer window backward
-                        do
+                        // Possibly slide the buffer window forward (note that if
+                        // mByteBufferCount < mByteBuffer.Length then we may not need to update mByteBufferFileOffsetStart)
+                        while (lngByteOffset > mByteBufferFileOffsetStart + mByteBuffer.Length)
                         {
+                            mByteBufferFileOffsetStart += mByteBuffer.Length;
+                        }
+
+                        if (mByteBufferFileOffsetStart >= mBinaryReader.Length)
+                        {
+                            // This shouldn't normally happen
                             mByteBufferFileOffsetStart -= mByteBuffer.Length;
-                        } while (lngByteOffset < mByteBufferFileOffsetStart);
 
-                        if (mByteBufferFileOffsetStart < 0L)
-                        {
-                            mByteBufferFileOffsetStart = 0L;
+                            if (mByteBufferFileOffsetStart < 0L)
+                            {
+                                mByteBufferFileOffsetStart = 0L;
+                            }
                         }
 
                         mBinaryReader.Seek(mByteBufferFileOffsetStart, SeekOrigin.Begin);
@@ -320,56 +352,25 @@ namespace MSDataFileReader
                         Array.Clear(mByteBuffer, 0, mByteBuffer.Length);
                         intBytesRead = mBinaryReader.Read(mByteBuffer, 0, mByteBuffer.Length);
                         mByteBufferCount = intBytesRead;
-                        mByteBufferNextLineStartIndex = (int)(lngByteOffset - mByteBufferFileOffsetStart);
                     }
-                    else if (lngByteOffset > mByteBufferFileOffsetStart + mByteBufferCount)
+
+                    mByteBufferNextLineStartIndex = (int)(lngByteOffset - mByteBufferFileOffsetStart);
+
+                    if (mByteBufferNextLineStartIndex > mByteBufferCount)
                     {
-                        if (mByteBufferFileOffsetStart < mBinaryReader.Length)
-                        {
-                            // Possibly slide the buffer window forward (note that if
-                            // mByteBufferCount < mByteBuffer.Length then we may not need to update mByteBufferFileOffsetStart)
-                            while (lngByteOffset > mByteBufferFileOffsetStart + mByteBuffer.Length)
-                            {
-                                mByteBufferFileOffsetStart += mByteBuffer.Length;
-                            }
-
-                            if (mByteBufferFileOffsetStart >= mBinaryReader.Length)
-                            {
-                                // This shouldn't normally happen
-                                mByteBufferFileOffsetStart -= mByteBuffer.Length;
-
-                                if (mByteBufferFileOffsetStart < 0L)
-                                {
-                                    mByteBufferFileOffsetStart = 0L;
-                                }
-                            }
-
-                            mBinaryReader.Seek(mByteBufferFileOffsetStart, SeekOrigin.Begin);
-
-                            // Clear the buffer
-                            Array.Clear(mByteBuffer, 0, mByteBuffer.Length);
-                            intBytesRead = mBinaryReader.Read(mByteBuffer, 0, mByteBuffer.Length);
-                            mByteBufferCount = intBytesRead;
-                        }
-
-                        mByteBufferNextLineStartIndex = (int)(lngByteOffset - mByteBufferFileOffsetStart);
-
-                        if (mByteBufferNextLineStartIndex > mByteBufferCount)
-                        {
-                            // This shouldn't normally happen
-                            mByteBufferNextLineStartIndex = mByteBufferCount;
-                        }
+                        // This shouldn't normally happen
+                        mByteBufferNextLineStartIndex = mByteBufferCount;
                     }
-                    else
-                    {
-                        // The desired byte offset is already present in mByteBuffer
-                        mByteBufferNextLineStartIndex = (int)(lngByteOffset - mByteBufferFileOffsetStart);
+                }
+                else
+                {
+                    // The desired byte offset is already present in mByteBuffer
+                    mByteBufferNextLineStartIndex = (int)(lngByteOffset - mByteBufferFileOffsetStart);
 
-                        if (mByteBufferNextLineStartIndex > mByteBufferCount)
-                        {
-                            // This shouldn't normally happen, but is possible if jumping around a file and reading forward and
-                            mByteBufferNextLineStartIndex = mByteBufferCount;
-                        }
+                    if (mByteBufferNextLineStartIndex > mByteBufferCount)
+                    {
+                        // This shouldn't normally happen, but is possible if jumping around a file and reading forward and
+                        mByteBufferNextLineStartIndex = mByteBufferCount;
                     }
                 }
             }
@@ -399,81 +400,81 @@ namespace MSDataFileReader
                 // Look for a byte order mark at the beginning of the file
                 mByteOrderMarkLength = 0;
 
-                if (mByteBufferCount >= 2)
+                if (mByteBufferCount < 2)
+                    return;
+
+                if (mByteBuffer[0] == 255 && mByteBuffer[1] == 254)
                 {
-                    if (mByteBuffer[0] == 255 && mByteBuffer[1] == 254)
-                    {
-                        // Unicode (Little Endian)
-                        // Note that this sets mCharSize to 2
-                        SetInputFileEncoding(InputFileEncodingConstants.UnicodeNormal);
+                    // Unicode (Little Endian)
+                    // Note that this sets mCharSize to 2
+                    SetInputFileEncoding(InputFileEncodingConstants.UnicodeNormal);
 
-                        // Skip the first 2 bytes
-                        mByteBufferNextLineStartIndex = 2;
-                        mByteOrderMarkLength = 2;
-                    }
-                    else if (mByteBuffer[0] == 254 && mByteBuffer[1] == 255)
+                    // Skip the first 2 bytes
+                    mByteBufferNextLineStartIndex = 2;
+                    mByteOrderMarkLength = 2;
+                }
+                else if (mByteBuffer[0] == 254 && mByteBuffer[1] == 255)
+                {
+                    // Unicode (Big Endian)
+                    // Note that this sets mCharSize to 2
+                    SetInputFileEncoding(InputFileEncodingConstants.UnicodeBigEndian);
+                    // Skip the first 2 bytes
+                    mByteBufferNextLineStartIndex = 2;
+                    mByteOrderMarkLength = 2;
+                }
+                else if (mByteBufferCount >= 3)
+                {
+                    if (mByteBuffer[0] == 239 && mByteBuffer[1] == 187 && mByteBuffer[2] == 191)
                     {
-                        // Unicode (Big Endian)
-                        // Note that this sets mCharSize to 2
-                        SetInputFileEncoding(InputFileEncodingConstants.UnicodeBigEndian);
-                        // Skip the first 2 bytes
-                        mByteBufferNextLineStartIndex = 2;
-                        mByteOrderMarkLength = 2;
+                        // UTF-8
+                        // Note that this sets mCharSize to 1
+                        SetInputFileEncoding(InputFileEncodingConstants.UTF8);
+                        // Skip the first 3 bytes
+                        mByteBufferNextLineStartIndex = 3;
+                        mByteOrderMarkLength = 3;
                     }
-                    else if (mByteBufferCount >= 3)
+                    else
                     {
-                        if (mByteBuffer[0] == 239 && mByteBuffer[1] == 187 && mByteBuffer[2] == 191)
-                        {
-                            // UTF-8
-                            // Note that this sets mCharSize to 1
-                            SetInputFileEncoding(InputFileEncodingConstants.UTF8);
-                            // Skip the first 3 bytes
-                            mByteBufferNextLineStartIndex = 3;
-                            mByteOrderMarkLength = 3;
-                        }
-                        else
-                        {
-                            // Examine the data in the byte buffer to check whether or not
-                            // every other byte is 0 for at least 95% of the data
-                            // If it is, assume the appropriate Unicode format
+                        // Examine the data in the byte buffer to check whether or not
+                        // every other byte is 0 for at least 95% of the data
+                        // If it is, assume the appropriate Unicode format
 
-                            int intIndexStart;
-                            for (intIndexStart = 0; intIndexStart <= 1; intIndexStart++)
+                        int intIndexStart;
+                        for (intIndexStart = 0; intIndexStart <= 1; intIndexStart++)
+                        {
+                            var intCharCheckCount = 0;
+                            var intAlternatedZeroMatchCount = 0;
+                            var intIndexEnd = mByteBufferCount - 2;
+
+                            for (var intIndex = intIndexStart; intIndex <= intIndexEnd; intIndex += 2)
                             {
-                                var intCharCheckCount = 0;
-                                var intAlternatedZeroMatchCount = 0;
-                                var intIndexEnd = mByteBufferCount - 2;
+                                intCharCheckCount++;
 
-                                for (var intIndex = intIndexStart; intIndex <= intIndexEnd; intIndex += 2)
+                                if (mByteBuffer[intIndex] != 0 && mByteBuffer[intIndex + 1] == 0)
                                 {
-                                    intCharCheckCount++;
-
-                                    if (mByteBuffer[intIndex] != 0 && mByteBuffer[intIndex + 1] == 0)
-                                    {
-                                        intAlternatedZeroMatchCount++;
-                                    }
-                                }
-
-                                if (intCharCheckCount > 0)
-                                {
-                                    if (intAlternatedZeroMatchCount / (double)intCharCheckCount >= 0.95d)
-                                    {
-                                        // Assume this is a Unicode file
-                                        if (intIndexStart == 0)
-                                        {
-                                            // Unicode (Little Endian)
-                                            SetInputFileEncoding(InputFileEncodingConstants.UnicodeNormal);
-                                        }
-                                        else
-                                        {
-                                            // Unicode (Big Endian)
-                                            SetInputFileEncoding(InputFileEncodingConstants.UnicodeBigEndian);
-                                        }
-
-                                        break;
-                                    }
+                                    intAlternatedZeroMatchCount++;
                                 }
                             }
+
+                            if (intCharCheckCount <= 0)
+                                continue;
+
+                            if (!(intAlternatedZeroMatchCount / (double)intCharCheckCount >= 0.95d))
+                                continue;
+
+                            // Assume this is a Unicode file
+                            if (intIndexStart == 0)
+                            {
+                                // Unicode (Little Endian)
+                                SetInputFileEncoding(InputFileEncodingConstants.UnicodeNormal);
+                            }
+                            else
+                            {
+                                // Unicode (Big Endian)
+                                SetInputFileEncoding(InputFileEncodingConstants.UnicodeBigEndian);
+                            }
+
+                            break;
                         }
                     }
                 }
