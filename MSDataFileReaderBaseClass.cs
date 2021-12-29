@@ -507,13 +507,13 @@ namespace MSDataFileReader
                     return true;
                 }
 
-                ScanNumberList = new int[0];
+                ScanNumberList = Array.Empty<int>();
                 return false;
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in GetScanNumberList", ex);
-                ScanNumberList = new int[0];
+                ScanNumberList = Array.Empty<int>();
                 return false;
             }
         }

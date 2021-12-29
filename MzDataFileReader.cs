@@ -349,7 +349,7 @@ namespace MSDataFileReader
 
             if (strMSMSDataBase64Encoded is null || strMSMSDataBase64Encoded.Length == 0)
             {
-                sngValues = new float[0];
+                sngValues = Array.Empty<float>();
                 return false;
             }
 
@@ -432,7 +432,7 @@ namespace MSDataFileReader
 
             if (strMSMSDataBase64Encoded is null || strMSMSDataBase64Encoded.Length == 0)
             {
-                dblValues = new double[0];
+                dblValues = Array.Empty<double>();
                 return false;
             }
 

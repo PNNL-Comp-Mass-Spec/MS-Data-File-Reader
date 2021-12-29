@@ -330,7 +330,7 @@ namespace MSDataFileReader
 
             if (AutoShrinkDataLists || MZList is null)
             {
-                MZList = new double[0];
+                MZList = Array.Empty<double>();
             }
             else
             {
@@ -339,7 +339,7 @@ namespace MSDataFileReader
 
             if (AutoShrinkDataLists || IntensityList is null)
             {
-                IntensityList = new float[0];
+                IntensityList = Array.Empty<float>();
             }
             else
             {

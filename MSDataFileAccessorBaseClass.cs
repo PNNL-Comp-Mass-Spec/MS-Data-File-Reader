@@ -229,13 +229,13 @@ namespace MSDataFileReader
 
                 if (!GetSpectrumReadyStatus(true))
                 {
-                    ScanNumberList = new int[0];
+                    ScanNumberList = Array.Empty<int>();
                     return false;
                 }
 
                 if (mIndexedSpectrumInfo is null || mIndexedSpectrumInfoCount == 0)
                 {
-                    ScanNumberList = new int[0];
+                    ScanNumberList = Array.Empty<int>();
                     return false;
                 }
 
@@ -252,7 +252,7 @@ namespace MSDataFileReader
             catch (Exception ex)
             {
                 OnErrorEvent("Error in GetScanNumberList", ex);
-                ScanNumberList = new int[0];
+                ScanNumberList = Array.Empty<int>();
                 return false;
             }
         }

@@ -514,13 +514,13 @@ namespace MSDataFileReader
                 if (mDataReaderMode == drmDataReaderModeConstants.Cached)
                 {
                     // Cannot get the spectrum ID list when mDataReaderMode = Cached
-                    SpectrumIDList = new int[0];
+                    SpectrumIDList = Array.Empty<int>();
                 }
                 else if (GetSpectrumReadyStatus(true))
                 {
                     if (mIndexedSpectrumInfo is null || mIndexedSpectrumInfoCount == 0)
                     {
-                        SpectrumIDList = new int[0];
+                        SpectrumIDList = Array.Empty<int>();
                     }
                     else
                     {
@@ -537,13 +537,13 @@ namespace MSDataFileReader
                 }
                 else
                 {
-                    SpectrumIDList = new int[0];
+                    SpectrumIDList = Array.Empty<int>();
                 }
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in GetSpectrumIDList", ex);
-                SpectrumIDList = new int[0];
+                SpectrumIDList = Array.Empty<int>();
             }
 
             return false;

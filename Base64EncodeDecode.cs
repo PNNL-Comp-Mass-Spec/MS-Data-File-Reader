@@ -310,7 +310,7 @@ namespace MSDataFileReader
             }
             else
             {
-                bytArray = new byte[0];
+                bytArray = Array.Empty<byte>();
             }
 
             return bytArray;

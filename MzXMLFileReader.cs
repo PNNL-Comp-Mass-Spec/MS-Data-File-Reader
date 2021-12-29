@@ -266,8 +266,8 @@ namespace MSDataFileReader
             if (strMSMSDataBase64Encoded is null || strMSMSDataBase64Encoded.Length == 0)
             {
                 mCurrentSpectrum.DataCount = 0;
-                mCurrentSpectrum.MZList = new double[0];
-                mCurrentSpectrum.IntensityList = new float[0];
+                mCurrentSpectrum.MZList = Array.Empty<double>();
+                mCurrentSpectrum.IntensityList = Array.Empty<float>();
                 return false;
             }
 
