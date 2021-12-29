@@ -212,6 +212,7 @@ namespace MSDataFileReader
                                     }
                                     catch (Exception ex)
                                     {
+                                        // Ignore errors here
                                     }
                                 }
 
@@ -1070,6 +1071,7 @@ namespace MSDataFileReader
                         }
                         catch (Exception ex)
                         {
+                            // Ignore errors here
                         }
                     }
                 }

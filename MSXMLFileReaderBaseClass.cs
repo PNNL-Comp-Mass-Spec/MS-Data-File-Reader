@@ -36,6 +36,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
+                // Ignore errors here
             }
 
             try
@@ -47,6 +48,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
+                // Ignore errors here
             }
         }
 

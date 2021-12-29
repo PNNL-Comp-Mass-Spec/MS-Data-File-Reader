@@ -360,6 +360,7 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
+                // Ignore errors here
             }
 
             mInputFilePath = string.Empty;
