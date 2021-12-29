@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.IO;
 using PRISM;
 
+// ReSharper disable UnusedMember.Global
+
 namespace MSDataFileReader
 {
     /// <summary>
@@ -646,6 +648,7 @@ namespace MSDataFileReader
             }
         }
 
+        // ReSharper disable once UnusedMemberInSuper.Global
         public abstract bool OpenFile(string strInputFilePath);
 
         public abstract bool OpenTextStream(string strTextStream);

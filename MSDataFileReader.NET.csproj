@@ -126,6 +126,7 @@
     <Compile Include="DtaTextFileReader.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="GlobalSuppressions.cs" />
     <Compile Include="MGFFileReader.cs">
       <SubType>Code</SubType>
     </Compile>

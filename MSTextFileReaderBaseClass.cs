@@ -11,6 +11,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Text.RegularExpressions;
 
+// ReSharper disable UnusedMember.Global
+
 namespace MSDataFileReader
 {
     /// <summary>
@@ -22,6 +24,7 @@ namespace MSDataFileReader
 
         protected clsMSTextFileReaderBaseClass()
         {
+            // ReSharper disable once VirtualMemberCallInConstructor
             InitializeLocalVariables();
         }
 
@@ -545,6 +548,7 @@ namespace MSDataFileReader
             int intDataCount;
             var strSepChars = new[] { ' ', '\t' };
 
+            // ReSharper disable once MergeIntoPattern
             if (lstMSMSData != null && lstMSMSData.Count > 0)
             {
                 dblMasses = new double[lstMSMSData.Count];

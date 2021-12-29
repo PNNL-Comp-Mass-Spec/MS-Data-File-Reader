@@ -21,6 +21,8 @@ namespace MSDataFileReader
         public clsSpectrumInfo()
         {
             AutoShrinkDataLists = true;
+
+            // ReSharper disable once VirtualMemberCallInConstructor
             Clear();
         }
 
@@ -305,6 +307,7 @@ namespace MSDataFileReader
         /// </remarks>
         public bool AutoShrinkDataLists { get; set; }
 
+        // ReSharper disable once UnusedMember.Global
         public string ErrorMessage => mErrorMessage ?? string.Empty;
 
         public virtual void Clear()

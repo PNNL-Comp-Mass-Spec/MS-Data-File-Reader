@@ -35,12 +35,15 @@ namespace MSDataFileReader
             public const string zlib = "zlib";
         }
 
+        // ReSharper disable UnusedMember.Global
+
         /// <summary>
         /// Tracks pairOrder for mzXML v1.x and v2.x
         /// Tracks contentType for mzXML 3.x files
         /// </summary>
         public static class PairOrderTypes
         {
+            // ReSharper disable once IdentifierTypo
             public const string MZandIntensity = "m/z-int";
 
             public const string IntensityAndMZ = "int-m/z";
@@ -77,6 +80,8 @@ namespace MSDataFileReader
 
             public const string MRM = "MRM";
         }
+
+        // ReSharper restore UnusedMember.Global
 
         protected float mCollisionEnergy;
 
@@ -121,6 +126,7 @@ namespace MSDataFileReader
             set => mActivationMethod = value;
         }
 
+        // ReSharper disable once UnusedMember.Global
         public float CollisionEnergy
         {
             get => mCollisionEnergy;

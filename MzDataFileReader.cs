@@ -93,9 +93,13 @@ namespace MSDataFileReader
         {
             public const string version = "version";
 
+            // ReSharper disable UnusedMember.Local
+
             public const string accessionNumber = "accessionNumber";
 
             public const string xmlns_xsi = "xmlns:xsi";
+
+            // ReSharper restore UnusedMember.Local
         }
 
         private static class SpectrumListAttributeNames
@@ -228,6 +232,8 @@ namespace MSDataFileReader
 
         private udtFileStatsAddnlType mInputFileStatsAddnl;
 
+        // ReSharper disable UnusedMember.Global
+
         public string PeakProcessing => mInputFileStatsAddnl.PeakProcessing;
 
         public bool FileInfoIsCentroid => mInputFileStatsAddnl.IsCentroid;
@@ -235,6 +241,8 @@ namespace MSDataFileReader
         public bool IsDeisotoped => mInputFileStatsAddnl.IsDeisotoped;
 
         public bool HasChargeDeconvolution => mInputFileStatsAddnl.HasChargeDeconvolution;
+
+        // ReSharper restore UnusedMember.Global
 
         private float FindIonIntensityInRecentSpectra(int intSpectrumIDToFind, double dblMZToFind)
         {

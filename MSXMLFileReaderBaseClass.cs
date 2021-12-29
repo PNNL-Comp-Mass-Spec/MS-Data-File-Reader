@@ -13,6 +13,8 @@ using System.Text.RegularExpressions;
 using System.Xml;
 using PRISM;
 
+// ReSharper disable UnusedMember.Global
+
 namespace MSDataFileReader
 {
     /// <summary>
@@ -22,6 +24,7 @@ namespace MSDataFileReader
     {
         protected clsMSXMLFileReaderBaseClass()
         {
+            // ReSharper disable once VirtualMemberCallInConstructor
             InitializeLocalVariables();
         }
 

@@ -25,6 +25,8 @@ using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
 
+// ReSharper disable UnusedMember.Global
+
 namespace MSDataFileReader
 {
     /// <summary>
@@ -41,6 +43,7 @@ namespace MSDataFileReader
 
         protected clsMSDataFileAccessorBaseClass()
         {
+            // ReSharper disable once VirtualMemberCallInConstructor
             InitializeLocalVariables();
         }
 
@@ -122,6 +125,7 @@ namespace MSDataFileReader
             }
         }
 
+        // ReSharper disable once UnusedMemberInSuper.Global
         protected abstract bool AdvanceFileReaders(emmElementMatchModeConstants eElementMatchMode);
 
         public override void CloseFile()

@@ -49,12 +49,21 @@ namespace MSDataFileReader
             mXmlFileReader = null;
         }
 
+        // ReSharper disable UnusedMember.Local
+
         private const string MSRUN_START_ELEMENT = "<msRun";
 
         private const string MSRUN_END_ELEMENT = "</msRun>";
 
         private const string SCAN_START_ELEMENT = "<scan";
 
+        /// <summary>
+        /// Scan end element
+        /// </summary>
+        /// <remarks>
+        /// Used by the MSDataFileTrimmer
+        /// </remarks>
+        // ReSharper disable once UnusedMember.Global
         public const string SCAN_END_ELEMENT = "</scan>";
 
         private const string PEAKS_END_ELEMENT = "</peaks>";
@@ -80,6 +89,8 @@ namespace MSDataFileReader
         private const string OFFSET_ELEMENT_NAME = "offset";
 
         private const string OFFSET_ATTRIBUTE_ID = "id";
+
+        // ReSharper restore UnusedMember.Local
 
         private clsMzXMLFileReader mXmlFileReader;
 

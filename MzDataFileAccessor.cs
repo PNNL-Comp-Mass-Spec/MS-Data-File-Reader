@@ -25,6 +25,8 @@ using System.IO;
 using System.Text.RegularExpressions;
 using System.Xml;
 
+// ReSharper disable UnusedMember.Global
+
 namespace MSDataFileReader
 {
     /// <summary>
@@ -47,6 +49,8 @@ namespace MSDataFileReader
             mXmlFileReader = null;
         }
 
+        // ReSharper disable UnusedMember.Local
+
         private const string SPECTRUM_LIST_START_ELEMENT = "<spectrumList";
 
         private const string SPECTRUM_LIST_END_ELEMENT = "</spectrumList>";
@@ -59,6 +63,8 @@ namespace MSDataFileReader
 
         private const string MZDATA_END_ELEMENT = "</mzData>";
 
+        // ReSharper restore UnusedMember.Local
+
         private clsMzDataFileReader mXmlFileReader;
 
         private clsSpectrumInfoMzData mCurrentSpectrumInfo;
@@ -67,6 +73,7 @@ namespace MSDataFileReader
 
         private int mInputFileStatsSpectrumIDMaximum;
 
+        // ReSharper disable once NotAccessedField.Local
         private string mXmlFileHeader;
 
         private bool mAddNewLinesToHeader;

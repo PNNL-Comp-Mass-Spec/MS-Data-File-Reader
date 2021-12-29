@@ -145,6 +145,7 @@ namespace MSDataFileReader
 
         public string CurrentLine => mCurrentLineText ?? string.Empty;
 
+        // ReSharper disable once UnusedMember.Global
         public int CurrentLineLength => mCurrentLineText?.Length ?? 0;
 
         public long CurrentLineByteOffsetStart => mCurrentLineByteOffsetStart;
@@ -155,6 +156,7 @@ namespace MSDataFileReader
 
         public string CurrentLineTerminator => mCurrentLineTerminator ?? string.Empty;
 
+        // ReSharper disable once UnusedMember.Global
         public string ErrorMessage => mErrorMessage ?? string.Empty;
 
         public long FileLengthBytes
@@ -486,6 +488,7 @@ namespace MSDataFileReader
         {
             try
             {
+                // ReSharper disable once MergeIntoPattern
                 if (mBinaryReader != null && mBinaryReader.CanRead)
                 {
                     MoveToByteOffset(mBinaryReader.Length);
@@ -503,6 +506,7 @@ namespace MSDataFileReader
         /// </summary>
         /// <param name="dataFilePath"></param>
         /// <returns>True if successful, false if an error</returns>
+        // ReSharper disable once UnusedMember.Global
         public bool OpenFile(string dataFilePath)
         {
             return OpenFile(dataFilePath, FileShare.Read);

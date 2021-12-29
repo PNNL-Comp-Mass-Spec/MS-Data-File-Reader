@@ -264,11 +264,15 @@ namespace MSDataFileReader
 
         private udtFileStatsAddnlType mInputFileStatsAddnl;
 
+        // ReSharper disable UnusedMember.Global
+
         public float FileInfoStartTimeMin => mInputFileStatsAddnl.StartTimeMin;
 
         public float FileInfoEndTimeMin => mInputFileStatsAddnl.EndTimeMin;
 
         public bool FileInfoIsCentroid => mInputFileStatsAddnl.IsCentroid;
+
+        // ReSharper restore UnusedMember.Global
 
         protected override clsSpectrumInfo GetCurrentSpectrum()
         {
@@ -472,6 +476,7 @@ namespace MSDataFileReader
                 // This is an easy way to skip whitespace
                 // We can do this since we only care about the data inside the
                 // ScanSectionNames.precursorMz and ScanSectionNames.peaks elements
+
                 if (mScanDepth > 0)
                 {
                     // Check the last element name sent to startElement to determine

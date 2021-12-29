@@ -273,6 +273,7 @@ namespace MSDataFileReader
         /// <param name="intMsMsDataCount"></param>
         /// <param name="objSpectrumInfoMsMsText"></param>
         /// <returns>True if the file was successfully opened and a spectrum was read</returns>
+        // ReSharper disable once UnusedMember.Global
         public bool ReadSingleDtaFile(string strInputFilePath, out string[] strMsMsDataList, out int intMsMsDataCount, out clsSpectrumInfoMsMsText objSpectrumInfoMsMsText)
         {
             var blnSpectrumFound = false;
