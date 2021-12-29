@@ -647,7 +647,7 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         public bool ReadAndCacheEntireFileNonIndexed()
         {
-            var success= base.ReadAndCacheEntireFile();
+            var success = base.ReadAndCacheEntireFile();
 
             if (success)
             {

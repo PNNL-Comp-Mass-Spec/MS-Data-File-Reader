@@ -17,8 +17,8 @@ namespace MSDataFileReader
 
         private static string B64encode(byte[] bytArray, bool removeTrailingPaddingChars = false)
         {
-            return removeTrailingPaddingChars 
-                ? Convert.ToBase64String(bytArray).TrimEnd('=') 
+            return removeTrailingPaddingChars
+                ? Convert.ToBase64String(bytArray).TrimEnd('=')
                 : Convert.ToBase64String(bytArray);
         }
 
@@ -160,7 +160,11 @@ namespace MSDataFileReader
         /// <param name="zLibCompressed"></param>
         /// <param name="eEndianMode"></param>
         /// <returns>True if successful, raises an exception if an error</returns>
-        public static bool DecodeNumericArray(string strBase64EncodedText, out float[] dataArray, bool zLibCompressed, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
+        public static bool DecodeNumericArray(
+            string strBase64EncodedText,
+            out float[] dataArray,
+            bool zLibCompressed,
+            eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 4;
             byte[] bytArray;

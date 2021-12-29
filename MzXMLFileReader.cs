@@ -724,7 +724,7 @@ namespace MSDataFileReader
                         mInputFileStatsAddnl.StartTimeMin = GetAttribTimeValueMinutes(MSRunAttributeNames.startTime);
                         mInputFileStatsAddnl.EndTimeMin = GetAttribTimeValueMinutes(MSRunAttributeNames.endTime);
 
-                        // Note: A bug in the ReAdW software we use to create mzXML files records the .StartTime and .EndTime values in minutes but labels them as seconds
+                        // Note: The ReAdW software that creates mzXML files records the .StartTime and .EndTime values in minutes but labels them as seconds
                         // Check for this by computing the average seconds/scan
                         // If too low, multiply the start and end times by 60
                         if (mInputFileStats.ScanCount > 0)
