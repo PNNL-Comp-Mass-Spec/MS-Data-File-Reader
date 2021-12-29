@@ -60,7 +60,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mCollisionEnergy = value;
             }
         }
@@ -71,7 +71,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mCollisionEnergyUnits = value;
             }
         }
@@ -82,7 +82,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mCollisionMethod = value;
             }
         }
@@ -93,7 +93,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mParentIonCharge = value;
             }
         }
@@ -118,7 +118,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mScanMode = value;
             }
         }
@@ -129,7 +129,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mNumericPrecisionOfDataMZ = value;
             }
         }
@@ -140,7 +140,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mPeaksEndianModeMZ = value;
             }
         }
@@ -151,7 +151,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mNumericPrecisionOfDataIntensity = value;
             }
         }
@@ -162,7 +162,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mPeaksEndianModeIntensity = value;
             }
         }
@@ -183,19 +183,19 @@ namespace MSDataFileReader
             mPeaksEndianModeIntensity = EndianModes.littleEndian;
         }
 
-        public Base64EncodeDecode.eEndianTypeConstants GetEndianModeValue(string strEndianModeText)
+        public Base64EncodeDecode.EndianType GetEndianModeValue(string strEndianModeText)
         {
             switch (strEndianModeText)
             {
                 case EndianModes.bigEndian:
-                    return Base64EncodeDecode.eEndianTypeConstants.BigEndian;
+                    return Base64EncodeDecode.EndianType.BigEndian;
 
                 case EndianModes.littleEndian:
-                    return Base64EncodeDecode.eEndianTypeConstants.LittleEndian;
+                    return Base64EncodeDecode.EndianType.LittleEndian;
 
                 default:
                     // Assume littleEndian
-                    return Base64EncodeDecode.eEndianTypeConstants.LittleEndian;
+                    return Base64EncodeDecode.EndianType.LittleEndian;
             }
         }
 
@@ -254,7 +254,7 @@ namespace MSDataFileReader
                 ScanCount = 1;
             }
 
-            mSpectrumStatus = eSpectrumStatusConstants.Validated;
+            mSpectrumStatus = SpectrumStatusMode.Validated;
         }
     }
 }

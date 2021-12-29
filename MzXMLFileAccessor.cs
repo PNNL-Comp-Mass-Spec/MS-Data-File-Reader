@@ -134,7 +134,7 @@ namespace MSDataFileReader
         /// </summary>
         /// <param name="eElementMatchMode"></param>
         /// <returns>True if successful, false if an error</returns>
-        protected override bool AdvanceFileReaders(emmElementMatchModeConstants eElementMatchMode)
+        protected override bool AdvanceFileReaders(ElementMatchMode eElementMatchMode)
         {
             bool blnMatchFound;
             var lngByteOffsetForRewind = default(long);
@@ -217,11 +217,11 @@ namespace MSDataFileReader
                         // Look for the appropriate search text in mInFileCurrentLineText, starting at mInFileCurrentCharIndex + 1
                         switch (eElementMatchMode)
                         {
-                            case emmElementMatchModeConstants.StartElement:
+                            case ElementMatchMode.StartElement:
                                 objMatch = mScanStartElementRegEx.Match(strInFileCurrentLineSubstring);
                                 break;
 
-                            case emmElementMatchModeConstants.EndElement:
+                            case ElementMatchMode.EndElement:
                                 // Since mzXml files can have scans embedded within another scan, we'll look for </peaks>
                                 // rather than looking for </scan>
                                 objMatch = mPeaksEndElementRegEx.Match(strInFileCurrentLineSubstring);
@@ -241,7 +241,7 @@ namespace MSDataFileReader
 
                             switch (eElementMatchMode)
                             {
-                                case emmElementMatchModeConstants.StartElement:
+                                case ElementMatchMode.StartElement:
                                     // Look for the scan number after <scan
                                     objMatch = mScanNumberRegEx.Match(strInFileCurrentLineSubstring);
 
@@ -278,7 +278,7 @@ namespace MSDataFileReader
 
                                     break;
 
-                                case emmElementMatchModeConstants.EndElement:
+                                case ElementMatchMode.EndElement:
                                     // Move to the end of the element
                                     intCharIndex += objMatch.Value.Length - 1;
 
@@ -537,7 +537,7 @@ namespace MSDataFileReader
                 // Move to the end of the file
                 mBinaryTextReader.MoveToEnd();
 
-                while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirectionConstants.Reverse))
+                while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirection.Reverse))
                 {
                     var strCurrentLine = mBinaryTextReader.CurrentLine;
                     var intCharIndex = strCurrentLine.IndexOf(INDEX_OFFSET_START_ELEMENT, StringComparison.Ordinal);
@@ -556,7 +556,7 @@ namespace MSDataFileReader
                             // Need to read the next few lines to find </indexOffset>
                             mBinaryTextReader.MoveToByteOffset(mBinaryTextReader.CurrentLineByteOffsetEndWithTerminator + 1L);
 
-                            while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirectionConstants.Forward))
+                            while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirection.Forward))
                             {
                                 strCurrentLine += " " + mBinaryTextReader.CurrentLine;
                                 intCharIndexEnd = strCurrentLine.IndexOf(INDEX_OFFSET_END_ELEMENT, intCharIndex + INDEX_OFFSET_START_ELEMENT.Length, StringComparison.Ordinal);
@@ -578,7 +578,7 @@ namespace MSDataFileReader
                                 mBinaryTextReader.MoveToByteOffset(lngIndexOffset);
 
                                 // Read the text at offset lngIndexOffset
-                                mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirectionConstants.Forward);
+                                mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirection.Forward);
                                 strCurrentLine = mBinaryTextReader.CurrentLine;
 
                                 // Verify that strCurrentLine contains "<index"
@@ -625,7 +625,7 @@ namespace MSDataFileReader
                         }
 
                         // Read all of the lines to the end of the file
-                        while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirectionConstants.Forward))
+                        while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirection.Forward))
                         {
                             strCurrentLine = mBinaryTextReader.CurrentLine;
                             objStringBuilder.Append(strCurrentLine + mBinaryTextReader.CurrentLineTerminator);
@@ -672,7 +672,7 @@ namespace MSDataFileReader
                             mBinaryTextReader.MoveToBeginning();
                             mXmlFileHeader = string.Empty;
 
-                            while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirectionConstants.Forward))
+                            while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirection.Forward))
                             {
                                 strCurrentLine = mBinaryTextReader.CurrentLine;
                                 intCharIndex = strCurrentLine.IndexOf(SCAN_START_ELEMENT, StringComparison.Ordinal);
@@ -939,7 +939,7 @@ namespace MSDataFileReader
                         mCurrentSpectrumInfo.Clear();
                     }
 
-                    blnSpectrumFound = AdvanceFileReaders(emmElementMatchModeConstants.StartElement);
+                    blnSpectrumFound = AdvanceFileReaders(ElementMatchMode.StartElement);
 
                     if (blnSpectrumFound)
                     {
@@ -954,7 +954,7 @@ namespace MSDataFileReader
                             lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex * mCharSize;
                         }
 
-                        blnSpectrumFound = AdvanceFileReaders(emmElementMatchModeConstants.EndElement);
+                        blnSpectrumFound = AdvanceFileReaders(ElementMatchMode.EndElement);
 
                         if (blnSpectrumFound)
                         {
@@ -1013,7 +1013,7 @@ namespace MSDataFileReader
 
             mBinaryTextReader.MoveToByteOffset(lngByteOffsetStart);
 
-            while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirectionConstants.Forward))
+            while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirection.Forward))
             {
                 var strCurrentLine = mBinaryTextReader.CurrentLine;
                 var intMatchIndex = strCurrentLine.IndexOf(PEAKS_END_ELEMENT, StringComparison.Ordinal);

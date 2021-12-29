@@ -45,7 +45,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mSpectrumTitleWithCommentChars = value;
             }
         }
@@ -56,7 +56,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mSpectrumTitle = value;
             }
         }
@@ -67,7 +67,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mParentIonLineText = value;
             }
         }
@@ -78,7 +78,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mParentIonMH = value;
             }
         }

@@ -133,7 +133,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mCollisionEnergy = value;
             }
         }
@@ -144,7 +144,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mFilterLine = value;
             }
         }
@@ -155,7 +155,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mNumericPrecisionOfData = value;
             }
         }
@@ -166,7 +166,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mPeaksByteOrder = value;
             }
         }
@@ -177,7 +177,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mPeaksPairOrder = value;
             }
         }
@@ -202,7 +202,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mEndMZ = value;
             }
         }
@@ -234,7 +234,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mStartMZ = value;
             }
         }
@@ -245,7 +245,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mScanType = value;
             }
         }
@@ -322,7 +322,7 @@ namespace MSDataFileReader
                 SpectrumID = ScanNumber;
             }
 
-            mSpectrumStatus = eSpectrumStatusConstants.Validated;
+            mSpectrumStatus = SpectrumStatusMode.Validated;
         }
     }
 }

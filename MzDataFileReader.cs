@@ -187,7 +187,7 @@ namespace MSDataFileReader
 
         private const int MOST_RECENT_SURVEY_SCANS_TO_CACHE = 20;
 
-        private enum eCurrentMZDataFileSectionConstants
+        private enum CurrentMzDataFileSection
         {
             UnknownFile = 0,
             Start = 1,
@@ -222,7 +222,7 @@ namespace MSDataFileReader
             public bool HasChargeDeconvolution;
         }
 
-        private eCurrentMZDataFileSectionConstants mCurrentXMLDataFileSection;
+        private CurrentMzDataFileSection mCurrentXMLDataFileSection;
 
         private SpectrumInfoMzData mCurrentSpectrum;
 
@@ -325,7 +325,7 @@ namespace MSDataFileReader
         protected sealed override void InitializeLocalVariables()
         {
             base.InitializeLocalVariables();
-            mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.UnknownFile;
+            mCurrentXMLDataFileSection = CurrentMzDataFileSection.UnknownFile;
             mAcquisitionElementCount = 0;
 
             mInputFileStatsAddnl.PeakProcessing = string.Empty;
@@ -522,7 +522,7 @@ namespace MSDataFileReader
 
                 switch (mCurrentXMLDataFileSection)
                 {
-                    case eCurrentMZDataFileSectionConstants.SpectrumDataArrayMZ:
+                    case CurrentMzDataFileSection.SpectrumDataArrayMZ:
                         if (!mSkipBinaryData)
                         {
                             var success = ParseBinaryData(XMLTextReaderGetInnerText(), ref mCurrentSpectrum.MZList,
@@ -536,7 +536,7 @@ namespace MSDataFileReader
 
                         break;
 
-                    case eCurrentMZDataFileSectionConstants.SpectrumDataArrayIntensity:
+                    case CurrentMzDataFileSection.SpectrumDataArrayIntensity:
                         if (!mSkipBinaryData)
                         {
                             ParseBinaryData(
@@ -610,7 +610,7 @@ namespace MSDataFileReader
 
                     switch (mCurrentXMLDataFileSection)
                     {
-                        case eCurrentMZDataFileSectionConstants.DataProcessingMethod:
+                        case CurrentMzDataFileSection.DataProcessingMethod:
                             if (GetCVNameAndValue(out strCVName, out strValue))
                             {
                                 switch (strCVName)
@@ -641,7 +641,7 @@ namespace MSDataFileReader
 
                             break;
 
-                        case eCurrentMZDataFileSectionConstants.SpectrumInstrument:
+                        case CurrentMzDataFileSection.SpectrumInstrument:
                             if (GetCVNameAndValue(out strCVName, out strValue))
                             {
                                 switch (strCVName)
@@ -662,7 +662,7 @@ namespace MSDataFileReader
 
                             break;
 
-                        case eCurrentMZDataFileSectionConstants.PrecursorIonSelection:
+                        case CurrentMzDataFileSection.PrecursorIonSelection:
                             if (GetCVNameAndValue(out strCVName, out strValue))
                             {
                                 switch (strCVName)
@@ -683,7 +683,7 @@ namespace MSDataFileReader
 
                             break;
 
-                        case eCurrentMZDataFileSectionConstants.PrecursorActivation:
+                        case CurrentMzDataFileSection.PrecursorActivation:
                             if (GetCVNameAndValue(out strCVName, out strValue))
                             {
                                 switch (strCVName)
@@ -710,7 +710,7 @@ namespace MSDataFileReader
                 case ScanSectionNames.spectrumList:
                     if (GetParentElement().Equals(XMLSectionNames.RootName))
                     {
-                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumList;
+                        mCurrentXMLDataFileSection = CurrentMzDataFileSection.SpectrumList;
 
                         if (mXMLReader.HasAttributes)
                         {
@@ -727,7 +727,7 @@ namespace MSDataFileReader
                 case ScanSectionNames.spectrum:
                     if (GetParentElement().Equals(ScanSectionNames.spectrumList))
                     {
-                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumList;
+                        mCurrentXMLDataFileSection = CurrentMzDataFileSection.SpectrumList;
                         mCurrentSpectrum.Clear();
 
                         if (mXMLReader.HasAttributes)
@@ -745,7 +745,7 @@ namespace MSDataFileReader
                     break;
 
                 case ScanSectionNames.spectrumSettings:
-                    mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumSettings;
+                    mCurrentXMLDataFileSection = CurrentMzDataFileSection.SpectrumSettings;
                     break;
 
                 case ScanSectionNames.acqSpecification:
@@ -782,7 +782,7 @@ namespace MSDataFileReader
                 case ScanSectionNames.spectrumInstrument:
                     if (GetParentElement().Equals(ScanSectionNames.spectrumSettings))
                     {
-                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumInstrument;
+                        mCurrentXMLDataFileSection = CurrentMzDataFileSection.SpectrumInstrument;
                         mCurrentSpectrum.MSLevel = GetAttribValue(SpectrumInstrumentAttributeNames.msLevel, 1);
                         mCurrentSpectrum.mzRangeStart = GetAttribValue(SpectrumInstrumentAttributeNames.mzRangeStart, 0);
                         mCurrentSpectrum.mzRangeEnd = GetAttribValue(SpectrumInstrumentAttributeNames.mzRangeStop, 0);
@@ -791,13 +791,13 @@ namespace MSDataFileReader
                     break;
 
                 case ScanSectionNames.precursorList:
-                    mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.PrecursorList;
+                    mCurrentXMLDataFileSection = CurrentMzDataFileSection.PrecursorList;
                     break;
 
                 case ScanSectionNames.precursor:
                     if (GetParentElement().Equals(ScanSectionNames.precursorList))
                     {
-                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.PrecursorEntry;
+                        mCurrentXMLDataFileSection = CurrentMzDataFileSection.PrecursorEntry;
                         mCurrentSpectrum.ParentIonSpectrumMSLevel = GetAttribValue(PrecursorAttributeNames.msLevel, 0);
                         mCurrentSpectrum.ParentIonSpectrumID = GetAttribValue(PrecursorAttributeNames.spectrumRef, 0);
                     }
@@ -809,7 +809,7 @@ namespace MSDataFileReader
                     {
                         if (GetParentElement(mParentElementStack.Count - 1).Equals(ScanSectionNames.precursorList))
                         {
-                            mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.PrecursorIonSelection;
+                            mCurrentXMLDataFileSection = CurrentMzDataFileSection.PrecursorIonSelection;
                         }
                     }
 
@@ -820,24 +820,24 @@ namespace MSDataFileReader
                     {
                         if (GetParentElement(mParentElementStack.Count - 1).Equals(ScanSectionNames.precursorList))
                         {
-                            mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.PrecursorActivation;
+                            mCurrentXMLDataFileSection = CurrentMzDataFileSection.PrecursorActivation;
                         }
                     }
 
                     break;
 
                 case ScanSectionNames.mzArrayBinary:
-                    mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumDataArrayMZ;
+                    mCurrentXMLDataFileSection = CurrentMzDataFileSection.SpectrumDataArrayMZ;
                     break;
 
                 case ScanSectionNames.intensityArrayBinary:
-                    mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.SpectrumDataArrayIntensity;
+                    mCurrentXMLDataFileSection = CurrentMzDataFileSection.SpectrumDataArrayIntensity;
                     break;
 
                 case ScanSectionNames.ArrayData:
                     switch (mCurrentXMLDataFileSection)
                     {
-                        case eCurrentMZDataFileSectionConstants.SpectrumDataArrayMZ:
+                        case CurrentMzDataFileSection.SpectrumDataArrayMZ:
                             mCurrentSpectrum.NumericPrecisionOfDataMZ = GetAttribValue(BinaryDataAttributeNames.precision, 32);
                             mCurrentSpectrum.PeaksEndianModeMZ = GetAttribValue(BinaryDataAttributeNames.endian, SpectrumInfoMzData.EndianModes.littleEndian);
 
@@ -845,7 +845,7 @@ namespace MSDataFileReader
 
                             break;
 
-                        case eCurrentMZDataFileSectionConstants.SpectrumDataArrayIntensity:
+                        case CurrentMzDataFileSection.SpectrumDataArrayIntensity:
                             mCurrentSpectrum.NumericPrecisionOfDataIntensity = GetAttribValue(BinaryDataAttributeNames.precision, 32);
                             mCurrentSpectrum.PeaksEndianModeIntensity = GetAttribValue(BinaryDataAttributeNames.endian, SpectrumInfoMzData.EndianModes.littleEndian);
 
@@ -861,7 +861,7 @@ namespace MSDataFileReader
                     break;
 
                 case XMLSectionNames.RootName:
-                    mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.Start;
+                    mCurrentXMLDataFileSection = CurrentMzDataFileSection.Start;
 
                     if (mXMLReader.HasAttributes)
                     {
@@ -873,7 +873,7 @@ namespace MSDataFileReader
                 case HeaderSectionNames.Description:
                     if (GetParentElement().Equals(XMLSectionNames.RootName))
                     {
-                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.Headers;
+                        mCurrentXMLDataFileSection = CurrentMzDataFileSection.Headers;
                     }
 
                     break;
@@ -881,7 +881,7 @@ namespace MSDataFileReader
                 case HeaderSectionNames.admin:
                     if (GetParentElement().Equals(HeaderSectionNames.Description))
                     {
-                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.Admin;
+                        mCurrentXMLDataFileSection = CurrentMzDataFileSection.Admin;
                     }
 
                     break;
@@ -889,7 +889,7 @@ namespace MSDataFileReader
                 case HeaderSectionNames.instrument:
                     if (GetParentElement().Equals(HeaderSectionNames.Description))
                     {
-                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.Instrument;
+                        mCurrentXMLDataFileSection = CurrentMzDataFileSection.Instrument;
                     }
 
                     break;
@@ -897,7 +897,7 @@ namespace MSDataFileReader
                 case HeaderSectionNames.dataProcessing:
                     if (GetParentElement().Equals(HeaderSectionNames.Description))
                     {
-                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.DataProcessing;
+                        mCurrentXMLDataFileSection = CurrentMzDataFileSection.DataProcessing;
                     }
 
                     break;
@@ -905,7 +905,7 @@ namespace MSDataFileReader
                 case HeaderSectionNames.processingMethod:
                     if (GetParentElement().Equals(HeaderSectionNames.dataProcessing))
                     {
-                        mCurrentXMLDataFileSection = eCurrentMZDataFileSectionConstants.DataProcessingMethod;
+                        mCurrentXMLDataFileSection = CurrentMzDataFileSection.DataProcessingMethod;
                     }
 
                     break;

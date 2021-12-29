@@ -227,7 +227,7 @@ namespace MSDataFileReader
             public const string contentType = "contentType";
         }
 
-        private enum eCurrentMZXMLDataFileSectionConstants
+        private enum CurrentMzXMLDataFileSection
         {
             UnknownFile = 0,
             Start = 1,
@@ -250,7 +250,7 @@ namespace MSDataFileReader
             public bool IsCentroid;
         }
 
-        private eCurrentMZXMLDataFileSectionConstants mCurrentXMLDataFileSection;
+        private CurrentMzXMLDataFileSection mCurrentXMLDataFileSection;
 
         /// <summary>
         /// Scan depth
@@ -296,7 +296,7 @@ namespace MSDataFileReader
         protected sealed override void InitializeLocalVariables()
         {
             base.InitializeLocalVariables();
-            mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.UnknownFile;
+            mCurrentXMLDataFileSection = CurrentMzXMLDataFileSection.UnknownFile;
             mScanDepth = 0;
 
             mInputFileStatsAddnl.StartTimeMin = 0f;
@@ -318,7 +318,7 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         private void ParseBinaryData(string strMSMSDataBase64Encoded, string strCompressionType)
         {
-            var eEndianMode = Base64EncodeDecode.eEndianTypeConstants.BigEndian;
+            var eEndianMode = Base64EncodeDecode.EndianType.BigEndian;
 
             if (mCurrentSpectrum is null)
             {
@@ -524,7 +524,7 @@ namespace MSDataFileReader
                 // If we just moved out of a scan element, finalize the current scan
                 if ((mXMLReader.Name) == ScanSectionNames.scan)
                 {
-                    if (mCurrentSpectrum.SpectrumStatus != SpectrumInfo.eSpectrumStatusConstants.Initialized && mCurrentSpectrum.SpectrumStatus != SpectrumInfo.eSpectrumStatusConstants.Validated)
+                    if (mCurrentSpectrum.SpectrumStatus != SpectrumInfo.SpectrumStatusMode.Initialized && mCurrentSpectrum.SpectrumStatus != SpectrumInfo.SpectrumStatusMode.Validated)
                     {
                         mCurrentSpectrum.Validate();
                         mSpectrumFound = true;
@@ -571,11 +571,11 @@ namespace MSDataFileReader
             switch (mXMLReader.Name)
             {
                 case ScanSectionNames.scan:
-                    mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.ScanList;
+                    mCurrentXMLDataFileSection = CurrentMzXMLDataFileSection.ScanList;
 
                     if (mScanDepth > 0 && !mSkippedStartElementAdvance)
                     {
-                        if (mCurrentSpectrum.SpectrumStatus != SpectrumInfo.eSpectrumStatusConstants.Initialized && mCurrentSpectrum.SpectrumStatus != SpectrumInfo.eSpectrumStatusConstants.Validated)
+                        if (mCurrentSpectrum.SpectrumStatus != SpectrumInfo.SpectrumStatusMode.Initialized && mCurrentSpectrum.SpectrumStatus != SpectrumInfo.SpectrumStatusMode.Validated)
                         {
                             mCurrentSpectrum.Validate();
                             mSkipNextReaderAdvance = true;
@@ -689,7 +689,7 @@ namespace MSDataFileReader
                     break;
 
                 case XMLSectionNames.RootName:
-                    mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.Start;
+                    mCurrentXMLDataFileSection = CurrentMzXMLDataFileSection.Start;
 
                     if (mXMLReader.HasAttributes)
                     {
@@ -710,13 +710,13 @@ namespace MSDataFileReader
                 case HeaderSectionNames.msInstrument:
                     if (GetParentElement().Equals(XMLSectionNames.msRun))
                     {
-                        mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.msInstrument;
+                        mCurrentXMLDataFileSection = CurrentMzXMLDataFileSection.msInstrument;
                     }
 
                     break;
 
                 case XMLSectionNames.msRun:
-                    mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.msRun;
+                    mCurrentXMLDataFileSection = CurrentMzXMLDataFileSection.msRun;
 
                     if (mXMLReader.HasAttributes)
                     {
@@ -747,7 +747,7 @@ namespace MSDataFileReader
                 case HeaderSectionNames.dataProcessing:
                     if (GetParentElement().Equals(XMLSectionNames.msRun))
                     {
-                        mCurrentXMLDataFileSection = eCurrentMZXMLDataFileSectionConstants.dataProcessing;
+                        mCurrentXMLDataFileSection = CurrentMzXMLDataFileSection.dataProcessing;
                         mInputFileStatsAddnl.IsCentroid = GetAttribValue(DataProcessingAttributeNames.centroided, false);
                     }
 

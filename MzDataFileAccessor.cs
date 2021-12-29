@@ -118,7 +118,7 @@ namespace MSDataFileReader
         /// </summary>
         /// <param name="eElementMatchMode"></param>
         /// <returns>True if successful, false if an error</returns>
-        protected override bool AdvanceFileReaders(emmElementMatchModeConstants eElementMatchMode)
+        protected override bool AdvanceFileReaders(ElementMatchMode eElementMatchMode)
         {
             bool blnMatchFound;
             var lngByteOffsetForRewind = 0L;
@@ -213,7 +213,7 @@ namespace MSDataFileReader
                             }
                         }
 
-                        if (eElementMatchMode == emmElementMatchModeConstants.EndElement && !blnAcqNumberFound)
+                        if (eElementMatchMode == ElementMatchMode.EndElement && !blnAcqNumberFound)
                         {
                             strAcqNumberSearchText += Environment.NewLine + strInFileCurrentLineSubstring;
 
@@ -243,11 +243,11 @@ namespace MSDataFileReader
                         // Look for the appropriate search text in mInFileCurrentLineText, starting at mInFileCurrentCharIndex + 1
                         switch (eElementMatchMode)
                         {
-                            case emmElementMatchModeConstants.StartElement:
+                            case ElementMatchMode.StartElement:
                                 objMatch = mSpectrumStartElementRegEx.Match(strInFileCurrentLineSubstring);
                                 break;
 
-                            case emmElementMatchModeConstants.EndElement:
+                            case ElementMatchMode.EndElement:
                                 objMatch = mSpectrumEndElementRegEx.Match(strInFileCurrentLineSubstring);
                                 break;
 
@@ -265,7 +265,7 @@ namespace MSDataFileReader
 
                             switch (eElementMatchMode)
                             {
-                                case emmElementMatchModeConstants.StartElement:
+                                case ElementMatchMode.StartElement:
                                     // Look for the id value after <spectrum
                                     objMatch = mSpectrumIDRegEx.Match(strInFileCurrentLineSubstring);
 
@@ -302,7 +302,7 @@ namespace MSDataFileReader
 
                                     break;
 
-                                case emmElementMatchModeConstants.EndElement:
+                                case ElementMatchMode.EndElement:
                                     // Move to the end of the element
                                     intCharIndex += objMatch.Value.Length - 1;
 
@@ -442,13 +442,13 @@ namespace MSDataFileReader
             {
                 mErrorMessage = string.Empty;
 
-                if (mDataReaderMode == drmDataReaderModeConstants.Cached)
+                if (mDataReaderMode == DataReaderMode.Cached)
                 {
                     mErrorMessage = "Cannot obtain spectrum by spectrum ID when data is cached in memory; only valid when the data is indexed";
                     return false;
                 }
 
-                if (mDataReaderMode != drmDataReaderModeConstants.Indexed)
+                if (mDataReaderMode != DataReaderMode.Indexed)
                 {
                     mErrorMessage = "Cached or indexed data not in memory";
                     return false;
@@ -509,7 +509,7 @@ namespace MSDataFileReader
         {
             try
             {
-                if (mDataReaderMode == drmDataReaderModeConstants.Cached)
+                if (mDataReaderMode == DataReaderMode.Cached)
                 {
                     // Cannot get the spectrum ID list when mDataReaderMode = Cached
                     SpectrumIDList = Array.Empty<int>();
@@ -675,7 +675,7 @@ namespace MSDataFileReader
                         mCurrentSpectrumInfo.Clear();
                     }
 
-                    blnSpectrumFound = AdvanceFileReaders(emmElementMatchModeConstants.StartElement);
+                    blnSpectrumFound = AdvanceFileReaders(ElementMatchMode.StartElement);
 
                     if (blnSpectrumFound)
                     {
@@ -690,7 +690,7 @@ namespace MSDataFileReader
                             lngCurrentSpectrumByteOffsetStart = mBinaryTextReader.CurrentLineByteOffsetStart + mInFileCurrentCharIndex * mCharSize;
                         }
 
-                        blnSpectrumFound = AdvanceFileReaders(emmElementMatchModeConstants.EndElement);
+                        blnSpectrumFound = AdvanceFileReaders(ElementMatchMode.EndElement);
 
                         if (blnSpectrumFound)
                         {

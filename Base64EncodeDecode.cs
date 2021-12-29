@@ -9,7 +9,7 @@ namespace MSDataFileReader
     {
         // Ignore Spelling: endian
 
-        public enum eEndianTypeConstants
+        public enum EndianType
         {
             LittleEndian = 0,
             BigEndian = 1
@@ -42,7 +42,7 @@ namespace MSDataFileReader
         /// <param name="zLibCompressed"></param>
         /// <param name="eEndianMode"></param>
         /// <returns>True if successful, raises an exception if an error</returns>
-        public static bool DecodeNumericArray(string strBase64EncodedText, out short[] dataArray, bool zLibCompressed, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
+        public static bool DecodeNumericArray(string strBase64EncodedText, out short[] dataArray, bool zLibCompressed, EndianType eEndianMode = EndianType.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 2;
             byte[] bytArray;
@@ -73,7 +73,7 @@ namespace MSDataFileReader
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
-                if (eEndianMode == eEndianTypeConstants.LittleEndian)
+                if (eEndianMode == EndianType.LittleEndian)
                 {
                     // Do not swap bytes
                     Array.Copy(bytArray, intIndex, bytArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES);
@@ -100,7 +100,7 @@ namespace MSDataFileReader
         /// <param name="zLibCompressed"></param>
         /// <param name="eEndianMode"></param>
         /// <returns>True if successful, raises an exception if an error</returns>
-        public static bool DecodeNumericArray(string strBase64EncodedText, out int[] dataArray, bool zLibCompressed, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
+        public static bool DecodeNumericArray(string strBase64EncodedText, out int[] dataArray, bool zLibCompressed, EndianType eEndianMode = EndianType.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 4;
             byte[] bytArray;
@@ -131,7 +131,7 @@ namespace MSDataFileReader
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
-                if (eEndianMode == eEndianTypeConstants.LittleEndian)
+                if (eEndianMode == EndianType.LittleEndian)
                 {
                     // Do not swap bytes
                     Array.Copy(bytArray, intIndex, bytArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES);
@@ -164,7 +164,7 @@ namespace MSDataFileReader
             string strBase64EncodedText,
             out float[] dataArray,
             bool zLibCompressed,
-            eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
+            EndianType eEndianMode = EndianType.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 4;
             byte[] bytArray;
@@ -195,7 +195,7 @@ namespace MSDataFileReader
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
-                if (eEndianMode == eEndianTypeConstants.LittleEndian)
+                if (eEndianMode == EndianType.LittleEndian)
                 {
                     // Do not swap bytes
                     Array.Copy(bytArray, intIndex, bytArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES);
@@ -224,7 +224,7 @@ namespace MSDataFileReader
         /// <param name="zLibCompressed"></param>
         /// <param name="eEndianMode"></param>
         /// <returns>True if successful, raises an exception if an error</returns>
-        public static bool DecodeNumericArray(string strBase64EncodedText, out double[] dataArray, bool zLibCompressed, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
+        public static bool DecodeNumericArray(string strBase64EncodedText, out double[] dataArray, bool zLibCompressed, EndianType eEndianMode = EndianType.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 8;
             byte[] bytArray;
@@ -255,7 +255,7 @@ namespace MSDataFileReader
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
-                if (eEndianMode == eEndianTypeConstants.LittleEndian)
+                if (eEndianMode == EndianType.LittleEndian)
                 {
                     // Do not swap bytes
                     Array.Copy(bytArray, intIndex, bytArrayOneValue, 0, DATA_TYPE_PRECISION_BYTES);
@@ -355,7 +355,7 @@ namespace MSDataFileReader
         /// <param name="removeTrailingPaddingChars"></param>
         /// <param name="eEndianMode"></param>
         /// <returns>Base-64 encoded string</returns>
-        public static string EncodeNumericArray(short[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
+        public static string EncodeNumericArray(short[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false, EndianType eEndianMode = EndianType.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 2;
             const string DATA_TYPE_NAME = "int";
@@ -379,7 +379,7 @@ namespace MSDataFileReader
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
-                if (eEndianMode == eEndianTypeConstants.LittleEndian)
+                if (eEndianMode == EndianType.LittleEndian)
                 {
                     // Do not swap bytes
                     Array.Copy(bytNewBytes, 0, bytArray, intBaseIndex, DATA_TYPE_PRECISION_BYTES);
@@ -405,7 +405,7 @@ namespace MSDataFileReader
         /// <param name="removeTrailingPaddingChars"></param>
         /// <param name="eEndianMode"></param>
         /// <returns>Base-64 encoded string</returns>
-        public static string EncodeNumericArray(int[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
+        public static string EncodeNumericArray(int[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false, EndianType eEndianMode = EndianType.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 4;
             const string DATA_TYPE_NAME = "int";
@@ -428,7 +428,7 @@ namespace MSDataFileReader
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
-                if (eEndianMode == eEndianTypeConstants.LittleEndian)
+                if (eEndianMode == EndianType.LittleEndian)
                 {
                     // Do not swap bytes
                     Array.Copy(bytNewBytes, 0, bytArray, intBaseIndex, DATA_TYPE_PRECISION_BYTES);
@@ -456,7 +456,7 @@ namespace MSDataFileReader
         /// <param name="removeTrailingPaddingChars"></param>
         /// <param name="eEndianMode"></param>
         /// <returns>Base-64 encoded string</returns>
-        public static string EncodeNumericArray(float[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
+        public static string EncodeNumericArray(float[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false, EndianType eEndianMode = EndianType.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 4;
             const string DATA_TYPE_NAME = "float";
@@ -479,7 +479,7 @@ namespace MSDataFileReader
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
-                if (eEndianMode == eEndianTypeConstants.LittleEndian)
+                if (eEndianMode == EndianType.LittleEndian)
                 {
                     // Do not swap bytes
                     Array.Copy(bytNewBytes, 0, bytArray, intBaseIndex, DATA_TYPE_PRECISION_BYTES);
@@ -507,7 +507,7 @@ namespace MSDataFileReader
         /// <param name="removeTrailingPaddingChars"></param>
         /// <param name="eEndianMode"></param>
         /// <returns>Base-64 encoded string</returns>
-        public static string EncodeNumericArray(double[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false, eEndianTypeConstants eEndianMode = eEndianTypeConstants.LittleEndian)
+        public static string EncodeNumericArray(double[] dataArray, out int intPrecisionBitsReturn, out string strDataTypeNameReturn, bool removeTrailingPaddingChars = false, EndianType eEndianMode = EndianType.LittleEndian)
         {
             const int DATA_TYPE_PRECISION_BYTES = 8;
             const string DATA_TYPE_NAME = "float";
@@ -530,7 +530,7 @@ namespace MSDataFileReader
                 // I'm not sure if I've got Little and Big endian correct or not in the following If statement
                 // What I do know is that mzXML works with what I'm calling emBigEndian
                 // and mzData works with what I'm calling emLittleEndian
-                if (eEndianMode == eEndianTypeConstants.LittleEndian)
+                if (eEndianMode == EndianType.LittleEndian)
                 {
                     // Do not swap bytes
                     Array.Copy(bytNewBytes, 0, bytArray, intBaseIndex, DATA_TYPE_PRECISION_BYTES);

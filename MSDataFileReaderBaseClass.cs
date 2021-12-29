@@ -61,14 +61,14 @@ namespace MSDataFileReader
 
         protected const int DEFAULT_MAX_CACHE_MEMORY_USAGE_MB = 128;
 
-        public enum drmDataReaderModeConstants
+        public enum DataReaderMode
         {
             Sequential = 0,
             Cached = 1,
             Indexed = 2
         }
 
-        public enum dftDataFileTypeConstants
+        public enum DataFileType
         {
             Unknown = -1,
             mzData = 0,
@@ -102,7 +102,7 @@ namespace MSDataFileReader
 
         protected string mFileVersion;
 
-        protected drmDataReaderModeConstants mDataReaderMode;
+        protected DataReaderMode mDataReaderMode;
 
         protected bool mReadingAndStoringSpectra;
 
@@ -140,7 +140,7 @@ namespace MSDataFileReader
             set => mAutoShrinkDataLists = value;
         }
 
-        public virtual int CachedSpectrumCount => mDataReaderMode == drmDataReaderModeConstants.Cached ? mCachedSpectrumCount : 0;
+        public virtual int CachedSpectrumCount => mDataReaderMode == DataReaderMode.Cached ? mCachedSpectrumCount : 0;
 
         public int CachedSpectraScanNumberMinimum => mInputFileStats.ScanNumberMinimum;
 
@@ -321,10 +321,10 @@ namespace MSDataFileReader
         /// <param name="strFileNameOrPath"></param>
         /// <param name="eFileType"></param>
         /// <returns>True if a known file type, otherwise false</returns>
-        public static bool DetermineFileType(string strFileNameOrPath, out dftDataFileTypeConstants eFileType)
+        public static bool DetermineFileType(string strFileNameOrPath, out DataFileType eFileType)
         {
             bool blnKnownType;
-            eFileType = dftDataFileTypeConstants.Unknown;
+            eFileType = DataFileType.Unknown;
 
             try
             {
@@ -353,30 +353,30 @@ namespace MSDataFileReader
                 switch (strFileExtension)
                 {
                     case MzDataFileReader.MZDATA_FILE_EXTENSION:
-                        eFileType = dftDataFileTypeConstants.mzData;
+                        eFileType = DataFileType.mzData;
                         break;
 
                     case MzXMLFileReader.MZXML_FILE_EXTENSION:
-                        eFileType = dftDataFileTypeConstants.mzXML;
+                        eFileType = DataFileType.mzXML;
                         break;
 
                     case MGFFileReader.MGF_FILE_EXTENSION:
-                        eFileType = dftDataFileTypeConstants.MGF;
+                        eFileType = DataFileType.MGF;
                         break;
 
                     default:
                         // See if the filename ends with MZDATA_FILE_EXTENSION_XML or MZXML_FILE_EXTENSION_XML
                         if (strFileName.EndsWith(MzDataFileReader.MZDATA_FILE_EXTENSION_XML, StringComparison.OrdinalIgnoreCase))
                         {
-                            eFileType = dftDataFileTypeConstants.mzData;
+                            eFileType = DataFileType.mzData;
                         }
                         else if (strFileName.EndsWith(MzXMLFileReader.MZXML_FILE_EXTENSION_XML, StringComparison.OrdinalIgnoreCase))
                         {
-                            eFileType = dftDataFileTypeConstants.mzXML;
+                            eFileType = DataFileType.mzXML;
                         }
                         else if (strFileName.EndsWith(DtaTextFileReader.DTA_TEXT_FILE_EXTENSION, StringComparison.OrdinalIgnoreCase))
                         {
-                            eFileType = dftDataFileTypeConstants.DtaText;
+                            eFileType = DataFileType.DtaText;
                         }
                         else
                         {
@@ -408,19 +408,19 @@ namespace MSDataFileReader
             {
                 switch (eFileType)
                 {
-                    case dftDataFileTypeConstants.DtaText:
+                    case DataFileType.DtaText:
                         objFileReader = new DtaTextFileReader();
                         break;
 
-                    case dftDataFileTypeConstants.MGF:
+                    case DataFileType.MGF:
                         objFileReader = new MGFFileReader();
                         break;
 
-                    case dftDataFileTypeConstants.mzData:
+                    case DataFileType.mzData:
                         objFileReader = new MzDataFileReader();
                         break;
 
-                    case dftDataFileTypeConstants.mzXML:
+                    case DataFileType.mzXML:
                         objFileReader = new MzXMLFileReader();
                         break;
 
@@ -449,17 +449,17 @@ namespace MSDataFileReader
             {
                 switch (eFileType)
                 {
-                    case dftDataFileTypeConstants.mzData:
+                    case DataFileType.mzData:
                         objFileAccessor = new MzDataFileAccessor();
                         break;
 
-                    case dftDataFileTypeConstants.mzXML:
+                    case DataFileType.mzXML:
                         objFileAccessor = new MzXMLFileAccessor();
                         break;
 
                     // These file types do not have file accessors
-                    case dftDataFileTypeConstants.DtaText:
-                    case dftDataFileTypeConstants.MGF:
+                    case DataFileType.DtaText:
+                    case DataFileType.MGF:
                         break;
 
                     default:
@@ -482,7 +482,7 @@ namespace MSDataFileReader
         {
             try
             {
-                if (mDataReaderMode == drmDataReaderModeConstants.Cached && mCachedSpectra != null)
+                if (mDataReaderMode == DataReaderMode.Cached && mCachedSpectra != null)
                 {
                     ScanNumberList = new int[mCachedSpectrumCount];
                     var intIndexEnd = ScanNumberList.Length - 1;
@@ -517,7 +517,7 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         public virtual bool GetSpectrumByIndex(int intSpectrumIndex, out SpectrumInfo objSpectrumInfo)
         {
-            if (mDataReaderMode == drmDataReaderModeConstants.Cached && mCachedSpectrumCount > 0)
+            if (mDataReaderMode == DataReaderMode.Cached && mCachedSpectrumCount > 0)
             {
                 if (intSpectrumIndex >= 0 && intSpectrumIndex < mCachedSpectrumCount && mCachedSpectra != null)
                 {
@@ -555,7 +555,7 @@ namespace MSDataFileReader
             {
                 mErrorMessage = string.Empty;
 
-                if (mDataReaderMode == drmDataReaderModeConstants.Cached)
+                if (mDataReaderMode == DataReaderMode.Cached)
                 {
                     if (mCachedSpectraScanToIndex.Count == 0)
                     {
@@ -675,7 +675,7 @@ namespace MSDataFileReader
         {
             try
             {
-                mDataReaderMode = drmDataReaderModeConstants.Cached;
+                mDataReaderMode = DataReaderMode.Cached;
                 AutoShrinkDataLists = false;
                 mReadingAndStoringSpectra = true;
                 ResetProgress();

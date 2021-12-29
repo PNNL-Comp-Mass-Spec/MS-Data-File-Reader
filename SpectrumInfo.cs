@@ -33,7 +33,7 @@ namespace MSDataFileReader
             public const string continuous = "continuous";
         }
 
-        public enum eSpectrumStatusConstants
+        public enum SpectrumStatusMode
         {
             /// <summary>
             /// Used when .Clear() is called
@@ -113,7 +113,7 @@ namespace MSDataFileReader
 
         protected string mErrorMessage;
 
-        protected eSpectrumStatusConstants mSpectrumStatus;
+        protected SpectrumStatusMode mSpectrumStatus;
 
         public int SpectrumID
         {
@@ -121,7 +121,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mSpectrumID = value;
             }
         }
@@ -132,7 +132,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mScanNumber = value;
             }
         }
@@ -143,7 +143,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mScanCount = value;
             }
         }
@@ -154,7 +154,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mScanNumberEnd = value;
             }
         }
@@ -165,7 +165,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mSpectrumType = value;
             }
         }
@@ -176,7 +176,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mSpectrumCombinationMethod = value;
             }
         }
@@ -187,7 +187,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mMSLevel = value;
             }
         }
@@ -203,7 +203,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mPolarity = value;
             }
         }
@@ -214,7 +214,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mRetentionTimeMin = value;
             }
         }
@@ -225,7 +225,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mmzRangeStart = value;
             }
         }
@@ -236,7 +236,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mmzRangeEnd = value;
             }
         }
@@ -247,7 +247,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mBasePeakMZ = value;
             }
         }
@@ -258,7 +258,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mBasePeakIntensity = value;
             }
         }
@@ -269,7 +269,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mTotalIonCurrent = value;
             }
         }
@@ -280,7 +280,7 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mParentIonMZ = value;
             }
         }
@@ -291,12 +291,12 @@ namespace MSDataFileReader
 
             set
             {
-                mSpectrumStatus = eSpectrumStatusConstants.DataDefined;
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
                 mParentIonIntensity = value;
             }
         }
 
-        public eSpectrumStatusConstants SpectrumStatus => mSpectrumStatus;
+        public SpectrumStatusMode SpectrumStatus => mSpectrumStatus;
 
         /// <summary>
         /// When True, MZList().Length and IntensityList().Length will equal DataCount
@@ -349,7 +349,7 @@ namespace MSDataFileReader
                 Array.Clear(IntensityList, 0, IntensityList.Length);
             }
 
-            mSpectrumStatus = eSpectrumStatusConstants.Initialized;
+            mSpectrumStatus = SpectrumStatusMode.Initialized;
             mErrorMessage = string.Empty;
         }
 

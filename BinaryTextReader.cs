@@ -55,7 +55,7 @@ namespace MSDataFileReader
         public BinaryTextReader()
         {
             // Note: Setting this property's value will also update mLineTerminator1Code and mLineTerminator2Code
-            FileSystemMode = FileSystemModeConstants.Windows;
+            FileSystemMode = FileSystemModes.Windows;
 
             InitializeLocalVariables();
         }
@@ -69,14 +69,14 @@ namespace MSDataFileReader
 
         private const byte LINE_TERMINATOR_CODE_CR = 13;
 
-        public enum FileSystemModeConstants
+        public enum FileSystemModes
         {
             Windows = 0,
             Unix = 1,
             Macintosh = 2
         }
 
-        public enum InputFileEncodingConstants
+        public enum InputFileEncodings
         {
             ASCII = 0,                  // No Byte Order Mark
             UTF8 = 1,                   // Byte Order Mark: EF BB BF (UTF-8)
@@ -84,7 +84,7 @@ namespace MSDataFileReader
             UnicodeBigEndian = 3        // Byte Order Mark: FE FF (Big Endian Unicode)
         }
 
-        public enum ReadDirectionConstants
+        public enum ReadDirection
         {
             Forward = 0,
             Reverse = 1
@@ -92,14 +92,14 @@ namespace MSDataFileReader
 
         private string mInputFilePath;
 
-        private InputFileEncodingConstants mInputFileEncoding = InputFileEncodingConstants.ASCII;
+        private InputFileEncodings mInputFileEncoding = InputFileEncodings.ASCII;
 
         private byte mCharSize = 1;
 
         private byte mByteOrderMarkLength;
 
         // Note: Use Me.FileSystemMode to set this variable so that mLineTerminator1Code and mLineTerminator2Code also get updated
-        private FileSystemModeConstants mFileSystemMode;
+        private FileSystemModes mFileSystemMode;
 
         private byte mLineTerminator1Code;
 
@@ -129,7 +129,7 @@ namespace MSDataFileReader
 
         private long mCurrentLineByteOffsetEndWithTerminator;
 
-        private ReadDirectionConstants mReadLineDirectionSaved;
+        private ReadDirection mReadLineDirectionSaved;
 
         private long mCurrentLineByteOffsetStartSaved;
 
@@ -174,7 +174,7 @@ namespace MSDataFileReader
             }
         }
 
-        public FileSystemModeConstants FileSystemMode
+        public FileSystemModes FileSystemMode
         {
             get => mFileSystemMode;
 
@@ -184,14 +184,14 @@ namespace MSDataFileReader
 
                 switch (mFileSystemMode)
                 {
-                    case FileSystemModeConstants.Windows:
-                    case FileSystemModeConstants.Unix:
+                    case FileSystemModes.Windows:
+                    case FileSystemModes.Unix:
                         // Normally present for Windows; normally not present for Unix
                         mLineTerminator1Code = LINE_TERMINATOR_CODE_CR;
                         mLineTerminator2Code = LINE_TERMINATOR_CODE_LF;
                         break;
 
-                    case FileSystemModeConstants.Macintosh:
+                    case FileSystemModes.Macintosh:
                         mLineTerminator1Code = 0;
                         mLineTerminator2Code = LINE_TERMINATOR_CODE_CR;
                         break;
@@ -203,7 +203,7 @@ namespace MSDataFileReader
 
         public int LineNumber => mLineNumber;
 
-        public InputFileEncodingConstants InputFileEncoding
+        public InputFileEncodings InputFileEncoding
         {
             get => mInputFileEncoding;
 
@@ -277,7 +277,7 @@ namespace MSDataFileReader
                 Array.Clear(mByteBuffer, 0, mByteBuffer.Length);
             }
 
-            mReadLineDirectionSaved = ReadDirectionConstants.Forward;
+            mReadLineDirectionSaved = ReadDirection.Forward;
             mCurrentLineByteOffsetStartSaved = -1;
             mCurrentLineTextSaved = string.Empty;
             InitializeCurrentLine();
@@ -405,7 +405,7 @@ namespace MSDataFileReader
                 {
                     // Unicode (Little Endian)
                     // Note that this sets mCharSize to 2
-                    SetInputFileEncoding(InputFileEncodingConstants.UnicodeNormal);
+                    SetInputFileEncoding(InputFileEncodings.UnicodeNormal);
 
                     // Skip the first 2 bytes
                     mByteBufferNextLineStartIndex = 2;
@@ -415,7 +415,7 @@ namespace MSDataFileReader
                 {
                     // Unicode (Big Endian)
                     // Note that this sets mCharSize to 2
-                    SetInputFileEncoding(InputFileEncodingConstants.UnicodeBigEndian);
+                    SetInputFileEncoding(InputFileEncodings.UnicodeBigEndian);
                     // Skip the first 2 bytes
                     mByteBufferNextLineStartIndex = 2;
                     mByteOrderMarkLength = 2;
@@ -426,7 +426,7 @@ namespace MSDataFileReader
                     {
                         // UTF-8
                         // Note that this sets mCharSize to 1
-                        SetInputFileEncoding(InputFileEncodingConstants.UTF8);
+                        SetInputFileEncoding(InputFileEncodings.UTF8);
                         // Skip the first 3 bytes
                         mByteBufferNextLineStartIndex = 3;
                         mByteOrderMarkLength = 3;
@@ -464,12 +464,12 @@ namespace MSDataFileReader
                             if (intIndexStart == 0)
                             {
                                 // Unicode (Little Endian)
-                                SetInputFileEncoding(InputFileEncodingConstants.UnicodeNormal);
+                                SetInputFileEncoding(InputFileEncodings.UnicodeNormal);
                             }
                             else
                             {
                                 // Unicode (Big Endian)
-                                SetInputFileEncoding(InputFileEncodingConstants.UnicodeBigEndian);
+                                SetInputFileEncoding(InputFileEncodings.UnicodeBigEndian);
                             }
 
                             break;
@@ -543,7 +543,7 @@ namespace MSDataFileReader
                 mInputFilePath = string.Copy(dataFilePath);
 
                 // Note that this sets mCharSize to 1
-                SetInputFileEncoding(InputFileEncodingConstants.ASCII);
+                SetInputFileEncoding(InputFileEncodings.ASCII);
 
                 // Initialize the binary reader
                 mBinaryReader = new FileStream(mInputFilePath, FileMode.Open, FileAccess.Read, share);
@@ -567,7 +567,7 @@ namespace MSDataFileReader
 
         public bool ReadLine()
         {
-            return ReadLine(ReadDirectionConstants.Forward);
+            return ReadLine(ReadDirection.Forward);
         }
 
         /// <summary>
@@ -578,7 +578,7 @@ namespace MSDataFileReader
         /// </remarks>
         /// <param name="eDirection"></param>
         /// <returns>True if successful, False if failure</returns>
-        public bool ReadLine(ReadDirectionConstants eDirection)
+        public bool ReadLine(ReadDirection eDirection)
         {
             var intStartIndexShiftIncrement = 0;
             var blnMatchFound = false;
@@ -594,18 +594,18 @@ namespace MSDataFileReader
                 {
                     switch (mInputFileEncoding)
                     {
-                        case InputFileEncodingConstants.ASCII:
-                        case InputFileEncodingConstants.UTF8:
+                        case InputFileEncodings.ASCII:
+                        case InputFileEncodings.UTF8:
                             // ASCII or UTF-8 encoding; Assure mCharSize = 1
                             mCharSize = 1;
                             break;
 
-                        case InputFileEncodingConstants.UnicodeNormal:
+                        case InputFileEncodings.UnicodeNormal:
                             // Unicode (Little Endian) encoding; Assure mCharSize = 2
                             mCharSize = 2;
                             break;
 
-                        case InputFileEncodingConstants.UnicodeBigEndian:
+                        case InputFileEncodings.UnicodeBigEndian:
                             // Unicode (Big Endian) encoding; Assure mCharSize = 2
                             mCharSize = 2;
                             break;
@@ -618,7 +618,7 @@ namespace MSDataFileReader
 
                     int intSearchIndexStartOffset;
 
-                    if (eDirection == ReadDirectionConstants.Forward)
+                    if (eDirection == ReadDirection.Forward)
                     {
                         intSearchIndexStartOffset = 0;
 
@@ -649,7 +649,7 @@ namespace MSDataFileReader
                         var intIndexMinimum = mCharSize - 1;
                         var intIndexMaximum = mByteBufferCount - mCharSize;
 
-                        if (eDirection == ReadDirectionConstants.Reverse && mLineTerminator1Code != 0 && mByteBufferFileOffsetStart > 0L)
+                        if (eDirection == ReadDirection.Reverse && mLineTerminator1Code != 0 && mByteBufferFileOffsetStart > 0L)
                         {
                             // We're looking for a two-character line terminator (though the
                             // presence of mLineTerminator1Code is not required)
@@ -663,15 +663,15 @@ namespace MSDataFileReader
                         var intTerminatorCheckCountValueZero = 0;
                         var blnStartIndexShifted = false;
 
-                        if (eDirection == ReadDirectionConstants.Reverse && currentIndex >= intIndexMinimum ||
-                            eDirection == ReadDirectionConstants.Forward && currentIndex <= intIndexMaximum)
+                        if (eDirection == ReadDirection.Reverse && currentIndex >= intIndexMinimum ||
+                            eDirection == ReadDirection.Forward && currentIndex <= intIndexMaximum)
                         {
                             do
                             {
                                 switch (mInputFileEncoding)
                                 {
-                                    case InputFileEncodingConstants.ASCII:
-                                    case InputFileEncodingConstants.UTF8:
+                                    case InputFileEncodings.ASCII:
+                                    case InputFileEncodings.UTF8:
                                         // ASCII or UTF-8 encoding; Assure mCharSize = 1
                                         if (mByteBuffer[currentIndex] == mLineTerminator2Code)
                                         {
@@ -680,7 +680,7 @@ namespace MSDataFileReader
 
                                         break;
 
-                                    case InputFileEncodingConstants.UnicodeNormal:
+                                    case InputFileEncodings.UnicodeNormal:
                                         // Look for the LF symbol followed by a byte with value 0 in mByteBuffer
                                         if (mByteBuffer[currentIndex] == mLineTerminator2Code && mByteBuffer[currentIndex + 1] == 0)
                                         {
@@ -695,7 +695,7 @@ namespace MSDataFileReader
                                         intTerminatorCheckCount++;
                                         break;
 
-                                    case InputFileEncodingConstants.UnicodeBigEndian:
+                                    case InputFileEncodings.UnicodeBigEndian:
                                         // Unicode (Big Endian) encoding; Assure mCharSize = 2
                                         if (mByteBuffer[currentIndex] == 0 && mByteBuffer[currentIndex + 1] == mLineTerminator2Code)
                                         {
@@ -711,7 +711,7 @@ namespace MSDataFileReader
                                         break;
                                 }
 
-                                if (eDirection == ReadDirectionConstants.Forward)
+                                if (eDirection == ReadDirection.Forward)
                                 {
                                     if (currentIndex + mCharSize <= intIndexMaximum)
                                     {
@@ -759,7 +759,7 @@ namespace MSDataFileReader
                                 if (intStartIndexShiftCount == 0)
                                 {
                                     // First attempt to shift; determine the shift direction
-                                    if (eDirection == ReadDirectionConstants.Forward)
+                                    if (eDirection == ReadDirection.Forward)
                                     {
                                         // Searching forward
                                         if (mByteBufferNextLineStartIndex > mCharSize - 2)
@@ -787,7 +787,7 @@ namespace MSDataFileReader
                                 intStartIndexShiftCount++;
                                 blnStartIndexShifted = true;
                             }
-                            else if (eDirection == ReadDirectionConstants.Forward)
+                            else if (eDirection == ReadDirection.Forward)
                             {
                                 // Searching forward; are we at the end of the file?
                                 if (ByteAtEOF(mByteBufferFileOffsetStart + currentIndex + mCharSize))
@@ -812,7 +812,7 @@ namespace MSDataFileReader
                             int intMatchingTextIndexStart;
                             int intMatchingTextIndexEnd;
 
-                            if (eDirection == ReadDirectionConstants.Forward)
+                            if (eDirection == ReadDirection.Forward)
                             {
                                 intMatchingTextIndexStart = mByteBufferNextLineStartIndex;
                                 intMatchingTextIndexEnd = currentIndex;
@@ -829,8 +829,8 @@ namespace MSDataFileReader
 
                             switch (mInputFileEncoding)
                             {
-                                case InputFileEncodingConstants.ASCII:
-                                case InputFileEncodingConstants.UTF8:
+                                case InputFileEncodings.ASCII:
+                                case InputFileEncodings.UTF8:
                                     // ASCII encoding
                                     if (mLineTerminator1Code != 0 && intMatchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize] == mLineTerminator1Code)
                                     {
@@ -856,7 +856,7 @@ namespace MSDataFileReader
                                         // Blank line
                                         mCurrentLineText = string.Empty;
                                     }
-                                    else if (mInputFileEncoding == InputFileEncodingConstants.UTF8)
+                                    else if (mInputFileEncoding == InputFileEncodings.UTF8)
                                     {
                                         // Extract the data between intMatchingTextIndexStart and intMatchingTextIndexEnd, excluding any line terminator characters
                                         mCurrentLineText = new string(Encoding.UTF8.GetChars(mByteBuffer, intMatchingTextIndexStart, intBytesToRead));
@@ -869,7 +869,7 @@ namespace MSDataFileReader
 
                                     break;
 
-                                case InputFileEncodingConstants.UnicodeNormal:
+                                case InputFileEncodings.UnicodeNormal:
                                     // Unicode (Little Endian) encoding
                                     if (mLineTerminator1Code != 0 && intMatchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize] == mLineTerminator1Code && mByteBuffer[intMatchingTextIndexEnd - mCharSize + 1] == 0)
                                     {
@@ -903,7 +903,7 @@ namespace MSDataFileReader
 
                                     break;
 
-                                case InputFileEncodingConstants.UnicodeBigEndian:
+                                case InputFileEncodings.UnicodeBigEndian:
                                     // Unicode (Big Endian) encoding
                                     if (mLineTerminator1Code != 0 && intMatchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize] == 0 && mByteBuffer[intMatchingTextIndexEnd - mCharSize + 1] == mLineTerminator1Code)
                                     {
@@ -959,7 +959,7 @@ namespace MSDataFileReader
                                 mCurrentLineByteOffsetEnd = mCurrentLineByteOffsetStart;
                             }
 
-                            if (eDirection == ReadDirectionConstants.Forward)
+                            if (eDirection == ReadDirection.Forward)
                             {
                                 mByteBufferNextLineStartIndex = intMatchingTextIndexEnd + 1;
                                 mLineNumber++;
@@ -1003,7 +1003,7 @@ namespace MSDataFileReader
                         // Need to add more data to the buffer (or shift the data in the buffer)
                         int intBytesRead;
 
-                        if (eDirection == ReadDirectionConstants.Forward)
+                        if (eDirection == ReadDirection.Forward)
                         {
                             if (mBinaryReader.Position >= mBinaryReader.Length)
                             {
@@ -1145,22 +1145,22 @@ namespace MSDataFileReader
             return false;
         }
 
-        private void SetInputFileEncoding(InputFileEncodingConstants EncodingMode)
+        private void SetInputFileEncoding(InputFileEncodings EncodingMode)
         {
             mInputFileEncoding = EncodingMode;
 
             switch (mInputFileEncoding)
             {
-                case InputFileEncodingConstants.ASCII:
-                case InputFileEncodingConstants.UTF8:
+                case InputFileEncodings.ASCII:
+                case InputFileEncodings.UTF8:
                     mCharSize = 1;
                     break;
 
-                case InputFileEncodingConstants.UnicodeNormal:
+                case InputFileEncodings.UnicodeNormal:
                     mCharSize = 2;
                     break;
 
-                case InputFileEncodingConstants.UnicodeBigEndian:
+                case InputFileEncodings.UnicodeBigEndian:
                     mCharSize = 2;
                     break;
 

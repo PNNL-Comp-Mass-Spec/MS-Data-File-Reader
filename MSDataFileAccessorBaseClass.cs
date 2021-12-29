@@ -59,7 +59,7 @@ namespace MSDataFileReader
             }
         }
 
-        protected enum emmElementMatchModeConstants
+        protected enum ElementMatchMode
         {
             StartElement = 0,
             EndElement = 1
@@ -87,7 +87,7 @@ namespace MSDataFileReader
             }
         }
 
-        protected BinaryTextReader.InputFileEncodingConstants mInputFileEncoding;
+        protected BinaryTextReader.InputFileEncodings mInputFileEncoding;
 
         protected byte mCharSize;
 
@@ -116,7 +116,7 @@ namespace MSDataFileReader
         {
             get
             {
-                if (mDataReaderMode == drmDataReaderModeConstants.Cached)
+                if (mDataReaderMode == DataReaderMode.Cached)
                 {
                     return base.CachedSpectrumCount;
                 }
@@ -126,7 +126,7 @@ namespace MSDataFileReader
         }
 
         // ReSharper disable once UnusedMemberInSuper.Global
-        protected abstract bool AdvanceFileReaders(emmElementMatchModeConstants eElementMatchMode);
+        protected abstract bool AdvanceFileReaders(ElementMatchMode eElementMatchMode);
 
         public override void CloseFile()
         {
@@ -169,16 +169,16 @@ namespace MSDataFileReader
 
                         switch (mInputFileEncoding)
                         {
-                            case BinaryTextReader.InputFileEncodingConstants.ASCII:
+                            case BinaryTextReader.InputFileEncodings.ASCII:
                                 return new string(Encoding.ASCII.GetChars(bytData, 0, intBytesToRead));
 
-                            case BinaryTextReader.InputFileEncodingConstants.UTF8:
+                            case BinaryTextReader.InputFileEncodings.UTF8:
                                 return new string(Encoding.UTF8.GetChars(bytData, 0, intBytesToRead));
 
-                            case BinaryTextReader.InputFileEncodingConstants.UnicodeNormal:
+                            case BinaryTextReader.InputFileEncodings.UnicodeNormal:
                                 return new string(Encoding.Unicode.GetChars(bytData, 0, intBytesToRead));
 
-                            case BinaryTextReader.InputFileEncodingConstants.UnicodeBigEndian:
+                            case BinaryTextReader.InputFileEncodings.UnicodeBigEndian:
                                 return new string(Encoding.BigEndianUnicode.GetChars(bytData, 0, intBytesToRead));
 
                             default:
@@ -224,7 +224,7 @@ namespace MSDataFileReader
         {
             try
             {
-                if (mDataReaderMode == drmDataReaderModeConstants.Cached)
+                if (mDataReaderMode == DataReaderMode.Cached)
                 {
                     return base.GetScanNumberList(out ScanNumberList);
                 }
@@ -281,7 +281,7 @@ namespace MSDataFileReader
             {
                 mErrorMessage = string.Empty;
 
-                if (mDataReaderMode != drmDataReaderModeConstants.Indexed)
+                if (mDataReaderMode != DataReaderMode.Indexed)
                 {
                     mErrorMessage = "Indexed data not in memory";
                     return false;
@@ -342,7 +342,7 @@ namespace MSDataFileReader
                 mErrorMessage = string.Empty;
                 var success = false;
 
-                if (mDataReaderMode != drmDataReaderModeConstants.Indexed)
+                if (mDataReaderMode != DataReaderMode.Indexed)
                 {
                     mErrorMessage = "Indexed data not in memory";
                     return false;
@@ -400,12 +400,12 @@ namespace MSDataFileReader
         {
             try
             {
-                if (mDataReaderMode == drmDataReaderModeConstants.Cached)
+                if (mDataReaderMode == DataReaderMode.Cached)
                 {
                     return base.GetSpectrumByIndex(intSpectrumIndex, out objSpectrumInfo);
                 }
 
-                if (mDataReaderMode == drmDataReaderModeConstants.Indexed)
+                if (mDataReaderMode == DataReaderMode.Indexed)
                 {
                     return GetSpectrumByIndexWork(intSpectrumIndex, out objSpectrumInfo, false);
                 }
@@ -447,12 +447,12 @@ namespace MSDataFileReader
             {
                 mErrorMessage = string.Empty;
 
-                if (mDataReaderMode == drmDataReaderModeConstants.Cached)
+                if (mDataReaderMode == DataReaderMode.Cached)
                 {
                     return base.GetSpectrumByScanNumber(intScanNumber, out objSpectrumInfo);
                 }
 
-                if (mDataReaderMode != drmDataReaderModeConstants.Indexed)
+                if (mDataReaderMode != DataReaderMode.Indexed)
                 {
                     mErrorMessage = "Cached or indexed data not in memory";
                     return false;
@@ -553,8 +553,8 @@ namespace MSDataFileReader
             base.InitializeLocalVariables();
             mErrorMessage = string.Empty;
             mLastSpectrumIndexRead = 0;
-            mDataReaderMode = drmDataReaderModeConstants.Indexed;
-            mInputFileEncoding = BinaryTextReader.InputFileEncodingConstants.ASCII;
+            mDataReaderMode = DataReaderMode.Indexed;
+            mInputFileEncoding = BinaryTextReader.InputFileEncodings.ASCII;
             mCharSize = 1;
             mIndexingComplete = false;
         }
@@ -585,7 +585,7 @@ namespace MSDataFileReader
                     return false;
 
                 InitializeFileTrackingVariables();
-                mDataReaderMode = drmDataReaderModeConstants.Indexed;
+                mDataReaderMode = DataReaderMode.Indexed;
                 mInputFilePath = string.Copy(strInputFilePath);
 
                 // Initialize the binary text reader
@@ -651,7 +651,7 @@ namespace MSDataFileReader
 
             if (success)
             {
-                mDataReaderMode = drmDataReaderModeConstants.Cached;
+                mDataReaderMode = DataReaderMode.Cached;
             }
 
             return success;
