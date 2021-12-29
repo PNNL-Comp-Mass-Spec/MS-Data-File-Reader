@@ -640,7 +640,7 @@ namespace MSDataFileReader
                         }
                     }
 
-                    while (!blnMatchFound)
+                    while (true)
                     {
                         // Note that intSearchIndexStartOffset will be >=0 if searching forward and <=-2 if searching backward
                         var currentIndex = mByteBufferNextLineStartIndex + intSearchIndexStartOffset;

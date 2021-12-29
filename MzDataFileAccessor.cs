@@ -135,7 +135,7 @@ namespace MSDataFileReader
                 var blnAcqNumberFound = false;
                 blnMatchFound = false;
 
-                while (!(blnMatchFound || mAbortProcessing))
+                while (!mAbortProcessing)
                 {
                     if (mInFileCurrentCharIndex + 1 < mInFileCurrentLineText.Length)
                     {
