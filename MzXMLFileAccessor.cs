@@ -621,14 +621,14 @@ namespace MSDataFileReader
 
                         if (currentLine.Length > 0)
                         {
-                            stringBuilder.Append(currentLine + mBinaryTextReader.CurrentLineTerminator);
+                            stringBuilder.AppendFormat("{0}{1}", currentLine, mBinaryTextReader.CurrentLineTerminator);
                         }
 
                         // Read all of the lines to the end of the file
                         while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirection.Forward))
                         {
                             currentLine = mBinaryTextReader.CurrentLine;
-                            stringBuilder.Append(currentLine + mBinaryTextReader.CurrentLineTerminator);
+                            stringBuilder.AppendFormat("{0}{1}", currentLine, mBinaryTextReader.CurrentLineTerminator);
                         }
 
                         indexLoaded = ParseMzXMLOffsetIndex(stringBuilder.ToString());
