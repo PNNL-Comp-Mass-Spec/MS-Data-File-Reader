@@ -618,6 +618,7 @@ namespace MSDataFileReader
             catch (Exception ex)
             {
                 mErrorMessage = "Error opening file: " + strInputFilePath + "; " + ex.Message;
+                OnErrorEvent(mErrorMessage, ex);
                 return false;
             }
         }

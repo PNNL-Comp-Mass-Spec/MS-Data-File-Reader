@@ -953,6 +953,7 @@ namespace MSDataFileReader
             catch (Exception ex)
             {
                 mErrorMessage = "Error updating mXMLReader";
+                OnErrorEvent(mErrorMessage, ex);
                 return false;
             }
         }
