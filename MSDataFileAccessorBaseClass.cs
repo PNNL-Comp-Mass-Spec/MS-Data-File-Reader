@@ -167,24 +167,14 @@ namespace MSDataFileReader
                         var data = new byte[bytesToRead];
                         bytesToRead = mBinaryReader.Read(data, 0, bytesToRead);
 
-                        switch (mInputFileEncoding)
+                        return mInputFileEncoding switch
                         {
-                            case BinaryTextReader.InputFileEncodings.ASCII:
-                                return new string(Encoding.ASCII.GetChars(data, 0, bytesToRead));
-
-                            case BinaryTextReader.InputFileEncodings.UTF8:
-                                return new string(Encoding.UTF8.GetChars(data, 0, bytesToRead));
-
-                            case BinaryTextReader.InputFileEncodings.UnicodeNormal:
-                                return new string(Encoding.Unicode.GetChars(data, 0, bytesToRead));
-
-                            case BinaryTextReader.InputFileEncodings.UnicodeBigEndian:
-                                return new string(Encoding.BigEndianUnicode.GetChars(data, 0, bytesToRead));
-
-                            default:
-                                // Unknown encoding
-                                return string.Empty;
-                        }
+                            BinaryTextReader.InputFileEncodings.ASCII => new string(Encoding.ASCII.GetChars(data, 0, bytesToRead)),
+                            BinaryTextReader.InputFileEncodings.UTF8 => new string(Encoding.UTF8.GetChars(data, 0, bytesToRead)),
+                            BinaryTextReader.InputFileEncodings.UnicodeNormal => new string(Encoding.Unicode.GetChars(data, 0, bytesToRead)),
+                            BinaryTextReader.InputFileEncodings.UnicodeBigEndian => new string(Encoding.BigEndianUnicode.GetChars(data, 0, bytesToRead)),
+                            _ => string.Empty
+                        };
                     }
                 }
             }
