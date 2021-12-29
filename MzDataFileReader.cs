@@ -89,7 +89,7 @@ namespace MSDataFileReader
             public const string ArrayData = "data";
         }
 
-        private static class mzDataRootAttributeNames
+        private static class MzDataRootAttributeNames
         {
             public const string version = "version";
 
@@ -858,7 +858,7 @@ namespace MSDataFileReader
 
                     if (mXMLReader.HasAttributes)
                     {
-                        ValidateMZDataFileVersion(GetAttribValue(mzDataRootAttributeNames.version, string.Empty));
+                        ValidateMZDataFileVersion(GetAttribValue(MzDataRootAttributeNames.version, string.Empty));
                     }
 
                     break;
