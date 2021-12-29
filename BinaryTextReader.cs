@@ -158,7 +158,7 @@ namespace MSDataFileReader
 
         public string CurrentLineTerminator => mCurrentLineTerminator ?? string.Empty;
 
-        public string ErrorMessage => mErrorMessage;
+        public string ErrorMessage => mErrorMessage ?? string.Empty;
 
         public long FileLengthBytes
         {

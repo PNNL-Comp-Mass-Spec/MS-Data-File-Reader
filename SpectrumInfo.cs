@@ -305,15 +305,7 @@ namespace MSDataFileReader
         /// </remarks>
         public bool AutoShrinkDataLists { get; set; }
 
-        public string ErrorMessage
-        {
-            get
-            {
-                if (mErrorMessage is null)
-                    mErrorMessage = string.Empty;
-                return mErrorMessage;
-            }
-        }
+        public string ErrorMessage => mErrorMessage ?? string.Empty;
 
         public virtual void Clear()
         {
