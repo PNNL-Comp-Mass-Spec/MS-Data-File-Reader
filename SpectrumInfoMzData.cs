@@ -185,18 +185,12 @@ namespace MSDataFileReader
 
         public Base64EncodeDecode.EndianType GetEndianModeValue(string endianModeText)
         {
-            switch (endianModeText)
+            return endianModeText switch
             {
-                case EndianModes.bigEndian:
-                    return Base64EncodeDecode.EndianType.BigEndian;
-
-                case EndianModes.littleEndian:
-                    return Base64EncodeDecode.EndianType.LittleEndian;
-
-                default:
-                    // Assume littleEndian
-                    return Base64EncodeDecode.EndianType.LittleEndian;
-            }
+                EndianModes.bigEndian => Base64EncodeDecode.EndianType.BigEndian,
+                EndianModes.littleEndian => Base64EncodeDecode.EndianType.LittleEndian,
+                _ => Base64EncodeDecode.EndianType.LittleEndian
+            };
         }
 
         /// <summary>

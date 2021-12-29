@@ -1164,26 +1164,14 @@ namespace MSDataFileReader
         {
             mInputFileEncoding = EncodingMode;
 
-            switch (mInputFileEncoding)
+            mCharSize = mInputFileEncoding switch
             {
-                case InputFileEncodings.ASCII:
-                case InputFileEncodings.UTF8:
-                    mCharSize = 1;
-                    break;
-
-                case InputFileEncodings.UnicodeNormal:
-                    mCharSize = 2;
-                    break;
-
-                case InputFileEncodings.UnicodeBigEndian:
-                    mCharSize = 2;
-                    break;
-
-                default:
-                    // Unknown mode; assume mCharSize = 1
-                    mCharSize = 1;
-                    break;
-            }
+                InputFileEncodings.ASCII => 1,
+                InputFileEncodings.UTF8 => 1,
+                InputFileEncodings.UnicodeNormal => 2,
+                InputFileEncodings.UnicodeBigEndian => 2,
+                _ => 1
+            };
         }
     }
 }
