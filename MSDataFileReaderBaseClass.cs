@@ -194,14 +194,7 @@ namespace MSDataFileReader
 
                 if (double.TryParse(strValue, out var dblValue))
                 {
-                    if (Math.Abs(dblValue) < float.Epsilon)
-                    {
-                        return false;
-                    }
-                    else
-                    {
-                        return true;
-                    }
+                    return !(Math.Abs(dblValue) < float.Epsilon);
                 }
 
                 if (bool.TryParse(strValue, out var blnValue))

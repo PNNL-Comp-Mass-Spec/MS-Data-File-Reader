@@ -407,10 +407,8 @@ namespace MSDataFileReader
                     return string.Empty;
                 }
             }
-            else
-            {
-                return string.Empty;
-            }
+
+            return string.Empty;
         }
 
         protected override string GetInputFileLocation()
@@ -510,11 +508,9 @@ namespace MSDataFileReader
             {
                 return string.Empty;
             }
-            else
-            {
-                var udtElementInfo = (udtElementInfoType)mParentElementStack.Pop();
-                return udtElementInfo.Name;
-            }
+
+            var udtElementInfo = (udtElementInfoType)mParentElementStack.Pop();
+            return udtElementInfo.Name;
         }
 
         /// <summary>
