@@ -15,14 +15,9 @@ namespace MSDataFileReader
 
         private static string B64encode(byte[] bytArray, bool removeTrailingPaddingChars = false)
         {
-            if (removeTrailingPaddingChars)
-            {
-                return Convert.ToBase64String(bytArray).TrimEnd('=');
-            }
-            else
-            {
-                return Convert.ToBase64String(bytArray);
-            }
+            return removeTrailingPaddingChars 
+                ? Convert.ToBase64String(bytArray).TrimEnd('=') 
+                : Convert.ToBase64String(bytArray);
         }
 
         /// <summary>
