@@ -154,21 +154,27 @@ namespace MSDataFileReader
 
                                 if (spectrumFound)
                                 {
+                                    mCurrentSpectrum.ClearMzAndIntensityData();
+
                                     if (ReadTextDataOnly)
                                     {
-                                        // Do not parse the text data to populate .MZList and .IntensityList
-                                        mCurrentSpectrum.DataCount = 0;
+                                        // Do not parse the text data to populate .MzList and .IntensityList
+                                        mCurrentSpectrum.PeaksCount = 0;
                                     }
                                     else
                                     {
                                         try
                                         {
-                                            mCurrentSpectrum.DataCount = ParseMsMsDataList(mCurrentMsMsDataList, out mCurrentSpectrum.MZList, out mCurrentSpectrum.IntensityList, mCurrentSpectrum.AutoShrinkDataLists);
+                                            ParseMsMsDataList(mCurrentMsMsDataList, out var mzList, out var intensityList);
+
+                                            mCurrentSpectrum.PeaksCount = mzList.Count;
+                                            mCurrentSpectrum.StoreIons(mzList, intensityList);
+
                                             mCurrentSpectrum.Validate(true, true);
                                         }
                                         catch (Exception ex)
                                         {
-                                            mCurrentSpectrum.DataCount = 0;
+                                            mCurrentSpectrum.PeaksCount = 0;
                                             spectrumFound = false;
                                         }
                                     }

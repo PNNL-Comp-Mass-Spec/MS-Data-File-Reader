@@ -8,6 +8,7 @@
 
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Xml;
 
 namespace MSDataFileReader
@@ -351,96 +352,14 @@ namespace MSDataFileReader
         /// <param name="peaksEndianMode"></param>
         /// <param name="updatePeaksCountIfInconsistent"></param>
         /// <returns>True if successful, false if an error</returns>
-        private void ParseBinaryData(string msmsDataBase64Encoded, ref float[] values, int numericPrecisionOfData, string peaksEndianMode, bool updatePeaksCountIfInconsistent)
+        private bool ParseBinaryData(string msmsDataBase64Encoded, out List<float> values, int numericPrecisionOfData, string peaksEndianMode, bool updatePeaksCountIfInconsistent)
         {
             const bool zLibCompressed = false;
 
-            if (string.IsNullOrEmpty(msmsDataBase64Encoded))
-            {
-                values = Array.Empty<float>();
-                return;
-            }
-
-            try
-            {
-                var endianMode = mCurrentSpectrum.GetEndianModeValue(peaksEndianMode);
-                var success = false;
-
-                switch (numericPrecisionOfData)
-                {
-                    case 32:
-                        if (Base64EncodeDecode.DecodeNumericArray(msmsDataBase64Encoded, out float[] floatDataArray, zLibCompressed, endianMode))
-                        {
-                            values = new float[floatDataArray.Length];
-                            floatDataArray.CopyTo(values, 0);
-                            success = true;
-                        }
-
-                        break;
-
-                    case 64:
-                        if (Base64EncodeDecode.DecodeNumericArray(msmsDataBase64Encoded, out double[] doubleDataArray, zLibCompressed, endianMode))
-                        {
-                            values = new float[doubleDataArray.Length];
-                            var indexEnd = doubleDataArray.Length - 1;
-
-                            for (var index = 0; index <= indexEnd; index++)
-                            {
-                                values[index] = (float)doubleDataArray[index];
-                            }
-
-                            success = true;
-                        }
-
-                        break;
-
-                    default:
-                        // Invalid numeric precision
-                        break;
-                }
-
-                if (!success)
-                    return;
-
-                if (values.Length == mCurrentSpectrum.DataCount)
-                    return;
-
-                if (mCurrentSpectrum.DataCount == 0 && values.Length > 0 && Math.Abs(values[0]) < float.Epsilon)
-                {
-                    // Leave .PeaksCount at 0
-                }
-                else if (updatePeaksCountIfInconsistent)
-                {
-                    // This shouldn't normally be necessary
-                    OnErrorEvent("Unexpected condition in ParseBinaryData: values.Length <> .DataCount and .DataCount > 0");
-                    mCurrentSpectrum.DataCount = values.Length;
-                }
-
-                return;
-            }
-            catch (Exception ex)
-            {
-                OnErrorEvent("Error in ParseBinaryData", ex);
-                return;
-            }
-        }
-
-        /// <summary>
-        /// Parse msmsDataBase64Encoded and store the data in values
-        /// </summary>
-        /// <param name="msmsDataBase64Encoded"></param>
-        /// <param name="values"></param>
-        /// <param name="numericPrecisionOfData"></param>
-        /// <param name="peaksEndianMode"></param>
-        /// <param name="updatePeaksCountIfInconsistent"></param>
-        /// <returns>True if successful, false if an error</returns>
-        private bool ParseBinaryData(string msmsDataBase64Encoded, ref double[] values, int numericPrecisionOfData, string peaksEndianMode, bool updatePeaksCountIfInconsistent)
-        {
-            const bool zLibCompressed = false;
+            values = new List<float>();
 
             if (string.IsNullOrEmpty(msmsDataBase64Encoded))
             {
-                values = Array.Empty<double>();
                 return false;
             }
 
@@ -454,8 +373,7 @@ namespace MSDataFileReader
                     case 32:
                         if (Base64EncodeDecode.DecodeNumericArray(msmsDataBase64Encoded, out float[] floatDataArray, zLibCompressed, endianMode))
                         {
-                            values = new double[floatDataArray.Length];
-                            floatDataArray.CopyTo(values, 0);
+                            values.AddRange(floatDataArray);
                             success = true;
                         }
 
@@ -464,8 +382,11 @@ namespace MSDataFileReader
                     case 64:
                         if (Base64EncodeDecode.DecodeNumericArray(msmsDataBase64Encoded, out double[] doubleDataArray, zLibCompressed, endianMode))
                         {
-                            values = new double[doubleDataArray.Length];
-                            doubleDataArray.CopyTo(values, 0);
+                            foreach (var item in doubleDataArray)
+                            {
+                                values.Add((float)item);
+                            }
+
                             success = true;
                         }
 
@@ -479,18 +400,106 @@ namespace MSDataFileReader
                 if (!success)
                     return false;
 
-                if (values.Length == mCurrentSpectrum.DataCount)
+                if (values.Count == mCurrentSpectrum.PeaksCount)
                     return true;
 
-                if (mCurrentSpectrum.DataCount == 0 && values.Length > 0 && Math.Abs(values[0]) < float.Epsilon)
+                if (mCurrentSpectrum.PeaksCount == 0 && values.Count > 0 && Math.Abs(values[0]) < float.Epsilon)
                 {
                     // Leave .PeaksCount at 0
                 }
                 else if (updatePeaksCountIfInconsistent)
                 {
                     // This shouldn't normally be necessary
-                    OnErrorEvent("Unexpected condition in ParseBinaryData: values.Length <> .DataCount and .DataCount > 0");
-                    mCurrentSpectrum.DataCount = values.Length;
+                    if (mCurrentSpectrum.PeaksCount > 0)
+                    {
+                        OnErrorEvent("Unexpected condition in ParseBinaryData: values.Count <> .PeaksCount and .PeaksCount > 0");
+                    }
+
+                    mCurrentSpectrum.PeaksCount = values.Count;
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                OnErrorEvent("Error in ParseBinaryData", ex);
+                return false;
+            }
+        }
+
+        /// <summary>
+        /// Parse msmsDataBase64Encoded and store the data in values
+        /// </summary>
+        /// <param name="msmsDataBase64Encoded"></param>
+        /// <param name="values"></param>
+        /// <param name="numericPrecisionOfData"></param>
+        /// <param name="peaksEndianMode"></param>
+        /// <param name="updatePeaksCountIfInconsistent"></param>
+        /// <returns>True if successful, false if an error</returns>
+        private bool ParseBinaryData(string msmsDataBase64Encoded, out List<double> values, int numericPrecisionOfData, string peaksEndianMode, bool updatePeaksCountIfInconsistent)
+        {
+            const bool zLibCompressed = false;
+
+            values = new List<double>();
+
+            if (string.IsNullOrEmpty(msmsDataBase64Encoded))
+            {
+                return false;
+            }
+
+            try
+            {
+                var endianMode = mCurrentSpectrum.GetEndianModeValue(peaksEndianMode);
+                var success = false;
+
+                switch (numericPrecisionOfData)
+                {
+                    case 32:
+                        if (Base64EncodeDecode.DecodeNumericArray(msmsDataBase64Encoded, out float[] floatDataArray, zLibCompressed, endianMode))
+                        {
+                            foreach (var item in floatDataArray)
+                            {
+                                values.Add(item);
+                            }
+
+                            success = true;
+                        }
+
+                        break;
+
+                    case 64:
+                        if (Base64EncodeDecode.DecodeNumericArray(msmsDataBase64Encoded, out double[] doubleDataArray, zLibCompressed, endianMode))
+                        {
+                            values.AddRange(doubleDataArray);
+                            success = true;
+                        }
+
+                        break;
+
+                    default:
+                        // Invalid numeric precision
+                        break;
+                }
+
+                if (!success)
+                    return false;
+
+                if (values.Count == mCurrentSpectrum.PeaksCount)
+                    return true;
+
+                if (mCurrentSpectrum.PeaksCount == 0 && values.Count > 0 && Math.Abs(values[0]) < float.Epsilon)
+                {
+                    // Leave .PeaksCount at 0
+                }
+                else if (updatePeaksCountIfInconsistent)
+                {
+                    // This shouldn't normally be necessary
+                    if (mCurrentSpectrum.PeaksCount > 0)
+                    {
+                        OnErrorEvent("Unexpected condition in ParseBinaryData: values.Count <> .PeaksCount and .PeaksCount > 0");
+                    }
+
+                    mCurrentSpectrum.PeaksCount = values.Count;
                 }
 
                 return true;
@@ -525,12 +534,16 @@ namespace MSDataFileReader
                     case CurrentMzDataFileSection.SpectrumDataArrayMZ:
                         if (!mSkipBinaryData)
                         {
-                            var success = ParseBinaryData(XMLTextReaderGetInnerText(), ref mCurrentSpectrum.MZList,
-                                mCurrentSpectrum.NumericPrecisionOfDataMZ, mCurrentSpectrum.PeaksEndianModeMZ, true);
+                            var success = ParseBinaryData(
+                                XMLTextReaderGetInnerText(),
+                                out List<double> mzList,
+                                mCurrentSpectrum.NumericPrecisionOfDataMZ,
+                                mCurrentSpectrum.PeaksEndianModeMZ,
+                                true);
 
-                            if (!success)
+                            if (success)
                             {
-                                mCurrentSpectrum.DataCount = 0;
+                                mCurrentSpectrum.MzList.AddRange(mzList);
                             }
                         }
 
@@ -539,13 +552,18 @@ namespace MSDataFileReader
                     case CurrentMzDataFileSection.SpectrumDataArrayIntensity:
                         if (!mSkipBinaryData)
                         {
-                            ParseBinaryData(
+                            var success = ParseBinaryData(
                                 XMLTextReaderGetInnerText(),
-                                ref mCurrentSpectrum.IntensityList,
+                                out List<float> intensityList,
                                 mCurrentSpectrum.NumericPrecisionOfDataIntensity,
                                 mCurrentSpectrum.PeaksEndianModeIntensity,
                                 false);
                             // Note: Not calling .ComputeBasePeakAndTIC() here since it will be called when the spectrum is Validated
+
+                            if (success)
+                            {
+                                mCurrentSpectrum.IntensityList.AddRange(intensityList);
+                            }
                         }
 
                         break;
@@ -832,7 +850,7 @@ namespace MSDataFileReader
                             mCurrentSpectrum.NumericPrecisionOfDataMZ = GetAttribValue(BinaryDataAttributeNames.Precision, 32);
                             mCurrentSpectrum.PeaksEndianModeMZ = GetAttribValue(BinaryDataAttributeNames.Endian, SpectrumInfoMzData.EndianModes.LittleEndian);
 
-                            mCurrentSpectrum.DataCount = GetAttribValue(BinaryDataAttributeNames.Length, 0);
+                            mCurrentSpectrum.PeaksCount = GetAttribValue(BinaryDataAttributeNames.Length, 0);
 
                             break;
 
@@ -840,10 +858,10 @@ namespace MSDataFileReader
                             mCurrentSpectrum.NumericPrecisionOfDataIntensity = GetAttribValue(BinaryDataAttributeNames.Precision, 32);
                             mCurrentSpectrum.PeaksEndianModeIntensity = GetAttribValue(BinaryDataAttributeNames.Endian, SpectrumInfoMzData.EndianModes.LittleEndian);
 
-                            // Only update .DataCount if it is currently 0
-                            if (mCurrentSpectrum.DataCount == 0)
+                            // Only update .PeaksCount if it is currently 0
+                            if (mCurrentSpectrum.PeaksCount == 0)
                             {
-                                mCurrentSpectrum.DataCount = GetAttribValue(BinaryDataAttributeNames.Length, 0);
+                                mCurrentSpectrum.PeaksCount = GetAttribValue(BinaryDataAttributeNames.Length, 0);
                             }
 
                             break;

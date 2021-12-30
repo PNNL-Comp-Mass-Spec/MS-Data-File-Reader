@@ -7,6 +7,7 @@
 // -------------------------------------------------------------------------------
 
 using System;
+using System.Collections.Generic;
 
 namespace MSDataFileReader
 {
@@ -20,7 +21,8 @@ namespace MSDataFileReader
 
         public SpectrumInfo()
         {
-            AutoShrinkDataLists = true;
+            MzList = new List<double>();
+            IntensityList = new List<float>();
 
             // ReSharper disable once VirtualMemberCallInConstructor
             Clear();
@@ -105,12 +107,16 @@ namespace MSDataFileReader
 
         private float mParentIonIntensity;
 
-        // Number of m/z and intensity pairs in this spectrum; see note concerning mAutoShrinkDataLists below
-        public int DataCount;
+        private int mPeaksCount;
 
-        public double[] MZList;
+        /// <summary>
+        /// Returns the number of items in MzList
+        /// </summary>
+        public int DataCount => MzList.Count;
 
-        public float[] IntensityList;
+        public readonly List<double> MzList;
+
+        public readonly List<float> IntensityList;
 
         protected string mErrorMessage;
 
@@ -297,15 +303,33 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// This is the number of data points that should be associated with the mass spectrum
+        /// </summary>
+        /// <remarks>
+        /// If ions are loaded, this should match MzList.Count
+        /// </remarks>
+        public int PeaksCount
+        {
+            get => mPeaksCount;
+
+            set
+            {
+                mSpectrumStatus = SpectrumStatusMode.DataDefined;
+                mPeaksCount = value;
+            }
+        }
+
         public SpectrumStatusMode SpectrumStatus => mSpectrumStatus;
 
         /// <summary>
-        /// When True, MZList().Length and IntensityList().Length will equal DataCount
+        /// When True, MzList().Length and IntensityList().Length will equal DataCount
         /// When False, the memory will not be freed when DataCount shrinks or .Clear() is called
         /// </summary>
         /// <remarks>
         /// Set this to False helps reduce slow, increased memory usage due to inefficient garbage collection
         /// </remarks>
+        [Obsolete("No longer applicable since MzList and IntensityList are now lists instead of arrays")]
         public bool AutoShrinkDataLists { get; set; }
 
         // ReSharper disable once UnusedMember.Global
@@ -330,28 +354,18 @@ namespace MSDataFileReader
             mTotalIonCurrent = 0d;
             mParentIonMZ = 0d;
             mParentIonIntensity = 0f;
-            DataCount = 0;
+            mPeaksCount = 0;
 
-            if (AutoShrinkDataLists || MZList is null)
-            {
-                MZList = Array.Empty<double>();
-            }
-            else
-            {
-                Array.Clear(MZList, 0, MZList.Length);
-            }
-
-            if (AutoShrinkDataLists || IntensityList is null)
-            {
-                IntensityList = Array.Empty<float>();
-            }
-            else
-            {
-                Array.Clear(IntensityList, 0, IntensityList.Length);
-            }
+            ClearMzAndIntensityData();
 
             mSpectrumStatus = SpectrumStatusMode.Initialized;
             mErrorMessage = string.Empty;
+        }
+
+        public void ClearMzAndIntensityData()
+        {
+            MzList.Clear();
+            IntensityList.Clear();
         }
 
         object ICloneable.Clone()
@@ -377,24 +391,15 @@ namespace MSDataFileReader
             // Next, manually copy the array objects and any other objects
             // Note: Since Clone() methods in the derived classes hide this method,
             // be sure to update them too if you change any code below
-            if (MZList is null)
+
+            foreach (var item in MzList)
             {
-                target.MZList = null;
-            }
-            else
-            {
-                target.MZList = new double[MZList.Length];
-                MZList.CopyTo(target.MZList, 0);
+                target.MzList.Add(item);
             }
 
-            if (IntensityList is null)
+            foreach (var item in IntensityList)
             {
-                target.IntensityList = null;
-            }
-            else
-            {
-                target.IntensityList = new float[IntensityList.Length];
-                IntensityList.CopyTo(target.IntensityList, 0);
+                target.IntensityList.Add(item);
             }
 
             return target;
@@ -409,11 +414,11 @@ namespace MSDataFileReader
         {
             try
             {
-                if (DataCount <= 0 || MZList == null)
+                if (MzList.Count == 0)
                     return;
 
-                MzRangeStart = (float)MZList[0];
-                MzRangeEnd = (float)MZList[DataCount - 1];
+                MzRangeStart = (float)MzList[0];
+                MzRangeEnd = (float)MzList[MzList.Count - 1];
             }
             catch (Exception ex)
             {
@@ -435,12 +440,12 @@ namespace MSDataFileReader
                 basePeakMZ = 0d;
                 basePeakIntensity = 0f;
 
-                if (DataCount > 0 && MZList != null && IntensityList != null)
+                if (MzList.Count > 0)
                 {
-                    basePeakMZ = MZList[0];
+                    basePeakMZ = MzList[0];
                     basePeakIntensity = IntensityList[0];
                     totalIonCurrent = IntensityList[0];
-                    var indexEnd = DataCount - 1;
+                    var indexEnd = MzList.Count - 1;
 
                     for (var index = 1; index <= indexEnd; index++)
                     {
@@ -448,7 +453,7 @@ namespace MSDataFileReader
 
                         if (IntensityList[index] >= basePeakIntensity)
                         {
-                            basePeakMZ = MZList[index];
+                            basePeakMZ = MzList[index];
                             basePeakIntensity = IntensityList[index];
                         }
                     }
@@ -483,17 +488,17 @@ namespace MSDataFileReader
                 var mzMinimum = mzToFind - matchTolerance;
                 intensityMatch = intensityIfNotFound;
 
-                if (!(MZList is null || IntensityList is null))
+                if (!(MzList is null || IntensityList is null))
                 {
                     int index;
-                    for (index = DataCount - 1; index >= 0; index--)
+                    for (index = MzList.Count - 1; index >= 0; index--)
                     {
-                        if (index >= MZList.Length || index >= IntensityList.Length)
+                        if (index >= MzList.Count)
                             continue;
 
-                        if (MZList[index] >= mzMinimum)
+                        if (MzList[index] >= mzMinimum)
                         {
-                            var mzDifference = mzToFind - MZList[index];
+                            var mzDifference = mzToFind - MzList[index];
 
                             if (Math.Abs(mzDifference) <= matchTolerance)
                             {
@@ -505,7 +510,7 @@ namespace MSDataFileReader
                         }
                         else
                         {
-                            // Assuming MZList is sorted on intensity, we can exit out of the loop once we pass mzMinimum
+                            // Assuming MzListData is sorted on intensity, we can exit out of the loop once we pass mzMinimum
                             break;
                         }
                     }
@@ -519,6 +524,19 @@ namespace MSDataFileReader
             return intensityMatch;
         }
 
+        public void StoreIon(double mz, float intensity)
+        {
+            MzList.Add(mz);
+            IntensityList.Add(intensity);
+        }
+
+        public void StoreIons(List<double> mzList, List<float> intensityList)
+        {
+            ClearMzAndIntensityData();
+            MzList.AddRange(mzList);
+            IntensityList.AddRange(intensityList);
+        }
+
         public virtual void Validate(bool computeBasePeakAndTIC, bool updateMZRange)
         {
             if (computeBasePeakAndTIC)
@@ -529,25 +547,6 @@ namespace MSDataFileReader
             if (updateMZRange)
             {
                 UpdateMZRange();
-            }
-
-            if (AutoShrinkDataLists)
-            {
-                if (MZList != null)
-                {
-                    if (MZList.Length > DataCount)
-                    {
-                        Array.Resize(ref MZList, DataCount);
-                    }
-                }
-
-                if (IntensityList != null)
-                {
-                    if (IntensityList.Length > DataCount)
-                    {
-                        Array.Resize(ref IntensityList, DataCount);
-                    }
-                }
             }
         }
     }

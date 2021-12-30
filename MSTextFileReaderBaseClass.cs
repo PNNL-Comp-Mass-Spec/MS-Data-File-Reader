@@ -169,14 +169,16 @@ namespace MSDataFileReader
 
         private void ComputePercentageDataAboveThreshold(SpectrumInfo spectrumInfo, out float pctByCount, out float pctByIntensity)
         {
-            ComputePercentageDataAboveThreshold(spectrumInfo.DataCount, spectrumInfo.MZList, spectrumInfo.IntensityList, spectrumInfo.ParentIonMZ, out pctByCount, out pctByIntensity);
+            ComputePercentageDataAboveThreshold(spectrumInfo.MzList, spectrumInfo.IntensityList, spectrumInfo.ParentIonMZ, out pctByCount, out pctByIntensity);
         }
 
-        protected void ComputePercentageDataAboveThreshold(int dataCount, double[] mzList, float[] intensityList, double thresholdMZ, out float pctByCount, out float pctByIntensity)
+        protected void ComputePercentageDataAboveThreshold(List<double> mzList, List<float> intensityList, double thresholdMZ, out float pctByCount, out float pctByIntensity)
         {
             var countAboveThreshold = 0;
             var intensitySumAboveThreshold = 0d;
             var totalIntensitySum = 0d;
+
+            var dataCount = mzList.Count;
             var indexEnd = dataCount - 1;
 
             for (var index = 0; index <= indexEnd; index++)
@@ -357,7 +359,7 @@ namespace MSDataFileReader
             // % above 700 by intensity sum:	21%
             // % above 700 by data point count:	33%
 
-            if (spectrumInfo.DataCount <= 0 || spectrumInfo.MZList is null)
+            if (spectrumInfo.DataCount == 0)
             {
                 // This shouldn't happen, but we'll handle it anyway
                 spectrumInfo.AddOrUpdateChargeList(1, false);
@@ -366,7 +368,7 @@ namespace MSDataFileReader
             // Test 1: See if all m/z values are less than the parent ion m/z
             // Assume the data in .IonList() is sorted by ascending m/z
 
-            else if (spectrumInfo.MZList[spectrumInfo.DataCount - 1] <= spectrumInfo.ParentIonMZ)
+            else if (spectrumInfo.MzList[spectrumInfo.DataCount - 1] <= spectrumInfo.ParentIonMZ)
             {
                 // Yes, all data is less than the parent ion m/z
                 spectrumInfo.AddOrUpdateChargeList(1, addToExistingChargeList);
@@ -403,7 +405,7 @@ namespace MSDataFileReader
                     {
                         var parentIonMH = ConvoluteMass(spectrumInfo.ParentIonMZ, chargeEnd, 1);
 
-                        if (parentIonMH < spectrumInfo.MZList[spectrumInfo.DataCount - 1] + 3d)
+                        if (parentIonMH < spectrumInfo.MzList[spectrumInfo.DataCount - 1] + 3d)
                         {
                             chargeEnd++;
                         }
@@ -515,6 +517,7 @@ namespace MSDataFileReader
             }
         }
 
+        [Obsolete("Use the method that accepts one list and returns two lists")]
         public int ParseMsMsDataList(string[] msmsDataArray, int msmsDataCount, out double[] masses, out float[] intensities, bool shrinkDataArrays)
         {
             var msmsData = new List<string>();

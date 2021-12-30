@@ -325,11 +325,10 @@ namespace MSDataFileReader
                 return;
             }
 
+            mCurrentSpectrum.ClearMzAndIntensityData();
+
             if (string.IsNullOrEmpty(msmsDataBase64Encoded))
             {
-                mCurrentSpectrum.DataCount = 0;
-                mCurrentSpectrum.MZList = Array.Empty<double>();
-                mCurrentSpectrum.IntensityList = Array.Empty<float>();
                 return;
             }
 
@@ -347,28 +346,27 @@ namespace MSDataFileReader
                             // floatArray now contains pairs of singles, either m/z and intensity or intensity and m/z
                             // Need to split this apart into two arrays
 
-                            mCurrentSpectrum.MZList = new double[(int)Math.Round(floatArray.Length / 2d)];
-                            mCurrentSpectrum.IntensityList = new float[(int)Math.Round(floatArray.Length / 2d)];
-
                             if (mCurrentSpectrum.PeaksPairOrder.Equals(SpectrumInfoMzXML.PairOrderTypes.IntensityAndMz))
                             {
                                 var indexEnd = floatArray.Length - 1;
 
                                 for (var index = 0; index <= indexEnd; index += 2)
                                 {
-                                    mCurrentSpectrum.IntensityList[(int)Math.Round(index / 2d)] = floatArray[index];
-                                    mCurrentSpectrum.MZList[(int)Math.Round(index / 2d)] = floatArray[index + 1];
+                                    // index + 1 has m/z
+                                    // index has intensity
+                                    mCurrentSpectrum.StoreIon(floatArray[index + 1], floatArray[index]);
                                 }
                             }
                             else
                             {
-                                // Assume PairOrderTypes.MZandIntensity
+                                // Assume PairOrderTypes.MzAndIntensity
                                 var indexEnd = floatArray.Length - 1;
 
                                 for (var index = 0; index <= indexEnd; index += 2)
                                 {
-                                    mCurrentSpectrum.MZList[(int)Math.Round(index / 2d)] = floatArray[index];
-                                    mCurrentSpectrum.IntensityList[(int)Math.Round(index / 2d)] = floatArray[index + 1];
+                                    // index has m/z
+                                    // index + 1 has intensity
+                                    mCurrentSpectrum.StoreIon(floatArray[index], floatArray[index + 1]);
                                 }
                             }
 
@@ -383,28 +381,27 @@ namespace MSDataFileReader
                             // doubleArray now contains pairs of doubles, either m/z and intensity or intensity and m/z
                             // Need to split this apart into two arrays
 
-                            mCurrentSpectrum.MZList = new double[(int)Math.Round(doubleArray.Length / 2d)];
-                            mCurrentSpectrum.IntensityList = new float[(int)Math.Round(doubleArray.Length / 2d)];
-
                             if (mCurrentSpectrum.PeaksPairOrder.Equals(SpectrumInfoMzXML.PairOrderTypes.IntensityAndMz))
                             {
                                 var indexEnd = doubleArray.Length - 1;
 
                                 for (var index = 0; index <= indexEnd; index += 2)
                                 {
-                                    mCurrentSpectrum.IntensityList[(int)Math.Round(index / 2d)] = (float)doubleArray[index];
-                                    mCurrentSpectrum.MZList[(int)Math.Round(index / 2d)] = doubleArray[index + 1];
+                                    // index + 1 has m/z
+                                    // index has intensity
+                                    mCurrentSpectrum.StoreIon(doubleArray[index + 1], (float)doubleArray[index]);
                                 }
                             }
                             else
                             {
-                                // Assume PairOrderTypes.MZandIntensity
+                                // Assume PairOrderTypes.MzAndIntensity
                                 var indexEnd = doubleArray.Length - 1;
 
                                 for (var index = 0; index <= indexEnd; index += 2)
                                 {
-                                    mCurrentSpectrum.MZList[(int)Math.Round(index / 2d)] = doubleArray[index];
-                                    mCurrentSpectrum.IntensityList[(int)Math.Round(index / 2d)] = (float)doubleArray[index + 1];
+                                    // index has m/z
+                                    // index + 1 has intensity
+                                    mCurrentSpectrum.StoreIon(doubleArray[index], (float)doubleArray[index + 1]);
                                 }
                             }
 
@@ -421,44 +418,22 @@ namespace MSDataFileReader
                 if (!success)
                     return;
 
-                if (mCurrentSpectrum.MZList.Length == mCurrentSpectrum.DataCount)
-                {
-                    return;
-                }
-
-                if (mCurrentSpectrum.DataCount == 0 && mCurrentSpectrum.MZList.Length > 0 &&
-                    Math.Abs(mCurrentSpectrum.MZList[0] - 0d) < float.Epsilon &&
-                    Math.Abs(mCurrentSpectrum.IntensityList[0] - 0f) < float.Epsilon)
-                {
-                    // Leave .PeaksCount at 0
-                    return;
-                }
-
-                if (mCurrentSpectrum.MZList.Length > 1 && mCurrentSpectrum.IntensityList.Length > 1)
+                if (mCurrentSpectrum.MzList.Count > 1)
                 {
                     // Check whether the last entry has a mass and intensity of 0
-                    if (Math.Abs(mCurrentSpectrum.MZList[mCurrentSpectrum.MZList.Length - 1]) < float.Epsilon &&
-                        Math.Abs(mCurrentSpectrum.IntensityList[mCurrentSpectrum.MZList.Length - 1]) < float.Epsilon)
+                    if (Math.Abs(mCurrentSpectrum.MzList[mCurrentSpectrum.MzList.Count - 1]) < float.Epsilon &&
+                        Math.Abs(mCurrentSpectrum.IntensityList[mCurrentSpectrum.MzList.Count - 1]) < float.Epsilon)
                     {
                         // Remove the final entry
-                        Array.Resize(ref mCurrentSpectrum.MZList, mCurrentSpectrum.MZList.Length - 2 + 1);
-                        Array.Resize(ref mCurrentSpectrum.IntensityList, mCurrentSpectrum.IntensityList.Length - 2 + 1);
+                        var targetIndex = mCurrentSpectrum.MzList.Count - 1;
+                        mCurrentSpectrum.MzList.RemoveAt(targetIndex);
+                        mCurrentSpectrum.IntensityList.RemoveAt(targetIndex);
                     }
                 }
-
-                if (mCurrentSpectrum.MZList.Length != mCurrentSpectrum.DataCount)
-                {
-                    // This shouldn't normally be necessary
-                    OnErrorEvent("Unexpected condition in ParseBinaryData: .MZList.Length <> .DataCount and .DataCount > 0");
-                    mCurrentSpectrum.DataCount = mCurrentSpectrum.MZList.Length;
-                }
-
-                return;
             }
             catch (Exception ex)
             {
                 OnErrorEvent("Error in ParseBinaryData", ex);
-                return;
             }
         }
 
@@ -612,7 +587,10 @@ namespace MSDataFileReader
 
                                 // ReSharper disable once UnusedVariable
                                 var instrumentID = GetAttribValue(ScanAttributeNames.MsInstrumentID, 1);
-                                mCurrentSpectrum.DataCount = GetAttribValue(ScanAttributeNames.PeaksCount, 0);
+
+                                // Store the expected data count
+                                // This will be updated if the actual data is loaded
+                                mCurrentSpectrum.PeaksCount = GetAttribValue(ScanAttributeNames.PeaksCount, 0);
                                 mCurrentSpectrum.Polarity = GetAttribValue(ScanAttributeNames.Polarity, "+");
                                 mCurrentSpectrum.RetentionTimeMin = GetAttribTimeValueMinutes(ScanAttributeNames.RetentionTime);
                                 mCurrentSpectrum.ScanType = GetAttribValue(ScanAttributeNames.ScanType, string.Empty);

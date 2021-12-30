@@ -102,7 +102,7 @@ namespace MSDataFileReader
         // See class ByteOrderTypes for values; typically ByteOrderTypes.network
         protected string mPeaksByteOrder;
 
-        // See class PairOrderTypes for values; typically PairOrderTypes.MZandIntensity; stores contentType for mzXML v3.x
+        // See class PairOrderTypes for values; typically PairOrderTypes.MzAndIntensity; stores contentType for mzXML v3.x
         protected string mPeaksPairOrder;
 
         // See class CompressionTypes for values; will be "none" or "zlib"
@@ -279,24 +279,15 @@ namespace MSDataFileReader
 
             // Next, manually copy the array objects and any other objects
             // Duplicate code from the base class
-            if (MZList is null)
+
+            foreach (var item in MzList)
             {
-                target.MZList = null;
-            }
-            else
-            {
-                target.MZList = new double[MZList.Length];
-                MZList.CopyTo(target.MZList, 0);
+                target.MzList.Add(item);
             }
 
-            if (IntensityList is null)
+            foreach (var item in IntensityList)
             {
-                target.IntensityList = null;
-            }
-            else
-            {
-                target.IntensityList = new float[IntensityList.Length];
-                IntensityList.CopyTo(target.IntensityList, 0);
+                target.IntensityList.Add(item);
             }
 
             return target;
