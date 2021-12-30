@@ -186,7 +186,7 @@ namespace MSDataFileReader
             public const string Length = "length";
         }
 
-        private const int MOST_RECENT_SURVEY_SCANS_TO_CACHE = 20;
+        private const int MOST_RECENT_SURVEY_SCANS_TO_CACHE = 50;
 
         private enum CurrentMzDataFileSection
         {
