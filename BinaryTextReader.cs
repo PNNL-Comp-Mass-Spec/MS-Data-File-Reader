@@ -111,23 +111,10 @@ namespace MSDataFileReader
 
         private byte[] mByteBuffer;
 
-        // Note: The first byte in the file is Byte 0
-        private long mByteBufferFileOffsetStart;
-
         // This variable defines the index in mByteBuffer() at which the next line starts
         private int mByteBufferNextLineStartIndex;
 
-        private byte mByteOrderMarkLength;
-
-        private byte mCharSize = 1;
-
-        private long mCurrentLineByteOffsetStart;
-
         private long mCurrentLineByteOffsetStartSaved;
-
-        private long mCurrentLineByteOffsetEnd;
-
-        private long mCurrentLineByteOffsetEndWithTerminator;
 
         private string mCurrentLineTerminator;
 
@@ -142,32 +129,34 @@ namespace MSDataFileReader
 
         private InputFileEncodings mInputFileEncoding;
 
-        private string mInputFilePath;
-
-        private int mLineNumber;
-
         private byte mLineTerminator1Code;
 
         private byte mLineTerminator2Code;
 
         private ReadDirection mReadLineDirectionSaved;
 
-        public long ByteBufferFileOffsetStart => mByteBufferFileOffsetStart;
+        /// <summary>
+        /// Location of the start of data in the byte buffer
+        /// </summary>
+        /// <remarks>
+        /// The first byte in the file is byte 0
+        /// </remarks>
+        public long ByteBufferFileOffsetStart { get; private set; }
 
-        public byte ByteOrderMarkLength => mByteOrderMarkLength;
+        public byte ByteOrderMarkLength { get; private set; }
 
-        public byte CharSize => mCharSize;
+        public byte CharSize { get; private set; } = 1;
 
         public string CurrentLine => mCurrentLineText ?? string.Empty;
 
         // ReSharper disable once UnusedMember.Global
         public int CurrentLineLength => mCurrentLineText?.Length ?? 0;
 
-        public long CurrentLineByteOffsetStart => mCurrentLineByteOffsetStart;
+        public long CurrentLineByteOffsetStart { get; private set; }
 
-        public long CurrentLineByteOffsetEnd => mCurrentLineByteOffsetEnd;
+        public long CurrentLineByteOffsetEnd { get; private set; }
 
-        public long CurrentLineByteOffsetEndWithTerminator => mCurrentLineByteOffsetEndWithTerminator;
+        public long CurrentLineByteOffsetEndWithTerminator { get; private set; }
 
         public string CurrentLineTerminator => mCurrentLineTerminator ?? string.Empty;
 
@@ -221,13 +210,13 @@ namespace MSDataFileReader
             set => SetInputFileEncoding(value);
         }
 
-        public string InputFilePath => mInputFilePath;
+        public string InputFilePath { get; private set; }
 
-        public int LineNumber => mLineNumber;
+        public int LineNumber { get; private set; }
 
         public bool ByteAtBOF(long bytePosition)
         {
-            return bytePosition <= mByteOrderMarkLength;
+            return bytePosition <= ByteOrderMarkLength;
         }
 
         /// <summary>
@@ -251,19 +240,19 @@ namespace MSDataFileReader
                 // Ignore errors here
             }
 
-            mInputFilePath = string.Empty;
-            mLineNumber = 0;
+            InputFilePath = string.Empty;
+            LineNumber = 0;
             mByteBufferCount = 0;
-            mByteBufferFileOffsetStart = 0L;
+            ByteBufferFileOffsetStart = 0L;
             mByteBufferNextLineStartIndex = 0;
         }
 
         private void InitializeCurrentLine()
         {
             mCurrentLineText = string.Empty;
-            mCurrentLineByteOffsetStart = 0L;
-            mCurrentLineByteOffsetEnd = 0L;
-            mCurrentLineByteOffsetEndWithTerminator = 0L;
+            CurrentLineByteOffsetStart = 0L;
+            CurrentLineByteOffsetEnd = 0L;
+            CurrentLineByteOffsetEndWithTerminator = 0L;
             mCurrentLineTerminator = string.Empty;
         }
 
@@ -275,10 +264,10 @@ namespace MSDataFileReader
         /// </remarks>
         private void InitializeLocalVariables()
         {
-            mInputFilePath = string.Empty;
+            InputFilePath = string.Empty;
             mErrorMessage = string.Empty;
-            mLineNumber = 0;
-            mByteOrderMarkLength = 0;
+            LineNumber = 0;
+            ByteOrderMarkLength = 0;
             mByteBufferCount = 0;
 
             if (mByteBuffer is null)
@@ -317,50 +306,50 @@ namespace MSDataFileReader
 
                 int bytesRead;
 
-                if (byteOffset < mByteBufferFileOffsetStart)
+                if (byteOffset < ByteBufferFileOffsetStart)
                 {
                     // Need to slide the buffer window backward
                     do
                     {
-                        mByteBufferFileOffsetStart -= mByteBuffer.Length;
-                    } while (byteOffset < mByteBufferFileOffsetStart);
+                        ByteBufferFileOffsetStart -= mByteBuffer.Length;
+                    } while (byteOffset < ByteBufferFileOffsetStart);
 
-                    if (mByteBufferFileOffsetStart < 0L)
+                    if (ByteBufferFileOffsetStart < 0L)
                     {
-                        mByteBufferFileOffsetStart = 0L;
+                        ByteBufferFileOffsetStart = 0L;
                     }
 
-                    mBinaryReader.Seek(mByteBufferFileOffsetStart, SeekOrigin.Begin);
+                    mBinaryReader.Seek(ByteBufferFileOffsetStart, SeekOrigin.Begin);
 
                     // Clear the buffer
                     Array.Clear(mByteBuffer, 0, mByteBuffer.Length);
                     bytesRead = mBinaryReader.Read(mByteBuffer, 0, mByteBuffer.Length);
                     mByteBufferCount = bytesRead;
-                    mByteBufferNextLineStartIndex = (int)(byteOffset - mByteBufferFileOffsetStart);
+                    mByteBufferNextLineStartIndex = (int)(byteOffset - ByteBufferFileOffsetStart);
                 }
-                else if (byteOffset > mByteBufferFileOffsetStart + mByteBufferCount)
+                else if (byteOffset > ByteBufferFileOffsetStart + mByteBufferCount)
                 {
-                    if (mByteBufferFileOffsetStart < mBinaryReader.Length)
+                    if (ByteBufferFileOffsetStart < mBinaryReader.Length)
                     {
                         // Possibly slide the buffer window forward (note that if
                         // mByteBufferCount < mByteBuffer.Length then we may not need to update mByteBufferFileOffsetStart)
-                        while (byteOffset > mByteBufferFileOffsetStart + mByteBuffer.Length)
+                        while (byteOffset > ByteBufferFileOffsetStart + mByteBuffer.Length)
                         {
-                            mByteBufferFileOffsetStart += mByteBuffer.Length;
+                            ByteBufferFileOffsetStart += mByteBuffer.Length;
                         }
 
-                        if (mByteBufferFileOffsetStart >= mBinaryReader.Length)
+                        if (ByteBufferFileOffsetStart >= mBinaryReader.Length)
                         {
                             // This shouldn't normally happen
-                            mByteBufferFileOffsetStart -= mByteBuffer.Length;
+                            ByteBufferFileOffsetStart -= mByteBuffer.Length;
 
-                            if (mByteBufferFileOffsetStart < 0L)
+                            if (ByteBufferFileOffsetStart < 0L)
                             {
-                                mByteBufferFileOffsetStart = 0L;
+                                ByteBufferFileOffsetStart = 0L;
                             }
                         }
 
-                        mBinaryReader.Seek(mByteBufferFileOffsetStart, SeekOrigin.Begin);
+                        mBinaryReader.Seek(ByteBufferFileOffsetStart, SeekOrigin.Begin);
 
                         // Clear the buffer
                         Array.Clear(mByteBuffer, 0, mByteBuffer.Length);
@@ -368,7 +357,7 @@ namespace MSDataFileReader
                         mByteBufferCount = bytesRead;
                     }
 
-                    mByteBufferNextLineStartIndex = (int)(byteOffset - mByteBufferFileOffsetStart);
+                    mByteBufferNextLineStartIndex = (int)(byteOffset - ByteBufferFileOffsetStart);
 
                     if (mByteBufferNextLineStartIndex > mByteBufferCount)
                     {
@@ -379,7 +368,7 @@ namespace MSDataFileReader
                 else
                 {
                     // The desired byte offset is already present in mByteBuffer
-                    mByteBufferNextLineStartIndex = (int)(byteOffset - mByteBufferFileOffsetStart);
+                    mByteBufferNextLineStartIndex = (int)(byteOffset - ByteBufferFileOffsetStart);
 
                     if (mByteBufferNextLineStartIndex > mByteBufferCount)
                     {
@@ -390,8 +379,8 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                mInputFilePath ??= string.Empty;
-                OnErrorEvent(string.Format("Error moving to byte offset {0} in file {1}", byteOffset, mInputFilePath), ex);
+                InputFilePath ??= string.Empty;
+                OnErrorEvent(string.Format("Error moving to byte offset {0} in file {1}", byteOffset, InputFilePath), ex);
             }
         }
 
@@ -402,16 +391,16 @@ namespace MSDataFileReader
         {
             try
             {
-                mByteBufferFileOffsetStart = 0L;
+                ByteBufferFileOffsetStart = 0L;
 
                 // Clear the buffer
                 Array.Clear(mByteBuffer, 0, mByteBuffer.Length);
-                mBinaryReader.Seek(mByteBufferFileOffsetStart, SeekOrigin.Begin);
+                mBinaryReader.Seek(ByteBufferFileOffsetStart, SeekOrigin.Begin);
                 mByteBufferCount = mBinaryReader.Read(mByteBuffer, 0, mByteBuffer.Length);
                 mByteBufferNextLineStartIndex = 0;
 
                 // Look for a byte order mark at the beginning of the file
-                mByteOrderMarkLength = 0;
+                ByteOrderMarkLength = 0;
 
                 if (mByteBufferCount < 2)
                     return;
@@ -424,7 +413,7 @@ namespace MSDataFileReader
 
                     // Skip the first 2 bytes
                     mByteBufferNextLineStartIndex = 2;
-                    mByteOrderMarkLength = 2;
+                    ByteOrderMarkLength = 2;
                 }
                 else if (mByteBuffer[0] == 254 && mByteBuffer[1] == 255)
                 {
@@ -433,7 +422,7 @@ namespace MSDataFileReader
                     SetInputFileEncoding(InputFileEncodings.UnicodeBigEndian);
                     // Skip the first 2 bytes
                     mByteBufferNextLineStartIndex = 2;
-                    mByteOrderMarkLength = 2;
+                    ByteOrderMarkLength = 2;
                 }
                 else if (mByteBufferCount >= 3)
                 {
@@ -444,7 +433,7 @@ namespace MSDataFileReader
                         SetInputFileEncoding(InputFileEncodings.UTF8);
                         // Skip the first 3 bytes
                         mByteBufferNextLineStartIndex = 3;
-                        mByteOrderMarkLength = 3;
+                        ByteOrderMarkLength = 3;
                     }
                     else
                     {
@@ -494,8 +483,8 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                mInputFilePath ??= string.Empty;
-                OnErrorEvent("Error moving to beginning of file " + mInputFilePath, ex);
+                InputFilePath ??= string.Empty;
+                OnErrorEvent("Error moving to beginning of file " + InputFilePath, ex);
             }
         }
 
@@ -511,8 +500,8 @@ namespace MSDataFileReader
             }
             catch (Exception ex)
             {
-                mInputFilePath ??= string.Empty;
-                OnErrorEvent("Error moving to end of file " + mInputFilePath, ex);
+                InputFilePath ??= string.Empty;
+                OnErrorEvent("Error moving to end of file " + InputFilePath, ex);
             }
         }
 
@@ -555,13 +544,13 @@ namespace MSDataFileReader
                 }
 
                 InitializeLocalVariables();
-                mInputFilePath = dataFilePath;
+                InputFilePath = dataFilePath;
 
                 // Note that this sets mCharSize to 1
                 SetInputFileEncoding(InputFileEncodings.ASCII);
 
                 // Initialize the binary reader
-                mBinaryReader = new FileStream(mInputFilePath, FileMode.Open, FileAccess.Read, share);
+                mBinaryReader = new FileStream(InputFilePath, FileMode.Open, FileAccess.Read, share);
 
                 if (mBinaryReader.Length == 0L)
                 {
@@ -619,17 +608,17 @@ namespace MSDataFileReader
                         case InputFileEncodings.ASCII:
                         case InputFileEncodings.UTF8:
                             // ASCII or UTF-8 encoding; Assure mCharSize = 1
-                            mCharSize = 1;
+                            CharSize = 1;
                             break;
 
                         case InputFileEncodings.UnicodeNormal:
                             // Unicode (Little Endian) encoding; Assure mCharSize = 2
-                            mCharSize = 2;
+                            CharSize = 2;
                             break;
 
                         case InputFileEncodings.UnicodeBigEndian:
                             // Unicode (Big Endian) encoding; Assure mCharSize = 2
-                            mCharSize = 2;
+                            CharSize = 2;
                             break;
 
                         default:
@@ -644,19 +633,19 @@ namespace MSDataFileReader
                     {
                         searchIndexStartOffset = 0;
 
-                        if (ByteAtEOF(mByteBufferFileOffsetStart + mByteBufferNextLineStartIndex))
+                        if (ByteAtEOF(ByteBufferFileOffsetStart + mByteBufferNextLineStartIndex))
                         {
-                            mCurrentLineByteOffsetStart = mBinaryReader.Length;
-                            mCurrentLineByteOffsetEnd = mBinaryReader.Length;
-                            mCurrentLineByteOffsetEndWithTerminator = mBinaryReader.Length;
+                            CurrentLineByteOffsetStart = mBinaryReader.Length;
+                            CurrentLineByteOffsetEnd = mBinaryReader.Length;
+                            CurrentLineByteOffsetEndWithTerminator = mBinaryReader.Length;
                             return false;
                         }
                     }
                     else
                     {
-                        searchIndexStartOffset = -mCharSize * 2;
+                        searchIndexStartOffset = -CharSize * 2;
 
-                        if (ByteAtBOF(mByteBufferFileOffsetStart + mByteBufferNextLineStartIndex + searchIndexStartOffset))
+                        if (ByteAtBOF(ByteBufferFileOffsetStart + mByteBufferNextLineStartIndex + searchIndexStartOffset))
                         {
                             return false;
                         }
@@ -668,16 +657,16 @@ namespace MSDataFileReader
                         var currentIndex = mByteBufferNextLineStartIndex + searchIndexStartOffset;
 
                         // Define the minimum and maximum allowable indices for searching for mLineTerminator2Code
-                        var indexMinimum = mCharSize - 1;
-                        var indexMaximum = mByteBufferCount - mCharSize;
+                        var indexMinimum = CharSize - 1;
+                        var indexMaximum = mByteBufferCount - CharSize;
 
-                        if (readDirection == ReadDirection.Reverse && mLineTerminator1Code != 0 && mByteBufferFileOffsetStart > 0L)
+                        if (readDirection == ReadDirection.Reverse && mLineTerminator1Code != 0 && ByteBufferFileOffsetStart > 0L)
                         {
                             // We're looking for a two-character line terminator (though the
                             // presence of mLineTerminator1Code is not required)
                             // Need to increment indexMinimum to guarantee we'll be able to find both line terminators if the
                             // second line terminator happens to be at the start of mByteBuffer
-                            indexMinimum += mCharSize;
+                            indexMinimum += CharSize;
                         }
 
                         // Reset the terminator check counters
@@ -799,7 +788,7 @@ namespace MSDataFileReader
                         }
 
                         mByteBufferCount -= mByteBufferNextLineStartIndex;
-                        mByteBufferFileOffsetStart += mByteBufferNextLineStartIndex;
+                        ByteBufferFileOffsetStart += mByteBufferNextLineStartIndex;
                         searchIndexStartOffset = mByteBufferCount;
                         mByteBufferNextLineStartIndex = 0;
 
@@ -880,7 +869,7 @@ namespace MSDataFileReader
                     }
 
                     // Update the tracking variables
-                    mByteBufferFileOffsetStart -= shiftIncrement;
+                    ByteBufferFileOffsetStart -= shiftIncrement;
                     mByteBufferNextLineStartIndex += shiftIncrement;
 
                     // Populate the first portion of the byte buffer with new data
@@ -1080,20 +1069,20 @@ namespace MSDataFileReader
                     matchingTextIndexEnd += CharSize - 1;
                 }
 
-                mCurrentLineByteOffsetStart = ByteBufferFileOffsetStart + matchingTextIndexStart;
-                mCurrentLineByteOffsetEndWithTerminator = ByteBufferFileOffsetStart + matchingTextIndexEnd;
-                mCurrentLineByteOffsetEnd = ByteBufferFileOffsetStart + matchingTextIndexEnd - lineTerminatorLength * CharSize;
+                CurrentLineByteOffsetStart = ByteBufferFileOffsetStart + matchingTextIndexStart;
+                CurrentLineByteOffsetEndWithTerminator = ByteBufferFileOffsetStart + matchingTextIndexEnd;
+                CurrentLineByteOffsetEnd = ByteBufferFileOffsetStart + matchingTextIndexEnd - lineTerminatorLength * CharSize;
 
                 if (CurrentLineByteOffsetEnd < CurrentLineByteOffsetStart)
                 {
                     // Zero-length line
-                    mCurrentLineByteOffsetEnd = CurrentLineByteOffsetStart;
+                    CurrentLineByteOffsetEnd = CurrentLineByteOffsetStart;
                 }
 
                 if (readDirection == ReadDirection.Forward)
                 {
                     mByteBufferNextLineStartIndex = matchingTextIndexEnd + 1;
-                    mLineNumber++;
+                    LineNumber++;
                 }
                 else
                 {
@@ -1101,7 +1090,7 @@ namespace MSDataFileReader
 
                     if (LineNumber > 0)
                     {
-                        mLineNumber--;
+                        LineNumber--;
                     }
                 }
 
@@ -1310,7 +1299,7 @@ namespace MSDataFileReader
         {
             mInputFileEncoding = EncodingMode;
 
-            mCharSize = mInputFileEncoding switch
+            CharSize = mInputFileEncoding switch
             {
                 InputFileEncodings.ASCII => 1,
                 InputFileEncodings.UTF8 => 1,

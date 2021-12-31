@@ -69,10 +69,6 @@ namespace MSDataFileReader
 
         private SpectrumInfoMzData mCurrentSpectrumInfo;
 
-        private int mInputFileStatsSpectrumIDMinimum;
-
-        private int mInputFileStatsSpectrumIDMaximum;
-
         // ReSharper disable once NotAccessedField.Local
         private string mXmlFileHeader;
 
@@ -94,9 +90,9 @@ namespace MSDataFileReader
 
         private XmlReaderSettings mXMLReaderSettings;
 
-        public int CachedSpectraSpectrumIDMinimum => mInputFileStatsSpectrumIDMinimum;
+        public int CachedSpectraSpectrumIDMinimum { get; private set; }
 
-        public int CachedSpectraSpectrumIDMaximum => mInputFileStatsSpectrumIDMaximum;
+        public int CachedSpectraSpectrumIDMaximum { get; private set; }
 
         public override bool ParseFilesWithUnknownVersion
         {
@@ -541,8 +537,8 @@ namespace MSDataFileReader
         protected sealed override void InitializeLocalVariables()
         {
             base.InitializeLocalVariables();
-            mInputFileStatsSpectrumIDMinimum = 0;
-            mInputFileStatsSpectrumIDMaximum = 0;
+            CachedSpectraSpectrumIDMinimum = 0;
+            CachedSpectraSpectrumIDMaximum = 0;
             mXmlFileHeader = string.Empty;
             mAddNewLinesToHeader = true;
             mIndexedSpectraSpectrumIDToIndex.Clear();
@@ -748,19 +744,19 @@ namespace MSDataFileReader
 
             if (scanCount <= 1)
             {
-                mInputFileStatsSpectrumIDMinimum = spectrumID;
-                mInputFileStatsSpectrumIDMaximum = spectrumID;
+                CachedSpectraSpectrumIDMinimum = spectrumID;
+                CachedSpectraSpectrumIDMaximum = spectrumID;
             }
             else
             {
-                if (spectrumID < mInputFileStatsSpectrumIDMinimum)
+                if (spectrumID < CachedSpectraSpectrumIDMinimum)
                 {
-                    mInputFileStatsSpectrumIDMinimum = spectrumID;
+                    CachedSpectraSpectrumIDMinimum = spectrumID;
                 }
 
-                if (spectrumID > mInputFileStatsSpectrumIDMaximum)
+                if (spectrumID > CachedSpectraSpectrumIDMaximum)
                 {
-                    mInputFileStatsSpectrumIDMaximum = spectrumID;
+                    CachedSpectraSpectrumIDMaximum = spectrumID;
                 }
             }
         }
