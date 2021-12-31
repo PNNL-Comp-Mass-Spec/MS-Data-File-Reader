@@ -497,7 +497,7 @@ namespace MSDataFileReader
             try
             {
                 // If we just moved out of a scan element, finalize the current scan
-                if ((mXMLReader.Name) == ScanSectionNames.Scan)
+                if (mXMLReader.Name == ScanSectionNames.Scan)
                 {
                     if (mCurrentSpectrum.SpectrumStatus != SpectrumInfo.SpectrumStatusMode.Initialized && mCurrentSpectrum.SpectrumStatus != SpectrumInfo.SpectrumStatusMode.Validated)
                     {
