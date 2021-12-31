@@ -65,9 +65,9 @@ namespace MSDataFileReader
             Close();
         }
 
-        private const byte LINE_TERMINATOR_CODE_LF = 10;
-
         private const byte LINE_TERMINATOR_CODE_CR = 13;
+
+        private const byte LINE_TERMINATOR_CODE_LF = 10;
 
         public enum FileSystemModes
         {
@@ -105,26 +105,7 @@ namespace MSDataFileReader
             Reverse = 1
         }
 
-        private string mInputFilePath;
-
-        private InputFileEncodings mInputFileEncoding = InputFileEncodings.ASCII;
-
-        private byte mCharSize = 1;
-
-        private byte mByteOrderMarkLength;
-
-        // Note: Use Me.FileSystemMode to set this variable so that mLineTerminator1Code and mLineTerminator2Code also get updated
-        private FileSystemModes mFileSystemMode;
-
-        private byte mLineTerminator1Code;
-
-        private byte mLineTerminator2Code;
-
-        private string mErrorMessage;
-
         private FileStream mBinaryReader;
-
-        private int mLineNumber;
 
         private int mByteBufferCount;
 
@@ -136,21 +117,40 @@ namespace MSDataFileReader
         // This variable defines the index in mByteBuffer() at which the next line starts
         private int mByteBufferNextLineStartIndex;
 
-        private string mCurrentLineText;
+        private byte mByteOrderMarkLength;
+
+        private byte mCharSize = 1;
 
         private long mCurrentLineByteOffsetStart;
+
+        private long mCurrentLineByteOffsetStartSaved;
 
         private long mCurrentLineByteOffsetEnd;
 
         private long mCurrentLineByteOffsetEndWithTerminator;
 
-        private ReadDirection mReadLineDirectionSaved;
+        private string mCurrentLineTerminator;
 
-        private long mCurrentLineByteOffsetStartSaved;
+        private string mCurrentLineText;
 
         private string mCurrentLineTextSaved;
 
-        private string mCurrentLineTerminator;
+        private string mErrorMessage;
+
+        // Note: Use Me.FileSystemMode to set this variable so that mLineTerminator1Code and mLineTerminator2Code also get updated
+        private FileSystemModes mFileSystemMode;
+
+        private InputFileEncodings mInputFileEncoding;
+
+        private string mInputFilePath;
+
+        private int mLineNumber;
+
+        private byte mLineTerminator1Code;
+
+        private byte mLineTerminator2Code;
+
+        private ReadDirection mReadLineDirectionSaved;
 
         public long ByteBufferFileOffsetStart => mByteBufferFileOffsetStart;
 
@@ -214,16 +214,16 @@ namespace MSDataFileReader
             }
         }
 
-        public string InputFilePath => mInputFilePath;
-
-        public int LineNumber => mLineNumber;
-
         public InputFileEncodings InputFileEncoding
         {
             get => mInputFileEncoding;
 
             set => SetInputFileEncoding(value);
         }
+
+        public string InputFilePath => mInputFilePath;
+
+        public int LineNumber => mLineNumber;
 
         public bool ByteAtBOF(long bytePosition)
         {
