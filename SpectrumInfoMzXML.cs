@@ -116,6 +116,12 @@ namespace MSDataFileReader
 
         protected int mParentIonCharge;
 
+        /// <summary>
+        /// Precursor (parent() scan number
+        /// </summary>
+        /// <remarks>
+        /// 0 if no precursor scan
+        /// </remarks>
         protected int mPrecursorScanNum;
 
         public string ActivationMethod
@@ -220,6 +226,12 @@ namespace MSDataFileReader
             set => mParentIonCharge = value;
         }
 
+        /// <summary>
+        /// Precursor (parent() scan number
+        /// </summary>
+        /// <remarks>
+        /// 0 if no precursor scan
+        /// </remarks>
         public int PrecursorScanNum
         {
             get => mPrecursorScanNum;

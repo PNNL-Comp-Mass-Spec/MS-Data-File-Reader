@@ -655,6 +655,8 @@ namespace MSDataFileReader
                                         if (firstBracketIndex == startElementIndex)
                                         {
                                             indexLoaded = true;
+
+                                            // Valid index; clear the error message
                                             mErrorMessage = string.Empty;
                                         }
                                     }
@@ -675,11 +677,11 @@ namespace MSDataFileReader
 
                                 if (charIndex >= 0)
                                 {
-                                    // SCAN_START_ELEMENT found
+                                    // <scan found
                                     if (charIndex > 0)
                                     {
                                         // Only add a portion of currentLine to mXmlFileHeader
-                                        // since it contains SCAN_START_ELEMENT
+                                        // since it contains <scan
                                         mXmlFileHeader += currentLine.Substring(0, charIndex);
                                     }
 

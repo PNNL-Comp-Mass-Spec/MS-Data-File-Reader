@@ -734,7 +734,7 @@ namespace MSDataFileReader
                                     }
                                     else
                                     {
-                                        // Exit the TerminatorFound loop
+                                        // Exit the TerminatorFound do loop
                                         break;
                                     }
                                 }
@@ -744,7 +744,7 @@ namespace MSDataFileReader
                                 }
                                 else
                                 {
-                                    // Exit the TerminatorFound loop
+                                    // Exit the TerminatorFound do loop
                                     break;
                                 }
                             }

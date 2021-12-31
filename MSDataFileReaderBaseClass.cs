@@ -146,8 +146,14 @@ namespace MSDataFileReader
 
         public virtual int CachedSpectrumCount => mDataReaderMode == DataReaderMode.Cached ? mCachedSpectra.Count : 0;
 
+        /// <summary>
+        /// First scan number
+        /// </summary>
         public int CachedSpectraScanNumberMinimum => mInputFileStats.ScanNumberMinimum;
 
+        /// <summary>
+        /// Last scan number
+        /// </summary>
         public int CachedSpectraScanNumberMaximum => mInputFileStats.ScanNumberMaximum;
 
         public double ChargeCarrierMass
@@ -177,9 +183,21 @@ namespace MSDataFileReader
 
         protected bool ReadingAndStoringSpectra => mReadingAndStoringSpectra;
 
-        // Note: When reading mzXML and mzData files the FileReader classes, this value is not populated until after the first scan is read
-        // When using the FileAccessor classes, this value is populated after the file is indexed
-        // For .MGF and .DtaText files, this value will always be 0
+        /// <summary>
+        /// Actual scan count if mDataReaderMode = Cached or mDataReaderMode = Indexed
+        /// Scan count as reported by the XML file if mDataReaderMode = Sequential
+        /// </summary>
+        /// <remarks>
+        /// <para>
+        /// When reading mzXML and mzData files with the FileReader classes, this value is not populated until after the first scan is read
+        /// </para>
+        /// <para>
+        /// When using the FileAccessor classes, this value is populated after the file is indexed
+        /// </para>
+        /// <para>
+        /// For .MGF and .DtaText files, this value will always be 0
+        /// </para>
+        /// </remarks>
         public int ScanCount => mInputFileStats.ScanCount;
 
         public void AbortProcessingNow()
