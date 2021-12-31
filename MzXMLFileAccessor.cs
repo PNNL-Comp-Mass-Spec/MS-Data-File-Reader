@@ -536,7 +536,6 @@ namespace MSDataFileReader
                 {
                     var currentLine = mBinaryTextReader.CurrentLine;
                     var charIndex = currentLine.IndexOf(INDEX_OFFSET_START_ELEMENT, StringComparison.Ordinal);
-                    var charIndexEnd = currentLine.IndexOf(INDEX_OFFSET_END_ELEMENT, charIndex + INDEX_OFFSET_START_ELEMENT.Length, StringComparison.Ordinal);
 
                     if (charIndex >= 0)
                     {
@@ -545,6 +544,8 @@ namespace MSDataFileReader
                         // (normally on the same line, though this code can handle white space between the tags)
 
                         var byteOffsetSaved = mBinaryTextReader.CurrentLineByteOffsetStart + charIndex * mBinaryTextReader.CharSize;
+
+                        var charIndexEnd = currentLine.IndexOf(INDEX_OFFSET_END_ELEMENT, charIndex + INDEX_OFFSET_START_ELEMENT.Length, StringComparison.Ordinal);
 
                         if (charIndexEnd <= 0)
                         {
