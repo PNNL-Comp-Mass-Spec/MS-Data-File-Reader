@@ -580,19 +580,26 @@ namespace MSDataFileReader
             }
         }
 
-        public bool ReadLine()
-        {
-            return ReadLine(ReadDirection.Forward);
-        }
-
         /// <summary>
         /// Read the next line in the data file (by looking for the next LF symbol in the binary file)
         /// </summary>
         /// <remarks>
         /// Use Property CurrentLine to obtain the text for the line
         /// </remarks>
+        /// <returns>True if successful, False if an error</returns>
+        public bool ReadLine()
+        {
+            return ReadLine(ReadDirection.Forward);
+        }
+
+        /// <summary>
+        /// Read the next (or previous) line in the data file (by looking for the next LF symbol in the binary file)
+        /// </summary>
+        /// <remarks>
+        /// Use Property CurrentLine to obtain the text for the line
+        /// </remarks>
         /// <param name="readDirection"></param>
-        /// <returns>True if successful, False if failure</returns>
+        /// <returns>True if successful, False if an error</returns>
         public bool ReadLine(ReadDirection readDirection)
         {
             var startIndexShiftIncrement = 0;
