@@ -44,7 +44,7 @@ namespace MSDataFileReader
     /// <para>
     /// You can change the expected line terminator character using Property FileSystemMode
     /// If FileSystemMode = FileSystemModeConstants.Windows, the Line Terminator = LF, optionally preceded by CR
-    /// If FileSystemMode = FileSystemModeConstants.Unix, the Line Terminator = LF, optionally preceded by CR
+    /// If FileSystemMode = FileSystemModeConstants.Linux, the Line Terminator = LF, optionally preceded by CR
     /// If FileSystemMode = FileSystemModeConstants.Macintosh, the Line Terminator = CR, previous character is not considered
     /// </para>
     /// </remarks>
@@ -72,7 +72,7 @@ namespace MSDataFileReader
         public enum FileSystemModes
         {
             Windows = 0,
-            Unix = 1,
+            Linux = 1,
             Macintosh = 2
         }
 
@@ -200,8 +200,8 @@ namespace MSDataFileReader
                 switch (mFileSystemMode)
                 {
                     case FileSystemModes.Windows:
-                    case FileSystemModes.Unix:
-                        // Normally present for Windows; normally not present for Unix
+                    case FileSystemModes.Linux:
+                        // Normally present for Windows; normally not present for Linux
                         mLineTerminator1Code = LINE_TERMINATOR_CODE_CR;
                         mLineTerminator2Code = LINE_TERMINATOR_CODE_LF;
                         break;
