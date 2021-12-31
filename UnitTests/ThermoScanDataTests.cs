@@ -359,7 +359,6 @@ namespace MSDataFileReaderUnitTests
             Assert.Greater(percentValid, 90, "Over 10% of the spectra had invalid scan numbers");
         }
 
-
         [Test]
         [TestCase("Shew_246a_LCQa_15Oct04_Andro_0904-2_4-20.mzXML", 1513, 1521, 3, 6)]
         [TestCase("HCC-38_ETciD_EThcD_4xdil_20uL_3hr_3_08Jan16_Pippin_15-08-53.mzXML", 16121, 16165, 3, 42)]
@@ -466,7 +465,6 @@ namespace MSDataFileReaderUnitTests
             var reader = new MzXMLFileAccessor();
             reader.OpenFile(dataFile.FullName);
 
-
             Console.WriteLine("Scan info for {0}", dataFile.Name);
             Console.WriteLine(
                 "{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15}",
@@ -509,7 +507,6 @@ namespace MSDataFileReaderUnitTests
                         filterLine = mzXmlSpectrum.FilterLine;
                     }
                     else
-
                     {
                         filterLine = "Unrecognized filter line: " + mzXmlSpectrum.FilterLine;
                     }
