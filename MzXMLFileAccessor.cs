@@ -737,7 +737,7 @@ namespace MSDataFileReader
                 xmlReader.WhitespaceHandling = WhitespaceHandling.None;
                 var validData = true;
 
-                while (validData && xmlReader.ReadState == ReadState.Initial || xmlReader.ReadState == ReadState.Interactive)
+                while (validData && xmlReader.ReadState is ReadState.Initial or ReadState.Interactive)
                 {
                     validData = xmlReader.Read();
 

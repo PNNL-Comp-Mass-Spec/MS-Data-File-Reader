@@ -580,7 +580,7 @@ namespace MSDataFileReader
 
                     var validData = true;
 
-                    while (!mSpectrumFound && validData && !mAbortProcessing && mXMLReader.ReadState == ReadState.Initial || mXMLReader.ReadState == ReadState.Interactive)
+                    while (!mSpectrumFound && validData && !mAbortProcessing && mXMLReader.ReadState is ReadState.Initial or ReadState.Interactive)
                     {
                         mSpectrumFound = false;
 
