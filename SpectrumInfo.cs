@@ -430,9 +430,9 @@ namespace MSDataFileReader
 
         public void ComputeBasePeakAndTIC()
         {
-            var totalIonCurrent = default(double);
-            var basePeakMZ = default(double);
-            var basePeakIntensity = default(float);
+            var totalIonCurrent = 0.0;
+            var basePeakMZ = 0.0;
+            var basePeakIntensity = 0F;
 
             try
             {

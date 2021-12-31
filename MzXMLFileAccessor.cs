@@ -137,7 +137,7 @@ namespace MSDataFileReader
         protected override bool AdvanceFileReaders(ElementMatchMode elementMatchMode)
         {
             bool matchFound;
-            var byteOffsetForRewind = default(long);
+            var byteOffsetForRewind = 0L;
 
             try
             {
@@ -332,7 +332,7 @@ namespace MSDataFileReader
         /// <returns>Byte offset if found, otherwise 0</returns>
         private long ExtractIndexOffsetFromTextStream(string textStream)
         {
-            var indexOffset = default(long);
+            var indexOffset = 0L;
 
             try
             {
@@ -903,8 +903,8 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         private bool ReadMZXmlFile()
         {
-            var currentSpectrumByteOffsetStart = default(long);
-            var currentSpectrumByteOffsetEnd = default(long);
+            var currentSpectrumByteOffsetStart = 0L;
+            var currentSpectrumByteOffsetEnd = 0L;
 
             try
             {
