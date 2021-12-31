@@ -599,8 +599,6 @@ namespace MSDataFileReader
                             {
                                 // Ignore Errors Here
                             }
-
-                            validData = true;
                         }
                         else
                         {
@@ -632,6 +630,7 @@ namespace MSDataFileReader
                     {
                         if (mInputFileStats.ScanCount == 0)
                             mInputFileStats.ScanCount = 1;
+
                         UpdateFileStats(mInputFileStats.ScanCount, spectrumInfo.ScanNumber);
                     }
                 }
