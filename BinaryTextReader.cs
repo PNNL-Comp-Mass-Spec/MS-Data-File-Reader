@@ -726,6 +726,12 @@ namespace MSDataFileReader
                                         break;
                                 }
 
+                                if (terminatorFound)
+                                {
+                                    // Exit the TerminatorFound do loop
+                                    break;
+                                }
+
                                 if (readDirection == ReadDirection.Forward)
                                 {
                                     if (currentIndex + mCharSize <= indexMaximum)
@@ -841,6 +847,7 @@ namespace MSDataFileReader
                             // Determine the line terminator length
                             int bytesToRead;
                             int lineTerminatorLength;
+                            bool validEncoding;
 
                             switch (mInputFileEncoding)
                             {
@@ -882,6 +889,7 @@ namespace MSDataFileReader
                                         mCurrentLineText = new string(Encoding.ASCII.GetChars(mByteBuffer, matchingTextIndexStart, bytesToRead));
                                     }
 
+                                    validEncoding = true;
                                     break;
 
                                 case InputFileEncodings.UnicodeNormal:
@@ -916,6 +924,7 @@ namespace MSDataFileReader
                                         mCurrentLineText = new string(Encoding.Unicode.GetChars(mByteBuffer, matchingTextIndexStart, bytesToRead));
                                     }
 
+                                    validEncoding = true;
                                     break;
 
                                 case InputFileEncodings.UnicodeBigEndian:
@@ -950,13 +959,21 @@ namespace MSDataFileReader
                                         mCurrentLineText = new string(Encoding.BigEndianUnicode.GetChars(mByteBuffer, matchingTextIndexStart, bytesToRead));
                                     }
 
+                                    validEncoding = true;
                                     break;
 
                                 default:
                                     // Unknown/unsupported encoding
                                     mCurrentLineText = string.Empty;
                                     lineTerminatorLength = 0;
+                                    validEncoding = false;
                                     break;
+                            }
+
+                            if (!validEncoding)
+                            {
+                                // Exit the while loop
+                                break;
                             }
 
                             if (mCharSize > 1 && !ByteAtEOF(mByteBufferFileOffsetStart + matchingTextIndexEnd))
