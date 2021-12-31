@@ -554,7 +554,7 @@ namespace MSDataFileReader
 
                 InitializeFileTrackingVariables();
                 mDataReaderMode = DataReaderMode.Indexed;
-                mInputFilePath = string.Copy(inputFilePath);
+                mInputFilePath = inputFilePath;
 
                 // Initialize the binary text reader
                 // Even if an existing index is present, this is needed to determine

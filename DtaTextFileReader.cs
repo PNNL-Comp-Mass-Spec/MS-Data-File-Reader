@@ -92,7 +92,7 @@ namespace MSDataFileReader
 
                         if (mHeaderSaved.Length > 0)
                         {
-                            lineIn = string.Copy(mHeaderSaved);
+                            lineIn = mHeaderSaved;
                             mHeaderSaved = string.Empty;
                         }
                         else
@@ -184,7 +184,7 @@ namespace MSDataFileReader
                                 {
                                     // See if the next spectrum is the identical data, but the charge is 3 (this is a common situation with .dta files prepared by Lcq_Dta)
 
-                                    lineIn = string.Copy(mostRecentLineIn);
+                                    lineIn = mostRecentLineIn;
 
                                     if (string.IsNullOrWhiteSpace(lineIn) && mFileReader.Peek() > -1)
                                     {
@@ -199,7 +199,7 @@ namespace MSDataFileReader
 
                                     if (lineIn != null && lineIn.StartsWith(CommentLineStartChar.ToString()))
                                     {
-                                        mHeaderSaved = string.Copy(lineIn);
+                                        mHeaderSaved = lineIn;
                                         var compareTitle = CleanupComment(mHeaderSaved, CommentLineStartChar, true);
 
                                         if (compareTitle.EndsWith("3.dta", StringComparison.OrdinalIgnoreCase))
@@ -231,7 +231,7 @@ namespace MSDataFileReader
 
                                                         if (lineIn.Trim().StartsWith(CommentLineStartChar.ToString()))
                                                         {
-                                                            mHeaderSaved = string.Copy(lineIn);
+                                                            mHeaderSaved = lineIn;
                                                             break;
                                                         }
                                                     }
@@ -242,7 +242,7 @@ namespace MSDataFileReader
                                 }
                                 else if (mostRecentLineIn.StartsWith(CommentLineStartChar.ToString()))
                                 {
-                                    mHeaderSaved = string.Copy(mostRecentLineIn);
+                                    mHeaderSaved = mostRecentLineIn;
                                 }
                             }  // EndIf for spectrumFound = True
                         }  // EndIf for lineIn.Trim.StartsWith(mCommentLineStartChar)
@@ -380,7 +380,7 @@ namespace MSDataFileReader
             out string mostRecentLineIn)
         {
             var spectrumFound = false;
-            spectrumInfoMsMsText.ParentIonLineText = string.Copy(parentIonLineText);
+            spectrumInfoMsMsText.ParentIonLineText = parentIonLineText;
             parentIonLineText = parentIonLineText.Trim();
 
             // Look for the first space
@@ -441,7 +441,7 @@ namespace MSDataFileReader
                 if (lineIn != null)
                 {
                     mTotalBytesRead += lineIn.Length + 2;
-                    mostRecentLineIn = string.Copy(lineIn);
+                    mostRecentLineIn = lineIn;
 
                     if (lineIn.Trim().Length == 0 || lineIn.StartsWith(COMMENT_LINE_START_CHAR.ToString()))
                     {

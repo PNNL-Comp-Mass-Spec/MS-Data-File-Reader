@@ -555,7 +555,7 @@ namespace MSDataFileReader
                 }
 
                 InitializeLocalVariables();
-                mInputFilePath = string.Copy(dataFilePath);
+                mInputFilePath = dataFilePath;
 
                 // Note that this sets mCharSize to 1
                 SetInputFileEncoding(InputFileEncodings.ASCII);
@@ -1150,7 +1150,7 @@ namespace MSDataFileReader
             {
                 mReadLineDirectionSaved = readDirection;
                 mCurrentLineByteOffsetStartSaved = mCurrentLineByteOffsetStart;
-                mCurrentLineTextSaved = string.Copy(mCurrentLineText);
+                mCurrentLineTextSaved = mCurrentLineText;
                 return true;
             }
 

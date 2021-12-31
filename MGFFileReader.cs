@@ -365,9 +365,9 @@ namespace MSDataFileReader
                                             }
                                             else if (lineIn.StartsWith(LINE_START_TITLE, StringComparison.OrdinalIgnoreCase))
                                             {
-                                                mCurrentSpectrum.SpectrumTitle = string.Copy(lineIn);
+                                                mCurrentSpectrum.SpectrumTitle = lineIn;
                                                 lineIn = lineIn.Substring(LINE_START_TITLE.Length).Trim();
-                                                mCurrentSpectrum.SpectrumTitleWithCommentChars = string.Copy(lineIn);
+                                                mCurrentSpectrum.SpectrumTitleWithCommentChars = lineIn;
 
                                                 if (!scanNumberFound)
                                                 {

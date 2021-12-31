@@ -958,7 +958,7 @@ namespace MSDataFileReader
                 // Validate the mzData file version
                 if (!string.IsNullOrWhiteSpace(fileVersion))
                 {
-                    mFileVersion = string.Copy(fileVersion);
+                    mFileVersion = fileVersion;
                     var match = fileVersionRegEx.Match(fileVersion);
 
                     if (!match.Success)
