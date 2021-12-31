@@ -674,301 +674,52 @@ namespace MSDataFileReader
                         }
 
                         // Reset the terminator check counters
-                        var terminatorCheckCount = 0;
-                        var terminatorCheckCountValueZero = 0;
-                        var startIndexShifted = false;
+                        int terminatorCheckCount;
+                        int terminatorCheckCountValueZero;
 
                         if (readDirection == ReadDirection.Reverse && currentIndex >= indexMinimum ||
                             readDirection == ReadDirection.Forward && currentIndex <= indexMaximum)
                         {
-                            do
-                            {
-                                switch (mInputFileEncoding)
-                                {
-                                    case InputFileEncodings.ASCII:
-                                    case InputFileEncodings.UTF8:
-                                        // ASCII or UTF-8 encoding; Assure mCharSize = 1
-                                        if (mByteBuffer[currentIndex] == mLineTerminator2Code)
-                                        {
-                                            terminatorFound = true;
-                                        }
-
-                                        break;
-
-                                    case InputFileEncodings.UnicodeNormal:
-                                        // Look for the LF symbol followed by a byte with value 0 in mByteBuffer
-                                        if (mByteBuffer[currentIndex] == mLineTerminator2Code && mByteBuffer[currentIndex + 1] == 0)
-                                        {
-                                            terminatorFound = true;
-                                            break;
-                                        }
-                                        else if (mByteBuffer[currentIndex] == 0)
-                                        {
-                                            terminatorCheckCountValueZero++;
-                                        }
-
-                                        terminatorCheckCount++;
-                                        break;
-
-                                    case InputFileEncodings.UnicodeBigEndian:
-                                        // Unicode (Big Endian) encoding; Assure mCharSize = 2
-                                        if (mByteBuffer[currentIndex] == 0 && mByteBuffer[currentIndex + 1] == mLineTerminator2Code)
-                                        {
-                                            terminatorFound = true;
-                                            break;
-                                        }
-                                        else if (mByteBuffer[currentIndex + 1] == 0)
-                                        {
-                                            terminatorCheckCountValueZero++;
-                                        }
-
-                                        terminatorCheckCount++;
-                                        break;
-                                }
-
-                                if (terminatorFound)
-                                {
-                                    // Exit the TerminatorFound do loop
-                                    break;
-                                }
-
-                                if (readDirection == ReadDirection.Forward)
-                                {
-                                    if (currentIndex + mCharSize <= indexMaximum)
-                                    {
-                                        currentIndex += mCharSize;
-                                    }
-                                    else
-                                    {
-                                        // Exit the TerminatorFound do loop
-                                        break;
-                                    }
-                                }
-                                else if (currentIndex - mCharSize >= indexMinimum)
-                                {
-                                    currentIndex -= mCharSize;
-                                }
-                                else
-                                {
-                                    // Exit the TerminatorFound do loop
-                                    break;
-                                }
-                            }
-                            while (!terminatorFound);
+                            terminatorFound = ReadLineFindTerminator(
+                                readDirection,
+                                ref currentIndex,
+                                indexMinimum,
+                                indexMaximum,
+                                out terminatorCheckCountValueZero,
+                                out terminatorCheckCount);
+                        }
+                        else
+                        {
+                            terminatorCheckCount = 0;
+                            terminatorCheckCountValueZero = 0;
                         }
 
-                        if (!terminatorFound)
+                        bool startIndexShifted;
+
+                        if (terminatorFound)
                         {
-                            double valueZeroFraction;
-
-                            if (terminatorCheckCount > 0)
-                            {
-                                valueZeroFraction = terminatorCheckCountValueZero / (double)terminatorCheckCount;
-                            }
-                            else
-                            {
-                                valueZeroFraction = 0d;
-                            }
-
-                            if (mCharSize > 1 && startIndexShiftCount < mCharSize - 1 && valueZeroFraction >= 0.95d)
-                            {
-                                // mByteBufferNextLineStartIndex is most likely off by 1
-                                // This could happen due to an inappropriate byte value being sent to MoveToByteOffset()
-                                // or due to a corrupted Unicode file
-
-                                // Shift mByteBufferNextLineStartIndex by 1 and try again
-                                if (startIndexShiftCount == 0)
-                                {
-                                    // First attempt to shift; determine the shift direction
-                                    if (readDirection == ReadDirection.Forward)
-                                    {
-                                        // Searching forward
-                                        if (mByteBufferNextLineStartIndex > mCharSize - 2)
-                                        {
-                                            startIndexShiftIncrement = -1;
-                                        }
-                                        else
-                                        {
-                                            startIndexShiftIncrement = 1;
-                                        }
-                                    }
-
-                                    // Searching reverse
-                                    else if (mByteBufferNextLineStartIndex < mByteBufferCount - (mCharSize - 2))
-                                    {
-                                        startIndexShiftIncrement = 1;
-                                    }
-                                    else
-                                    {
-                                        startIndexShiftIncrement = -1;
-                                    }
-                                }
-
-                                mByteBufferNextLineStartIndex += startIndexShiftIncrement;
-                                startIndexShiftCount++;
-                                startIndexShifted = true;
-                            }
-                            else if (readDirection == ReadDirection.Forward)
-                            {
-                                // Searching forward; are we at the end of the file?
-                                if (ByteAtEOF(mByteBufferFileOffsetStart + currentIndex + mCharSize))
-                                {
-                                    // Yes, we're at the end of the file
-                                    terminatorFound = true;
-                                    currentIndex = mByteBufferCount - 1;
-                                }
-                            }
-
-                            // Searching backward; are we at the beginning of the file?
-                            else if (ByteAtBOF(mByteBufferFileOffsetStart + currentIndex))
-                            {
-                                // Yes, we're at the beginning of the file
-                                terminatorFound = true;
-                                currentIndex = mByteOrderMarkLength - mCharSize;
-                            }
+                            startIndexShifted = false;
+                        }
+                        else
+                        {
+                            terminatorFound = ReadLineFindTerminatorShifted(
+                                readDirection,
+                                ref currentIndex,
+                                ref startIndexShiftCount,
+                                ref startIndexShiftIncrement,
+                                out startIndexShifted,
+                                terminatorCheckCount,
+                                terminatorCheckCountValueZero);
                         }
 
                         if (terminatorFound)
                         {
-                            int matchingTextIndexStart;
-                            int matchingTextIndexEnd;
-
-                            if (readDirection == ReadDirection.Forward)
-                            {
-                                matchingTextIndexStart = mByteBufferNextLineStartIndex;
-                                matchingTextIndexEnd = currentIndex;
-                            }
-                            else
-                            {
-                                matchingTextIndexStart = currentIndex + mCharSize;
-                                matchingTextIndexEnd = mByteBufferNextLineStartIndex - mCharSize;
-                            }
-
-                            // Determine the line terminator length
-                            int bytesToRead;
-                            int lineTerminatorLength;
-                            bool validEncoding;
-
-                            switch (mInputFileEncoding)
-                            {
-                                case InputFileEncodings.ASCII:
-                                case InputFileEncodings.UTF8:
-                                    // ASCII encoding
-                                    if (mLineTerminator1Code != 0 && matchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[matchingTextIndexEnd - mCharSize] == mLineTerminator1Code)
-                                    {
-                                        lineTerminatorLength = 2;
-                                        mCurrentLineTerminator = Convert.ToChar(mByteBuffer[matchingTextIndexEnd - mCharSize]).ToString() + Convert.ToChar(mByteBuffer[matchingTextIndexEnd]);
-                                    }
-                                    else if (mByteBuffer[matchingTextIndexEnd] == mLineTerminator2Code)
-                                    {
-                                        lineTerminatorLength = 1;
-                                        mCurrentLineTerminator = Convert.ToChar(mByteBuffer[matchingTextIndexEnd]).ToString();
-                                    }
-                                    else
-                                    {
-                                        // No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
-                                        lineTerminatorLength = 0;
-                                        mCurrentLineTerminator = string.Empty;
-                                    }
-
-                                    bytesToRead = matchingTextIndexEnd - matchingTextIndexStart - mCharSize * (lineTerminatorLength - 1);
-
-                                    if (bytesToRead <= 0)
-                                    {
-                                        // Blank line
-                                        mCurrentLineText = string.Empty;
-                                    }
-                                    else if (mInputFileEncoding == InputFileEncodings.UTF8)
-                                    {
-                                        // Extract the data between matchingTextIndexStart and matchingTextIndexEnd, excluding any line terminator characters
-                                        mCurrentLineText = new string(Encoding.UTF8.GetChars(mByteBuffer, matchingTextIndexStart, bytesToRead));
-                                    }
-                                    else
-                                    {
-                                        // Extract the data between matchingTextIndexStart and matchingTextIndexEnd, excluding any line terminator characters
-                                        mCurrentLineText = new string(Encoding.ASCII.GetChars(mByteBuffer, matchingTextIndexStart, bytesToRead));
-                                    }
-
-                                    validEncoding = true;
-                                    break;
-
-                                case InputFileEncodings.UnicodeNormal:
-                                    // Unicode (Little Endian) encoding
-                                    if (mLineTerminator1Code != 0 && matchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[matchingTextIndexEnd - mCharSize] == mLineTerminator1Code && mByteBuffer[matchingTextIndexEnd - mCharSize + 1] == 0)
-                                    {
-                                        lineTerminatorLength = 2;
-                                        mCurrentLineTerminator = Convert.ToChar(mByteBuffer[matchingTextIndexEnd - mCharSize]).ToString() + Convert.ToChar(mByteBuffer[matchingTextIndexEnd]);
-                                    }
-                                    else if (mByteBuffer[matchingTextIndexEnd] == mLineTerminator2Code && matchingTextIndexEnd + 1 < mByteBufferCount && mByteBuffer[matchingTextIndexEnd + 1] == 0)
-                                    {
-                                        lineTerminatorLength = 1;
-                                        mCurrentLineTerminator = Convert.ToChar(mByteBuffer[matchingTextIndexEnd]).ToString();
-                                    }
-                                    else
-                                    {
-                                        // No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
-                                        lineTerminatorLength = 0;
-                                        mCurrentLineTerminator = string.Empty;
-                                    }
-
-                                    // Extract the data between matchingTextIndexStart and matchingTextIndexEnd, excluding any line terminator characters
-                                    bytesToRead = matchingTextIndexEnd - matchingTextIndexStart - mCharSize * (lineTerminatorLength - 1);
-
-                                    if (bytesToRead <= 0)
-                                    {
-                                        // Blank line
-                                        mCurrentLineText = string.Empty;
-                                    }
-                                    else
-                                    {
-                                        mCurrentLineText = new string(Encoding.Unicode.GetChars(mByteBuffer, matchingTextIndexStart, bytesToRead));
-                                    }
-
-                                    validEncoding = true;
-                                    break;
-
-                                case InputFileEncodings.UnicodeBigEndian:
-                                    // Unicode (Big Endian) encoding
-                                    if (mLineTerminator1Code != 0 && matchingTextIndexEnd - mCharSize >= 0 && mByteBuffer[matchingTextIndexEnd - mCharSize] == 0 && mByteBuffer[matchingTextIndexEnd - mCharSize + 1] == mLineTerminator1Code)
-                                    {
-                                        lineTerminatorLength = 2;
-                                        mCurrentLineTerminator = Convert.ToChar(mByteBuffer[matchingTextIndexEnd - mCharSize + 1]).ToString() + Convert.ToChar(mByteBuffer[matchingTextIndexEnd + 1]);
-                                    }
-                                    else if (mByteBuffer[matchingTextIndexEnd] == 0 && matchingTextIndexEnd + 1 < mByteBufferCount && mByteBuffer[matchingTextIndexEnd + 1] == mLineTerminator2Code)
-                                    {
-                                        lineTerminatorLength = 1;
-                                        mCurrentLineTerminator = Convert.ToChar(mByteBuffer[matchingTextIndexEnd + 1]).ToString();
-                                    }
-                                    else
-                                    {
-                                        // No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
-                                        lineTerminatorLength = 0;
-                                        mCurrentLineTerminator = string.Empty;
-                                    }
-
-                                    // Extract the data between matchingTextIndexStart and matchingTextIndexEnd, excluding any line terminator characters
-                                    bytesToRead = matchingTextIndexEnd - matchingTextIndexStart - mCharSize * (lineTerminatorLength - 1);
-
-                                    if (bytesToRead <= 0)
-                                    {
-                                        // Blank line
-                                        mCurrentLineText = string.Empty;
-                                    }
-                                    else
-                                    {
-                                        mCurrentLineText = new string(Encoding.BigEndianUnicode.GetChars(mByteBuffer, matchingTextIndexStart, bytesToRead));
-                                    }
-
-                                    validEncoding = true;
-                                    break;
-
-                                default:
-                                    // Unknown/unsupported encoding
-                                    mCurrentLineText = string.Empty;
-                                    lineTerminatorLength = 0;
-                                    validEncoding = false;
-                                    break;
-                            }
+                            var matchingTextIndexStart = ReadLineContent(
+                                readDirection,
+                                currentIndex,
+                                out var lineTerminatorLength,
+                                out var matchingTextIndexEnd,
+                                out var validEncoding);
 
                             if (!validEncoding)
                             {
@@ -976,183 +727,21 @@ namespace MSDataFileReader
                                 break;
                             }
 
-                            if (mCharSize > 1 && !ByteAtEOF(mByteBufferFileOffsetStart + matchingTextIndexEnd))
-                            {
-                                matchingTextIndexEnd += mCharSize - 1;
-                            }
-
-                            mCurrentLineByteOffsetStart = mByteBufferFileOffsetStart + matchingTextIndexStart;
-                            mCurrentLineByteOffsetEndWithTerminator = mByteBufferFileOffsetStart + matchingTextIndexEnd;
-                            mCurrentLineByteOffsetEnd = mByteBufferFileOffsetStart + matchingTextIndexEnd - lineTerminatorLength * mCharSize;
-
-                            if (mCurrentLineByteOffsetEnd < mCurrentLineByteOffsetStart)
-                            {
-                                // Zero-length line
-                                mCurrentLineByteOffsetEnd = mCurrentLineByteOffsetStart;
-                            }
-
-                            if (readDirection == ReadDirection.Forward)
-                            {
-                                mByteBufferNextLineStartIndex = matchingTextIndexEnd + 1;
-                                mLineNumber++;
-                            }
-                            else
-                            {
-                                mByteBufferNextLineStartIndex = matchingTextIndexStart;
-
-                                if (mLineNumber > 0)
-                                {
-                                    mLineNumber--;
-                                }
-                            }
-
-                            // Check whether the user just changed reading direction
-                            // If they did, it is possible that this method will return the exact same line
-                            // as was previously read.  Check for this, and if true, read the next line (in direction readDirection)
-                            if (readDirection != mReadLineDirectionSaved &&
-                                mCurrentLineByteOffsetStartSaved >= 0L &&
-                                mCurrentLineByteOffsetStart == mCurrentLineByteOffsetStartSaved &&
-                                mCurrentLineTextSaved != null &&
-                                mCurrentLineText.Equals(mCurrentLineTextSaved))
-                            {
-                                // Recursively call this method to read the next line
-                                // To avoid infinite loops, set mCurrentLineByteOffsetStartSaved to -1
-                                mCurrentLineByteOffsetStartSaved = -1;
-                                matchFound = ReadLine(readDirection);
-                            }
-                            else
-                            {
-                                matchFound = true;
-                            }
+                            matchFound = ReadLineFinalize(readDirection, lineTerminatorLength, matchingTextIndexStart, matchingTextIndexEnd);
 
                             // Exit the while loop
                             break;
                         }
 
-                        if (matchFound || startIndexShifted)
+                        if (startIndexShifted)
                             continue;
 
-                        // Need to add more data to the buffer (or shift the data in the buffer)
-                        int bytesRead;
+                        var dataAdded = ReadLineAppendToBuffer(readDirection, ref searchIndexStartOffset);
 
-                        if (readDirection == ReadDirection.Forward)
+                        if (!dataAdded)
                         {
-                            if (mBinaryReader.Position >= mBinaryReader.Length)
-                            {
-                                // Already at the end of the file; cannot move forward
-                                // Exit the while loop
-                                break;
-                            }
-
-                            if (mByteBufferNextLineStartIndex > 0)
-                            {
-                                // First, shift all of the data so that element mByteBufferNextLineStartIndex moves to element 0
-                                var indexEnd = mByteBufferCount - 1;
-
-                                for (var index = mByteBufferNextLineStartIndex; index <= indexEnd; index++)
-                                {
-                                    mByteBuffer[index - mByteBufferNextLineStartIndex] = mByteBuffer[index];
-                                }
-
-                                mByteBufferCount -= mByteBufferNextLineStartIndex;
-                                mByteBufferFileOffsetStart += mByteBufferNextLineStartIndex;
-                                searchIndexStartOffset = mByteBufferCount;
-                                mByteBufferNextLineStartIndex = 0;
-
-                                if (mByteBufferFileOffsetStart + mByteBufferCount != mBinaryReader.Position)
-                                {
-                                    // The file read-position is out-of-sync with mByteBufferFileOffsetStart; this can happen
-                                    // if we used MoveToByteOffset, read backward, and are now reading forward
-                                    mBinaryReader.Seek(mByteBufferFileOffsetStart + mByteBufferCount, SeekOrigin.Begin);
-                                }
-                            }
-                            else
-                            {
-                                searchIndexStartOffset = mByteBufferCount;
-
-                                if (mByteBufferCount >= mByteBuffer.Length)
-                                {
-                                    // Need to expand the buffer
-                                    // In order to support Unicode files, it is important that the buffer length always be a power of 2
-                                    Array.Resize(ref mByteBuffer, mByteBuffer.Length * 2);
-                                }
-                            }
-
-                            bytesRead = mBinaryReader.Read(mByteBuffer, searchIndexStartOffset, mByteBuffer.Length - searchIndexStartOffset);
-
-                            if (bytesRead == 0)
-                            {
-                                // No data could be read; exit the while loop
-                                break;
-                            }
-
-                            mByteBufferCount += bytesRead;
-                        }
-                        else
-                        {
-                            if (mByteBufferFileOffsetStart <= mByteOrderMarkLength || mBinaryReader.Position <= 0L)
-                            {
-                                // Already at the beginning of the file; cannot move backward
-                                // Exit the while loop
-                                break;
-                            }
-
-                            if (mByteBufferCount >= mByteBuffer.Length && mByteBufferNextLineStartIndex >= mByteBuffer.Length)
-                            {
-                                // The byte buffer is full and mByteBufferNextLineStartIndex is past the end of the buffer
-                                // Need to double its size, shift the data from the first half to the second half, and
-                                // populate the first half
-
-                                // Expand the buffer
-                                // In order to support Unicode files, it is important that the buffer length always be a power of 2
-                                Array.Resize(ref mByteBuffer, mByteBuffer.Length * 2);
-                            }
-
-                            int shiftIncrement;
-
-                            if (mByteBufferCount < mByteBuffer.Length)
-                            {
-                                shiftIncrement = mByteBuffer.Length - mByteBufferCount;
-                            }
-                            else
-                            {
-                                shiftIncrement = mByteBuffer.Length - mByteBufferNextLineStartIndex;
-                            }
-
-                            if (mByteBufferFileOffsetStart - shiftIncrement < mByteOrderMarkLength)
-                            {
-                                shiftIncrement = (int)mByteBufferFileOffsetStart - mByteOrderMarkLength;
-                            }
-
-                            // Possibly update mByteBufferCount
-                            if (mByteBufferCount < mByteBuffer.Length)
-                            {
-                                mByteBufferCount += shiftIncrement;
-                            }
-
-                            // Shift the data
-                            for (var index = mByteBufferCount - shiftIncrement - 1; index >= 0; index--)
-                            {
-                                mByteBuffer[shiftIncrement + index] = mByteBuffer[index];
-                            }
-
-                            // Update the tracking variables
-                            mByteBufferFileOffsetStart -= shiftIncrement;
-                            mByteBufferNextLineStartIndex += shiftIncrement;
-
-                            // Populate the first portion of the byte buffer with new data
-                            mBinaryReader.Seek(mByteBufferFileOffsetStart, SeekOrigin.Begin);
-                            bytesRead = mBinaryReader.Read(mByteBuffer, 0, shiftIncrement);
-
-                            if (bytesRead == 0)
-                            {
-                                // No data could be read; this shouldn't ever happen
-                                // Move to the beginning of the file and re-populate mByteBuffer
-                                MoveToBeginning();
-
-                                // Exit the while loop
-                                break;
-                            }
+                            // Exit the while loop
+                            break;
                         }
                     }
                 }
@@ -1166,7 +755,7 @@ namespace MSDataFileReader
             if (matchFound)
             {
                 mReadLineDirectionSaved = readDirection;
-                mCurrentLineByteOffsetStartSaved = mCurrentLineByteOffsetStart;
+                mCurrentLineByteOffsetStartSaved = CurrentLineByteOffsetStart;
                 mCurrentLineTextSaved = mCurrentLineText;
                 return true;
             }
@@ -1175,6 +764,539 @@ namespace MSDataFileReader
             mCurrentLineByteOffsetStartSaved = -1;
             mCurrentLineTextSaved = string.Empty;
             return false;
+        }
+
+        private bool ReadLineAppendToBuffer(ReadDirection readDirection, ref int searchIndexStartOffset)
+        {
+            try
+            {
+                // Need to add more data to the buffer (or shift the data in the buffer)
+                int bytesRead;
+
+                if (readDirection == ReadDirection.Forward)
+                {
+                    if (mBinaryReader.Position >= mBinaryReader.Length)
+                    {
+                        // Already at the end of the file; cannot move forward
+                        return false;
+                    }
+
+                    if (mByteBufferNextLineStartIndex > 0)
+                    {
+                        // First, shift all of the data so that element mByteBufferNextLineStartIndex moves to element 0
+                        var indexEnd = mByteBufferCount - 1;
+
+                        for (var index = mByteBufferNextLineStartIndex; index <= indexEnd; index++)
+                        {
+                            mByteBuffer[index - mByteBufferNextLineStartIndex] = mByteBuffer[index];
+                        }
+
+                        mByteBufferCount -= mByteBufferNextLineStartIndex;
+                        mByteBufferFileOffsetStart += mByteBufferNextLineStartIndex;
+                        searchIndexStartOffset = mByteBufferCount;
+                        mByteBufferNextLineStartIndex = 0;
+
+                        if (ByteBufferFileOffsetStart + mByteBufferCount != mBinaryReader.Position)
+                        {
+                            // The file read-position is out-of-sync with mByteBufferFileOffsetStart; this can happen
+                            // if we used MoveToByteOffset, read backward, and are now reading forward
+                            mBinaryReader.Seek(ByteBufferFileOffsetStart + mByteBufferCount, SeekOrigin.Begin);
+                        }
+                    }
+                    else
+                    {
+                        searchIndexStartOffset = mByteBufferCount;
+
+                        if (mByteBufferCount >= mByteBuffer.Length)
+                        {
+                            // Need to expand the buffer
+                            // In order to support Unicode files, it is important that the buffer length always be a power of 2
+                            Array.Resize(ref mByteBuffer, mByteBuffer.Length * 2);
+                        }
+                    }
+
+                    bytesRead = mBinaryReader.Read(mByteBuffer, searchIndexStartOffset, mByteBuffer.Length - searchIndexStartOffset);
+
+                    if (bytesRead == 0)
+                    {
+                        // No data could be read
+                        return false;
+                    }
+
+                    mByteBufferCount += bytesRead;
+                }
+                else
+                {
+                    if (ByteBufferFileOffsetStart <= ByteOrderMarkLength || mBinaryReader.Position <= 0L)
+                    {
+                        // Already at the beginning of the file; cannot move backward
+                        return false;
+                    }
+
+                    if (mByteBufferCount >= mByteBuffer.Length && mByteBufferNextLineStartIndex >= mByteBuffer.Length)
+                    {
+                        // The byte buffer is full and mByteBufferNextLineStartIndex is past the end of the buffer
+                        // Need to double its size, shift the data from the first half to the second half, and
+                        // populate the first half
+
+                        // Expand the buffer
+                        // In order to support Unicode files, it is important that the buffer length always be a power of 2
+                        Array.Resize(ref mByteBuffer, mByteBuffer.Length * 2);
+                    }
+
+                    int shiftIncrement;
+
+                    if (mByteBufferCount < mByteBuffer.Length)
+                    {
+                        shiftIncrement = mByteBuffer.Length - mByteBufferCount;
+                    }
+                    else
+                    {
+                        shiftIncrement = mByteBuffer.Length - mByteBufferNextLineStartIndex;
+                    }
+
+                    if (ByteBufferFileOffsetStart - shiftIncrement < ByteOrderMarkLength)
+                    {
+                        shiftIncrement = (int)ByteBufferFileOffsetStart - ByteOrderMarkLength;
+                    }
+
+                    // Possibly update mByteBufferCount
+                    if (mByteBufferCount < mByteBuffer.Length)
+                    {
+                        mByteBufferCount += shiftIncrement;
+                    }
+
+                    // Shift the data
+                    for (var index = mByteBufferCount - shiftIncrement - 1; index >= 0; index--)
+                    {
+                        mByteBuffer[shiftIncrement + index] = mByteBuffer[index];
+                    }
+
+                    // Update the tracking variables
+                    mByteBufferFileOffsetStart -= shiftIncrement;
+                    mByteBufferNextLineStartIndex += shiftIncrement;
+
+                    // Populate the first portion of the byte buffer with new data
+                    mBinaryReader.Seek(ByteBufferFileOffsetStart, SeekOrigin.Begin);
+                    bytesRead = mBinaryReader.Read(mByteBuffer, 0, shiftIncrement);
+
+                    if (bytesRead == 0)
+                    {
+                        // No data could be read; this shouldn't ever happen
+                        // Move to the beginning of the file and re-populate mByteBuffer
+                        MoveToBeginning();
+
+                        return false;
+                    }
+                }
+
+                // Successfully added data to the buffer
+                return true;
+            }
+            catch (Exception ex)
+            {
+                OnErrorEvent("Error in ReadLineAppendToBuffer", ex);
+                return false;
+            }
+        }
+
+        private int ReadLineContent(
+            ReadDirection readDirection,
+            int currentIndex,
+            out int lineTerminatorLength,
+            out int matchingTextIndexEnd,
+            out bool validEncoding)
+        {
+            try
+            {
+                int matchingTextIndexStart;
+
+                if (readDirection == ReadDirection.Forward)
+                {
+                    matchingTextIndexStart = mByteBufferNextLineStartIndex;
+                    matchingTextIndexEnd = currentIndex;
+                }
+                else
+                {
+                    matchingTextIndexStart = currentIndex + CharSize;
+                    matchingTextIndexEnd = mByteBufferNextLineStartIndex - CharSize;
+                }
+
+                // Determine the line terminator length
+                int bytesToRead;
+
+                switch (mInputFileEncoding)
+                {
+                    case InputFileEncodings.ASCII:
+                    case InputFileEncodings.UTF8:
+                        // ASCII encoding
+                        if (mLineTerminator1Code != 0 && matchingTextIndexEnd - CharSize >= 0 &&
+                            mByteBuffer[matchingTextIndexEnd - CharSize] == mLineTerminator1Code)
+                        {
+                            lineTerminatorLength = 2;
+                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[matchingTextIndexEnd - CharSize]).ToString() +
+                                                     Convert.ToChar(mByteBuffer[matchingTextIndexEnd]);
+                        }
+                        else if (mByteBuffer[matchingTextIndexEnd] == mLineTerminator2Code)
+                        {
+                            lineTerminatorLength = 1;
+                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[matchingTextIndexEnd]).ToString();
+                        }
+                        else
+                        {
+                            // No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
+                            lineTerminatorLength = 0;
+                            mCurrentLineTerminator = string.Empty;
+                        }
+
+                        bytesToRead = matchingTextIndexEnd - matchingTextIndexStart - CharSize * (lineTerminatorLength - 1);
+
+                        if (bytesToRead <= 0)
+                        {
+                            // Blank line
+                            mCurrentLineText = string.Empty;
+                        }
+                        else if (mInputFileEncoding == InputFileEncodings.UTF8)
+                        {
+                            // Extract the data between matchingTextIndexStart and matchingTextIndexEnd, excluding any line terminator characters
+                            mCurrentLineText = new string(Encoding.UTF8.GetChars(mByteBuffer, matchingTextIndexStart, bytesToRead));
+                        }
+                        else
+                        {
+                            // Extract the data between matchingTextIndexStart and matchingTextIndexEnd, excluding any line terminator characters
+                            mCurrentLineText = new string(Encoding.ASCII.GetChars(mByteBuffer, matchingTextIndexStart, bytesToRead));
+                        }
+
+                        validEncoding = true;
+                        break;
+
+                    case InputFileEncodings.UnicodeNormal:
+                        // Unicode (Little Endian) encoding
+                        if (mLineTerminator1Code != 0 && matchingTextIndexEnd - CharSize >= 0 &&
+                            mByteBuffer[matchingTextIndexEnd - CharSize] == mLineTerminator1Code && mByteBuffer[matchingTextIndexEnd - CharSize + 1] == 0)
+                        {
+                            lineTerminatorLength = 2;
+                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[matchingTextIndexEnd - CharSize]).ToString() +
+                                                     Convert.ToChar(mByteBuffer[matchingTextIndexEnd]);
+                        }
+                        else if (mByteBuffer[matchingTextIndexEnd] == mLineTerminator2Code && matchingTextIndexEnd + 1 < mByteBufferCount &&
+                                 mByteBuffer[matchingTextIndexEnd + 1] == 0)
+                        {
+                            lineTerminatorLength = 1;
+                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[matchingTextIndexEnd]).ToString();
+                        }
+                        else
+                        {
+                            // No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
+                            lineTerminatorLength = 0;
+                            mCurrentLineTerminator = string.Empty;
+                        }
+
+                        // Extract the data between matchingTextIndexStart and matchingTextIndexEnd, excluding any line terminator characters
+                        bytesToRead = matchingTextIndexEnd - matchingTextIndexStart - CharSize * (lineTerminatorLength - 1);
+
+                        if (bytesToRead <= 0)
+                        {
+                            // Blank line
+                            mCurrentLineText = string.Empty;
+                        }
+                        else
+                        {
+                            mCurrentLineText = new string(Encoding.Unicode.GetChars(mByteBuffer, matchingTextIndexStart, bytesToRead));
+                        }
+
+                        validEncoding = true;
+                        break;
+
+                    case InputFileEncodings.UnicodeBigEndian:
+                        // Unicode (Big Endian) encoding
+                        if (mLineTerminator1Code != 0 && matchingTextIndexEnd - CharSize >= 0 && mByteBuffer[matchingTextIndexEnd - CharSize] == 0 &&
+                            mByteBuffer[matchingTextIndexEnd - CharSize + 1] == mLineTerminator1Code)
+                        {
+                            lineTerminatorLength = 2;
+                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[matchingTextIndexEnd - CharSize + 1]).ToString() +
+                                                     Convert.ToChar(mByteBuffer[matchingTextIndexEnd + 1]);
+                        }
+                        else if (mByteBuffer[matchingTextIndexEnd] == 0 && matchingTextIndexEnd + 1 < mByteBufferCount &&
+                                 mByteBuffer[matchingTextIndexEnd + 1] == mLineTerminator2Code)
+                        {
+                            lineTerminatorLength = 1;
+                            mCurrentLineTerminator = Convert.ToChar(mByteBuffer[matchingTextIndexEnd + 1]).ToString();
+                        }
+                        else
+                        {
+                            // No line terminator (this is probably the last line of the file or else the user called MoveToByteOffset with a location in the middle of a line)
+                            lineTerminatorLength = 0;
+                            mCurrentLineTerminator = string.Empty;
+                        }
+
+                        // Extract the data between matchingTextIndexStart and matchingTextIndexEnd, excluding any line terminator characters
+                        bytesToRead = matchingTextIndexEnd - matchingTextIndexStart - CharSize * (lineTerminatorLength - 1);
+
+                        if (bytesToRead <= 0)
+                        {
+                            // Blank line
+                            mCurrentLineText = string.Empty;
+                        }
+                        else
+                        {
+                            mCurrentLineText = new string(Encoding.BigEndianUnicode.GetChars(mByteBuffer, matchingTextIndexStart, bytesToRead));
+                        }
+
+                        validEncoding = true;
+                        break;
+
+                    default:
+                        // Unknown/unsupported encoding
+                        mCurrentLineText = string.Empty;
+                        lineTerminatorLength = 0;
+                        validEncoding = false;
+                        break;
+                }
+
+                return matchingTextIndexStart;
+            }
+            catch (Exception ex)
+            {
+                OnErrorEvent("Error in ReadLineContent: " + ex.Message);
+                throw;
+            }
+        }
+
+        private bool ReadLineFinalize(ReadDirection readDirection, int lineTerminatorLength, int matchingTextIndexStart, int matchingTextIndexEnd)
+        {
+            try
+            {
+                bool matchFound;
+                if (CharSize > 1 && !ByteAtEOF(ByteBufferFileOffsetStart + matchingTextIndexEnd))
+                {
+                    matchingTextIndexEnd += CharSize - 1;
+                }
+
+                mCurrentLineByteOffsetStart = ByteBufferFileOffsetStart + matchingTextIndexStart;
+                mCurrentLineByteOffsetEndWithTerminator = ByteBufferFileOffsetStart + matchingTextIndexEnd;
+                mCurrentLineByteOffsetEnd = ByteBufferFileOffsetStart + matchingTextIndexEnd - lineTerminatorLength * CharSize;
+
+                if (CurrentLineByteOffsetEnd < CurrentLineByteOffsetStart)
+                {
+                    // Zero-length line
+                    mCurrentLineByteOffsetEnd = CurrentLineByteOffsetStart;
+                }
+
+                if (readDirection == ReadDirection.Forward)
+                {
+                    mByteBufferNextLineStartIndex = matchingTextIndexEnd + 1;
+                    mLineNumber++;
+                }
+                else
+                {
+                    mByteBufferNextLineStartIndex = matchingTextIndexStart;
+
+                    if (LineNumber > 0)
+                    {
+                        mLineNumber--;
+                    }
+                }
+
+                // Check whether the user just changed reading direction
+                // If they did, it is possible that this method will return the exact same line
+                // as was previously read.  Check for this, and if true, read the next line (in direction readDirection)
+                if (readDirection != mReadLineDirectionSaved &&
+                    mCurrentLineByteOffsetStartSaved >= 0L &&
+                    CurrentLineByteOffsetStart == mCurrentLineByteOffsetStartSaved &&
+                    mCurrentLineTextSaved != null &&
+                    mCurrentLineText.Equals(mCurrentLineTextSaved))
+                {
+                    // Recursively call this method to read the next line
+                    // To avoid infinite loops, set mCurrentLineByteOffsetStartSaved to -1
+                    mCurrentLineByteOffsetStartSaved = -1;
+                    return ReadLine(readDirection);
+                }
+
+                return true;
+            }
+            catch (Exception ex)
+            {
+                OnErrorEvent("Error in ReadLineFinalize: " + ex.Message);
+                throw;
+            }
+        }
+
+        private bool ReadLineFindTerminator(
+            ReadDirection readDirection,
+            ref int currentIndex,
+            int indexMinimum,
+            int indexMaximum,
+            out int terminatorCheckCountValueZero,
+            out int terminatorCheckCount)
+        {
+            try
+            {
+                terminatorCheckCountValueZero = 0;
+                terminatorCheckCount = 0;
+
+                while (true)
+                {
+                    switch (mInputFileEncoding)
+                    {
+                        case InputFileEncodings.ASCII:
+                        case InputFileEncodings.UTF8:
+                            // ASCII or UTF-8 encoding; Assure mCharSize = 1
+                            if (mByteBuffer[currentIndex] == mLineTerminator2Code)
+                            {
+                                return true;
+                            }
+
+                            break;
+
+                        case InputFileEncodings.UnicodeNormal:
+                            // Look for the LF symbol followed by a byte with value 0 in mByteBuffer
+                            if (mByteBuffer[currentIndex] == mLineTerminator2Code && mByteBuffer[currentIndex + 1] == 0)
+                            {
+                                return true;
+                            }
+                            else if (mByteBuffer[currentIndex] == 0)
+                            {
+                                terminatorCheckCountValueZero++;
+                            }
+
+                            terminatorCheckCount++;
+                            break;
+
+                        case InputFileEncodings.UnicodeBigEndian:
+                            // Unicode (Big Endian) encoding; Assure mCharSize = 2
+                            if (mByteBuffer[currentIndex] == 0 && mByteBuffer[currentIndex + 1] == mLineTerminator2Code)
+                            {
+                                return true;
+                            }
+                            else if (mByteBuffer[currentIndex + 1] == 0)
+                            {
+                                terminatorCheckCountValueZero++;
+                            }
+
+                            terminatorCheckCount++;
+                            break;
+                    }
+
+                    if (readDirection == ReadDirection.Forward)
+                    {
+                        if (currentIndex + CharSize <= indexMaximum)
+                        {
+                            currentIndex += CharSize;
+                        }
+                        else
+                        {
+                            // Exit the TerminatorFound do loop
+                            break;
+                        }
+                    }
+                    else if (currentIndex - CharSize >= indexMinimum)
+                    {
+                        currentIndex -= CharSize;
+                    }
+                    else
+                    {
+                        // Exit the TerminatorFound do loop
+                        break;
+                    }
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                OnErrorEvent("Error in ReadLineFindTerminator: " + ex.Message);
+                throw;
+            }
+        }
+
+        private bool ReadLineFindTerminatorShifted(
+            ReadDirection readDirection,
+            ref int currentIndex,
+            ref int startIndexShiftCount,
+            ref int startIndexShiftIncrement,
+            out bool startIndexShifted,
+            int terminatorCheckCount,
+            int terminatorCheckCountValueZero)
+        {
+            try
+            {
+                double valueZeroFraction;
+
+                if (terminatorCheckCount > 0)
+                {
+                    valueZeroFraction = terminatorCheckCountValueZero / (double)terminatorCheckCount;
+                }
+                else
+                {
+                    valueZeroFraction = 0d;
+                }
+
+                startIndexShifted = false;
+
+                if (CharSize > 1 && startIndexShiftCount < CharSize - 1 && valueZeroFraction >= 0.95d)
+                {
+                    // mByteBufferNextLineStartIndex is most likely off by 1
+                    // This could happen due to an inappropriate byte value being sent to MoveToByteOffset()
+                    // or due to a corrupted Unicode file
+
+                    // Shift mByteBufferNextLineStartIndex by 1 and try again
+                    if (startIndexShiftCount == 0)
+                    {
+                        // First attempt to shift; determine the shift direction
+                        if (readDirection == ReadDirection.Forward)
+                        {
+                            // Searching forward
+                            if (mByteBufferNextLineStartIndex > CharSize - 2)
+                            {
+                                startIndexShiftIncrement = -1;
+                            }
+                            else
+                            {
+                                startIndexShiftIncrement = 1;
+                            }
+                        }
+
+                        // Searching reverse
+                        else if (mByteBufferNextLineStartIndex < mByteBufferCount - (CharSize - 2))
+                        {
+                            startIndexShiftIncrement = 1;
+                        }
+                        else
+                        {
+                            startIndexShiftIncrement = -1;
+                        }
+                    }
+
+                    mByteBufferNextLineStartIndex += startIndexShiftIncrement;
+                    startIndexShiftCount++;
+                    startIndexShifted = true;
+                }
+                else if (readDirection == ReadDirection.Forward)
+                {
+                    // Searching forward; are we at the end of the file?
+                    if (ByteAtEOF(ByteBufferFileOffsetStart + currentIndex + CharSize))
+                    {
+                        // Yes, we're at the end of the file
+                        currentIndex = mByteBufferCount - 1;
+                        return true;
+                    }
+                }
+                else if (ByteAtBOF(ByteBufferFileOffsetStart + currentIndex))
+                {
+                    // Searching backward; are we at the beginning of the file?
+                    // Yes, we're at the beginning of the file
+                    currentIndex = ByteOrderMarkLength - CharSize;
+                    return true;
+                }
+
+                return false;
+            }
+            catch (Exception ex)
+            {
+                OnErrorEvent("Error in ReadLineFindTerminatorShifted: " + ex.Message);
+                throw;
+            }
         }
 
         private void SetInputFileEncoding(InputFileEncodings EncodingMode)
