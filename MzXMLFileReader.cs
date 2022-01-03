@@ -596,14 +596,19 @@ namespace MSDataFileReader
                                 mCurrentSpectrum.RetentionTimeMin = GetAttribTimeValueMinutes(ScanAttributeNames.RetentionTime);
                                 mCurrentSpectrum.CollisionEnergy = GetAttribValue(ScanAttributeNames.CollisionEnergy, 0F);
                                 mCurrentSpectrum.ScanType = GetAttribValue(ScanAttributeNames.ScanType, string.Empty);
+
+                                // ReAdW includes the filter text in .mzXML files; msconvert does not
                                 mCurrentSpectrum.FilterLine = GetAttribValue(ScanAttributeNames.FilterLine, string.Empty);
-                                mCurrentSpectrum.StartMZ = GetAttribValue(ScanAttributeNames.StartMz, 0);
-                                mCurrentSpectrum.EndMZ = GetAttribValue(ScanAttributeNames.EndMz, 0);
-                                mCurrentSpectrum.MzRangeStart = GetAttribValue(ScanAttributeNames.LowMz, 0);
-                                mCurrentSpectrum.MzRangeEnd = GetAttribValue(ScanAttributeNames.HighMz, 0);
-                                mCurrentSpectrum.BasePeakMZ = GetAttribValue(ScanAttributeNames.BasePeakMz, 0);
-                                mCurrentSpectrum.BasePeakIntensity = GetAttribValue(ScanAttributeNames.BasePeakIntensity, 0);
-                                mCurrentSpectrum.TotalIonCurrent = GetAttribValue(ScanAttributeNames.TotalIonCurrent, 0);
+
+                                mCurrentSpectrum.StartMZ = GetAttribValue(ScanAttributeNames.StartMz, 0F);
+                                mCurrentSpectrum.EndMZ = GetAttribValue(ScanAttributeNames.EndMz, 0F);
+
+                                mCurrentSpectrum.MzRangeStart = GetAttribValue(ScanAttributeNames.LowMz, 0F);
+                                mCurrentSpectrum.MzRangeEnd = GetAttribValue(ScanAttributeNames.HighMz, 0F);
+
+                                mCurrentSpectrum.BasePeakMZ = GetAttribValue(ScanAttributeNames.BasePeakMz, 0.0);
+                                mCurrentSpectrum.BasePeakIntensity = GetAttribValue(ScanAttributeNames.BasePeakIntensity, 0F);
+                                mCurrentSpectrum.TotalIonCurrent = GetAttribValue(ScanAttributeNames.TotalIonCurrent, 0.0);
                             }
                         }
                     }
