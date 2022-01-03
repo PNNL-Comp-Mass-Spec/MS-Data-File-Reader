@@ -49,9 +49,6 @@
     <PackageReference Include="PRISM-Library">
       <Version>2.6.43</Version>
     </PackageReference>
-    <PackageReference Include="ThermoRawFileReader">
-      <Version>4.1.18</Version>
-    </PackageReference>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\MSDataFileReader.NET.csproj">
