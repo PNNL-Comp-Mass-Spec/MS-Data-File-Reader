@@ -36,7 +36,7 @@ namespace MSDataFileReader
     /// </summary>
     public class MzXMLFileAccessor : MsDataFileAccessorBaseClass
     {
-        // Ignore Spelling: num
+        // Ignore Spelling: namespace, num, xsi
 
         /// <summary>
         /// Constructor
@@ -113,7 +113,9 @@ namespace MSDataFileReader
 
         private Regex mScanNumberRegEx;
 
-        private XmlReaderSettings mXMLReaderSettings;
+        private XmlParserContext mXmlReaderContext;
+
+        private XmlReaderSettings mXmlReaderSettings;
 
         public bool IgnoreEmbeddedIndex { get; set; }
 
@@ -458,7 +460,7 @@ namespace MSDataFileReader
                 bool success;
 
                 // Create a new XmlTextReader
-                using (var reader = XmlReader.Create(mBinaryReader, mXMLReaderSettings))
+                using (var reader = XmlReader.Create(mBinaryReader, mXmlReaderSettings, mXmlReaderContext))
                 {
                     reader.MoveToContent();
                     mXmlFileReader.SetXMLReaderForSpectrum(reader.ReadSubtree());
@@ -507,7 +509,26 @@ namespace MSDataFileReader
             // Note: This form of the RegEx allows for the num attribute to occur on a separate line from <scan
             // It also allows for other attributes to be present between <scan and the num attribute
             mScanNumberRegEx = InitializeRegEx(SCAN_START_ELEMENT + @"[^/]+num\s*=\s*""([0-9]+)""");
-            mXMLReaderSettings = new XmlReaderSettings() { IgnoreWhitespace = true };
+
+            // Spectra without any data will have the following XML
+            // <peaks xsi:nil="true"
+            //        compressionType="none"
+            //        compressedLen="0"
+            //        precision="32"
+            //        byteOrder="network"
+            //        contentType="m/z-int"></peaks>
+
+            // In order to successfully read the xsi:nil line, we need to define the xsi namespace
+            mXmlReaderSettings = new XmlReaderSettings
+            {
+                IgnoreWhitespace = true,
+                NameTable = new NameTable()
+            };
+
+            var xmlns = new XmlNamespaceManager(mXmlReaderSettings.NameTable);
+            xmlns.AddNamespace("xsi", "http://www.w3.org/2001/XMLSchema-instance");
+
+            mXmlReaderContext = new XmlParserContext(null, xmlns, "", XmlSpace.Default);
         }
 
         /// <summary>

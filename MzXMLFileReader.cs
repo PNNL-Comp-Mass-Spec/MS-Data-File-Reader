@@ -16,7 +16,7 @@ namespace MSDataFileReader
     /// </summary>
     public class MzXMLFileReader : MsXMLFileReaderBaseClass
     {
-        // Ignore Spelling: centroided, num, xmlns, xsi, zlib
+        // Ignore Spelling: centroided, msconvert, num, xmlns, xsi, zlib
 
         /// <summary>
         /// Constructor
