@@ -579,37 +579,36 @@ namespace MSDataFileReader
                         else
                         {
                             attributeMissing = false;
-                            {
-                                mCurrentSpectrum.ScanCount = 1;
-                                mCurrentSpectrum.ScanNumberEnd = mCurrentSpectrum.ScanNumber;
-                                mCurrentSpectrum.MSLevel = GetAttribValue(ScanAttributeNames.MsLevel, 1);
 
-                                mCurrentSpectrum.Centroided = GetAttribValue(ScanAttributeNames.Centroided, 0) != 0;
+                            mCurrentSpectrum.ScanCount = 1;
+                            mCurrentSpectrum.ScanNumberEnd = mCurrentSpectrum.ScanNumber;
+                            mCurrentSpectrum.MSLevel = GetAttribValue(ScanAttributeNames.MsLevel, 1);
 
-                                // ReSharper disable once UnusedVariable
-                                var instrumentID = GetAttribValue(ScanAttributeNames.MsInstrumentID, 1);
+                            mCurrentSpectrum.Centroided = GetAttribValue(ScanAttributeNames.Centroided, 0) != 0;
 
-                                // Store the expected data count
-                                // This will be updated if the actual data is loaded
-                                mCurrentSpectrum.PeaksCount = GetAttribValue(ScanAttributeNames.PeaksCount, 0);
-                                mCurrentSpectrum.Polarity = GetAttribValue(ScanAttributeNames.Polarity, "+");
-                                mCurrentSpectrum.RetentionTimeMin = GetAttribTimeValueMinutes(ScanAttributeNames.RetentionTime);
-                                mCurrentSpectrum.CollisionEnergy = GetAttribValue(ScanAttributeNames.CollisionEnergy, 0F);
-                                mCurrentSpectrum.ScanType = GetAttribValue(ScanAttributeNames.ScanType, string.Empty);
+                            // ReSharper disable once UnusedVariable
+                            var instrumentID = GetAttribValue(ScanAttributeNames.MsInstrumentID, 1);
 
-                                // ReAdW includes the filter text in .mzXML files; msconvert does not
-                                mCurrentSpectrum.FilterLine = GetAttribValue(ScanAttributeNames.FilterLine, string.Empty);
+                            // Store the expected data count
+                            // This will be updated if the actual data is loaded
+                            mCurrentSpectrum.PeaksCount = GetAttribValue(ScanAttributeNames.PeaksCount, 0);
+                            mCurrentSpectrum.Polarity = GetAttribValue(ScanAttributeNames.Polarity, "+");
+                            mCurrentSpectrum.RetentionTimeMin = GetAttribTimeValueMinutes(ScanAttributeNames.RetentionTime);
+                            mCurrentSpectrum.CollisionEnergy = GetAttribValue(ScanAttributeNames.CollisionEnergy, 0F);
+                            mCurrentSpectrum.ScanType = GetAttribValue(ScanAttributeNames.ScanType, string.Empty);
 
-                                mCurrentSpectrum.StartMZ = GetAttribValue(ScanAttributeNames.StartMz, 0F);
-                                mCurrentSpectrum.EndMZ = GetAttribValue(ScanAttributeNames.EndMz, 0F);
+                            // ReAdW includes the filter text in .mzXML files; msconvert does not
+                            mCurrentSpectrum.FilterLine = GetAttribValue(ScanAttributeNames.FilterLine, string.Empty);
 
-                                mCurrentSpectrum.MzRangeStart = GetAttribValue(ScanAttributeNames.LowMz, 0F);
-                                mCurrentSpectrum.MzRangeEnd = GetAttribValue(ScanAttributeNames.HighMz, 0F);
+                            mCurrentSpectrum.StartMZ = GetAttribValue(ScanAttributeNames.StartMz, 0F);
+                            mCurrentSpectrum.EndMZ = GetAttribValue(ScanAttributeNames.EndMz, 0F);
 
-                                mCurrentSpectrum.BasePeakMZ = GetAttribValue(ScanAttributeNames.BasePeakMz, 0.0);
-                                mCurrentSpectrum.BasePeakIntensity = GetAttribValue(ScanAttributeNames.BasePeakIntensity, 0F);
-                                mCurrentSpectrum.TotalIonCurrent = GetAttribValue(ScanAttributeNames.TotalIonCurrent, 0.0);
-                            }
+                            mCurrentSpectrum.MzRangeStart = GetAttribValue(ScanAttributeNames.LowMz, 0F);
+                            mCurrentSpectrum.MzRangeEnd = GetAttribValue(ScanAttributeNames.HighMz, 0F);
+
+                            mCurrentSpectrum.BasePeakMZ = GetAttribValue(ScanAttributeNames.BasePeakMz, 0.0);
+                            mCurrentSpectrum.BasePeakIntensity = GetAttribValue(ScanAttributeNames.BasePeakIntensity, 0F);
+                            mCurrentSpectrum.TotalIonCurrent = GetAttribValue(ScanAttributeNames.TotalIonCurrent, 0.0);
                         }
                     }
 
