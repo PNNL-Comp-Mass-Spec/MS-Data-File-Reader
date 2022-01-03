@@ -38,6 +38,9 @@ namespace MSDataFileReader
     {
         // Ignore Spelling: num
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public MzXMLFileAccessor()
         {
             InitializeObjectVariables();

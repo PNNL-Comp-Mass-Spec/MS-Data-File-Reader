@@ -17,6 +17,9 @@ namespace MSDataFileReader
     /// </summary>
     public class MgfFileReader : MsTextFileReaderBaseClass
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public MgfFileReader()
         {
             InitializeLocalVariables();

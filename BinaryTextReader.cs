@@ -52,6 +52,9 @@ namespace MSDataFileReader
     {
         // Ignore Spelling: endian
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public BinaryTextReader()
         {
             // Note: Setting this property's value will also update mLineTerminator1Code and mLineTerminator2Code

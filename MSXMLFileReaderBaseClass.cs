@@ -23,6 +23,9 @@ namespace MSDataFileReader
     /// </summary>
     public abstract class MsXMLFileReaderBaseClass : MsDataFileReaderBaseClass
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         protected MsXMLFileReaderBaseClass()
         {
             // ReSharper disable once VirtualMemberCallInConstructor

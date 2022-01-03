@@ -41,6 +41,9 @@ namespace MSDataFileReader
     {
         // Ignore Spelling: Accessor
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         protected MsDataFileAccessorBaseClass()
         {
             mIndexedSpectrumInfo = new List<IndexedSpectrumInfo>();

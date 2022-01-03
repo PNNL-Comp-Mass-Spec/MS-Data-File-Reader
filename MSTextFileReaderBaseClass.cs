@@ -22,6 +22,9 @@ namespace MSDataFileReader
     {
         // Ignore Spelling: Da, deconvoluted
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         protected MsTextFileReaderBaseClass()
         {
             // ReSharper disable once VirtualMemberCallInConstructor

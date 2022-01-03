@@ -20,6 +20,9 @@ namespace MSDataFileReader
     {
         // Ignore Spelling: deisotoping, endian, xmlns, xsi
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public MzDataFileReader()
         {
             InitializeLocalVariables();

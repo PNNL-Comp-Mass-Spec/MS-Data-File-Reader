@@ -16,6 +16,9 @@ namespace MSDataFileReader
     [Serializable]
     public class SpectrumInfoMsMsText : SpectrumInfo
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public SpectrumInfoMsMsText()
         {
             Clear();
@@ -83,6 +86,9 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Reset values to defaults
+        /// </summary>
         public sealed override void Clear()
         {
             base.Clear();

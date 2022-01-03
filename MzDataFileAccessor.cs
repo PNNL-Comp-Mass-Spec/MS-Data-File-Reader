@@ -38,6 +38,9 @@ namespace MSDataFileReader
     /// </summary>
     public class MzDataFileAccessor : MsDataFileAccessorBaseClass
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public MzDataFileAccessor()
         {
             InitializeObjectVariables();

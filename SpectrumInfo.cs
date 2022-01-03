@@ -19,6 +19,9 @@ namespace MSDataFileReader
     {
         // Ignore Spelling: centroided
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public SpectrumInfo()
         {
             MzList = new List<double>();
@@ -226,6 +229,9 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Lowest observed m/z in this spectrum
+        /// </summary>
         public float MzRangeStart
         {
             get => mMzRangeStart;
@@ -237,6 +243,9 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Highest observed m/z in this spectrum
+        /// </summary>
         public float MzRangeEnd
         {
             get => mMzRangeEnd;
@@ -335,6 +344,9 @@ namespace MSDataFileReader
         // ReSharper disable once UnusedMember.Global
         public string ErrorMessage => mErrorMessage ?? string.Empty;
 
+        /// <summary>
+        /// Reset values to defaults
+        /// </summary>
         public virtual void Clear()
         {
             mSpectrumID = 0;
@@ -362,6 +374,9 @@ namespace MSDataFileReader
             mErrorMessage = string.Empty;
         }
 
+        /// <summary>
+        /// Clear the m/z and intensity lists
+        /// </summary>
         public void ClearMzAndIntensityData()
         {
             MzList.Clear();

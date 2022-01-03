@@ -18,16 +18,25 @@ namespace MSDataFileReader
     {
         // Ignore Spelling: zlib
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public SpectrumInfoMzXML()
         {
             Clear();
         }
 
+        /// <summary>
+        /// Byte order types
+        /// </summary>
         public static class ByteOrderTypes
         {
             public const string Network = "network";
         }
 
+        /// <summary>
+        /// Compression types
+        /// </summary>
         public static class CompressionTypes
         {
             public const string None = "none";
@@ -84,28 +93,20 @@ namespace MSDataFileReader
 
         protected float mCollisionEnergy;
 
-        // See class ScanTypeNames for typical names
         protected string mScanType;
 
-        // Thermo-specific filter line text
         protected string mFilterLine;
 
-        // Low m/z boundary (this is the instrumental setting)
         protected float mStartMZ;
 
-        // High m/z boundary (this is the instrumental setting)
         protected float mEndMZ;
 
-        // Typically 32 or 64
         protected int mNumericPrecisionOfData;
 
-        // See class ByteOrderTypes for values; typically ByteOrderTypes.network
         protected string mPeaksByteOrder;
 
-        // See class PairOrderTypes for values; typically PairOrderTypes.MzAndIntensity; stores contentType for mzXML v3.x
         protected string mPeaksPairOrder;
 
-        // See class CompressionTypes for values; will be "none" or "zlib"
         protected string mCompressionType;
 
         protected int mCompressedLen;
@@ -116,14 +117,11 @@ namespace MSDataFileReader
 
         protected int mParentIonCharge;
 
-        /// <summary>
-        /// Precursor (parent() scan number
-        /// </summary>
-        /// <remarks>
-        /// 0 if no precursor scan
-        /// </remarks>
         protected int mPrecursorScanNum;
 
+        /// <summary>
+        /// Activation method
+        /// </summary>
         public string ActivationMethod
         {
             get => mActivationMethod;
@@ -131,7 +129,9 @@ namespace MSDataFileReader
             set => mActivationMethod = value;
         }
 
-        // ReSharper disable once UnusedMember.Global
+        /// <summary>
+        /// Collision energy
+        /// </summary>
         public float CollisionEnergy
         {
             get => mCollisionEnergy;
@@ -143,6 +143,12 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Thermo-specific filter line text
+        /// </summary>
+        /// <remarks>
+        /// Only present if the file was created with ReAdW
+        /// </remarks>
         public string FilterLine
         {
             get => mFilterLine;
@@ -154,6 +160,12 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Numeric precision
+        /// </summary>
+        /// <remarks>
+        /// Typically 32 or 64
+        /// </remarks>
         public int NumericPrecisionOfData
         {
             get => mNumericPrecisionOfData;
@@ -165,6 +177,12 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Byte order for peak data
+        /// </summary>
+        /// <remarks>
+        /// See class ByteOrderTypes for values; typically ByteOrderTypes.network
+        /// </remarks>
         public string PeaksByteOrder
         {
             get => mPeaksByteOrder;
@@ -176,6 +194,12 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Pair order for peak data
+        /// </summary>
+        /// <remarks>
+        /// See class PairOrderTypes for values; typically PairOrderTypes.MzAndIntensity; stores contentType for mzXML v3.x
+        /// </remarks>
         public string PeaksPairOrder
         {
             get => mPeaksPairOrder;
@@ -187,6 +211,12 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Compression type
+        /// </summary>
+        /// <remarks>
+        /// See class CompressionTypes for values; will be "none" or "zlib"
+        /// </remarks>
         public string CompressionType
         {
             get => mCompressionType;
@@ -194,6 +224,9 @@ namespace MSDataFileReader
             set => mCompressionType = value;
         }
 
+        /// <summary>
+        /// Compressed length
+        /// </summary>
         public int CompressedLen
         {
             get => mCompressedLen;
@@ -201,6 +234,12 @@ namespace MSDataFileReader
             set => mCompressedLen = value;
         }
 
+        /// <summary>
+        /// High m/z boundary (instrument setting, not the highest observed value)
+        /// </summary>
+        /// <remarks>
+        /// Not present in .mzXML files created with ReAdW
+        /// </remarks>
         public float EndMZ
         {
             get => mEndMZ;
@@ -212,6 +251,9 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Precursor ion isolation window
+        /// </summary>
         public float IsolationWindow
         {
             get => mIsolationWindow;
@@ -219,6 +261,9 @@ namespace MSDataFileReader
             set => mIsolationWindow = value;
         }
 
+        /// <summary>
+        /// Precursor ion (parent ion) charge
+        /// </summary>
         public int ParentIonCharge
         {
             get => mParentIonCharge;
@@ -239,6 +284,12 @@ namespace MSDataFileReader
             set => mPrecursorScanNum = value;
         }
 
+        /// <summary>
+        /// Low m/z boundary (instrument setting, not the lowest observed value)
+        /// </summary>
+        /// <remarks>
+        /// Not present in .mzXML files created with ReAdW
+        /// </remarks>
         public float StartMZ
         {
             get => mStartMZ;
@@ -250,6 +301,12 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Scan type
+        /// </summary>
+        /// <remarks>
+        /// See class ScanTypeNames for typical names
+        /// </remarks>
         public string ScanType
         {
             get => mScanType;
@@ -261,6 +318,9 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Reset values to defaults
+        /// </summary>
         public sealed override void Clear()
         {
             base.Clear();

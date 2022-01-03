@@ -17,6 +17,9 @@ namespace MSDataFileReader
 {
     public class DtaTextFileReader : MsTextFileReaderBaseClass
     {
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public DtaTextFileReader() : this(true)
         {
         }

@@ -18,6 +18,9 @@ namespace MSDataFileReader
     {
         // Ignore Spelling: centroided, num, xmlns, xsi, zlib
 
+        /// <summary>
+        /// Constructor
+        /// </summary>
         public MzXMLFileReader()
         {
             InitializeLocalVariables();
@@ -102,12 +105,12 @@ namespace MSDataFileReader
             /// Scan type: Full, zoom, SIM, SRM, MRM, CRM, Q1, or Q3
             /// </summary>
             /// <remarks>
-            /// MRM and SRM and functionally equivalent; ReadW uses SRM
+            /// MRM and SRM and functionally equivalent; ReAdW uses SRM
             /// </remarks>
             public const string ScanType = "scanType";
 
             /// <summary>
-            /// Thermo-specific filter-line text; added by ReadW
+            /// Thermo-specific filter-line text; added by ReAdW
             /// </summary>
             public const string FilterLine = "filterLine";
 
@@ -129,7 +132,7 @@ namespace MSDataFileReader
             /// Low m/z boundary (this is the instrumental setting)
             /// </summary>
             /// <remarks>
-            /// Not present in .mzXML files created with ReadW
+            /// Not present in .mzXML files created with ReAdW
             /// </remarks>
             public const string StartMz = "startMz";
 
@@ -137,7 +140,7 @@ namespace MSDataFileReader
             /// High m/z boundary (this is the instrumental setting)
             /// </summary>
             /// <remarks>
-            /// Not present in .mzXML files created with ReadW
+            /// Not present in .mzXML files created with ReAdW
             /// </remarks>
             public const string EndMz = "endMz";
 
