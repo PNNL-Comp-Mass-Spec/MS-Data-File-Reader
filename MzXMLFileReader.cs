@@ -125,7 +125,6 @@ namespace MSDataFileReader
             /// <summary>
             /// Collision energy used to fragment the parent ion
             /// </summary>
-            // ReSharper disable once UnusedMember.Local
             public const string CollisionEnergy = "collisionEnergy";
 
             /// <summary>
@@ -595,6 +594,7 @@ namespace MSDataFileReader
                                 mCurrentSpectrum.PeaksCount = GetAttribValue(ScanAttributeNames.PeaksCount, 0);
                                 mCurrentSpectrum.Polarity = GetAttribValue(ScanAttributeNames.Polarity, "+");
                                 mCurrentSpectrum.RetentionTimeMin = GetAttribTimeValueMinutes(ScanAttributeNames.RetentionTime);
+                                mCurrentSpectrum.CollisionEnergy = GetAttribValue(ScanAttributeNames.CollisionEnergy, 0F);
                                 mCurrentSpectrum.ScanType = GetAttribValue(ScanAttributeNames.ScanType, string.Empty);
                                 mCurrentSpectrum.FilterLine = GetAttribValue(ScanAttributeNames.FilterLine, string.Empty);
                                 mCurrentSpectrum.StartMZ = GetAttribValue(ScanAttributeNames.StartMz, 0);
