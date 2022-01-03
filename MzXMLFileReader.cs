@@ -283,15 +283,7 @@ namespace MSDataFileReader
 
         protected override void InitializeCurrentSpectrum()
         {
-            if (ReadingAndStoringSpectra || mCurrentSpectrum is null)
-            {
-                mCurrentSpectrum = new SpectrumInfoMzXML();
-            }
-            else
-            {
-                mCurrentSpectrum.Clear();
-            }
-
+            mCurrentSpectrum = new SpectrumInfoMzXML();
         }
 
         protected sealed override void InitializeLocalVariables()

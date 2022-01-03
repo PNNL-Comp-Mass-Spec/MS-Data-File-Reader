@@ -314,15 +314,7 @@ namespace MSDataFileReader
                 mMostRecentSurveyScanSpectra.Enqueue(spectrumCopy);
             }
 
-            if (ReadingAndStoringSpectra || mCurrentSpectrum is null)
-            {
-                mCurrentSpectrum = new SpectrumInfoMzData();
-            }
-            else
-            {
-                mCurrentSpectrum.Clear();
-            }
-
+            mCurrentSpectrum = new SpectrumInfoMzData();
         }
 
         protected sealed override void InitializeLocalVariables()
