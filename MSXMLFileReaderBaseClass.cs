@@ -411,7 +411,7 @@ namespace MSDataFileReader
             return "Line " + SAXParserLineNumber + ", Column " + SAXParserColumnNumber;
         }
 
-        protected abstract void InitializeCurrentSpectrum(bool autoShrinkDataLists);
+        protected abstract void InitializeCurrentSpectrum();
 
         protected override void InitializeLocalVariables()
         {
@@ -552,7 +552,7 @@ namespace MSDataFileReader
         {
             try
             {
-                InitializeCurrentSpectrum(mAutoShrinkDataLists);
+                InitializeCurrentSpectrum();
                 mSpectrumFound = false;
 
                 if (mXMLReader is null)

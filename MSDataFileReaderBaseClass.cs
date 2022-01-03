@@ -130,8 +130,6 @@ namespace MSDataFileReader
         // If more than one spectrum comes from the same scan, tracks the first one read
         protected readonly Dictionary<int, int> mCachedSpectraScanToIndex = new();
 
-        protected bool mAutoShrinkDataLists;
-
         /// <summary>
         /// When mAutoShrinkDataLists is True, clsSpectrumInfo.MZList().Length and clsSpectrumInfo.IntensityList().Length will equal DataCount;
         /// When mAutoShrinkDataLists is False, the memory will not be freed when DataCount shrinks or clsSpectrumInfo.Clear() is called
@@ -140,12 +138,8 @@ namespace MSDataFileReader
         /// Setting mAutoShrinkDataLists to False helps reduce slow, increased memory usage due to inefficient garbage collection
         /// (this is not much of an issue in 2016, and thus this parameter defaults to True)
         /// </remarks>
-        public bool AutoShrinkDataLists
-        {
-            get => mAutoShrinkDataLists;
-
-            set => mAutoShrinkDataLists = value;
-        }
+        [Obsolete("No longer applicable since MzList and IntensityList are now lists instead of arrays")]
+        public bool AutoShrinkDataLists { get; set; }
 
         public virtual int CachedSpectrumCount => mDataReaderMode == DataReaderMode.Cached ? mCachedSpectra.Count : 0;
 
@@ -637,7 +631,6 @@ namespace MSDataFileReader
             mCachedSpectraScanToIndex.Clear();
 
             mAbortProcessing = false;
-            mAutoShrinkDataLists = true;
         }
 
         public static bool IsNumber(string value)
@@ -700,7 +693,6 @@ namespace MSDataFileReader
             try
             {
                 mDataReaderMode = DataReaderMode.Cached;
-                AutoShrinkDataLists = false;
                 mReadingAndStoringSpectra = true;
                 ResetProgress();
 

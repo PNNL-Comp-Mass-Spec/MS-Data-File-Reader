@@ -77,8 +77,6 @@ namespace MSDataFileReader
                     mCurrentSpectrum.Clear();
                 }
 
-                mCurrentSpectrum.AutoShrinkDataLists = AutoShrinkDataLists;
-
                 if (mFileReader is null)
                 {
                     spectrumInfo = new SpectrumInfo();

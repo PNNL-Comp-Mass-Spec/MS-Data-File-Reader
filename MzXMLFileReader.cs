@@ -282,7 +282,7 @@ namespace MSDataFileReader
             return mCurrentSpectrum;
         }
 
-        protected override void InitializeCurrentSpectrum(bool autoShrinkDataLists)
+        protected override void InitializeCurrentSpectrum()
         {
             if (ReadingAndStoringSpectra || mCurrentSpectrum is null)
             {
@@ -293,7 +293,6 @@ namespace MSDataFileReader
                 mCurrentSpectrum.Clear();
             }
 
-            mCurrentSpectrum.AutoShrinkDataLists = autoShrinkDataLists;
         }
 
         protected sealed override void InitializeLocalVariables()
