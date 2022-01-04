@@ -310,8 +310,7 @@ namespace MSDataFileReader
                 }
 
                 // Add mCurrentSpectrum to mMostRecentSurveyScanSpectra
-                mCurrentSpectrum.CopyTo(out var spectrumCopy);
-                mMostRecentSurveyScanSpectra.Enqueue(spectrumCopy);
+                mMostRecentSurveyScanSpectra.Enqueue(mCurrentSpectrum);
             }
 
             mCurrentSpectrum = new SpectrumInfoMzData();
