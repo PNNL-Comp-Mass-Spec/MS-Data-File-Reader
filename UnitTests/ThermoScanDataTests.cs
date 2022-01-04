@@ -5,7 +5,6 @@ using System.Linq;
 using MSDataFileReader;
 using NUnit.Framework;
 using PRISM;
-using ThermoRawFileReader;
 
 namespace MSDataFileReaderUnitTests
 {
@@ -16,7 +15,6 @@ namespace MSDataFileReaderUnitTests
 
         [Test]
         [TestCase("Shew_246a_LCQa_15Oct04_Andro_0904-2_4-20.mzXML")]
-        [TestCase("HCC-38_ETciD_EThcD_4xdil_20uL_3hr_3_08Jan16_Pippin_15-08-53.mzXML")]
         [TestCase("HCC-38_ETciD_EThcD_07Jan16_Pippin_15-08-53.mzXML")]
         [TestCase("MZ0210MnxEF889ETD.mzXML")]
         [TestCase("QC_Mam_16_01_125ng_2pt0-IT22_Run-A_16Oct17_Pippin_AQ_17-10-01.mzXML")]
@@ -27,9 +25,9 @@ namespace MSDataFileReaderUnitTests
 
             var ce30 = new List<double> { 30.00 };
             var ce45 = new List<double> { 45.00 };
-            var ce20_120 = new List<double> { 20.00, 120.550003 };
-            var ce120 = new List<double> { 120.550003 };
+            var ce120 = new List<double> { 120.55119 };
             var ms1Scan = new List<double>();
+            var ms2ScanWithoutCollisionMode = new List<double>();
 
             // Keys in this dictionary are scan number and values are collision energies
             var file1Data = new Dictionary<int, List<double>>
@@ -50,44 +48,28 @@ namespace MSDataFileReaderUnitTests
 
             var file2Data = new Dictionary<int, List<double>>
             {
-                {39000, ce30},
-                {39001, ce30},
-                {39002, ms1Scan},
-                {39003, ce30},
-                {39004, ce30},
-                {39005, ce30},
-                {39006, ce120},
-                {39007, ce20_120},
-                {39008, ce20_120},
-                {39009, ce30},
-                {39010, ce30}
-            };
-            expectedData.Add("HCC-38_ETciD_EThcD_4xdil_20uL_3hr_3_08Jan16_Pippin_15-08-53", file2Data);
-
-            var file3Data = new Dictionary<int, List<double>>
-            {
-                {19000, ce120},
-                {19001, ce20_120},
-                {19002, ce20_120},
+                {19000, ms2ScanWithoutCollisionMode},
+                {19001, ce120},
+                {19002, ce120},
                 {19003, ms1Scan},
                 {19004, ce30},
                 {19005, ce30},
                 {19006, ce30},
-                {19007, ce120},
-                {19008, ce20_120},
-                {19009, ce20_120},
+                {19007, ms2ScanWithoutCollisionMode},
+                {19008, ce120},
+                {19009, ce120},
                 {19010, ce30}
             };
-            expectedData.Add("HCC-38_ETciD_EThcD_07Jan16_Pippin_15-08-53", file3Data);
+            expectedData.Add("HCC-38_ETciD_EThcD_07Jan16_Pippin_15-08-53", file2Data);
+
+            var file3Data = new Dictionary<int, List<double>>
+            {
+                {1, ms2ScanWithoutCollisionMode},
+                {2, ms2ScanWithoutCollisionMode}
+            };
+            expectedData.Add("MZ0210MnxEF889ETD", file3Data);
 
             var file4Data = new Dictionary<int, List<double>>
-            {
-                {1, ce30},
-                {2, ce30}
-            };
-            expectedData.Add("MZ0210MnxEF889ETD", file4Data);
-
-            var file5Data = new Dictionary<int, List<double>>
             {
                 {27799, ms1Scan},
                 {27800, ce30},
@@ -99,7 +81,7 @@ namespace MSDataFileReaderUnitTests
                 {27806, ce30},
                 {27807, ce30},
             };
-            expectedData.Add("QC_Mam_16_01_125ng_2pt0-IT22_Run-A_16Oct17_Pippin_AQ_17-10-01", file5Data);
+            expectedData.Add("QC_Mam_16_01_125ng_2pt0-IT22_Run-A_16Oct17_Pippin_AQ_17-10-01", file4Data);
 
             var dataFile = FindInputFile(mzXmlFileName);
 
@@ -141,22 +123,31 @@ namespace MSDataFileReaderUnitTests
 
             Console.WriteLine("{0,-5} {1,-5} {2}", "Valid", "Scan", "Collision Energy");
 
-            foreach (var actualEnergiesOneScan in (from item in collisionEnergiesActual orderby item.Key select item))
+            foreach (var actualEnergyOneScan in (from item in collisionEnergiesActual orderby item.Key select item))
             {
-                var scanNumber = actualEnergiesOneScan.Key;
+                var scanNumber = actualEnergyOneScan.Key;
 
                 var expectedEnergies = collisionEnergiesThisFile[scanNumber];
 
                 var activationTypes = string.Join(", ", activationTypesActual[scanNumber]);
 
-                if (Math.Abs(actualEnergiesOneScan.Value) < float.Epsilon)
+                if (Math.Abs(actualEnergyOneScan.Value) < float.Epsilon)
                 {
                     var msLevel = msLevelsActual[scanNumber];
 
                     if (msLevel != 1)
                     {
+                        if (expectedEnergies.Count == 0)
+                        {
+                            var warning = string.Format(
+                                "Scan {0} has msLevel={1} and activationType={2}, but no collision energy. This isn't typically true, but can happen in .mzXML files",
+                                scanNumber, msLevel, activationTypes);
+                            Console.WriteLine(warning);
+                            continue;
+                        }
+
                         var msg = string.Format(
-                            "Scan {0} has no collision energies, which should only be true for spectra with msLevel=1. This scan has msLevel={1} and activationType={2}",
+                            "Scan {0} has no collision energy, which should only be true for spectra with msLevel=1. This scan has msLevel={1} and activationType={2}",
                             scanNumber, msLevel, activationTypes);
                         Console.WriteLine(msg);
 
@@ -169,7 +160,7 @@ namespace MSDataFileReaderUnitTests
                 }
                 else
                 {
-                    var actualEnergy = actualEnergiesOneScan.Value;
+                    var actualEnergy = actualEnergyOneScan.Value;
                     var isValid = expectedEnergies.Any(expectedEnergy => Math.Abs(actualEnergy - expectedEnergy) < 0.00001);
 
                     Console.WriteLine("{0,-5} {1,-5} {2:F2}", isValid, scanNumber, actualEnergy);
