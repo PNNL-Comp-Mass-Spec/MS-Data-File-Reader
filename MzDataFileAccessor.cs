@@ -591,37 +591,36 @@ namespace MSDataFileReader
                 {
                     return false;
                 }
+
+                mReadingAndStoringSpectra = true;
+                mErrorMessage = string.Empty;
+                ResetProgress("Indexing " + Path.GetFileName(mInputFilePath));
+
+                // Read and parse the input file to determine:
+                // a) The header XML (text before <spectrumList)
+                // b) The start and end byte offset of each spectrum
+                // (text between "<spectrum" and "</spectrum>")
+
+                var success = ReadMZDataFile();
+
+                mBinaryTextReader.Close();
+                mBinaryTextReader = null;
+
+                if (!success)
+                    return false;
+
+                // Note: Even if we aborted reading the data mid-file, the cached information is still valid
+                if (mAbortProcessing)
+                {
+                    mErrorMessage = "Aborted processing";
+                }
                 else
                 {
-                    mReadingAndStoringSpectra = true;
-                    mErrorMessage = string.Empty;
-                    ResetProgress("Indexing " + Path.GetFileName(mInputFilePath));
-
-                    // Read and parse the input file to determine:
-                    // a) The header XML (text before <spectrumList)
-                    // b) The start and end byte offset of each spectrum
-                    // (text between "<spectrum" and "</spectrum>")
-
-                    var success = ReadMZDataFile();
-                    mBinaryTextReader.Close();
-                    mBinaryTextReader = null;
-
-                    if (!success)
-                        return false;
-
-                    // Note: Even if we aborted reading the data mid-file, the cached information is still valid
-                    if (mAbortProcessing)
-                    {
-                        mErrorMessage = "Aborted processing";
-                    }
-                    else
-                    {
-                        UpdateProgress(100f);
-                        OperationComplete();
-                    }
-
-                    return true;
+                    UpdateProgress(100f);
+                    OperationComplete();
                 }
+
+                return true;
             }
             catch (Exception ex)
             {
