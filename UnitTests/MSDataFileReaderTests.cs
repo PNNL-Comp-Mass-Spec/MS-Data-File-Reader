@@ -65,6 +65,50 @@ namespace MSDataFileReaderUnitTests
         }
 
         [Test]
+        [TestCase("SmallTest.mzData", 6, 0, 6)]
+        [TestCase("SmallTest_Unix.mzData", 6, 0, 6)]
+        [TestCase("SampleData_myo_excerpt_1.05cv.mzdata", 220, 147, 73)]
+        public void TestMzDataReader(string mzDataFileName, int expectedScanCount, int expectedMS1, int expectedMS2)
+        {
+            var expectedScanInfo = GetExpectedMzDataScanInfo(mzDataFileName);
+
+            var dataFile = FindInputFile(mzDataFileName);
+
+            var reader = new MzDataFileReader();
+            reader.OpenFile(dataFile.FullName);
+
+            ValidateScanInfoUsingReader(reader, expectedScanCount, expectedMS1, expectedMS2, expectedScanInfo);
+        }
+
+        [Test]
+        [TestCase("SmallTest.mzData", false, 6, 345, 345, 0, 1)]
+        [TestCase("SmallTest.mzData", true, 6, 345, 345, 0, 1)]
+        [TestCase("SmallTest_Unix.mzData", true, 6, 345, 345, 0, 1)]
+        [TestCase("SampleData_myo_excerpt_1.05cv.mzdata", false, 0, 100, 200, 68, 33)]
+        [TestCase("SampleData_myo_excerpt_1.05cv.mzdata", true, 220, 100, 200, 68, 33)]
+        public void TestMzDataAccessor(string mzDataFileName, bool cacheFileInMemory, int expectedScanCount, int scanStart, int scanEnd, int expectedMS1, int expectedMS2)
+        {
+            var expectedScanInfo = GetExpectedMzDataScanInfo(mzDataFileName);
+
+            var dataFile = FindInputFile(mzDataFileName);
+
+            var reader = new MzDataFileAccessor();
+            reader.OpenFile(dataFile.FullName);
+
+            if (!cacheFileInMemory)
+            {
+                var validScan = reader.GetSpectrumByScanNumber(scanStart, out _);
+
+                Assert.IsFalse(validScan, "GetSpectrumByScanNumber returned true, but it should have returned false since ReadAndCacheEntireFile has not yet been called");
+                return;
+            }
+
+            reader.ReadAndCacheEntireFile();
+
+            ValidateScanInfo(reader, expectedScanCount, scanStart, scanEnd, expectedMS1, expectedMS2, expectedScanInfo);
+        }
+
+        [Test]
         [TestCase("Shew_246a_LCQa_15Oct04_Andro_0904-2_4-20.mzXML", 3316, 862, 2454)]
         [TestCase("Angiotensin_AllScans.mzXML", 1775, 87, 1688)]
         public void TestMzXmlReader(string mzXmlFileName, int expectedScanCount, int expectedMS1, int expectedMS2)
@@ -318,8 +362,41 @@ namespace MSDataFileReaderUnitTests
                 _ => throw new Exception("Filename not recognized in GetExpectedDtaOrMgfScanInfo: " + dataFileName)
             };
         }
+
+        /// <summary>
+        /// Get the expected scan info for the given file
+        /// </summary>
+        /// <param name="mzDataFileName"></param>
+        /// <returns>Dictionary where Keys are scan number and values are the expected scan info</returns>
+        internal static Dictionary<int, string> GetExpectedMzDataScanInfo(string mzDataFileName)
+        {
+            return mzDataFileName switch
+            {
+                "SmallTest.mzData" or "SmallTest_Unix.mzData" => new Dictionary<int, string>
                     {
+                        { 141, "" },
+                        { 195, "" },
+                        { 210, "" },
+                        { 309, "" },
+                        { 345, "" },
+                        { 750, "" }
+                    },
+                "SampleData_myo_excerpt_1.05cv.mzdata" => new Dictionary<int, string>
                     {
+                        { 200, "" },
+                        { 201, "" },
+                        { 202, "" },
+                        { 203, "" },
+                        { 204, "" },
+                        { 205, "" },
+                        { 206, "" },
+                        { 207, "" },
+                        { 208, "" },
+                        { 209, "" },
+                        { 210, "" }
+                    },
+                _ => throw new Exception("Filename not recognized in GetExpectedMzDataScanInfo: " + mzDataFileName)
+            };
         }
 
         /// <summary>
