@@ -240,9 +240,9 @@ namespace MSDataFileReaderUnitTests
             Console.WriteLine("scanCountMS1={0}", scanCountMS1);
             Console.WriteLine("scanCountMS2={0}", scanCountMS2);
 
-            Assert.AreEqual(expectedScanCount, reader.ScanCount);
+            Assert.AreEqual(expectedScanCount, reader.ScanCount, "reader.ScanCount mismatch");
 
-            Assert.AreEqual(expectedScanCount, scanCount);
+            Assert.AreEqual(expectedScanCount, scanCount, "Scan count read mismatch");
 
             Assert.AreEqual(expectedMS1, scanCountMS1, "MS1 scan count mismatch");
             Assert.AreEqual(expectedMS2, scanCountMS2, "MS2 scan count mismatch");
