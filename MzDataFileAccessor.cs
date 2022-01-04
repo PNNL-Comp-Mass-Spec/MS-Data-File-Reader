@@ -573,7 +573,7 @@ namespace MSDataFileReader
         /// <remarks>
         /// Returns True if an existing index is found, False if not
         /// </remarks>
-        /// <returns>Always returns false since mzData files to not have a spectrum index</returns>
+        /// <returns>Always returns false since mzData files do not have a spectrum index</returns>
         protected override bool LoadExistingIndex()
         {
             return false;
