@@ -647,6 +647,11 @@ namespace MSDataFileReader
                 mDataReaderMode = DataReaderMode.Cached;
             }
 
+            if (mCachedSpectra.Count > mInputFileStats.ScanCount)
+            {
+                mInputFileStats.ScanCount = mCachedSpectra.Count;
+            }
+
             return success;
         }
 
