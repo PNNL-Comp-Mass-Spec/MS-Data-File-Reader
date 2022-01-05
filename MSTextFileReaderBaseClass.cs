@@ -92,7 +92,7 @@ namespace MSDataFileReader
 
             set
             {
-                if (value < 0f || value > 100f)
+                if (value is < 0f or > 100f)
                     value = 10f;
                 mThresholdIonPctForSingleCharge = value;
             }
