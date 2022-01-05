@@ -201,7 +201,7 @@ namespace MSDataFileReader
 
                             if (msRunMatch.Success)
                             {
-                                // Record the Scan Count value
+                                // Record the Scan Count value (which may or not be present)
                                 try
                                 {
                                     mInputFileStats.ScanCount = int.Parse(msRunMatch.Groups[1].Captures[0].Value);

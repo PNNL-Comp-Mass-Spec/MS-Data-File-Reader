@@ -49,7 +49,7 @@ namespace MSDataFileReader
             InitializeLocalVariables();
         }
 
-        public const string PROGRAM_DATE = "December 28, 2021";
+        public const string PROGRAM_DATE = "January 4, 2022";
 
         /// <summary>
         /// Charge carrier for average mass mode
