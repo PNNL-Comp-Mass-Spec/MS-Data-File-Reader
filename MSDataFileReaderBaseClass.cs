@@ -87,6 +87,10 @@ namespace MSDataFileReader
             /// Actual scan count if mDataReaderMode = Cached or mDataReaderMode = Indexed
             /// Scan count as reported by the XML file if mDataReaderMode = Sequential
             /// </summary>
+            /// <remarks>
+            /// When reading data with a forward-only reader, this value will be updated
+            /// by each call to ReadNextSpectrum if the number of spectra read is less than this value
+            /// </remarks>
             public int ScanCount;
 
             /// <summary>
@@ -183,6 +187,9 @@ namespace MSDataFileReader
         // ProgressPercentComplete ranges from 0 to 100, but can contain decimal percentage values
         public float ProgressPercentComplete => (float)Math.Round(mProgressPercentComplete, 2);
 
+        /// <summary>
+        /// This is true while method ReadAndCacheEntireFile is caching all spectra in the file
+        /// </summary>
         protected bool ReadingAndStoringSpectra => mReadingAndStoringSpectra;
 
         /// <summary>
@@ -197,7 +204,10 @@ namespace MSDataFileReader
         /// When using the FileAccessor classes, this value is populated after the file is indexed
         /// </para>
         /// <para>
-        /// For .MGF and .DtaText files, this value will always be 0
+        /// When using the FileReader classes, this value will be updated if the number of spectra read is larger than this value
+        /// </para>
+        /// <para>
+        /// For .MGF and .DtaText files, this value starts off at 0 but is incremented during each call to ReadNextSpectrum
         /// </para>
         /// </remarks>
         public int ScanCount => mInputFileStats.ScanCount;

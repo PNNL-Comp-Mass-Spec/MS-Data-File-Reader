@@ -45,20 +45,8 @@ namespace MSDataFileReader
 
         private readonly Regex mDtaHeaderScanAndCharge = new(@".+\.(\d+)\.(\d+)\.(\d*)$", RegexOptions.Compiled);
 
-        /// <summary>
-        /// Threshold ion percent to assume a 1+ spectrum (number between 0 and 100)
-        /// </summary>
-        /// <remarks>
-        /// If the percentage of ions greater than the parent ion m/z is less than this number, the charge is definitely 1+
-        /// </remarks>
         protected float mThresholdIonPctForSingleCharge;
 
-        /// <summary>
-        /// Threshold ion percent to assume a 2+ spectrum (number between 0 and 100)
-        /// </summary>
-        /// <remarks>
-        /// If the percentage of ions greater than the parent ion m/z is greater than this number, the charge is definitely 2+ or higher
-        /// </remarks>
         protected float mThresholdIonPctForDoubleCharge;
 
         protected TextReader mFileReader;
@@ -73,18 +61,31 @@ namespace MSDataFileReader
 
         protected List<string> mCurrentMsMsDataList;
 
-        // When true, read the data and populate mCurrentMsMsDataList but do not populate mCurrentSpectrum.MZList() or mCurrentSpectrum.IntensityList()
-
         protected long mTotalBytesRead;
 
         protected long mInFileStreamLength;
 
+        /// <summary>
+        /// Comment line start character
+        /// </summary>
         public char CommentLineStartChar { get; set; } = '=';
 
+        /// <summary>
+        /// Current spectrum
+        /// </summary>
         public SpectrumInfoMsMsText CurrentSpectrum => mCurrentSpectrum;
 
+        /// <summary>
+        /// When true, read the data and populate mCurrentMsMsDataList but do not populate mCurrentSpectrum.MZList() or mCurrentSpectrum.IntensityList()
+        /// </summary>
         public bool ReadTextDataOnly { get; set; }
 
+        /// <summary>
+        /// Threshold ion percent to assume a 1+ spectrum (number between 0 and 100)
+        /// </summary>
+        /// <remarks>
+        /// If the percentage of ions greater than the parent ion m/z is less than this number, the charge is definitely 1+
+        /// </remarks>
         public float ThresholdIonPctForSingleCharge
         {
             get => mThresholdIonPctForSingleCharge;
@@ -97,6 +98,12 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Threshold ion percent to assume a 2+ spectrum (number between 0 and 100)
+        /// </summary>
+        /// <remarks>
+        /// If the percentage of ions greater than the parent ion m/z is greater than this number, the charge is definitely 2+ or higher
+        /// </remarks>
         public float ThresholdIonPctForDoubleCharge
         {
             get => mThresholdIonPctForDoubleCharge;

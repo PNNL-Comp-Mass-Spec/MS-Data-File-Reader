@@ -395,6 +395,12 @@ namespace MSDataFileReader
 
         protected abstract bool GetSpectrumByIndexWork(int spectrumIndex, out SpectrumInfo spectrumInfo, bool headerInfoOnly);
 
+        /// <summary>
+        /// Obtain the spectrum data for the given scan
+        /// </summary>
+        /// <param name="scanNumber"></param>
+        /// <param name="spectrumInfo"></param>
+        /// <returns>True if success, False if failure</returns>
         public override bool GetSpectrumByScanNumber(int scanNumber, out SpectrumInfo spectrumInfo)
         {
             return GetSpectrumByScanNumberWork(scanNumber, out spectrumInfo, false);
@@ -404,7 +410,12 @@ namespace MSDataFileReader
         /// Obtain the spectrum data for the given scan
         /// </summary>
         /// <remarks>
+        /// <para>
         /// Only valid if we have Cached or Indexed data in memory
+        /// </para>
+        /// <para>
+        /// For .mzData files and non-indexed .mzXML files, call ReadAndCacheEntireFile prior to using GetSpectrumByScanNumberWork
+        /// </para>
         /// </remarks>
         /// <param name="scanNumber"></param>
         /// <param name="spectrumInfo"></param>
