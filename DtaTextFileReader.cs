@@ -81,193 +81,192 @@ namespace MSDataFileReader
                 {
                     spectrumInfo = new SpectrumInfo();
                     mErrorMessage = "Data file not currently open";
+                    return false;
                 }
-                else
+
+                AddNewRecentFileText(string.Empty, true, false);
+                var lastProgressUpdateLine = mInFileLineNumber;
+
+                while (!spectrumFound && mFileReader.Peek() > -1 && !mAbortProcessing)
                 {
-                    AddNewRecentFileText(string.Empty, true, false);
-                    var lastProgressUpdateLine = mInFileLineNumber;
+                    string lineIn;
 
-                    while (!spectrumFound && mFileReader.Peek() > -1 && !mAbortProcessing)
+                    if (mHeaderSaved.Length > 0)
                     {
-                        string lineIn;
+                        lineIn = mHeaderSaved;
+                        mHeaderSaved = string.Empty;
+                    }
+                    else
+                    {
+                        lineIn = mFileReader.ReadLine();
 
-                        if (mHeaderSaved.Length > 0)
+                        if (lineIn != null)
+                            mTotalBytesRead += lineIn.Length + 2;
+                        mInFileLineNumber++;
+                    }
+
+                    // See if lineIn is nothing or starts with the comment line character (equals sign)
+                    if (lineIn != null && lineIn.Trim().StartsWith(CommentLineStartChar.ToString()))
+                    {
+                        AddNewRecentFileText(lineIn);
                         {
-                            lineIn = mHeaderSaved;
-                            mHeaderSaved = string.Empty;
+                            mCurrentSpectrum.SpectrumTitleWithCommentChars = lineIn;
+                            mCurrentSpectrum.SpectrumTitle = CleanupComment(lineIn, CommentLineStartChar, true);
+
+                            ExtractScanInfoFromDtaHeader(mCurrentSpectrum.SpectrumTitle, out var scanNumberStart, out var scanNumberEnd, out var scanCount);
+                            mCurrentSpectrum.ScanNumber = scanNumberStart;
+                            mCurrentSpectrum.ScanNumberEnd = scanNumberEnd;
+                            mCurrentSpectrum.ScanCount = scanCount;
+                            mCurrentSpectrum.MSLevel = 2;
+                            mCurrentSpectrum.SpectrumID = mCurrentSpectrum.ScanNumber;
+                        }
+
+                        // Read the next line, which should have the parent ion MH value and charge
+                        if (mFileReader.Peek() > -1)
+                        {
+                            lineIn = mFileReader.ReadLine();
                         }
                         else
                         {
-                            lineIn = mFileReader.ReadLine();
-
-                            if (lineIn != null)
-                                mTotalBytesRead += lineIn.Length + 2;
-                            mInFileLineNumber++;
+                            lineIn = string.Empty;
                         }
 
-                        // See if lineIn is nothing or starts with the comment line character (equals sign)
-                        if (lineIn != null && lineIn.Trim().StartsWith(CommentLineStartChar.ToString()))
+                        if (lineIn != null)
+                            mTotalBytesRead += lineIn.Length + 2;
+
+                        mInFileLineNumber++;
+
+                        if (string.IsNullOrWhiteSpace(lineIn))
+                        {
+                            // Spectrum header is not followed by a parent ion value and charge; ignore the line
+                        }
+                        else
                         {
                             AddNewRecentFileText(lineIn);
+
+                            // Parse the parent ion info and read the MsMs Data
+                            spectrumFound = ReadSingleSpectrum(
+                                mFileReader, lineIn,
+                                out mCurrentMsMsDataList,
+                                mCurrentSpectrum,
+                                ref mInFileLineNumber,
+                                ref lastProgressUpdateLine,
+                                out var mostRecentLineIn);
+
+                            if (spectrumFound)
                             {
-                                mCurrentSpectrum.SpectrumTitleWithCommentChars = lineIn;
-                                mCurrentSpectrum.SpectrumTitle = CleanupComment(lineIn, CommentLineStartChar, true);
+                                mCurrentSpectrum.ClearMzAndIntensityData();
 
-                                ExtractScanInfoFromDtaHeader(mCurrentSpectrum.SpectrumTitle, out var scanNumberStart, out var scanNumberEnd, out var scanCount);
-                                mCurrentSpectrum.ScanNumber = scanNumberStart;
-                                mCurrentSpectrum.ScanNumberEnd = scanNumberEnd;
-                                mCurrentSpectrum.ScanCount = scanCount;
-                                mCurrentSpectrum.MSLevel = 2;
-                                mCurrentSpectrum.SpectrumID = mCurrentSpectrum.ScanNumber;
-                            }
-
-                            // Read the next line, which should have the parent ion MH value and charge
-                            if (mFileReader.Peek() > -1)
-                            {
-                                lineIn = mFileReader.ReadLine();
-                            }
-                            else
-                            {
-                                lineIn = string.Empty;
-                            }
-
-                            if (lineIn != null)
-                                mTotalBytesRead += lineIn.Length + 2;
-
-                            mInFileLineNumber++;
-
-                            if (string.IsNullOrWhiteSpace(lineIn))
-                            {
-                                // Spectrum header is not followed by a parent ion value and charge; ignore the line
-                            }
-                            else
-                            {
-                                AddNewRecentFileText(lineIn);
-
-                                // Parse the parent ion info and read the MsMs Data
-                                spectrumFound = ReadSingleSpectrum(
-                                    mFileReader, lineIn,
-                                    out mCurrentMsMsDataList,
-                                    mCurrentSpectrum,
-                                    ref mInFileLineNumber,
-                                    ref lastProgressUpdateLine,
-                                    out var mostRecentLineIn);
-
-                                if (spectrumFound)
+                                if (ReadTextDataOnly)
                                 {
-                                    mCurrentSpectrum.ClearMzAndIntensityData();
-
-                                    if (ReadTextDataOnly)
+                                    // Do not parse the text data to populate .MzList and .IntensityList
+                                    mCurrentSpectrum.PeaksCount = 0;
+                                }
+                                else
+                                {
+                                    try
                                     {
-                                        // Do not parse the text data to populate .MzList and .IntensityList
-                                        mCurrentSpectrum.PeaksCount = 0;
+                                        ParseMsMsDataList(mCurrentMsMsDataList, out var mzList, out var intensityList);
+
+                                        mCurrentSpectrum.PeaksCount = mzList.Count;
+                                        mCurrentSpectrum.StoreIons(mzList, intensityList);
+
+                                        mCurrentSpectrum.Validate(true, true);
                                     }
-                                    else
+                                    catch (Exception ex)
                                     {
-                                        try
-                                        {
-                                            ParseMsMsDataList(mCurrentMsMsDataList, out var mzList, out var intensityList);
-
-                                            mCurrentSpectrum.PeaksCount = mzList.Count;
-                                            mCurrentSpectrum.StoreIons(mzList, intensityList);
-
-                                            mCurrentSpectrum.Validate(true, true);
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            mCurrentSpectrum.PeaksCount = 0;
-                                            spectrumFound = false;
-                                        }
+                                        mCurrentSpectrum.PeaksCount = 0;
+                                        spectrumFound = false;
                                     }
                                 }
+                            }
 
-                                if (spectrumFound && CombineIdenticalSpectra && mCurrentSpectrum.ParentIonCharges[0] == 2)
+                            if (spectrumFound && CombineIdenticalSpectra && mCurrentSpectrum.ParentIonCharges[0] == 2)
+                            {
+                                // See if the next spectrum is the identical data, but the charge is 3 (this is a common situation with .dta files prepared by Lcq_Dta)
+
+                                lineIn = mostRecentLineIn;
+
+                                if (string.IsNullOrWhiteSpace(lineIn) && mFileReader.Peek() > -1)
                                 {
-                                    // See if the next spectrum is the identical data, but the charge is 3 (this is a common situation with .dta files prepared by Lcq_Dta)
+                                    // Read the next line
+                                    lineIn = mFileReader.ReadLine();
 
-                                    lineIn = mostRecentLineIn;
+                                    if (lineIn != null)
+                                        mTotalBytesRead += lineIn.Length + 2;
 
-                                    if (string.IsNullOrWhiteSpace(lineIn) && mFileReader.Peek() > -1)
+                                    mInFileLineNumber++;
+                                }
+
+                                if (lineIn != null && lineIn.StartsWith(CommentLineStartChar.ToString()))
+                                {
+                                    mHeaderSaved = lineIn;
+                                    var compareTitle = CleanupComment(mHeaderSaved, CommentLineStartChar, true);
+
+                                    if (compareTitle.EndsWith("3.dta", StringComparison.OrdinalIgnoreCase))
                                     {
-                                        // Read the next line
-                                        lineIn = mFileReader.ReadLine();
-
-                                        if (lineIn != null)
-                                            mTotalBytesRead += lineIn.Length + 2;
-
-                                        mInFileLineNumber++;
-                                    }
-
-                                    if (lineIn != null && lineIn.StartsWith(CommentLineStartChar.ToString()))
-                                    {
-                                        mHeaderSaved = lineIn;
-                                        var compareTitle = CleanupComment(mHeaderSaved, CommentLineStartChar, true);
-
-                                        if (compareTitle.EndsWith("3.dta", StringComparison.OrdinalIgnoreCase))
+                                        if (string.Equals(mCurrentSpectrum.SpectrumTitle.Substring(0, mCurrentSpectrum.SpectrumTitle.Length - 5), compareTitle.Substring(0, compareTitle.Length - 5), StringComparison.OrdinalIgnoreCase))
                                         {
-                                            if (string.Equals(mCurrentSpectrum.SpectrumTitle.Substring(0, mCurrentSpectrum.SpectrumTitle.Length - 5), compareTitle.Substring(0, compareTitle.Length - 5), StringComparison.OrdinalIgnoreCase))
+                                            // Yes, the spectra match
+                                            mCurrentSpectrum.ParentIonChargeCount = 2;
+                                            mCurrentSpectrum.ParentIonCharges[1] = 3;
+                                            mCurrentSpectrum.ChargeIs2And3Plus = true;
+
+                                            mHeaderSaved = string.Empty;
+
+                                            // Read the next set of lines until the next blank line or comment line is found
+                                            while (mFileReader.Peek() > -1)
                                             {
-                                                // Yes, the spectra match
-                                                mCurrentSpectrum.ParentIonChargeCount = 2;
-                                                mCurrentSpectrum.ParentIonCharges[1] = 3;
-                                                mCurrentSpectrum.ChargeIs2And3Plus = true;
+                                                lineIn = mFileReader.ReadLine();
+                                                mInFileLineNumber++;
 
-                                                mHeaderSaved = string.Empty;
-
-                                                // Read the next set of lines until the next blank line or comment line is found
-                                                while (mFileReader.Peek() > -1)
+                                                // See if lineIn is blank or starts with an equals sign
+                                                if (lineIn != null)
                                                 {
-                                                    lineIn = mFileReader.ReadLine();
-                                                    mInFileLineNumber++;
+                                                    mTotalBytesRead += lineIn.Length + 2;
 
-                                                    // See if lineIn is blank or starts with an equals sign
-                                                    if (lineIn != null)
+                                                    if (lineIn.Trim().Length == 0)
                                                     {
-                                                        mTotalBytesRead += lineIn.Length + 2;
+                                                        break;
+                                                    }
 
-                                                        if (lineIn.Trim().Length == 0)
-                                                        {
-                                                            break;
-                                                        }
-
-                                                        if (lineIn.Trim().StartsWith(CommentLineStartChar.ToString()))
-                                                        {
-                                                            mHeaderSaved = lineIn;
-                                                            break;
-                                                        }
+                                                    if (lineIn.Trim().StartsWith(CommentLineStartChar.ToString()))
+                                                    {
+                                                        mHeaderSaved = lineIn;
+                                                        break;
                                                     }
                                                 }
                                             }
                                         }
                                     }
                                 }
-                                else if (mostRecentLineIn.StartsWith(CommentLineStartChar.ToString()))
-                                {
-                                    mHeaderSaved = mostRecentLineIn;
-                                }
-                            }  // EndIf for spectrumFound = True
-                        }  // EndIf for lineIn.Trim.StartsWith(mCommentLineStartChar)
+                            }
+                            else if (mostRecentLineIn.StartsWith(CommentLineStartChar.ToString()))
+                            {
+                                mHeaderSaved = mostRecentLineIn;
+                            }
+                        } // EndIf for spectrumFound = True
+                    } // EndIf for lineIn.Trim.StartsWith(mCommentLineStartChar)
 
-                        if (mInFileLineNumber - lastProgressUpdateLine >= 250 || spectrumFound)
-                        {
-                            lastProgressUpdateLine = mInFileLineNumber;
-                            UpdateStreamReaderProgress();
-                        }
-                    }
-
-                    spectrumInfo = mCurrentSpectrum;
-
-                    if (spectrumFound)
+                    if (mInFileLineNumber - lastProgressUpdateLine >= 250 || spectrumFound)
                     {
-                        mScanCountRead++;
+                        lastProgressUpdateLine = mInFileLineNumber;
+                        UpdateStreamReaderProgress();
+                    }
+                }
 
-                        if (!ReadingAndStoringSpectra)
-                        {
-                            if (mInputFileStats.ScanCount < mScanCountRead)
-                                mInputFileStats.ScanCount = mScanCountRead;
+                spectrumInfo = mCurrentSpectrum;
 
-                            UpdateFileStats(mInputFileStats.ScanCount, spectrumInfo.ScanNumber, false);
-                        }
+                if (spectrumFound)
+                {
+                    mScanCountRead++;
+
+                    if (!ReadingAndStoringSpectra)
+                    {
+                        if (mInputFileStats.ScanCount < mScanCountRead)
+                            mInputFileStats.ScanCount = mScanCountRead;
+
+                        UpdateFileStats(mInputFileStats.ScanCount, spectrumInfo.ScanNumber, false);
                     }
                 }
             }

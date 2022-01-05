@@ -167,134 +167,281 @@ namespace MSDataFileReader
                 {
                     spectrumInfo = new SpectrumInfoMsMsText();
                     mErrorMessage = "Data file not currently open";
+                    return false;
                 }
-                else
+
+                AddNewRecentFileText(string.Empty, true, false);
                 {
-                    AddNewRecentFileText(string.Empty, true, false);
+                    mCurrentSpectrum.SpectrumTitleWithCommentChars = string.Empty;
+                    mCurrentSpectrum.SpectrumTitle = string.Empty;
+                    mCurrentSpectrum.MSLevel = 2;
+                }
+
+                var lastProgressUpdateLine = mInFileLineNumber;
+
+                while (!spectrumFound && mFileReader.Peek() > -1 && !mAbortProcessing)
+                {
+                    var lineIn = mFileReader.ReadLine();
+
+                    if (lineIn != null)
+                        mTotalBytesRead += lineIn.Length + 2;
+
+                    mInFileLineNumber++;
+
+                    if (lineIn?.Trim().Length > 0)
                     {
-                        mCurrentSpectrum.SpectrumTitleWithCommentChars = string.Empty;
-                        mCurrentSpectrum.SpectrumTitle = string.Empty;
-                        mCurrentSpectrum.MSLevel = 2;
-                    }
+                        AddNewRecentFileText(lineIn);
+                        lineIn = lineIn.Trim();
 
-                    var lastProgressUpdateLine = mInFileLineNumber;
-
-                    while (!spectrumFound && mFileReader.Peek() > -1 && !mAbortProcessing)
-                    {
-                        var lineIn = mFileReader.ReadLine();
-
-                        if (lineIn != null)
-                            mTotalBytesRead += lineIn.Length + 2;
-
-                        mInFileLineNumber++;
-
-                        if (lineIn?.Trim().Length > 0)
+                        // See if lineIn starts with the comment line start character (a pound sign, #)
+                        if (lineIn.StartsWith(CommentLineStartChar.ToString()))
                         {
-                            AddNewRecentFileText(lineIn);
-                            lineIn = lineIn.Trim();
+                            // Remove any comment characters at the start of lineIn
+                            lineIn = lineIn.TrimStart(CommentLineStartChar).Trim();
 
-                            // See if lineIn starts with the comment line start character (a pound sign, #)
-                            if (lineIn.StartsWith(CommentLineStartChar.ToString()))
+                            // Look for LINE_START_MSMS in lineIn
+                            // This will be present in MGF files created using Agilent's DataAnalysis software
+                            if (lineIn.StartsWith(LINE_START_MSMS, StringComparison.OrdinalIgnoreCase))
                             {
-                                // Remove any comment characters at the start of lineIn
-                                lineIn = lineIn.TrimStart(CommentLineStartChar).Trim();
+                                lineIn = lineIn.Substring(LINE_START_MSMS.Length).Trim();
 
-                                // Look for LINE_START_MSMS in lineIn
-                                // This will be present in MGF files created using Agilent's DataAnalysis software
-                                if (lineIn.StartsWith(LINE_START_MSMS, StringComparison.OrdinalIgnoreCase))
+                                // Initialize these values
+                                mCurrentSpectrum.ScanNumberEnd = 0;
+                                mCurrentSpectrum.ScanCount = 1;
+
+                                // Remove the # sign in front of the scan number
+                                lineIn = lineIn.TrimStart('#').Trim();
+
+                                // Look for the / sign and remove any text following it
+                                // For example,
+                                // ###MS: 4458/4486/
+                                // ###MSMS: 4459/4488/
+                                // The / sign is used to indicate that several MS/MS scans were combined to make the given spectrum; we'll just keep the first one
+                                var charIndex = lineIn.IndexOf('/');
+
+                                if (charIndex > 0)
                                 {
-                                    lineIn = lineIn.Substring(LINE_START_MSMS.Length).Trim();
+                                    string temp;
 
-                                    // Initialize these values
-                                    mCurrentSpectrum.ScanNumberEnd = 0;
+                                    if (charIndex < lineIn.Length - 1)
+                                    {
+                                        temp = lineIn.Substring(charIndex + 1).Trim();
+                                    }
+                                    else
+                                    {
+                                        temp = string.Empty;
+                                    }
+
+                                    lineIn = lineIn.Substring(0, charIndex).Trim();
                                     mCurrentSpectrum.ScanCount = 1;
 
-                                    // Remove the # sign in front of the scan number
-                                    lineIn = lineIn.TrimStart('#').Trim();
-
-                                    // Look for the / sign and remove any text following it
-                                    // For example,
-                                    // ###MS: 4458/4486/
-                                    // ###MSMS: 4459/4488/
-                                    // The / sign is used to indicate that several MS/MS scans were combined to make the given spectrum; we'll just keep the first one
-                                    var charIndex = lineIn.IndexOf('/');
-
-                                    if (charIndex > 0)
+                                    if (temp.Length > 0)
                                     {
-                                        string temp;
-
-                                        if (charIndex < lineIn.Length - 1)
+                                        while (true)
                                         {
-                                            temp = lineIn.Substring(charIndex + 1).Trim();
-                                        }
-                                        else
-                                        {
-                                            temp = string.Empty;
-                                        }
+                                            charIndex = temp.IndexOf('/');
 
-                                        lineIn = lineIn.Substring(0, charIndex).Trim();
-                                        mCurrentSpectrum.ScanCount = 1;
-
-                                        if (temp.Length > 0)
-                                        {
-                                            while (true)
+                                            if (charIndex > 0)
                                             {
-                                                charIndex = temp.IndexOf('/');
+                                                mCurrentSpectrum.ScanCount++;
 
-                                                if (charIndex > 0)
+                                                if (charIndex < temp.Length - 1)
                                                 {
-                                                    mCurrentSpectrum.ScanCount++;
-
-                                                    if (charIndex < temp.Length - 1)
-                                                    {
-                                                        temp = temp.Substring(charIndex + 1).Trim();
-                                                    }
-                                                    else
-                                                    {
-                                                        temp = temp.Substring(0, charIndex).Trim();
-                                                        break;
-                                                    }
+                                                    temp = temp.Substring(charIndex + 1).Trim();
                                                 }
                                                 else
                                                 {
+                                                    temp = temp.Substring(0, charIndex).Trim();
                                                     break;
                                                 }
                                             }
-
-                                            if (IsNumber(temp))
+                                            else
                                             {
-                                                mCurrentSpectrum.ScanNumberEnd = int.Parse(temp);
+                                                break;
+                                            }
+                                        }
+
+                                        if (IsNumber(temp))
+                                        {
+                                            mCurrentSpectrum.ScanNumberEnd = int.Parse(temp);
+                                        }
+                                    }
+                                }
+
+                                scanNumberFound = ExtractScanRange(lineIn, mCurrentSpectrum);
+                            }
+                        }
+
+                        // Line does not start with a comment character
+                        // Look for LINE_START_BEGIN_IONS in lineIn
+                        else if (lineIn.StartsWith(LINE_START_BEGIN_IONS, StringComparison.OrdinalIgnoreCase))
+                        {
+                            if (!scanNumberFound)
+                            {
+                                // Need to update scanNumberStart
+                                // Set it to one more than mScanNumberStartSaved
+                                mCurrentSpectrum.ScanNumber = mScanNumberStartSaved + 1;
+                                mCurrentSpectrum.ScanNumberEnd = mCurrentSpectrum.ScanNumber;
+                                mCurrentSpectrum.SpectrumID = mCurrentSpectrum.ScanNumber;
+                                mCurrentSpectrum.ScanCount = 1;
+                            }
+
+                            var parentIonFound = false;
+
+                            // We have found an MS/MS scan
+                            // Look for LINE_START_PEPMASS and LINE_START_CHARGE to determine the parent ion m/z and charge
+                            while (mFileReader.Peek() > -1)
+                            {
+                                lineIn = mFileReader.ReadLine();
+                                mInFileLineNumber++;
+
+                                if (lineIn == null)
+                                    continue;
+
+                                mTotalBytesRead += lineIn.Length + 2;
+                                AddNewRecentFileText(lineIn);
+
+                                if (lineIn.Trim().Length == 0)
+                                    continue;
+
+                                lineIn = lineIn.Trim();
+                                string[] splitLine;
+
+                                if (lineIn.StartsWith(LINE_START_PEPMASS, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    // This line defines the peptide mass as an m/z value
+                                    // It may simply contain the m/z value, or it may also contain an intensity value
+                                    // The two values will be separated by a space or a tab
+                                    // We do not save the intensity value since it cannot be included in a .Dta file
+                                    lineIn = lineIn.Substring(LINE_START_PEPMASS.Length).Trim();
+                                    splitLine = lineIn.Split(sepChars);
+
+                                    if (splitLine.Length > 0 && IsNumber(splitLine[0]))
+                                    {
+                                        mCurrentSpectrum.ParentIonMZ = double.Parse(splitLine[0]);
+                                        parentIonFound = true;
+                                    }
+                                    else
+                                    {
+                                        // Invalid LINE_START_PEPMASS Line
+                                        // Ignore this entire scan
+                                        break;
+                                    }
+                                }
+                                else if (lineIn.StartsWith(LINE_START_CHARGE, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    // This line defines the peptide charge
+                                    // It may simply contain a single charge, like 1+ or 2+
+                                    // It may also contain two charges, as in 2+ and 3+
+                                    // Not all spectra in the MGF file will have a CHARGE= entry
+                                    lineIn = lineIn.Substring(LINE_START_CHARGE.Length).Trim();
+
+                                    // Remove any + signs in the line
+                                    lineIn = lineIn.Replace("+", string.Empty);
+
+                                    if (lineIn.IndexOf(' ') > 0)
+                                    {
+                                        // Multiple charges may be present
+                                        splitLine = lineIn.Split(sepChars);
+                                        var indexEnd = splitLine.Length - 1;
+
+                                        for (var index = 0; index <= indexEnd; index++)
+                                        {
+                                            // Step through the split line and add any numbers to the charge list
+                                            // Typically, splitLine(1) will contain "and"
+                                            if (IsNumber(splitLine[index].Trim()))
+                                            {
+                                                if (mCurrentSpectrum.ParentIonChargeCount < SpectrumInfoMsMsText.MAX_CHARGE_COUNT)
+                                                {
+                                                    mCurrentSpectrum.ParentIonCharges[mCurrentSpectrum.ParentIonChargeCount] =
+                                                        int.Parse(splitLine[index].Trim());
+
+                                                    mCurrentSpectrum.ParentIonChargeCount++;
+                                                }
                                             }
                                         }
                                     }
+                                    else if (IsNumber(lineIn))
+                                    {
+                                        mCurrentSpectrum.ParentIonChargeCount = 1;
+                                        mCurrentSpectrum.ParentIonCharges[0] = int.Parse(lineIn);
+                                    }
+                                }
+                                else if (lineIn.StartsWith(LINE_START_TITLE, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    mCurrentSpectrum.SpectrumTitle = lineIn;
+                                    lineIn = lineIn.Substring(LINE_START_TITLE.Length).Trim();
+                                    mCurrentSpectrum.SpectrumTitleWithCommentChars = lineIn;
 
+                                    if (!scanNumberFound)
+                                    {
+                                        // We didn't find a scan number in a ### MSMS: comment line
+                                        // Attempt to extract out the scan numbers from the Title
+                                        {
+                                            ExtractScanInfoFromDtaHeader(lineIn, out var scanNumberStart, out var scanNumberEnd, out var scanCount);
+                                            mCurrentSpectrum.ScanNumber = scanNumberStart;
+                                            mCurrentSpectrum.ScanNumberEnd = scanNumberEnd;
+                                            mCurrentSpectrum.ScanCount = scanCount;
+                                        }
+                                    }
+                                }
+                                else if (lineIn.StartsWith(LINE_START_END_IONS, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    // Empty ion list
+                                    break;
+                                }
+                                else if (lineIn.StartsWith(LINE_START_RT, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    lineIn = lineIn.Substring(LINE_START_RT.Length).Trim();
+
+                                    if (double.TryParse(lineIn, out var rtSeconds))
+                                    {
+                                        mCurrentSpectrum.RetentionTimeMin = (float)(rtSeconds / 60.0d);
+                                    }
+                                }
+                                else if (lineIn.StartsWith(LINE_START_SCANS, StringComparison.OrdinalIgnoreCase))
+                                {
+                                    lineIn = lineIn.Substring(LINE_START_SCANS.Length).Trim();
                                     scanNumberFound = ExtractScanRange(lineIn, mCurrentSpectrum);
+                                }
+                                else if (char.IsNumber(lineIn, 0))
+                                {
+                                    // Found the start of the ion list
+                                    // Add to the MsMs data list
+                                    if (parentIonFound)
+                                    {
+                                        mCurrentMsMsDataList.Add(lineIn);
+                                    }
+
+                                    break;
                                 }
                             }
 
-                            // Line does not start with a comment character
-                            // Look for LINE_START_BEGIN_IONS in lineIn
-                            else if (lineIn.StartsWith(LINE_START_BEGIN_IONS, StringComparison.OrdinalIgnoreCase))
+                            if (parentIonFound && mCurrentMsMsDataList.Count > 0)
                             {
-                                if (!scanNumberFound)
+                                // We have determined the parent ion
+
+                                // Note: MGF files have Parent Ion MZ defined but not Parent Ion MH
+                                // Thus, compute .ParentIonMH using .ParentIonMZ
                                 {
-                                    // Need to update scanNumberStart
-                                    // Set it to one more than mScanNumberStartSaved
-                                    mCurrentSpectrum.ScanNumber = mScanNumberStartSaved + 1;
-                                    mCurrentSpectrum.ScanNumberEnd = mCurrentSpectrum.ScanNumber;
-                                    mCurrentSpectrum.SpectrumID = mCurrentSpectrum.ScanNumber;
-                                    mCurrentSpectrum.ScanCount = 1;
+                                    if (mCurrentSpectrum.ParentIonChargeCount >= 1)
+                                    {
+                                        mCurrentSpectrum.ParentIonMH = ConvoluteMass(mCurrentSpectrum.ParentIonMZ, mCurrentSpectrum.ParentIonCharges[0], 1);
+                                    }
+                                    else
+                                    {
+                                        mCurrentSpectrum.ParentIonMH = mCurrentSpectrum.ParentIonMZ;
+                                    }
                                 }
 
-                                var parentIonFound = false;
-
-                                // We have found an MS/MS scan
-                                // Look for LINE_START_PEPMASS and LINE_START_CHARGE to determine the parent ion m/z and charge
+                                // Read in the ions and populate mCurrentMsMsDataList
+                                // Read all of the MS/MS spectrum ions up to the next blank line or up to LINE_START_END_IONS
                                 while (mFileReader.Peek() > -1)
                                 {
                                     lineIn = mFileReader.ReadLine();
                                     mInFileLineNumber++;
 
+                                    // See if lineIn is blank
                                     if (lineIn != null)
                                     {
                                         mTotalBytesRead += lineIn.Length + 2;
@@ -302,234 +449,86 @@ namespace MSDataFileReader
 
                                         if (lineIn.Trim().Length > 0)
                                         {
-                                            lineIn = lineIn.Trim();
-                                            string[] splitLine;
-
-                                            if (lineIn.StartsWith(LINE_START_PEPMASS, StringComparison.OrdinalIgnoreCase))
+                                            if (lineIn.Trim().StartsWith(LINE_START_END_IONS, StringComparison.OrdinalIgnoreCase))
                                             {
-                                                // This line defines the peptide mass as an m/z value
-                                                // It may simply contain the m/z value, or it may also contain an intensity value
-                                                // The two values will be separated by a space or a tab
-                                                // We do not save the intensity value since it cannot be included in a .Dta file
-                                                lineIn = lineIn.Substring(LINE_START_PEPMASS.Length).Trim();
-                                                splitLine = lineIn.Split(sepChars);
-
-                                                if (splitLine.Length > 0 && IsNumber(splitLine[0]))
-                                                {
-                                                    mCurrentSpectrum.ParentIonMZ = double.Parse(splitLine[0]);
-                                                    parentIonFound = true;
-                                                }
-                                                else
-                                                {
-                                                    // Invalid LINE_START_PEPMASS Line
-                                                    // Ignore this entire scan
-                                                    break;
-                                                }
-                                            }
-                                            else if (lineIn.StartsWith(LINE_START_CHARGE, StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                // This line defines the peptide charge
-                                                // It may simply contain a single charge, like 1+ or 2+
-                                                // It may also contain two charges, as in 2+ and 3+
-                                                // Not all spectra in the MGF file will have a CHARGE= entry
-                                                lineIn = lineIn.Substring(LINE_START_CHARGE.Length).Trim();
-
-                                                // Remove any + signs in the line
-                                                lineIn = lineIn.Replace("+", string.Empty);
-
-                                                if (lineIn.IndexOf(' ') > 0)
-                                                {
-                                                    // Multiple charges may be present
-                                                    splitLine = lineIn.Split(sepChars);
-                                                    var indexEnd = splitLine.Length - 1;
-
-                                                    for (var index = 0; index <= indexEnd; index++)
-                                                    {
-                                                        // Step through the split line and add any numbers to the charge list
-                                                        // Typically, splitLine(1) will contain "and"
-                                                        if (IsNumber(splitLine[index].Trim()))
-                                                        {
-                                                            if (mCurrentSpectrum.ParentIonChargeCount < SpectrumInfoMsMsText.MAX_CHARGE_COUNT)
-                                                            {
-                                                                mCurrentSpectrum.ParentIonCharges[mCurrentSpectrum.ParentIonChargeCount] =
-                                                                    int.Parse(splitLine[index].Trim());
-
-                                                                mCurrentSpectrum.ParentIonChargeCount++;
-                                                            }
-                                                        }
-                                                    }
-                                                }
-                                                else if (IsNumber(lineIn))
-                                                {
-                                                    mCurrentSpectrum.ParentIonChargeCount = 1;
-                                                    mCurrentSpectrum.ParentIonCharges[0] = int.Parse(lineIn);
-                                                }
-                                            }
-                                            else if (lineIn.StartsWith(LINE_START_TITLE, StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                mCurrentSpectrum.SpectrumTitle = lineIn;
-                                                lineIn = lineIn.Substring(LINE_START_TITLE.Length).Trim();
-                                                mCurrentSpectrum.SpectrumTitleWithCommentChars = lineIn;
-
-                                                if (!scanNumberFound)
-                                                {
-                                                    // We didn't find a scan number in a ### MSMS: comment line
-                                                    // Attempt to extract out the scan numbers from the Title
-                                                    {
-                                                        ExtractScanInfoFromDtaHeader(lineIn, out var scanNumberStart, out var scanNumberEnd, out var scanCount);
-                                                        mCurrentSpectrum.ScanNumber = scanNumberStart;
-                                                        mCurrentSpectrum.ScanNumberEnd = scanNumberEnd;
-                                                        mCurrentSpectrum.ScanCount = scanCount;
-                                                    }
-                                                }
-                                            }
-                                            else if (lineIn.StartsWith(LINE_START_END_IONS, StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                // Empty ion list
                                                 break;
                                             }
-                                            else if (lineIn.StartsWith(LINE_START_RT, StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                lineIn = lineIn.Substring(LINE_START_RT.Length).Trim();
 
-                                                if (double.TryParse(lineIn, out var rtSeconds))
-                                                {
-                                                    mCurrentSpectrum.RetentionTimeMin = (float)(rtSeconds / 60.0d);
-                                                }
-                                            }
-                                            else if (lineIn.StartsWith(LINE_START_SCANS, StringComparison.OrdinalIgnoreCase))
-                                            {
-                                                lineIn = lineIn.Substring(LINE_START_SCANS.Length).Trim();
-                                                scanNumberFound = ExtractScanRange(lineIn, mCurrentSpectrum);
-                                            }
-                                            else if (char.IsNumber(lineIn, 0))
-                                            {
-                                                // Found the start of the ion list
-                                                // Add to the MsMs data list
-                                                if (parentIonFound)
-                                                {
-                                                    mCurrentMsMsDataList.Add(lineIn);
-                                                }
-
-                                                break;
-                                            }
+                                            // Add to MS/MS data sting list
+                                            mCurrentMsMsDataList.Add(lineIn.Trim());
                                         }
+                                    }
+
+                                    if (mInFileLineNumber - lastProgressUpdateLine >= 250)
+                                    {
+                                        lastProgressUpdateLine = mInFileLineNumber;
+                                        UpdateStreamReaderProgress();
                                     }
                                 }
 
-                                if (parentIonFound && mCurrentMsMsDataList.Count > 0)
+                                spectrumFound = true;
+
+                                mCurrentSpectrum.ClearMzAndIntensityData();
+
+                                if (ReadTextDataOnly)
                                 {
-                                    // We have determined the parent ion
-
-                                    // Note: MGF files have Parent Ion MZ defined but not Parent Ion MH
-                                    // Thus, compute .ParentIonMH using .ParentIonMZ
+                                    // Do not parse the text data to populate .MZList and .IntensityList
+                                    mCurrentSpectrum.PeaksCount = 0;
+                                }
+                                else
+                                {
+                                    try
                                     {
-                                        if (mCurrentSpectrum.ParentIonChargeCount >= 1)
-                                        {
-                                            mCurrentSpectrum.ParentIonMH = ConvoluteMass(mCurrentSpectrum.ParentIonMZ, mCurrentSpectrum.ParentIonCharges[0], 1);
-                                        }
-                                        else
-                                        {
-                                            mCurrentSpectrum.ParentIonMH = mCurrentSpectrum.ParentIonMZ;
-                                        }
+                                        ParseMsMsDataList(mCurrentMsMsDataList, out var mzList, out var intensityList);
+
+                                        mCurrentSpectrum.PeaksCount = mzList.Count;
+                                        mCurrentSpectrum.StoreIons(mzList, intensityList);
+
+                                        mCurrentSpectrum.Validate(true, true);
                                     }
-
-                                    // Read in the ions and populate mCurrentMsMsDataList
-                                    // Read all of the MS/MS spectrum ions up to the next blank line or up to LINE_START_END_IONS
-                                    while (mFileReader.Peek() > -1)
+                                    catch (Exception ex)
                                     {
-                                        lineIn = mFileReader.ReadLine();
-                                        mInFileLineNumber++;
-
-                                        // See if lineIn is blank
-                                        if (lineIn != null)
-                                        {
-                                            mTotalBytesRead += lineIn.Length + 2;
-                                            AddNewRecentFileText(lineIn);
-
-                                            if (lineIn.Trim().Length > 0)
-                                            {
-                                                if (lineIn.Trim().StartsWith(LINE_START_END_IONS, StringComparison.OrdinalIgnoreCase))
-                                                {
-                                                    break;
-                                                }
-
-                                                // Add to MS/MS data sting list
-                                                mCurrentMsMsDataList.Add(lineIn.Trim());
-                                            }
-                                        }
-
-                                        if (mInFileLineNumber - lastProgressUpdateLine >= 250)
-                                        {
-                                            lastProgressUpdateLine = mInFileLineNumber;
-                                            UpdateStreamReaderProgress();
-                                        }
-                                    }
-
-                                    spectrumFound = true;
-
-                                    mCurrentSpectrum.ClearMzAndIntensityData();
-
-                                    if (ReadTextDataOnly)
-                                    {
-                                        // Do not parse the text data to populate .MZList and .IntensityList
                                         mCurrentSpectrum.PeaksCount = 0;
-                                    }
-                                    else
-                                    {
-                                        try
-                                        {
-                                            ParseMsMsDataList(mCurrentMsMsDataList, out var mzList, out var intensityList);
-
-                                            mCurrentSpectrum.PeaksCount = mzList.Count;
-                                            mCurrentSpectrum.StoreIons(mzList, intensityList);
-
-                                            mCurrentSpectrum.Validate(true, true);
-                                        }
-                                        catch (Exception ex)
-                                        {
-                                            mCurrentSpectrum.PeaksCount = 0;
-                                            spectrumFound = false;
-                                        }
+                                        spectrumFound = false;
                                     }
                                 }
-
-                                // Copy the scan number to mScanNumberStartSaved
-                                if (mCurrentSpectrum.ScanNumber > 0)
-                                {
-                                    mScanNumberStartSaved = mCurrentSpectrum.ScanNumber;
-                                }
                             }
-                        }
 
-                        if (mInFileLineNumber - lastProgressUpdateLine >= 250 || spectrumFound)
-                        {
-                            lastProgressUpdateLine = mInFileLineNumber;
-
-                            if (mFileReader is StreamReader streamReader)
+                            // Copy the scan number to mScanNumberStartSaved
+                            if (mCurrentSpectrum.ScanNumber > 0)
                             {
-                                UpdateProgress(streamReader.BaseStream.Position / (double)streamReader.BaseStream.Length * 100.0d);
-                            }
-                            else if (mInFileStreamLength > 0L)
-                            {
-                                UpdateProgress(mTotalBytesRead / (double)mInFileStreamLength * 100.0d);
+                                mScanNumberStartSaved = mCurrentSpectrum.ScanNumber;
                             }
                         }
                     }
 
-                    spectrumInfo = mCurrentSpectrum;
+                    if (mInFileLineNumber - lastProgressUpdateLine < 250 && !spectrumFound)
+                        continue;
 
-                    if (spectrumFound)
+                    lastProgressUpdateLine = mInFileLineNumber;
+
+                    if (mFileReader is StreamReader streamReader)
                     {
-                        mScanCountRead++;
+                        UpdateProgress(streamReader.BaseStream.Position / (double)streamReader.BaseStream.Length * 100.0d);
+                    }
+                    else if (mInFileStreamLength > 0L)
+                    {
+                        UpdateProgress(mTotalBytesRead / (double)mInFileStreamLength * 100.0d);
+                    }
+                }
 
-                        if (!ReadingAndStoringSpectra)
-                        {
-                            if (mInputFileStats.ScanCount < mScanCountRead)
-                                mInputFileStats.ScanCount = mScanCountRead;
+                spectrumInfo = mCurrentSpectrum;
 
-                            UpdateFileStats(mInputFileStats.ScanCount, spectrumInfo.ScanNumber, false);
-                        }
+                if (spectrumFound)
+                {
+                    mScanCountRead++;
+
+                    if (!ReadingAndStoringSpectra)
+                    {
+                        if (mInputFileStats.ScanCount < mScanCountRead)
+                            mInputFileStats.ScanCount = mScanCountRead;
+
+                        UpdateFileStats(mInputFileStats.ScanCount, spectrumInfo.ScanNumber, false);
                     }
                 }
             }

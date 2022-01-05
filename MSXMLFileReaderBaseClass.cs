@@ -559,87 +559,86 @@ namespace MSDataFileReader
                 {
                     spectrumInfo = new SpectrumInfo();
                     mErrorMessage = "Data file not currently open";
+                    return false;
                 }
-                else
+
+                if (mDataFileOrTextStream != null)
                 {
-                    if (mDataFileOrTextStream != null)
+                    if (mDataFileOrTextStream is StreamReader streamReader)
                     {
-                        if (mDataFileOrTextStream is StreamReader streamReader)
+                        UpdateProgress(streamReader.BaseStream.Position / (double)streamReader.BaseStream.Length * 100.0d);
+                    }
+                    else
+                    {
+                        if (mXMLReader is XmlTextReader xmlReader)
                         {
-                            {
-                                UpdateProgress(streamReader.BaseStream.Position / (double)streamReader.BaseStream.Length * 100.0d);
-                            }
-                        }
-                        else
-                        {
-                            if (mXMLReader is XmlTextReader xmlReader)
-                            {
-                                // Note that 1000 is an arbitrary value for the number of lines in the input stream
-                                // (only needed if mDataFileOrTextStream is a StringReader)
-                                UpdateProgress(xmlReader.LineNumber % 1000 / 1000d * 100.0d);
-                            }
+                            // Note that 1000 is an arbitrary value for the number of lines in the input stream
+                            // (only needed if mDataFileOrTextStream is a StringReader)
+                            UpdateProgress(xmlReader.LineNumber % 1000 / 1000d * 100.0d);
                         }
                     }
+                }
 
-                    var validData = true;
+                var validData = true;
 
-                    while (!mSpectrumFound && validData && !mAbortProcessing && mXMLReader.ReadState is ReadState.Initial or ReadState.Interactive)
+                while (!mSpectrumFound && validData && !mAbortProcessing && mXMLReader.ReadState is ReadState.Initial or ReadState.Interactive)
+                {
+                    mSpectrumFound = false;
+
+                    if (mSkipNextReaderAdvance)
                     {
-                        mSpectrumFound = false;
+                        mSkipNextReaderAdvance = false;
 
-                        if (mSkipNextReaderAdvance)
-                        {
-                            mSkipNextReaderAdvance = false;
-
-                            try
-                            {
-                                if (mXMLReader.NodeType == XmlNodeType.Element)
-                                {
-                                    mSkippedStartElementAdvance = true;
-                                }
-                            }
-                            catch (Exception ex)
-                            {
-                                // Ignore Errors Here
-                            }
-                        }
-                        else
-                        {
-                            mSkippedStartElementAdvance = false;
-                            validData = mXMLReader.Read();
-                            XMLTextReaderSkipWhitespace();
-                        }
-
-                        if (validData && mXMLReader.ReadState == ReadState.Interactive)
+                        try
                         {
                             if (mXMLReader.NodeType == XmlNodeType.Element)
                             {
-                                ParseStartElement();
+                                mSkippedStartElementAdvance = true;
                             }
-                            else if (mXMLReader.NodeType == XmlNodeType.EndElement)
-                            {
-                                ParseEndElement();
-                            }
-                            else if (mXMLReader.NodeType == XmlNodeType.Text)
-                            {
-                                ParseElementContent();
-                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Ignore Errors Here
                         }
                     }
-
-                    spectrumInfo = GetCurrentSpectrum();
-
-                    if (mSpectrumFound)
+                    else
                     {
-                        mScanCountRead++;
+                        mSkippedStartElementAdvance = false;
+                        validData = mXMLReader.Read();
+                        XMLTextReaderSkipWhitespace();
+                    }
 
-                        if (!ReadingAndStoringSpectra)
-                        {
-                            if (mInputFileStats.ScanCount < mScanCountRead)
-                                mInputFileStats.ScanCount = mScanCountRead;
+                    if (!validData || mXMLReader.ReadState != ReadState.Interactive)
+                        continue;
 
-                            UpdateFileStats(mInputFileStats.ScanCount, spectrumInfo.ScanNumber, false);
-                        }
+                    switch (mXMLReader.NodeType)
+                    {
+                        case XmlNodeType.Element:
+                            ParseStartElement();
+                            break;
+
+                        case XmlNodeType.EndElement:
+                            ParseEndElement();
+                            break;
+
+                        case XmlNodeType.Text:
+                            ParseElementContent();
+                            break;
+                    }
+                }
+
+                spectrumInfo = GetCurrentSpectrum();
+
+                if (mSpectrumFound)
+                {
+                    mScanCountRead++;
+
+                    if (!ReadingAndStoringSpectra)
+                    {
+                        if (mInputFileStats.ScanCount < mScanCountRead)
+                            mInputFileStats.ScanCount = mScanCountRead;
+
+                        UpdateFileStats(mInputFileStats.ScanCount, spectrumInfo.ScanNumber, false);
                     }
                 }
             }
