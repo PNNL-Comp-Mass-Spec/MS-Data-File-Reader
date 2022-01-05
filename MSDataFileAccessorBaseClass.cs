@@ -110,6 +110,11 @@ namespace MSDataFileReader
             }
         }
 
+        /// <summary>
+        /// Number of indexed spectrum
+        /// </summary>
+        public int IndexedSpectrumCount => mIndexedSpectrumInfo.Count;
+
         // ReSharper disable once UnusedMemberInSuper.Global
         protected abstract bool AdvanceFileReaders(ElementMatchMode elementMatchMode);
 

@@ -51,6 +51,22 @@ namespace MSDataFileReaderUnitTests
         }
 
         [Test]
+        [TestCase("Angiotensin_Excerpt_dta.txt", 93, 0, 93)]
+        public void TestCDTAReaderCached(string cdtaFileName, int expectedScanCount, int expectedMS1, int expectedMS2)
+        {
+            var expectedScanInfo = GetExpectedDtaOrMgfScanInfo(cdtaFileName);
+
+            var dataFile = FindInputFile(cdtaFileName);
+
+            var reader = new DtaTextFileReader();
+            reader.OpenFile(dataFile.FullName);
+
+            reader.ReadAndCacheEntireFile();
+
+            ValidateScanInfoUsingCachedSpectra(reader, expectedScanCount, expectedMS1, expectedMS2, expectedScanInfo);
+        }
+
+        [Test]
         [TestCase("Angiotensin_Excerpt.mgf", 93, 0, 93)]
         public void TestMgfReader(string mgfFileName, int expectedScanCount, int expectedMS1, int expectedMS2)
         {
@@ -62,6 +78,22 @@ namespace MSDataFileReaderUnitTests
             reader.OpenFile(dataFile.FullName);
 
             ValidateScanInfoUsingReader(reader, expectedScanCount, expectedMS1, expectedMS2, expectedScanInfo);
+        }
+
+        [Test]
+        [TestCase("Angiotensin_Excerpt.mgf", 93, 0, 93)]
+        public void TestMgfReaderCached(string mgfFileName, int expectedScanCount, int expectedMS1, int expectedMS2)
+        {
+            var expectedScanInfo = GetExpectedDtaOrMgfScanInfo(mgfFileName);
+
+            var dataFile = FindInputFile(mgfFileName);
+
+            var reader = new MgfFileReader();
+            reader.OpenFile(dataFile.FullName);
+
+            reader.ReadAndCacheEntireFile();
+
+            ValidateScanInfoUsingCachedSpectra(reader, expectedScanCount, expectedMS1, expectedMS2, expectedScanInfo);
         }
 
         [Test]
@@ -132,7 +164,8 @@ namespace MSDataFileReaderUnitTests
         [Test]
         [TestCase("Shew_246a_LCQa_15Oct04_Andro_0904-2_4-20.mzXML", 3316, 1513, 1521, 3, 6)]
         [TestCase("Angiotensin_AllScans.mzXML", 1775, 1200, 1231, 2, 30)]
-        public void TestMzXmlAccessor(string mzXmlFileName, int expectedScanCount, int scanStart, int scanEnd, int expectedMS1, int expectedMS2)
+        [TestCase("Angiotensin_Excerpt_NoIndex.mzXML", 120, 1, 120, 8, 112, true)]
+        public void TestMzXmlAccessor(string mzXmlFileName, int expectedScanCount, int scanStart, int scanEnd, int expectedMS1, int expectedMS2, bool cacheIfNoIndex = false)
         {
             var expectedScanInfo = GetExpectedMzXmlScanInfo(mzXmlFileName);
 
@@ -140,6 +173,12 @@ namespace MSDataFileReaderUnitTests
 
             var reader = new MzXMLFileAccessor();
             reader.OpenFile(dataFile.FullName);
+
+            if (reader.IndexedSpectrumCount == 0 && cacheIfNoIndex)
+            {
+                // Cache the entire file in memory
+                reader.ReadAndCacheEntireFileNonIndexed();
+            }
 
             ValidateScanInfo(reader, expectedScanCount, scanStart, scanEnd, expectedMS1, expectedMS2, expectedScanInfo);
         }
@@ -264,6 +303,51 @@ namespace MSDataFileReaderUnitTests
                 Assert.AreEqual(string.Format("{0,3} {1}", spectrumInfo.ScanNumber, expectedScanSummary), scanSummary,
                     "Scan summary mismatch, scan " + spectrumInfo.ScanNumber);
             }
+        }
+
+        private void ValidateScanInfoUsingCachedSpectra(
+            MsDataFileReaderBaseClass reader,
+            int expectedScanCount,
+            int expectedMS1,
+            int expectedMS2,
+            IReadOnlyDictionary<int, string> expectedScanInfo)
+        {
+            Console.WriteLine("Scan info for {0}", Path.GetFileName(reader.InputFilePath));
+
+            WriteScanInfoColumnNames(reader);
+
+            var scanCountMS1 = 0;
+            var scanCountMS2 = 0;
+            var scanCount = 0;
+
+            for (var spectrumIndex = 0; spectrumIndex < reader.CachedSpectrumCount; spectrumIndex++)
+            {
+                var validScan = reader.GetSpectrumByIndex(spectrumIndex, out var spectrumInfo);
+
+                Assert.IsTrue(validScan, "GetSpectrumByScanNumber returned false for index {0}", spectrumIndex);
+
+                if (expectedScanInfo.TryGetValue(spectrumInfo.ScanNumber, out _))
+                {
+                    ValidateScanInfo(expectedScanInfo, spectrumInfo);
+                }
+
+                if (spectrumInfo.MSLevel == 1)
+                    scanCountMS1++;
+                else if (spectrumInfo.MSLevel > 1)
+                    scanCountMS2++;
+
+                scanCount++;
+            }
+
+            Console.WriteLine("scanCountMS1={0}", scanCountMS1);
+            Console.WriteLine("scanCountMS2={0}", scanCountMS2);
+
+            Assert.AreEqual(expectedScanCount, reader.ScanCount, "reader.ScanCount mismatch");
+
+            Assert.AreEqual(expectedScanCount, scanCount, "Scan count read mismatch");
+
+            Assert.AreEqual(expectedMS1, scanCountMS1, "MS1 scan count mismatch");
+            Assert.AreEqual(expectedMS2, scanCountMS2, "MS2 scan count mismatch");
         }
 
         private void ValidateScanInfoUsingReader(
