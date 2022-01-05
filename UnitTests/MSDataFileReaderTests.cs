@@ -111,6 +111,7 @@ namespace MSDataFileReaderUnitTests
         [Test]
         [TestCase("Shew_246a_LCQa_15Oct04_Andro_0904-2_4-20.mzXML", 3316, 862, 2454)]
         [TestCase("Angiotensin_AllScans.mzXML", 1775, 87, 1688)]
+        [TestCase("Angiotensin_Excerpt_NoIndex.mzXML", 120, 8, 112)]
         public void TestMzXmlReader(string mzXmlFileName, int expectedScanCount, int expectedMS1, int expectedMS2)
         {
             var expectedScanInfo = GetExpectedMzXmlScanInfo(mzXmlFileName);
@@ -531,6 +532,43 @@ namespace MSDataFileReaderUnitTests
                     { 1230, "1  3775 3.49 347 2020 1.9E+9  432.900 6.2E+8     0.00        + False discrete " },
                     { 1231, "2   300 3.49 106 1031 1.7E+9  110.071 2.6E+8   432.90 HCD    + True  discrete " }
                 },
+                "Angiotensin_Excerpt_NoIndex.mzXML" => new Dictionary<int, string>
+                {
+                    {  1, "1  7997 0.00 347 2020 1.4E+9  432.900 4.5E+8     0.00        + False discrete " },
+                    {  2, "1   595 0.01 347 2020 2.5E+9  432.900 9.6E+8     0.00        + False discrete " },
+                    {  3, "2   337 0.01 109 1290 1.6E+9  110.071 2.3E+8   432.90 HCD    + True  discrete " },
+                    {  4, "2   280 0.01 108 1046 1.0E+9  110.071 1.6E+8   433.90 HCD    + True  discrete " },
+                    {  5, "2   295 0.01 101 1185 8.8E+7  784.410 5.6E+6   648.85 HCD    + True  discrete " },
+                    {  6, "2   149 0.02 101 1301 1.1E+9  649.349 1.8E+8   432.90 ETD    + True  discrete " },
+                    {  7, "2   350 0.02 100 1302 1.2E+9  649.349 1.7E+8   432.90 ETD    + True  discrete " },
+                    {  8, "2   275 0.02 100 1302 1.1E+9  432.900 1.5E+8   432.90 ETD+SA + True  discrete " },
+                    {  9, "2   148 0.02 103 1303 7.6E+8  649.851 1.5E+8   433.90 ETD    + True  discrete " },
+                    { 10, "2   319 0.02 102 1303 8.8E+8  649.851 1.1E+8   433.90 ETD    + True  discrete " },
+                    { 11, "2   230 0.03 101 1303 7.9E+8  433.234 1.2E+8   433.90 ETD+SA + True  discrete " },
+                    { 12, "2    82 0.03 107 1300 4.4E+7  648.846 9.5E+6   648.85 ETD    + True  discrete " },
+                    { 13, "2   189 0.03 105 1300 4.6E+7 1297.691 5.4E+6   648.85 ETD    + True  discrete " },
+                    { 14, "2   114 0.03 100 1300 5.1E+7  648.846 1.0E+7   648.85 ETD+SA + True  discrete " },
+                    { 15, "2   181 0.04 105  948 2.4E+7  269.161 5.7E+6   513.28 HCD    + True  discrete " },
+                    { 16, "2   266 0.04 102 1185 6.0E+7  269.161 4.0E+6   649.85 HCD    + True  discrete " },
+                    { 17, "2    64 0.04 104 1029 1.0E+7  513.282 8.2E+6   513.28 ETD    + True  discrete " },
+                    { 18, "2   125 0.05 104 1029 1.2E+7  513.281 3.3E+6   513.28 ETD    + True  discrete " },
+                    { 19, "2    65 0.05 107 1029 1.2E+7  513.282 8.8E+6   513.28 ETD+SA + True  discrete " },
+                    { 20, "2    80 0.05 115 1302 2.7E+7  649.348 6.7E+6   649.85 ETD    + True  discrete " },
+                    { 21, "2   197 0.06 102 1302 3.5E+7 1298.694 3.9E+6   649.85 ETD    + True  discrete " },
+                    { 22, "2   155 0.06 100 1302 3.6E+7  649.348 8.4E+6   649.85 ETD+SA + True  discrete " },
+                    { 23, "1  3785 0.06 347 2020 1.9E+9  432.900 6.4E+8     0.00        + False discrete " },
+                    { 24, "2   333 0.06 104 1031 1.6E+9  110.071 2.4E+8   432.90 HCD    + True  discrete " },
+                    { 25, "2   297 0.07 110 1161 1.1E+9  110.071 1.6E+8   433.90 HCD    + True  discrete " },
+                    { 26, "2   351 0.07 103 1299 1.7E+7  659.837 3.4E+6   659.84 HCD    + True  discrete " },
+                    { 27, "2   147 0.07 101 1301 1.4E+9  649.349 2.2E+8   432.90 ETD    + True  discrete " },
+                    { 28, "2   270 0.08 103 1302 1.0E+9  649.349 1.5E+8   432.90 ETD    + True  discrete " },
+                    { 29, "2   253 0.08 101 1302 1.2E+9  432.900 1.8E+8   432.90 ETD+SA + True  discrete " },
+                    { 30, "2   139 0.08 101 1303 7.5E+8  649.851 1.4E+8   433.90 ETD    + True  discrete " },
+                    { 31, "2   293 0.08 100 1303 9.1E+8  649.851 1.2E+8   433.90 ETD    + True  discrete " },
+                    { 32, "2   215 0.09 112 1303 8.6E+8  433.234 1.3E+8   433.90 ETD+SA + True  discrete " },
+                    { 33, "2    77 0.09 103 1322 8.4E+6  659.837 1.8E+6   659.84 ETD    + True  discrete " },
+                    { 34, "2   180 0.09 100 1322 9.7E+6  659.837 1.4E+6   659.84 ETD    + True  discrete " },
+                    { 35, "2   149 0.10 102 1322 9.5E+6  659.837 1.9E+6   659.84 ETD+SA + True  discrete " }
                 },
                 _ => throw new Exception("Filename not recognized in GetExpectedMzXmlScanInfo: " + mzXmlFileName)
             };
