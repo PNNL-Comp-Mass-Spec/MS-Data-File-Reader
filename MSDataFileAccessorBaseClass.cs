@@ -628,7 +628,19 @@ namespace MSDataFileReader
         /// <returns>True if successful, false if an error</returns>
         public bool ReadAndCacheEntireFileNonIndexed()
         {
-            var success = base.ReadAndCacheEntireFile();
+            // Open the current data file with a second, forward-only reader
+            MsDataFileReaderBaseClass forwardOnlyReader = this switch
+            {
+                MzXMLFileAccessor => new MzXMLFileReader(),
+                MzDataFileAccessor => new MzDataFileReader(),
+                _ => throw new Exception("Unrecognized class: " + GetType())
+            };
+
+            forwardOnlyReader.OpenFile(mInputFilePath);
+
+            var success = ReadAndCacheEntireFile(forwardOnlyReader);
+
+            forwardOnlyReader.CloseFile();
 
             if (success)
             {

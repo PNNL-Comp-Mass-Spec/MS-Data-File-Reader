@@ -700,11 +700,16 @@ namespace MSDataFileReader
 
         public abstract bool ReadNextSpectrum(out SpectrumInfo spectrumInfo);
 
+        public virtual bool ReadAndCacheEntireFile()
+        {
+            return ReadAndCacheEntireFile(this);
+        }
+
         /// <summary>
         /// Cache the entire file in memory
         /// </summary>
         /// <returns>True if successful, false if an error</returns>
-        public virtual bool ReadAndCacheEntireFile()
+        public bool ReadAndCacheEntireFile(MsDataFileReaderBaseClass reader)
         {
             try
             {
@@ -712,7 +717,7 @@ namespace MSDataFileReader
                 mReadingAndStoringSpectra = true;
                 ResetProgress();
 
-                while (ReadNextSpectrum(out var spectrumInfo) && !mAbortProcessing)
+                while (reader.ReadNextSpectrum(out var spectrumInfo) && !mAbortProcessing)
                 {
                     if (spectrumInfo == null)
                         continue;
