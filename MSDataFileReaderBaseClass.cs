@@ -131,6 +131,11 @@ namespace MSDataFileReader
         protected readonly Dictionary<int, int> mCachedSpectraScanToIndex = new();
 
         /// <summary>
+        /// This is incremented at the end of each call to ReadNextSpectrum
+        /// </summary>
+        protected int mScanCountRead;
+
+        /// <summary>
         /// When mAutoShrinkDataLists is True, clsSpectrumInfo.MZList().Length and clsSpectrumInfo.IntensityList().Length will equal DataCount;
         /// When mAutoShrinkDataLists is False, the memory will not be freed when DataCount shrinks or clsSpectrumInfo.Clear() is called
         /// </summary>
@@ -624,6 +629,7 @@ namespace MSDataFileReader
             mProgressPercentComplete = 0f;
             mCachedSpectra.Clear();
 
+            mScanCountRead = 0;
             mInputFileStats.ScanCount = 0;
             mInputFileStats.ScanNumberMinimum = 0;
             mInputFileStats.ScanNumberMaximum = 0;
@@ -757,11 +763,6 @@ namespace MSDataFileReader
         {
             UpdateProgress(progressStepDescription, 0f);
             ProgressReset?.Invoke();
-        }
-
-        protected void UpdateFileStats(int scanNumber)
-        {
-            UpdateFileStats(mInputFileStats.ScanCount + 1, scanNumber);
         }
 
         protected void UpdateFileStats(int scanCount, int scanNumber)

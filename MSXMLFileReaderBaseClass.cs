@@ -629,12 +629,17 @@ namespace MSDataFileReader
 
                     spectrumInfo = GetCurrentSpectrum();
 
-                    if (mSpectrumFound && !ReadingAndStoringSpectra)
+                    if (mSpectrumFound)
                     {
-                        if (mInputFileStats.ScanCount == 0)
-                            mInputFileStats.ScanCount = 1;
+                        mScanCountRead++;
 
-                        UpdateFileStats(mInputFileStats.ScanCount, spectrumInfo.ScanNumber);
+                        if (!ReadingAndStoringSpectra)
+                        {
+                            if (mInputFileStats.ScanCount < mScanCountRead)
+                                mInputFileStats.ScanCount = mScanCountRead;
+
+                            UpdateFileStats(mInputFileStats.ScanCount, spectrumInfo.ScanNumber);
+                        }
                     }
                 }
             }
