@@ -99,7 +99,12 @@ namespace MSDataFileReaderUnitTests
             {
                 var validScan = reader.GetSpectrumByScanNumber(scanStart, out _);
 
-                Assert.IsFalse(validScan, "GetSpectrumByScanNumber returned true, but it should have returned false since ReadAndCacheEntireFile has not yet been called");
+                Assert.IsFalse(validScan, "GetSpectrumByScanNumber returned true for scan {0}, but it should have returned false since ReadAndCacheEntireFile has not yet been called", scanStart);
+
+                Console.WriteLine(
+                    "Since ReadAndCacheEntireFile() has not yet been called, GetSpectrumByScanNumber returned false for scan {0}, as expected",
+                    scanStart);
+
                 return;
             }
 
@@ -215,9 +220,13 @@ namespace MSDataFileReaderUnitTests
                     }
 
                 case SpectrumInfoMzData mzDataSpectrum:
+                    var collisionEnergyUnits = mzDataSpectrum.CollisionEnergyUnits.Equals("Percent", StringComparison.OrdinalIgnoreCase)
+                            ? "%"
+                            : " " + mzDataSpectrum.CollisionEnergyUnits;
+
                     scanSummary =
                         string.Format(
-                            "{0,3} {1} {2,5} {3:F2} {4,3:0} {5,4:0} {6:0.0E+0} {7,8:F3} {8:0.0E+0} {9,8:F2} {10} {11} {12} {13} {14} {15:F2} {16} {17}",
+                            "{0,3} {1} {2,5} {3,5:F2} {4,3:0} {5,4:0} {6:0.0E+0} {7,8:F3} {8:0.0E+0} {9,8:F2} {10,-6} {11} {12,-6} {13,-10} {14} {15,4:F0}{16} {17,4}",
                             spectrumInfo.ScanNumber, spectrumInfo.MSLevel,
                             spectrumInfo.PeaksCount, spectrumInfo.RetentionTimeMin,
                             spectrumInfo.MzRangeStart, spectrumInfo.MzRangeEnd,
@@ -225,7 +234,8 @@ namespace MSDataFileReaderUnitTests
                             spectrumInfo.ParentIonMZ, mzDataSpectrum.CollisionMethod,
                             spectrumInfo.Polarity, spectrumInfo.Centroided,
                             mzDataSpectrum.SpectrumType, mzDataSpectrum.ScanMode,
-                            mzDataSpectrum.CollisionEnergy, mzDataSpectrum.CollisionEnergyUnits,
+                            mzDataSpectrum.CollisionEnergy,
+                            collisionEnergyUnits,
                             mzDataSpectrum.ParentIonSpectrumID);
 
                     break;
@@ -379,26 +389,26 @@ namespace MSDataFileReaderUnitTests
             {
                 "SmallTest.mzData" or "SmallTest_Unix.mzData" => new Dictionary<int, string>
                     {
-                        { 141, "" },
-                        { 195, "" },
-                        { 210, "" },
-                        { 309, "" },
-                        { 345, "" },
-                        { 750, "" }
+                        { 141, "2   331  3.80   0    0 7.4E+6  655.710 6.0E+5   661.65 CID    Positive False  discrete   MassScan   28%  139" },
+                        { 195, "2   249  5.17   0    0 2.4E+6  652.225 2.5E+5   561.41 CID    Positive False  discrete   MassScan   28%  193" },
+                        { 210, "2   230  5.56   0    0 1.6E+7  918.667 2.2E+6   927.46 CID    Positive False  discrete   MassScan   28%  208" },
+                        { 309, "2   298  8.34   0    0 4.2E+6  680.556 5.0E+5   518.76 CID    Positive False  discrete   MassScan   28%  307" },
+                        { 345, "2   243  9.41   0    0 1.7E+6  656.591 1.7E+5   486.97 CID    Positive False  discrete   MassScan   28%  343" },
+                        { 750, "2   337 20.58   0    0 1.3E+7  603.953 2.4E+6   669.30 CID    Positive False  discrete   MassScan   28%  748" }
                     },
                 "SampleData_myo_excerpt_1.05cv.mzdata" => new Dictionary<int, string>
                     {
-                        { 200, "" },
-                        { 201, "" },
-                        { 202, "" },
-                        { 203, "" },
-                        { 204, "" },
-                        { 205, "" },
-                        { 206, "" },
-                        { 207, "" },
-                        { 208, "" },
-                        { 209, "" },
-                        { 210, "" }
+                        { 200, "1  2000  5.32   0    0 2.5E+7  618.925 9.4E+5     0.00        Positive False  continuous MassScan    0%    0" },
+                        { 201, "2   132  5.34   0    0 1.0E+7  607.606 3.7E+6   619.02 CID    Positive False  discrete   MassScan   28%  199" },
+                        { 202, "1   481  5.36   0    0 5.0E+8  464.587 7.6E+7     0.00        Positive False  discrete   MassScan    0%    0" },
+                        { 203, "1  2000  5.38   0    0 1.2E+7  371.560 3.1E+5     0.00        Positive False  continuous MassScan    0%    0" },
+                        { 204, "2   454  5.40   0    0 2.7E+7  368.343 1.3E+6   371.73 CID    Positive False  discrete   MassScan   28%  202" },
+                        { 205, "1   495  5.44   0    0 9.2E+8  464.618 1.6E+8     0.00        Positive False  discrete   MassScan    0%    0" },
+                        { 206, "1  2000  5.46   0    0 1.1E+7  631.160 3.5E+5     0.00        Positive False  continuous MassScan    0%    0" },
+                        { 207, "2   264  5.47   0    0 1.2E+7  619.871 1.8E+6   631.39 CID    Positive False  discrete   MassScan   28%  205" },
+                        { 208, "1   494  5.52   0    0 1.1E+9  464.552 2.2E+8     0.00        Positive False  discrete   MassScan    0%    0" },
+                        { 209, "1  2000  5.54   0    0 4.3E+7  927.760 1.4E+6     0.00        Positive False  continuous MassScan    0%    0" },
+                        { 210, "2   230  5.56   0    0 1.6E+7  918.667 2.2E+6   927.46 CID    Positive False  discrete   MassScan   28%  208" }
                     },
                 _ => throw new Exception("Filename not recognized in GetExpectedMzDataScanInfo: " + mzDataFileName)
             };
