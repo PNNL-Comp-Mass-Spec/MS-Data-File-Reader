@@ -780,9 +780,19 @@ namespace MSDataFileReader
             ProgressReset?.Invoke();
         }
 
-        protected void UpdateFileStats(int scanCount, int scanNumber)
+        protected void UpdateFileStats(int scanCount, int scanNumber, bool updateScanCount)
         {
-            mInputFileStats.ScanCount = scanCount;
+            if (updateScanCount && mInputFileStats.ScanCount != scanCount)
+            {
+                if (scanCount < mInputFileStats.ScanCount)
+                {
+                    OnDebugEvent(
+                        "Storing smaller value for scan count, possibly indicating a bug: {0} => {1}",
+                        mInputFileStats.ScanCount, scanCount);
+                }
+
+                mInputFileStats.ScanCount = scanCount;
+            }
 
             if (scanCount <= 1)
             {

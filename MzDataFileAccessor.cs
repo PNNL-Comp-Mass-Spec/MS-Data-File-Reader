@@ -652,7 +652,10 @@ namespace MSDataFileReader
                     return true;
                 }
 
+                var updateScanCount = mInputFileStats.ScanCount == 0;
+
                 bool spectrumFound;
+
                 do
                 {
                     if (mCurrentSpectrumInfo is null)
@@ -704,14 +707,19 @@ namespace MSDataFileReader
                         mAddNewLinesToHeader = false;
                     }
 
-                    var indexEntry = StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, currentSpectrumByteOffsetStart, currentSpectrumByteOffsetEnd);
+                    var indexEntry = StoreIndexEntry(
+                        mCurrentSpectrumInfo.ScanNumber,
+                        currentSpectrumByteOffsetStart,
+                        currentSpectrumByteOffsetEnd,
+                        updateScanCount);
 
                     indexEntry.SpectrumID = mCurrentSpectrumInfo.SpectrumID;
 
                     UpdateFileStats(
                         mIndexedSpectrumInfo.Count,
                         indexEntry.ScanNumber,
-                        indexEntry.SpectrumID);
+                        indexEntry.SpectrumID,
+                        updateScanCount);
 
                     if (!mIndexedSpectraSpectrumIDToIndex.ContainsKey(indexEntry.SpectrumID))
                     {
@@ -740,9 +748,9 @@ namespace MSDataFileReader
             }
         }
 
-        private void UpdateFileStats(int scanCount, int scanNumber, int spectrumID)
+        private void UpdateFileStats(int scanCount, int scanNumber, int spectrumID, bool updateScanCount)
         {
-            UpdateFileStats(scanCount, scanNumber);
+            UpdateFileStats(scanCount, scanNumber, updateScanCount);
 
             if (scanCount <= 1)
             {

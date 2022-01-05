@@ -751,6 +751,8 @@ namespace MSDataFileReader
 
             try
             {
+                var updateScanCount = true;
+
                 var parseIndexValues = true;
                 var currentScanNumber = -1;
                 var previousScanNumber = -1;
@@ -818,7 +820,7 @@ namespace MSDataFileReader
                                 // Store the final index value
                                 // This is tricky since we don't know the ending offset for the given scan
                                 // Thus, need to use the binary text reader to jump to currentScanByteOffsetStart and then read line-by-line until the next </peaks> tag is found
-                                StoreFinalIndexEntry(currentScanNumber, currentScanByteOffsetStart);
+                                StoreFinalIndexEntry(currentScanNumber, currentScanByteOffsetStart, updateScanCount);
                                 indexLoaded = true;
                                 break;
                             }
@@ -839,7 +841,7 @@ namespace MSDataFileReader
                                         if (previousScanByteOffsetStart >= 0L && currentScanNumber >= 0)
                                         {
                                             // Store the previous scan info
-                                            StoreIndexEntry(previousScanNumber, previousScanByteOffsetStart, currentScanByteOffsetStart - 1L);
+                                            StoreIndexEntry(previousScanNumber, previousScanByteOffsetStart, currentScanByteOffsetStart - 1L, updateScanCount);
                                         }
                                     }
                                     catch (Exception ex)
@@ -940,6 +942,8 @@ namespace MSDataFileReader
                     return true;
                 }
 
+                var updateScanCount = true;
+
                 bool spectrumFound;
 
                 do
@@ -993,7 +997,7 @@ namespace MSDataFileReader
                         mAddNewLinesToHeader = false;
                     }
 
-                    StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, currentSpectrumByteOffsetStart, currentSpectrumByteOffsetEnd);
+                    StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, currentSpectrumByteOffsetStart, currentSpectrumByteOffsetEnd, updateScanCount);
 
                     // Update the progress
                     if (mBinaryTextReader.FileLengthBytes > 0L)
@@ -1021,7 +1025,7 @@ namespace MSDataFileReader
         /// </summary>
         /// <param name="scanNumber"></param>
         /// <param name="byteOffsetStart"></param>
-        private void StoreFinalIndexEntry(int scanNumber, long byteOffsetStart)
+        private void StoreFinalIndexEntry(int scanNumber, long byteOffsetStart, bool updateScanCount)
         {
             // The byte offset of the end of </peaks>
 
@@ -1035,7 +1039,7 @@ namespace MSDataFileReader
                 if (matchIndex >= 0)
                 {
                     var byteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + (matchIndex + PEAKS_END_ELEMENT.Length) * mBinaryTextReader.CharSize - 1L;
-                    StoreIndexEntry(scanNumber, byteOffsetStart, byteOffsetEnd);
+                    StoreIndexEntry(scanNumber, byteOffsetStart, byteOffsetEnd, updateScanCount);
                     break;
                 }
             }

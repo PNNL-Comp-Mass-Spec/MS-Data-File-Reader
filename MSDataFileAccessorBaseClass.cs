@@ -662,12 +662,12 @@ namespace MSDataFileReader
             return false;
         }
 
-        protected IndexedSpectrumInfo StoreIndexEntry(int scanNumber, long byteOffsetStart, long byteOffsetEnd)
+        protected IndexedSpectrumInfo StoreIndexEntry(int scanNumber, long byteOffsetStart, long byteOffsetEnd, bool updateScanCount)
         {
             var spectrumInfo = new IndexedSpectrumInfo(scanNumber, byteOffsetStart, byteOffsetEnd);
             mIndexedSpectrumInfo.Add(spectrumInfo);
 
-            UpdateFileStats(mIndexedSpectrumInfo.Count, scanNumber);
+            UpdateFileStats(mIndexedSpectrumInfo.Count, scanNumber, updateScanCount);
 
             if (!mIndexedSpectraScanToIndex.ContainsKey(scanNumber))
             {

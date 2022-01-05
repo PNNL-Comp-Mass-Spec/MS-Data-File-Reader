@@ -638,7 +638,7 @@ namespace MSDataFileReader
                             if (mInputFileStats.ScanCount < mScanCountRead)
                                 mInputFileStats.ScanCount = mScanCountRead;
 
-                            UpdateFileStats(mInputFileStats.ScanCount, spectrumInfo.ScanNumber);
+                            UpdateFileStats(mInputFileStats.ScanCount, spectrumInfo.ScanNumber, false);
                         }
                     }
                 }
