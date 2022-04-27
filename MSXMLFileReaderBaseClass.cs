@@ -642,6 +642,7 @@ namespace MSDataFileReader
         {
             bool success;
 
+            // ReSharper disable once ConvertIfStatementToConditionalTernaryExpression
             if (mXMLReader.NodeType == XmlNodeType.Element)
             {
                 // Advance the reader so that we can read the value
