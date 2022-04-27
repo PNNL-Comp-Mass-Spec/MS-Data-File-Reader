@@ -165,6 +165,7 @@ namespace MSDataFileReaderUnitTests
         [TestCase("Shew_246a_LCQa_15Oct04_Andro_0904-2_4-20.mzXML", 3316, 1513, 1521, 3, 6)]
         [TestCase("Angiotensin_AllScans.mzXML", 1775, 1200, 1231, 2, 30)]
         [TestCase("Angiotensin_Excerpt_NoIndex.mzXML", 120, 1, 120, 8, 112, true)]
+        [TestCase("Angiotensin_AllScans_zlib_compression.mzXML", 1775, 1200, 1231, 2, 30)]
         public void TestMzXmlAccessor(string mzXmlFileName, int expectedScanCount, int scanStart, int scanEnd, int expectedMS1, int expectedMS2, bool cacheIfNoIndex = false)
         {
             var expectedScanInfo = GetExpectedMzXmlScanInfo(mzXmlFileName);
@@ -505,6 +506,42 @@ namespace MSDataFileReaderUnitTests
         /// <returns>Dictionary where Keys are scan number and values are the expected scan info</returns>
         internal static Dictionary<int, string> GetExpectedMzXmlScanInfo(string mzXmlFileName)
         {
+            var angiotensinAllScans = new Dictionary<int, string>
+            {
+                { 1200, "2   111 3.40 102 1306 5.2E+7  648.846 1.0E+7   648.85 ETD+SA + True  discrete " },
+                { 1201, "2   321 3.41 108 1033 5.7E+7  269.161 3.7E+6   649.85 HCD    + True  discrete " },
+                { 1202, "2   226 3.41 110 1031 2.1E+7  110.071 2.3E+6   583.30 HCD    + True  discrete " },
+                { 1203, "2    86 3.41 101 1302 2.7E+7  649.348 6.8E+6   649.85 ETD    + True  discrete " },
+                { 1204, "2   205 3.42 102 1302 3.1E+7 1298.694 3.6E+6   649.85 ETD    + True  discrete " },
+                { 1205, "2   142 3.42 111 1302 3.0E+7  649.348 6.9E+6   649.85 ETD+SA + True  discrete " },
+                { 1206, "2    86 3.42 101 1169 1.0E+7  583.299 2.1E+6   583.30 ETD    + True  discrete " },
+                { 1207, "2   148 3.43 108 1169 1.1E+7 1138.603 2.0E+6   583.30 ETD    + True  discrete " },
+                { 1208, "2   114 3.43 119 1169 1.2E+7  583.299 2.5E+6   583.30 ETD+SA + True  discrete " },
+                { 1209, "1  3711 3.43 347 2020 2.0E+9  432.900 6.8E+8     0.00        + False discrete " },
+                { 1210, "2   298 3.43 110 1045 1.9E+9  110.071 2.9E+8   432.90 HCD    + True  discrete " },
+                { 1211, "2   249 3.44 110 1304 1.2E+9  110.071 1.9E+8   433.90 HCD    + True  discrete " },
+                { 1212, "2   271 3.44 103 1166 8.8E+7  784.410 5.5E+6   648.85 HCD    + True  discrete " },
+                { 1213, "2   152 3.44 101 1302 1.3E+9  649.349 2.2E+8   432.90 ETD    + True  discrete " },
+                { 1214, "2   285 3.45 101 1302 1.2E+9  649.349 1.7E+8   432.90 ETD    + True  discrete " },
+                { 1215, "2   238 3.45 101 1302 1.1E+9  432.900 1.5E+8   432.90 ETD+SA + True  discrete " },
+                { 1216, "2   135 3.45 108 1303 7.0E+8  649.851 1.3E+8   433.90 ETD    + True  discrete " },
+                { 1217, "2   287 3.45 100 1303 9.5E+8  649.850 1.2E+8   433.90 ETD    + True  discrete " },
+                { 1218, "2   215 3.45 113 1303 8.5E+8  433.234 1.2E+8   433.90 ETD+SA + True  discrete " },
+                { 1219, "2    85 3.46 113 1300 4.5E+7  648.846 8.8E+6   648.85 ETD    + True  discrete " },
+                { 1220, "2   199 3.46 103 1300 4.7E+7 1297.691 5.6E+6   648.85 ETD    + True  discrete " },
+                { 1221, "2   106 3.46 102 1300 4.5E+7  648.846 8.7E+6   648.85 ETD+SA + True  discrete " },
+                { 1222, "2   228 3.47 105 1031 1.9E+7  110.071 2.2E+6   583.30 HCD    + True  discrete " },
+                { 1223, "2   298 3.47 105 1185 5.6E+7  269.161 3.5E+6   649.85 HCD    + True  discrete " },
+                { 1224, "2    68 3.47 104 1169 1.1E+7  583.299 2.2E+6   583.30 ETD    + True  discrete " },
+                { 1225, "2   158 3.47 110 1169 1.3E+7 1138.603 2.2E+6   583.30 ETD    + True  discrete " },
+                { 1226, "2    98 3.48 101 1169 1.2E+7  583.298 2.5E+6   583.30 ETD+SA + True  discrete " },
+                { 1227, "2    83 3.48 109 1302 2.6E+7  649.348 6.4E+6   649.85 ETD    + True  discrete " },
+                { 1228, "2   212 3.48 102 1302 3.1E+7 1298.694 3.5E+6   649.85 ETD    + True  discrete " },
+                { 1229, "2   145 3.49 116 1302 3.0E+7  649.348 6.6E+6   649.85 ETD+SA + True  discrete " },
+                { 1230, "1  3775 3.49 347 2020 1.9E+9  432.900 6.2E+8     0.00        + False discrete " },
+                { 1231, "2   300 3.49 106 1031 1.7E+9  110.071 2.6E+8   432.90 HCD    + True  discrete " }
+            };
+
             return mzXmlFileName switch
             {
                 "HCC-38_ETciD_EThcD_4xdil_20uL_3hr_3_08Jan16_Pippin_15-08-53.mzXML" => new Dictionary<int, string>
@@ -591,41 +628,8 @@ namespace MSDataFileReaderUnitTests
                     { 1520, "2   210 44.77 302 1917 1.5E+6 1361.745 4.2E+4  1014.93 CID    + True  discrete " },
                     { 1521, "1   860 44.80 410 1998 6.9E+8 1126.627 2.9E+7     0.00        + True  discrete " }
                 },
-                "Angiotensin_AllScans.mzXML" => new Dictionary<int, string>
-                {
-                    { 1200, "2   111 3.40 102 1306 5.2E+7  648.846 1.0E+7   648.85 ETD+SA + True  discrete " },
-                    { 1201, "2   321 3.41 108 1033 5.7E+7  269.161 3.7E+6   649.85 HCD    + True  discrete " },
-                    { 1202, "2   226 3.41 110 1031 2.1E+7  110.071 2.3E+6   583.30 HCD    + True  discrete " },
-                    { 1203, "2    86 3.41 101 1302 2.7E+7  649.348 6.8E+6   649.85 ETD    + True  discrete " },
-                    { 1204, "2   205 3.42 102 1302 3.1E+7 1298.694 3.6E+6   649.85 ETD    + True  discrete " },
-                    { 1205, "2   142 3.42 111 1302 3.0E+7  649.348 6.9E+6   649.85 ETD+SA + True  discrete " },
-                    { 1206, "2    86 3.42 101 1169 1.0E+7  583.299 2.1E+6   583.30 ETD    + True  discrete " },
-                    { 1207, "2   148 3.43 108 1169 1.1E+7 1138.603 2.0E+6   583.30 ETD    + True  discrete " },
-                    { 1208, "2   114 3.43 119 1169 1.2E+7  583.299 2.5E+6   583.30 ETD+SA + True  discrete " },
-                    { 1209, "1  3711 3.43 347 2020 2.0E+9  432.900 6.8E+8     0.00        + False discrete " },
-                    { 1210, "2   298 3.43 110 1045 1.9E+9  110.071 2.9E+8   432.90 HCD    + True  discrete " },
-                    { 1211, "2   249 3.44 110 1304 1.2E+9  110.071 1.9E+8   433.90 HCD    + True  discrete " },
-                    { 1212, "2   271 3.44 103 1166 8.8E+7  784.410 5.5E+6   648.85 HCD    + True  discrete " },
-                    { 1213, "2   152 3.44 101 1302 1.3E+9  649.349 2.2E+8   432.90 ETD    + True  discrete " },
-                    { 1214, "2   285 3.45 101 1302 1.2E+9  649.349 1.7E+8   432.90 ETD    + True  discrete " },
-                    { 1215, "2   238 3.45 101 1302 1.1E+9  432.900 1.5E+8   432.90 ETD+SA + True  discrete " },
-                    { 1216, "2   135 3.45 108 1303 7.0E+8  649.851 1.3E+8   433.90 ETD    + True  discrete " },
-                    { 1217, "2   287 3.45 100 1303 9.5E+8  649.850 1.2E+8   433.90 ETD    + True  discrete " },
-                    { 1218, "2   215 3.45 113 1303 8.5E+8  433.234 1.2E+8   433.90 ETD+SA + True  discrete " },
-                    { 1219, "2    85 3.46 113 1300 4.5E+7  648.846 8.8E+6   648.85 ETD    + True  discrete " },
-                    { 1220, "2   199 3.46 103 1300 4.7E+7 1297.691 5.6E+6   648.85 ETD    + True  discrete " },
-                    { 1221, "2   106 3.46 102 1300 4.5E+7  648.846 8.7E+6   648.85 ETD+SA + True  discrete " },
-                    { 1222, "2   228 3.47 105 1031 1.9E+7  110.071 2.2E+6   583.30 HCD    + True  discrete " },
-                    { 1223, "2   298 3.47 105 1185 5.6E+7  269.161 3.5E+6   649.85 HCD    + True  discrete " },
-                    { 1224, "2    68 3.47 104 1169 1.1E+7  583.299 2.2E+6   583.30 ETD    + True  discrete " },
-                    { 1225, "2   158 3.47 110 1169 1.3E+7 1138.603 2.2E+6   583.30 ETD    + True  discrete " },
-                    { 1226, "2    98 3.48 101 1169 1.2E+7  583.298 2.5E+6   583.30 ETD+SA + True  discrete " },
-                    { 1227, "2    83 3.48 109 1302 2.6E+7  649.348 6.4E+6   649.85 ETD    + True  discrete " },
-                    { 1228, "2   212 3.48 102 1302 3.1E+7 1298.694 3.5E+6   649.85 ETD    + True  discrete " },
-                    { 1229, "2   145 3.49 116 1302 3.0E+7  649.348 6.6E+6   649.85 ETD+SA + True  discrete " },
-                    { 1230, "1  3775 3.49 347 2020 1.9E+9  432.900 6.2E+8     0.00        + False discrete " },
-                    { 1231, "2   300 3.49 106 1031 1.7E+9  110.071 2.6E+8   432.90 HCD    + True  discrete " }
-                },
+                "Angiotensin_AllScans.mzXML" => angiotensinAllScans,
+                "Angiotensin_AllScans_zlib_compression.mzXML" => angiotensinAllScans,
                 "Angiotensin_Excerpt_NoIndex.mzXML" => new Dictionary<int, string>
                 {
                     {  1, "1  7997 0.00 347 2020 1.4E+9  432.900 4.5E+8     0.00        + False discrete " },
