@@ -352,15 +352,8 @@ namespace MSDataFileReader
             // Next, manually copy the array objects and any other objects
             // Duplicate code from the base class
 
-            foreach (var item in MzList)
-            {
-                target.MzList.Add(item);
-            }
-
-            foreach (var item in IntensityList)
-            {
-                target.IntensityList.Add(item);
-            }
+            target.MzList.AddRange(MzList);
+            target.IntensityList.AddRange(IntensityList);
 
             return target;
         }

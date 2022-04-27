@@ -9,6 +9,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using System.Xml;
 
 namespace MSDataFileReader
@@ -450,10 +451,7 @@ namespace MSDataFileReader
                     case 32:
                         if (Base64EncodeDecode.DecodeNumericArray(msmsDataBase64Encoded, out float[] floatDataArray, zLibCompressed, endianMode))
                         {
-                            foreach (var item in floatDataArray)
-                            {
-                                values.Add(item);
-                            }
+                            values.AddRange(floatDataArray.Select(item => (double)item));
 
                             success = true;
                         }

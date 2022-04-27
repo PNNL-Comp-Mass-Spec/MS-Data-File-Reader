@@ -407,15 +407,8 @@ namespace MSDataFileReader
             // Note: Since Clone() methods in the derived classes hide this method,
             // be sure to update them too if you change any code below
 
-            foreach (var item in MzList)
-            {
-                target.MzList.Add(item);
-            }
-
-            foreach (var item in IntensityList)
-            {
-                target.IntensityList.Add(item);
-            }
+            target.MzList.AddRange(MzList);
+            target.IntensityList.AddRange(IntensityList);
 
             return target;
         }
@@ -545,6 +538,7 @@ namespace MSDataFileReader
         public void StoreIons(List<double> mzList, List<float> intensityList)
         {
             ClearMzAndIntensityData();
+
             MzList.AddRange(mzList);
             IntensityList.AddRange(intensityList);
         }
