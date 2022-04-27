@@ -231,68 +231,63 @@ namespace MSDataFileReaderUnitTests
             switch (spectrumInfo)
             {
                 case SpectrumInfoMzXML mzXmlSpectrum:
+                    string filterLine;
+
+                    // Only files created with ReAdW will have filter line text
+                    if (string.IsNullOrWhiteSpace(mzXmlSpectrum.FilterLine))
                     {
-                        string filterLine;
-
-                        // Only files created with ReAdW will have filter line text
-                        if (string.IsNullOrWhiteSpace(mzXmlSpectrum.FilterLine))
-                        {
-                            filterLine = string.Empty;
-                        }
-                        else
-                        {
-                            filterLine = mzXmlSpectrum.FilterLine.Substring(0, 12) + "...";
-                        }
-
-                        scanSummary =
-                            string.Format(
-                                "{0,3} {1} {2,5} {3:F2} {4,3:0} {5,4:0} {6:0.0E+0} {7,8:F3} {8:0.0E+0} {9,8:F2} {10,-6} {11} {12,-5} {13} {14}",
-                                spectrumInfo.ScanNumber, spectrumInfo.MSLevel,
-                                spectrumInfo.PeaksCount, spectrumInfo.RetentionTimeMin,
-                                spectrumInfo.MzRangeStart, spectrumInfo.MzRangeEnd,
-                                spectrumInfo.TotalIonCurrent,
-                                spectrumInfo.BasePeakMZ,
-                                spectrumInfo.BasePeakIntensity,
-                                spectrumInfo.ParentIonMZ,
-                                mzXmlSpectrum.ActivationMethod,
-                                spectrumInfo.Polarity,
-                                spectrumInfo.Centroided,
-                                mzXmlSpectrum.SpectrumType, filterLine);
-
-                        break;
+                        filterLine = string.Empty;
                     }
+                    else
+                    {
+                        filterLine = mzXmlSpectrum.FilterLine.Substring(0, 12) + "...";
+                    }
+
+                    scanSummary = string.Format(
+                        "{0,3} {1} {2,5} {3:F2} {4,3:0} {5,4:0} {6:0.0E+0} {7,8:F3} {8:0.0E+0} {9,8:F2} {10,-6} {11} {12,-5} {13} {14}",
+                        spectrumInfo.ScanNumber, spectrumInfo.MSLevel,
+                        spectrumInfo.PeaksCount, spectrumInfo.RetentionTimeMin,
+                        spectrumInfo.MzRangeStart, spectrumInfo.MzRangeEnd,
+                        spectrumInfo.TotalIonCurrent,
+                        spectrumInfo.BasePeakMZ,
+                        spectrumInfo.BasePeakIntensity,
+                        spectrumInfo.ParentIonMZ,
+                        mzXmlSpectrum.ActivationMethod,
+                        spectrumInfo.Polarity,
+                        spectrumInfo.Centroided,
+                        mzXmlSpectrum.SpectrumType, filterLine);
+
+                    break;
 
                 case SpectrumInfoMzData mzDataSpectrum:
                     var collisionEnergyUnits = mzDataSpectrum.CollisionEnergyUnits.Equals("Percent", StringComparison.OrdinalIgnoreCase)
-                            ? "%"
-                            : " " + mzDataSpectrum.CollisionEnergyUnits;
+                        ? "%"
+                        : " " + mzDataSpectrum.CollisionEnergyUnits;
 
-                    scanSummary =
-                        string.Format(
-                            "{0,3} {1} {2,5} {3,5:F2} {4,3:0} {5,4:0} {6:0.0E+0} {7,8:F3} {8:0.0E+0} {9,8:F2} {10,-6} {11} {12,-6} {13,-10} {14} {15,4:F0}{16} {17,4}",
-                            spectrumInfo.ScanNumber, spectrumInfo.MSLevel,
-                            spectrumInfo.PeaksCount, spectrumInfo.RetentionTimeMin,
-                            spectrumInfo.MzRangeStart, spectrumInfo.MzRangeEnd,
-                            spectrumInfo.TotalIonCurrent, spectrumInfo.BasePeakMZ, spectrumInfo.BasePeakIntensity,
-                            spectrumInfo.ParentIonMZ, mzDataSpectrum.CollisionMethod,
-                            spectrumInfo.Polarity, spectrumInfo.Centroided,
-                            mzDataSpectrum.SpectrumType, mzDataSpectrum.ScanMode,
-                            mzDataSpectrum.CollisionEnergy,
-                            collisionEnergyUnits,
-                            mzDataSpectrum.ParentIonSpectrumID);
+                    scanSummary = string.Format(
+                        "{0,3} {1} {2,5} {3,5:F2} {4,3:0} {5,4:0} {6:0.0E+0} {7,8:F3} {8:0.0E+0} {9,8:F2} {10,-6} {11} {12,-6} {13,-10} {14} {15,4:F0}{16} {17,4}",
+                        spectrumInfo.ScanNumber, spectrumInfo.MSLevel,
+                        spectrumInfo.PeaksCount, spectrumInfo.RetentionTimeMin,
+                        spectrumInfo.MzRangeStart, spectrumInfo.MzRangeEnd,
+                        spectrumInfo.TotalIonCurrent, spectrumInfo.BasePeakMZ, spectrumInfo.BasePeakIntensity,
+                        spectrumInfo.ParentIonMZ, mzDataSpectrum.CollisionMethod,
+                        spectrumInfo.Polarity, spectrumInfo.Centroided,
+                        mzDataSpectrum.SpectrumType, mzDataSpectrum.ScanMode,
+                        mzDataSpectrum.CollisionEnergy,
+                        collisionEnergyUnits,
+                        mzDataSpectrum.ParentIonSpectrumID);
 
                     break;
 
                 case SpectrumInfoMsMsText msmsSpectrum:
-                    scanSummary =
-                        string.Format(
-                            "{0,3} {1} {2,5} {3:F2} {4,3:0} {5,4:0} {6:0.0E+0} {7,8:F3} {8:0.0E+0} {9,8:F2} {10:F2}",
-                            spectrumInfo.ScanNumber, spectrumInfo.MSLevel,
-                            spectrumInfo.PeaksCount, spectrumInfo.RetentionTimeMin,
-                            spectrumInfo.MzRangeStart, spectrumInfo.MzRangeEnd,
-                            spectrumInfo.TotalIonCurrent, spectrumInfo.BasePeakMZ, spectrumInfo.BasePeakIntensity,
-                            spectrumInfo.ParentIonMZ,
-                            msmsSpectrum.ParentIonMH);
+                    scanSummary = string.Format(
+                        "{0,3} {1} {2,5} {3:F2} {4,3:0} {5,4:0} {6:0.0E+0} {7,8:F3} {8:0.0E+0} {9,8:F2} {10:F2}",
+                        spectrumInfo.ScanNumber, spectrumInfo.MSLevel,
+                        spectrumInfo.PeaksCount, spectrumInfo.RetentionTimeMin,
+                        spectrumInfo.MzRangeStart, spectrumInfo.MzRangeEnd,
+                        spectrumInfo.TotalIonCurrent, spectrumInfo.BasePeakMZ, spectrumInfo.BasePeakIntensity,
+                        spectrumInfo.ParentIonMZ,
+                        msmsSpectrum.ParentIonMH);
                     break;
 
                 default:
