@@ -97,18 +97,7 @@ namespace MSDataFileReader
         /// </remarks>
         protected readonly List<IndexedSpectrumInfo> mIndexedSpectrumInfo;
 
-        public override int CachedSpectrumCount
-        {
-            get
-            {
-                if (mDataReaderMode == DataReaderMode.Cached)
-                {
-                    return base.CachedSpectrumCount;
-                }
-
-                return mIndexedSpectrumInfo.Count;
-            }
-        }
+        public override int CachedSpectrumCount => mDataReaderMode == DataReaderMode.Cached ? base.CachedSpectrumCount : mIndexedSpectrumInfo.Count;
 
         /// <summary>
         /// Number of indexed spectrum

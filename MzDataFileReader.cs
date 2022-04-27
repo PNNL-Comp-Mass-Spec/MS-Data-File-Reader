@@ -716,14 +716,7 @@ namespace MSDataFileReader
                     {
                         mCurrentXMLDataFileSection = CurrentMzDataFileSection.SpectrumList;
 
-                        if (mXMLReader.HasAttributes)
-                        {
-                            mInputFileStats.ScanCount = GetAttribValue(SpectrumListAttributeNames.Count, 1);
-                        }
-                        else
-                        {
-                            mInputFileStats.ScanCount = 0;
-                        }
+                        mInputFileStats.ScanCount = mXMLReader.HasAttributes ? GetAttribValue(SpectrumListAttributeNames.Count, 1) : 0;
                     }
 
                     break;

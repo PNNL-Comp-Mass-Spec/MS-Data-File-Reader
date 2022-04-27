@@ -231,12 +231,7 @@ namespace MSDataFileReader
                     return !(Math.Abs(numericValue) < float.Epsilon);
                 }
 
-                if (bool.TryParse(value, out var boolValue))
-                {
-                    return boolValue;
-                }
-
-                return defaultValue;
+                return bool.TryParse(value, out var boolValue) ? boolValue : defaultValue;
             }
             catch (Exception)
             {
