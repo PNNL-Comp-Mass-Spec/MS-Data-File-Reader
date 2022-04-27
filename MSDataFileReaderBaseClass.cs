@@ -439,35 +439,17 @@ namespace MSDataFileReader
         /// <returns>An MS File reader, or null if an error or unknown file extension</returns>
         public static MsDataFileReaderBaseClass GetFileReaderBasedOnFileType(string fileNameOrPath)
         {
-            MsDataFileReaderBaseClass fileReader = null;
+            if (!DetermineFileType(fileNameOrPath, out var fileType))
+                return null;
 
-            if (DetermineFileType(fileNameOrPath, out var fileType))
+            return fileType switch
             {
-                switch (fileType)
-                {
-                    case DataFileType.DtaText:
-                        fileReader = new DtaTextFileReader();
-                        break;
-
-                    case DataFileType.MGF:
-                        fileReader = new MgfFileReader();
-                        break;
-
-                    case DataFileType.mzData:
-                        fileReader = new MzDataFileReader();
-                        break;
-
-                    case DataFileType.mzXML:
-                        fileReader = new MzXMLFileReader();
-                        break;
-
-                    default:
-                        break;
-                        // Unknown file type
-                }
-            }
-
-            return fileReader;
+                DataFileType.DtaText => new DtaTextFileReader(),
+                DataFileType.MGF => new MgfFileReader(),
+                DataFileType.mzData => new MzDataFileReader(),
+                DataFileType.mzXML => new MzXMLFileReader(),
+                _ => null   // Unknown file type
+            };
         }
 
         /// <summary>
@@ -480,32 +462,17 @@ namespace MSDataFileReader
         /// <returns>An MS file accessor, or null if an error or unknown file extension</returns>
         public static MsDataFileAccessorBaseClass GetFileAccessorBasedOnFileType(string fileNameOrPath)
         {
-            MsDataFileAccessorBaseClass fileAccessor = null;
+            if (!DetermineFileType(fileNameOrPath, out var fileType))
+                return null;
 
-            if (DetermineFileType(fileNameOrPath, out var fileType))
+            return fileType switch
             {
-                switch (fileType)
-                {
-                    case DataFileType.mzData:
-                        fileAccessor = new MzDataFileAccessor();
-                        break;
-
-                    case DataFileType.mzXML:
-                        fileAccessor = new MzXMLFileAccessor();
-                        break;
-
-                    // These file types do not have file accessors
-                    case DataFileType.DtaText:
-                    case DataFileType.MGF:
-                        break;
-
-                    default:
-                        break;
-                        // Unknown file type
-                }
-            }
-
-            return fileAccessor;
+                DataFileType.mzData => new MzDataFileAccessor(),
+                DataFileType.mzXML => new MzXMLFileAccessor(),
+                DataFileType.DtaText => null, // _dta.txt files do not have a file accessor
+                DataFileType.MGF => null,     // .mgf files do not have a file accessor
+                _ => null                     // Unknown file type
+            };
         }
 
         protected abstract string GetInputFileLocation();
