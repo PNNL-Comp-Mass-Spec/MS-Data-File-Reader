@@ -29,4 +29,4 @@ xcopy MSDataFileReader.dll F:\Documents\Projects\JoshAldrich\AScore\AScore_DLL\l
 xcopy MSDataFileReader.dll F:\Documents\Projects\JoshAldrich\AScore\AScore_DLL\bin\AnyCPU\Debug\ /Y /D
 xcopy MSDataFileReader.dll F:\Documents\Projects\JoshAldrich\AScore\AScore_Console\bin\Debug\ /Y /D
 
-pause
+if not "%1"=="NoPause" pause
