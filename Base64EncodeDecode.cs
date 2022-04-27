@@ -1,5 +1,6 @@
 ﻿using System;
 using System.IO;
+using PRISM;
 
 // ReSharper disable UnusedMember.Global
 
@@ -308,26 +309,38 @@ namespace MSDataFileReader
 
                     if (bytesRead == 0)
                         break;
+
                     msInflated.Write(buffer, 0, bytesRead);
                 }
 
                 msInflated.Seek(0L, SeekOrigin.Begin);
             }
 
-            byte[] byteArray;
             var totalBytesDecompressed = (int)msInflated.Length;
 
-            if (totalBytesDecompressed > 0)
+            if (totalBytesDecompressed <= 0)
+                return Array.Empty<byte>();
+
+            var byteArray = new byte[totalBytesDecompressed];
+            var inflatedByteCount = msInflated.Read(byteArray, 0, totalBytesDecompressed);
+
+            if (inflatedByteCount == totalBytesDecompressed)
             {
-                byteArray = new byte[totalBytesDecompressed];
-                msInflated.Read(byteArray, 0, totalBytesDecompressed);
-            }
-            else
-            {
-                byteArray = Array.Empty<byte>();
+                return byteArray;
             }
 
-            return byteArray;
+            ConsoleMsgUtils.ShowWarning(
+                "Number of bytes read from the memory stream in DecompressZLib did not match the expected value: {0} vs. {1}",
+                inflatedByteCount, totalBytesDecompressed);
+
+            var byteArray2 = new byte[inflatedByteCount];
+
+            for (var i = 0; i < inflatedByteCount; i++)
+            {
+                byteArray2[i] = byteArray[i];
+            }
+
+            return byteArray2;
         }
 
         /// <summary>
