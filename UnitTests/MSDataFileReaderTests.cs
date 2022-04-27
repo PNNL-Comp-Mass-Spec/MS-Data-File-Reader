@@ -9,6 +9,8 @@ namespace MSDataFileReaderUnitTests
     [TestFixture]
     public class MSDataFileReaderTests
     {
+        // Ignore Spelling: centroided
+
         internal static FileInfo FindInputFile(string dataFileName)
         {
             var localDirPath = Path.Combine("..", "..", "Docs");
@@ -165,6 +167,7 @@ namespace MSDataFileReaderUnitTests
         [TestCase("Shew_246a_LCQa_15Oct04_Andro_0904-2_4-20.mzXML", 3316, 1513, 1521, 3, 6)]
         [TestCase("Angiotensin_AllScans.mzXML", 1775, 1200, 1231, 2, 30)]
         [TestCase("Angiotensin_Excerpt_NoIndex.mzXML", 120, 1, 120, 8, 112, true)]
+        [TestCase("Angiotensin_AllScans_centroided.mzXML", 1775, 1200, 1231, 2, 30)]
         [TestCase("Angiotensin_AllScans_zlib_compression.mzXML", 1775, 1200, 1231, 2, 30)]
         public void TestMzXmlAccessor(string mzXmlFileName, int expectedScanCount, int scanStart, int scanEnd, int expectedMS1, int expectedMS2, bool cacheIfNoIndex = false)
         {
@@ -542,6 +545,17 @@ namespace MSDataFileReaderUnitTests
                 { 1231, "2   300 3.49 106 1031 1.7E+9  110.071 2.6E+8   432.90 HCD    + True  discrete " }
             };
 
+            var angiotensinAllScansCentroided = new Dictionary<int, string>();
+
+            foreach (var item in angiotensinAllScans)
+            {
+                angiotensinAllScansCentroided.Add(item.Key, item.Value);
+            }
+
+            // Override the values for centroided MS1 scans 1209 and 1230
+            angiotensinAllScansCentroided[1209] = "1   250 3.43 355 1822 2.0E+9  432.900 6.8E+8     0.00        + True  discrete ";
+            angiotensinAllScansCentroided[1230] = "1   259 3.49 353 1964 1.9E+9  432.900 6.2E+8     0.00        + True  discrete ";
+
             return mzXmlFileName switch
             {
                 "HCC-38_ETciD_EThcD_4xdil_20uL_3hr_3_08Jan16_Pippin_15-08-53.mzXML" => new Dictionary<int, string>
@@ -630,6 +644,7 @@ namespace MSDataFileReaderUnitTests
                 },
                 "Angiotensin_AllScans.mzXML" => angiotensinAllScans,
                 "Angiotensin_AllScans_zlib_compression.mzXML" => angiotensinAllScans,
+                "Angiotensin_AllScans_centroided.mzXML" => angiotensinAllScansCentroided,
                 "Angiotensin_Excerpt_NoIndex.mzXML" => new Dictionary<int, string>
                 {
                     {  1, "1  7997 0.00 347 2020 1.4E+9  432.900 4.5E+8     0.00        + False discrete " },
