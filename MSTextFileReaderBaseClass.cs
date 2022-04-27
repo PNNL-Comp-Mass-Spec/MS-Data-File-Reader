@@ -134,11 +134,11 @@ namespace MSDataFileReader
             commentIn = commentIn.TrimStart(commentChar).Trim();
             commentIn = commentIn.TrimEnd(commentChar).Trim();
 
-            if (removeQuoteMarks)
-            {
-                commentIn = commentIn.TrimStart('"');
-                commentIn = commentIn.TrimEnd('"');
-            }
+            if (!removeQuoteMarks)
+                return commentIn.Trim();
+
+            commentIn = commentIn.TrimStart('"');
+            commentIn = commentIn.TrimEnd('"');
 
             return commentIn.Trim();
         }
@@ -151,12 +151,9 @@ namespace MSDataFileReader
                 mMostRecentSpectrumFileText.Length = 0;
             }
 
-            if (addCrLfIfNeeded)
+            if (addCrLfIfNeeded && !(newText.EndsWith("\r") || newText.EndsWith("\n")))
             {
-                if (!(newText.EndsWith("\r") || newText.EndsWith("\n")))
-                {
-                    newText += Environment.NewLine;
-                }
+                newText += Environment.NewLine;
             }
 
             mMostRecentSpectrumFileText.Append(newText);
@@ -195,11 +192,11 @@ namespace MSDataFileReader
             {
                 totalIntensitySum += intensityList[index];
 
-                if (mzList[index] > thresholdMZ)
-                {
-                    countAboveThreshold++;
-                    intensitySumAboveThreshold += intensityList[index];
-                }
+                if (mzList[index] <= thresholdMZ)
+                    continue;
+
+                countAboveThreshold++;
+                intensitySumAboveThreshold += intensityList[index];
             }
 
             if (dataCount == 0)

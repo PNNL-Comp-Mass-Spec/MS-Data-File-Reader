@@ -458,11 +458,11 @@ namespace MSDataFileReader
 
                     for (var spectrumIndex = 0; spectrumIndex <= indexEnd; spectrumIndex++)
                     {
-                        if (mIndexedSpectrumInfo[spectrumIndex].ScanNumber == scanNumber)
-                        {
-                            success = GetSpectrumByIndex(spectrumIndex, out spectrumInfo);
-                            break;
-                        }
+                        if (mIndexedSpectrumInfo[spectrumIndex].ScanNumber != scanNumber)
+                            continue;
+
+                        success = GetSpectrumByIndex(spectrumIndex, out spectrumInfo);
+                        break;
                     }
                 }
                 else

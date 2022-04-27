@@ -221,16 +221,7 @@ namespace MSDataFileReader
 
                                 if (charIndex > 0)
                                 {
-                                    string temp;
-
-                                    if (charIndex < lineIn.Length - 1)
-                                    {
-                                        temp = lineIn.Substring(charIndex + 1).Trim();
-                                    }
-                                    else
-                                    {
-                                        temp = string.Empty;
-                                    }
+                                    var temp = charIndex < lineIn.Length - 1 ? lineIn.Substring(charIndex + 1).Trim() : string.Empty;
 
                                     lineIn = lineIn.Substring(0, charIndex).Trim();
                                     mCurrentSpectrum.ScanCount = 1;
@@ -349,16 +340,16 @@ namespace MSDataFileReader
                                         {
                                             // Step through the split line and add any numbers to the charge list
                                             // Typically, splitLine(1) will contain "and"
-                                            if (IsNumber(splitLine[index].Trim()))
+                                            if (!IsNumber(splitLine[index].Trim()) ||
+                                                mCurrentSpectrum.ParentIonChargeCount >= SpectrumInfoMsMsText.MAX_CHARGE_COUNT)
                                             {
-                                                if (mCurrentSpectrum.ParentIonChargeCount < SpectrumInfoMsMsText.MAX_CHARGE_COUNT)
-                                                {
-                                                    mCurrentSpectrum.ParentIonCharges[mCurrentSpectrum.ParentIonChargeCount] =
-                                                        int.Parse(splitLine[index].Trim());
-
-                                                    mCurrentSpectrum.ParentIonChargeCount++;
-                                                }
+                                                continue;
                                             }
+
+                                            mCurrentSpectrum.ParentIonCharges[mCurrentSpectrum.ParentIonChargeCount] =
+                                                int.Parse(splitLine[index].Trim());
+
+                                            mCurrentSpectrum.ParentIonChargeCount++;
                                         }
                                     }
                                     else if (IsNumber(lineIn))
@@ -424,14 +415,9 @@ namespace MSDataFileReader
                                 // Note: MGF files have Parent Ion MZ defined but not Parent Ion MH
                                 // Thus, compute .ParentIonMH using .ParentIonMZ
                                 {
-                                    if (mCurrentSpectrum.ParentIonChargeCount >= 1)
-                                    {
-                                        mCurrentSpectrum.ParentIonMH = ConvoluteMass(mCurrentSpectrum.ParentIonMZ, mCurrentSpectrum.ParentIonCharges[0], 1);
-                                    }
-                                    else
-                                    {
-                                        mCurrentSpectrum.ParentIonMH = mCurrentSpectrum.ParentIonMZ;
-                                    }
+                                    mCurrentSpectrum.ParentIonMH = mCurrentSpectrum.ParentIonChargeCount >= 1
+                                        ? ConvoluteMass(mCurrentSpectrum.ParentIonMZ, mCurrentSpectrum.ParentIonCharges[0], 1)
+                                        : mCurrentSpectrum.ParentIonMZ;
                                 }
 
                                 // Read in the ions and populate mCurrentMsMsDataList
@@ -459,11 +445,11 @@ namespace MSDataFileReader
                                         }
                                     }
 
-                                    if (mInFileLineNumber - lastProgressUpdateLine >= 250)
-                                    {
-                                        lastProgressUpdateLine = mInFileLineNumber;
-                                        UpdateStreamReaderProgress();
-                                    }
+                                    if (mInFileLineNumber - lastProgressUpdateLine < 250)
+                                        continue;
+
+                                    lastProgressUpdateLine = mInFileLineNumber;
+                                    UpdateStreamReaderProgress();
                                 }
 
                                 spectrumFound = true;

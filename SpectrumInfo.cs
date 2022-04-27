@@ -455,23 +455,23 @@ namespace MSDataFileReader
                 basePeakMZ = 0d;
                 basePeakIntensity = 0f;
 
-                if (MzList.Count > 0)
+                if (MzList.Count == 0)
+                    return;
+
+                basePeakMZ = MzList[0];
+                basePeakIntensity = IntensityList[0];
+                totalIonCurrent = IntensityList[0];
+                var indexEnd = MzList.Count - 1;
+
+                for (var index = 1; index <= indexEnd; index++)
                 {
-                    basePeakMZ = MzList[0];
-                    basePeakIntensity = IntensityList[0];
-                    totalIonCurrent = IntensityList[0];
-                    var indexEnd = MzList.Count - 1;
+                    totalIonCurrent += IntensityList[index];
 
-                    for (var index = 1; index <= indexEnd; index++)
-                    {
-                        totalIonCurrent += IntensityList[index];
+                    if (IntensityList[index] < basePeakIntensity)
+                        continue;
 
-                        if (IntensityList[index] >= basePeakIntensity)
-                        {
-                            basePeakMZ = MzList[index];
-                            basePeakIntensity = IntensityList[index];
-                        }
-                    }
+                    basePeakMZ = MzList[index];
+                    basePeakIntensity = IntensityList[index];
                 }
             }
             catch (Exception ex)
@@ -515,12 +515,9 @@ namespace MSDataFileReader
                         {
                             var mzDifference = mzToFind - MzList[index];
 
-                            if (Math.Abs(mzDifference) <= matchTolerance)
+                            if (Math.Abs(mzDifference) <= matchTolerance && IntensityList[index] > intensityMatch)
                             {
-                                if (IntensityList[index] > intensityMatch)
-                                {
-                                    intensityMatch = IntensityList[index];
-                                }
+                                intensityMatch = IntensityList[index];
                             }
                         }
                         else

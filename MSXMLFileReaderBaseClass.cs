@@ -148,17 +148,10 @@ namespace MSDataFileReader
             var success = ConvertTimeFromTimespanToXmlDuration(
                 timeSpan, trimLeadingZeroValues, secondsValueDigitsAfterDecimal, out var xmlDuration, out var isZero);
 
-            if (!success || isZero)
-            {
-                if (trimLeadingZeroValues)
-                {
-                    return ZERO_SOAP_DURATION_SHORT;
-                }
+            if (success && !isZero)
+                return xmlDuration;
 
-                return ZERO_SOAP_DURATION_FULL;
-            }
-
-            return xmlDuration;
+            return trimLeadingZeroValues ? ZERO_SOAP_DURATION_SHORT : ZERO_SOAP_DURATION_FULL;
         }
 
         private static bool ConvertTimeFromTimespanToXmlDuration(
@@ -206,51 +199,51 @@ namespace MSDataFileReader
                     }
                 }
 
-                if (trimLeadingZeroValues)
-                {
-                    var dateIndex = xmlDuration.IndexOf('P');
-                    var timeIndex = xmlDuration.IndexOf('T');
-                    var charIndex = xmlDuration.IndexOf("P0Y", StringComparison.Ordinal);
+                if (!trimLeadingZeroValues)
+                    return true;
 
-                    if (charIndex >= 0 && charIndex < timeIndex)
+                var dateIndex = xmlDuration.IndexOf('P');
+                var timeIndex = xmlDuration.IndexOf('T');
+                var charIndex = xmlDuration.IndexOf("P0Y", StringComparison.Ordinal);
+
+                if (charIndex >= 0 && charIndex < timeIndex)
+                {
+                    charIndex++;
+                    var charIndex2 = xmlDuration.IndexOf("Y0M", charIndex, StringComparison.Ordinal);
+
+                    if (charIndex2 > 0 && charIndex < timeIndex)
                     {
-                        charIndex++;
-                        var charIndex2 = xmlDuration.IndexOf("Y0M", charIndex, StringComparison.Ordinal);
+                        charIndex = charIndex2 + 1;
+                        charIndex2 = xmlDuration.IndexOf("M0D", charIndex, StringComparison.Ordinal);
 
                         if (charIndex2 > 0 && charIndex < timeIndex)
                         {
                             charIndex = charIndex2 + 1;
-                            charIndex2 = xmlDuration.IndexOf("M0D", charIndex, StringComparison.Ordinal);
-
-                            if (charIndex2 > 0 && charIndex < timeIndex)
-                            {
-                                charIndex = charIndex2 + 1;
-                            }
                         }
                     }
+                }
 
-                    if (charIndex > 0)
+                if (charIndex <= 0)
+                    return true;
+
+                xmlDuration = xmlDuration.Substring(0, dateIndex + 1) + xmlDuration.Substring(charIndex + 2);
+                timeIndex = xmlDuration.IndexOf('T');
+                charIndex = xmlDuration.IndexOf("T0H", timeIndex, StringComparison.Ordinal);
+
+                if (charIndex > 0)
+                {
+                    charIndex++;
+                    var charIndex2 = xmlDuration.IndexOf("H0M", charIndex, StringComparison.Ordinal);
+
+                    if (charIndex2 > 0)
                     {
-                        xmlDuration = xmlDuration.Substring(0, dateIndex + 1) + xmlDuration.Substring(charIndex + 2);
-                        timeIndex = xmlDuration.IndexOf('T');
-                        charIndex = xmlDuration.IndexOf("T0H", timeIndex, StringComparison.Ordinal);
-
-                        if (charIndex > 0)
-                        {
-                            charIndex++;
-                            var charIndex2 = xmlDuration.IndexOf("H0M", charIndex, StringComparison.Ordinal);
-
-                            if (charIndex2 > 0)
-                            {
-                                charIndex = charIndex2 + 1;
-                            }
-                        }
-
-                        if (charIndex > 0)
-                        {
-                            xmlDuration = xmlDuration.Substring(0, timeIndex + 1) + xmlDuration.Substring(charIndex + 2);
-                        }
+                        charIndex = charIndex2 + 1;
                     }
+                }
+
+                if (charIndex > 0)
+                {
+                    xmlDuration = xmlDuration.Substring(0, timeIndex + 1) + xmlDuration.Substring(charIndex + 2);
                 }
 
                 return true;
@@ -390,20 +383,18 @@ namespace MSDataFileReader
                 elementDepth = mParentElementStack.Count;
             }
 
-            if (elementDepth >= 2 && elementDepth <= mParentElementStack.Count)
-            {
-                try
-                {
-                    var elementInfo = (ElementInfoType)mParentElementStack.ToArray()[mParentElementStack.Count - elementDepth + 1];
-                    return elementInfo.Name;
-                }
-                catch (Exception)
-                {
-                    return string.Empty;
-                }
-            }
+            if (elementDepth < 2 || elementDepth > mParentElementStack.Count)
+                return string.Empty;
 
-            return string.Empty;
+            try
+            {
+                var elementInfo = (ElementInfoType)mParentElementStack.ToArray()[mParentElementStack.Count - elementDepth + 1];
+                return elementInfo.Name;
+            }
+            catch (Exception)
+            {
+                return string.Empty;
+            }
         }
 
         protected override string GetInputFileLocation()
@@ -450,8 +441,7 @@ namespace MSDataFileReader
 
                 // Initialize the stream reader and the XML Text Reader (set to skip all whitespace)
                 mDataFileOrTextStream = new StreamReader(inputFilePath);
-                var reader = new XmlTextReader(mDataFileOrTextStream) { WhitespaceHandling = WhitespaceHandling.None };
-                mXMLReader = reader;
+                mXMLReader = new XmlTextReader(mDataFileOrTextStream) { WhitespaceHandling = WhitespaceHandling.None };
                 mErrorMessage = string.Empty;
                 InitializeLocalVariables();
                 ResetProgress("Parsing " + Path.GetFileName(inputFilePath));
@@ -568,14 +558,11 @@ namespace MSDataFileReader
                     {
                         UpdateProgress(streamReader.BaseStream.Position / (double)streamReader.BaseStream.Length * 100.0d);
                     }
-                    else
+                    else if (mXMLReader is XmlTextReader xmlReader)
                     {
-                        if (mXMLReader is XmlTextReader xmlReader)
-                        {
-                            // Note that 1000 is an arbitrary value for the number of lines in the input stream
-                            // (only needed if mDataFileOrTextStream is a StringReader)
-                            UpdateProgress(xmlReader.LineNumber % 1000 / 1000d * 100.0d);
-                        }
+                        // Note that 1000 is an arbitrary value for the number of lines in the input stream
+                        // (only needed if mDataFileOrTextStream is a StringReader)
+                        UpdateProgress(xmlReader.LineNumber % 1000 / 1000d * 100.0d);
                     }
                 }
 

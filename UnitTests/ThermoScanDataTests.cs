@@ -249,26 +249,26 @@ namespace MSDataFileReaderUnitTests
                     Assert.AreEqual(0, unsortedMzValues, "Scan {0} has {1} m/z values not sorted properly", scanNumber, unsortedMzValues);
 
                     scansProcessed++;
-                    if (scansProcessed % statsInterval == 0)
+                    if (scansProcessed % statsInterval != 0)
+                        continue;
+
+                    var scanInfo = GenerateThermoScanFilter(spectrumInfo);
+
+                    if (mzList.Count > 0)
                     {
-                        var scanInfo = GenerateThermoScanFilter(spectrumInfo);
+                        var midIndex = (int)Math.Floor(mzList.Count / 2.0);
 
-                        if (mzList.Count > 0)
-                        {
-                            var midIndex = (int)Math.Floor(mzList.Count / 2.0);
-
-                            Console.WriteLine(
-                                "{0,5} {1,-5} {2,-10} {3,-8} {4,-8} {5,-10:0.0000} {6,-8:0.0} {7,-10:0.0000} {8,-8:0.0}  {9}",
-                                scanNumber, maxNumberOfPeaks, centroidData, mzList.Count, intensityList.Count,
-                                mzList[0], intensityList[0], mzList[midIndex], intensityList[midIndex], scanInfo);
-                        }
-                        else
-                        {
-                            Console.WriteLine(
-                                "{0,5} {1,-5} {2,-10} {3,-8} {4,-8} {5,-10} {6,-8} {7,-10} {8,-8}  {9}",
-                                scanNumber, maxNumberOfPeaks, centroidData, mzList.Count, intensityList.Count,
-                                "n/a", "n/a", "n/a", "n/a", scanInfo);
-                        }
+                        Console.WriteLine(
+                            "{0,5} {1,-5} {2,-10} {3,-8} {4,-8} {5,-10:0.0000} {6,-8:0.0} {7,-10:0.0000} {8,-8:0.0}  {9}",
+                            scanNumber, maxNumberOfPeaks, centroidData, mzList.Count, intensityList.Count,
+                            mzList[0], intensityList[0], mzList[midIndex], intensityList[midIndex], scanInfo);
+                    }
+                    else
+                    {
+                        Console.WriteLine(
+                            "{0,5} {1,-5} {2,-10} {3,-8} {4,-8} {5,-10} {6,-8} {7,-10} {8,-8}  {9}",
+                            scanNumber, maxNumberOfPeaks, centroidData, mzList.Count, intensityList.Count,
+                            "n/a", "n/a", "n/a", "n/a", scanInfo);
                     }
                 }
             }

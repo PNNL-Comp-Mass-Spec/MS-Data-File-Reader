@@ -635,105 +635,105 @@ namespace MSDataFileReader
                         }
                     }
 
-                    if (extractTextToEOF)
+                    if (!extractTextToEOF)
+                        continue;
+
+                    var stringBuilder = new StringBuilder() { Length = 0 };
+
+                    if (currentLine.Length > 0)
                     {
-                        var stringBuilder = new StringBuilder() { Length = 0 };
+                        stringBuilder.AppendFormat("{0}{1}", currentLine, mBinaryTextReader.CurrentLineTerminator);
+                    }
 
-                        if (currentLine.Length > 0)
+                    // Read all of the lines to the end of the file
+                    while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirection.Forward))
+                    {
+                        currentLine = mBinaryTextReader.CurrentLine;
+                        stringBuilder.AppendFormat("{0}{1}", currentLine, mBinaryTextReader.CurrentLineTerminator);
+                    }
+
+                    indexLoaded = ParseMzXMLOffsetIndex(stringBuilder.ToString());
+
+                    if (indexLoaded)
+                    {
+                        // Validate the first entry of the index to make sure the index is valid
+
+                        // For now, set indexLoaded to False
+                        // If the test read works, we'll set indexLoaded to True
+                        indexLoaded = false;
+
+                        if (mIndexedSpectrumInfo.Count > 0)
                         {
-                            stringBuilder.AppendFormat("{0}{1}", currentLine, mBinaryTextReader.CurrentLineTerminator);
-                        }
+                            // Set up the default error message
+                            mErrorMessage = "Index embedded in the input file (" + Path.GetFileName(mInputFilePath) + ") is corrupt: first byte offset (" + mIndexedSpectrumInfo[0].ByteOffsetStart + ") does not point to a " + SCAN_START_ELEMENT + " element";
+                            var extractedText = ExtractTextBetweenOffsets(mIndexedSpectrumInfo[0].ByteOffsetStart, mIndexedSpectrumInfo[0].ByteOffsetEnd);
 
-                        // Read all of the lines to the end of the file
+                            if (!string.IsNullOrEmpty(extractedText))
+                            {
+                                // Make sure the first text in extractedText is <scan
+                                var startElementIndex = extractedText.IndexOf(SCAN_START_ELEMENT, StringComparison.Ordinal);
+
+                                if (startElementIndex >= 0)
+                                {
+                                    var firstBracketIndex = extractedText.IndexOf('<');
+
+                                    if (firstBracketIndex == startElementIndex)
+                                    {
+                                        indexLoaded = true;
+
+                                        // Valid index; clear the error message
+                                        mErrorMessage = string.Empty;
+                                    }
+                                }
+                            }
+                        }
+                    }
+
+                    if (indexLoaded)
+                    {
+                        // Move back to the beginning of the file and extract the header tags
+                        mBinaryTextReader.MoveToBeginning();
+                        mXmlFileHeader = string.Empty;
+
                         while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirection.Forward))
                         {
                             currentLine = mBinaryTextReader.CurrentLine;
-                            stringBuilder.AppendFormat("{0}{1}", currentLine, mBinaryTextReader.CurrentLineTerminator);
-                        }
+                            charIndex = currentLine.IndexOf(SCAN_START_ELEMENT, StringComparison.Ordinal);
 
-                        indexLoaded = ParseMzXMLOffsetIndex(stringBuilder.ToString());
-
-                        if (indexLoaded)
-                        {
-                            // Validate the first entry of the index to make sure the index is valid
-
-                            // For now, set indexLoaded to False
-                            // If the test read works, we'll set indexLoaded to True
-                            indexLoaded = false;
-
-                            if (mIndexedSpectrumInfo.Count > 0)
+                            if (charIndex >= 0)
                             {
-                                // Set up the default error message
-                                mErrorMessage = "Index embedded in the input file (" + Path.GetFileName(mInputFilePath) + ") is corrupt: first byte offset (" + mIndexedSpectrumInfo[0].ByteOffsetStart + ") does not point to a " + SCAN_START_ELEMENT + " element";
-                                var extractedText = ExtractTextBetweenOffsets(mIndexedSpectrumInfo[0].ByteOffsetStart, mIndexedSpectrumInfo[0].ByteOffsetEnd);
-
-                                if (!string.IsNullOrEmpty(extractedText))
+                                // <scan found
+                                if (charIndex > 0)
                                 {
-                                    // Make sure the first text in extractedText is <scan
-                                    var startElementIndex = extractedText.IndexOf(SCAN_START_ELEMENT, StringComparison.Ordinal);
-
-                                    if (startElementIndex >= 0)
-                                    {
-                                        var firstBracketIndex = extractedText.IndexOf('<');
-
-                                        if (firstBracketIndex == startElementIndex)
-                                        {
-                                            indexLoaded = true;
-
-                                            // Valid index; clear the error message
-                                            mErrorMessage = string.Empty;
-                                        }
-                                    }
-                                }
-                            }
-                        }
-
-                        if (indexLoaded)
-                        {
-                            // Move back to the beginning of the file and extract the header tags
-                            mBinaryTextReader.MoveToBeginning();
-                            mXmlFileHeader = string.Empty;
-
-                            while (mBinaryTextReader.ReadLine(BinaryTextReader.ReadDirection.Forward))
-                            {
-                                currentLine = mBinaryTextReader.CurrentLine;
-                                charIndex = currentLine.IndexOf(SCAN_START_ELEMENT, StringComparison.Ordinal);
-
-                                if (charIndex >= 0)
-                                {
-                                    // <scan found
-                                    if (charIndex > 0)
-                                    {
-                                        // Only add a portion of currentLine to mXmlFileHeader
-                                        // since it contains <scan
-                                        mXmlFileHeader += currentLine.Substring(0, charIndex);
-                                    }
-
-                                    break;
+                                    // Only add a portion of currentLine to mXmlFileHeader
+                                    // since it contains <scan
+                                    mXmlFileHeader += currentLine.Substring(0, charIndex);
                                 }
 
-                                // Append currentLine to mXmlFileHeader
-                                mXmlFileHeader += currentLine + Environment.NewLine;
+                                break;
                             }
+
+                            // Append currentLine to mXmlFileHeader
+                            mXmlFileHeader += currentLine + Environment.NewLine;
                         }
-                        else
-                        {
-                            // Index not loaded (or not valid)
-
-                            if (!string.IsNullOrEmpty(mErrorMessage))
-                            {
-                                OnErrorEvent("Error in LoadExistingIndex: {0}", mErrorMessage);
-                            }
-
-                            if (mIndexedSpectrumInfo.Count > 0)
-                            {
-                                // Reset the indexed spectrum info
-                                mIndexedSpectrumInfo.Clear();
-                            }
-                        }
-
-                        break;
                     }
+                    else
+                    {
+                        // Index not loaded (or not valid)
+
+                        if (!string.IsNullOrEmpty(mErrorMessage))
+                        {
+                            OnErrorEvent("Error in LoadExistingIndex: {0}", mErrorMessage);
+                        }
+
+                        if (mIndexedSpectrumInfo.Count > 0)
+                        {
+                            // Reset the indexed spectrum info
+                            mIndexedSpectrumInfo.Clear();
+                        }
+                    }
+
+                    break;
                 }
             }
             catch (Exception ex)
@@ -751,8 +751,6 @@ namespace MSDataFileReader
 
             try
             {
-                var updateScanCount = true;
-
                 var parseIndexValues = true;
                 var currentScanNumber = -1;
                 var previousScanNumber = -1;
@@ -769,88 +767,86 @@ namespace MSDataFileReader
                 {
                     validData = xmlReader.Read();
 
-                    if (validData && xmlReader.ReadState == ReadState.Interactive)
+                    if (!validData || xmlReader.ReadState != ReadState.Interactive)
+                        continue;
+
+                    if (xmlReader.NodeType == XmlNodeType.Element)
                     {
-                        if (xmlReader.NodeType == XmlNodeType.Element)
+                        currentElement = xmlReader.Name;
+
+                        if (currentElement == INDEX_ELEMENT_NAME)
                         {
-                            currentElement = xmlReader.Name;
+                            if (!xmlReader.HasAttributes)
+                                continue;
 
-                            if (currentElement == INDEX_ELEMENT_NAME)
+                            // Validate that this is the "scan" index
+
+                            string value;
+
+                            try
                             {
-                                if (xmlReader.HasAttributes)
-                                {
-                                    // Validate that this is the "scan" index
-
-                                    string value;
-
-                                    try
-                                    {
-                                        value = xmlReader.GetAttribute(INDEX_ATTRIBUTE_NAME);
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        value = string.Empty;
-                                    }
-
-                                    if (!string.IsNullOrEmpty(value))
-                                    {
-                                        parseIndexValues = value == "scan";
-                                    }
-                                }
+                                value = xmlReader.GetAttribute(INDEX_ATTRIBUTE_NAME);
                             }
-                            else if (currentElement == OFFSET_ELEMENT_NAME)
+                            catch (Exception ex)
                             {
-                                if (parseIndexValues && xmlReader.HasAttributes)
-                                {
-                                    // Extract the scan number from the id attribute
-                                    previousScanNumber = currentScanNumber;
+                                value = string.Empty;
+                            }
 
-                                    if (!int.TryParse(xmlReader.GetAttribute(OFFSET_ATTRIBUTE_ID), out currentScanNumber))
-                                    {
-                                        // Index is corrupted (or of an unknown format); do not continue parsing
-                                        break;
-                                    }
-                                }
+                            if (!string.IsNullOrEmpty(value))
+                            {
+                                parseIndexValues = value == "scan";
                             }
                         }
-                        else if (xmlReader.NodeType == XmlNodeType.EndElement)
+                        else if (currentElement == OFFSET_ELEMENT_NAME)
                         {
-                            if (parseIndexValues && xmlReader.Name == INDEX_ELEMENT_NAME)
+                            if (!parseIndexValues || !xmlReader.HasAttributes)
+                                continue;
+
+                            // Extract the scan number from the id attribute
+                            previousScanNumber = currentScanNumber;
+
+                            if (!int.TryParse(xmlReader.GetAttribute(OFFSET_ATTRIBUTE_ID), out currentScanNumber))
                             {
-                                // Store the final index value
-                                // This is tricky since we don't know the ending offset for the given scan
-                                // Thus, need to use the binary text reader to jump to currentScanByteOffsetStart and then read line-by-line until the next </peaks> tag is found
-                                StoreFinalIndexEntry(currentScanNumber, currentScanByteOffsetStart, updateScanCount);
-                                indexLoaded = true;
+                                // Index is corrupted (or of an unknown format); do not continue parsing
                                 break;
                             }
-
-                            currentElement = string.Empty;
                         }
-                        else if (xmlReader.NodeType == XmlNodeType.Text)
+                    }
+                    else if (xmlReader.NodeType == XmlNodeType.EndElement)
+                    {
+                        if (parseIndexValues && xmlReader.Name == INDEX_ELEMENT_NAME)
                         {
-                            if (parseIndexValues && currentElement == OFFSET_ELEMENT_NAME)
-                            {
-                                if (xmlReader.NodeType != XmlNodeType.Whitespace && xmlReader.HasValue)
-                                {
-                                    try
-                                    {
-                                        var previousScanByteOffsetStart = currentScanByteOffsetStart;
-                                        currentScanByteOffsetStart = long.Parse(xmlReader.Value);
+                            // Store the final index value
+                            // This is tricky since we don't know the ending offset for the given scan
+                            // Thus, need to use the binary text reader to jump to currentScanByteOffsetStart and then read line-by-line until the next </peaks> tag is found
+                            StoreFinalIndexEntry(currentScanNumber, currentScanByteOffsetStart, true);
+                            indexLoaded = true;
+                            break;
+                        }
 
-                                        if (previousScanByteOffsetStart >= 0L && currentScanNumber >= 0)
-                                        {
-                                            // Store the previous scan info
-                                            StoreIndexEntry(previousScanNumber, previousScanByteOffsetStart, currentScanByteOffsetStart - 1L, updateScanCount);
-                                        }
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        // Index is corrupted (or of an unknown format); do not continue parsing
-                                        break;
-                                    }
-                                }
+                        currentElement = string.Empty;
+                    }
+                    else if (xmlReader.NodeType == XmlNodeType.Text &&
+                             parseIndexValues &&
+                             currentElement == OFFSET_ELEMENT_NAME &&
+                             xmlReader.NodeType != XmlNodeType.Whitespace &&
+                             xmlReader.HasValue)
+                    {
+                        try
+                        {
+                            var previousScanByteOffsetStart = currentScanByteOffsetStart;
+                            currentScanByteOffsetStart = long.Parse(xmlReader.Value);
+
+                            if (previousScanByteOffsetStart >= 0L && currentScanNumber >= 0)
+                            {
+                                // Store the previous scan info
+                                StoreIndexEntry(previousScanNumber, previousScanByteOffsetStart, currentScanByteOffsetStart - 1L, true);
                             }
+                        }
+                        catch (Exception ex)
+                        {
+                            // Index is corrupted (or of an unknown format); do not continue parsing
+                            break;
                         }
                     }
                 }
@@ -942,8 +938,6 @@ namespace MSDataFileReader
                     return true;
                 }
 
-                var updateScanCount = true;
-
                 bool spectrumFound;
 
                 do
@@ -997,7 +991,7 @@ namespace MSDataFileReader
                         mAddNewLinesToHeader = false;
                     }
 
-                    StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, currentSpectrumByteOffsetStart, currentSpectrumByteOffsetEnd, updateScanCount);
+                    StoreIndexEntry(mCurrentSpectrumInfo.ScanNumber, currentSpectrumByteOffsetStart, currentSpectrumByteOffsetEnd, true);
 
                     // Update the progress
                     if (mBinaryTextReader.FileLengthBytes > 0L)
@@ -1011,6 +1005,7 @@ namespace MSDataFileReader
                     }
                 }
                 while (spectrumFound);
+
                 return true;
             }
             catch (Exception ex)
@@ -1036,12 +1031,12 @@ namespace MSDataFileReader
                 var currentLine = mBinaryTextReader.CurrentLine;
                 var matchIndex = currentLine.IndexOf(PEAKS_END_ELEMENT, StringComparison.Ordinal);
 
-                if (matchIndex >= 0)
-                {
-                    var byteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + (matchIndex + PEAKS_END_ELEMENT.Length) * mBinaryTextReader.CharSize - 1L;
-                    StoreIndexEntry(scanNumber, byteOffsetStart, byteOffsetEnd, updateScanCount);
-                    break;
-                }
+                if (matchIndex < 0)
+                    continue;
+
+                var byteOffsetEnd = mBinaryTextReader.CurrentLineByteOffsetStart + (matchIndex + PEAKS_END_ELEMENT.Length) * mBinaryTextReader.CharSize - 1L;
+                StoreIndexEntry(scanNumber, byteOffsetStart, byteOffsetEnd, updateScanCount);
+                break;
             }
         }
 

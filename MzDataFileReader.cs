@@ -252,23 +252,23 @@ namespace MSDataFileReader
         {
             var intensityMatch = 0f;
 
-            if (mMostRecentSurveyScanSpectra != null)
+            if (mMostRecentSurveyScanSpectra == null)
+                return intensityMatch;
+
+            var enumerator = mMostRecentSurveyScanSpectra.GetEnumerator();
+
+            while (enumerator.MoveNext())
             {
-                var enumerator = mMostRecentSurveyScanSpectra.GetEnumerator();
+                var spectrum = (SpectrumInfoMzData)enumerator.Current;
 
-                while (enumerator.MoveNext())
-                {
-                    var spectrum = (SpectrumInfoMzData)enumerator.Current;
+                if (spectrum == null)
+                    continue;
 
-                    if (spectrum == null)
-                        continue;
+                if (spectrum.SpectrumID != spectrumIDToFind)
+                    continue;
 
-                    if (spectrum.SpectrumID == spectrumIDToFind)
-                    {
-                        intensityMatch = spectrum.LookupIonIntensityByMZ(mzToFind, 0f);
-                        break;
-                    }
-                }
+                intensityMatch = spectrum.LookupIonIntensityByMZ(mzToFind, 0f);
+                break;
             }
 
             return intensityMatch;
@@ -807,23 +807,19 @@ namespace MSDataFileReader
                     break;
 
                 case ScanSectionNames.IonSelection:
-                    if (GetParentElement().Equals(ScanSectionNames.Precursor))
+                    if (GetParentElement().Equals(ScanSectionNames.Precursor) &&
+                        GetParentElement(mParentElementStack.Count - 1).Equals(ScanSectionNames.PrecursorList))
                     {
-                        if (GetParentElement(mParentElementStack.Count - 1).Equals(ScanSectionNames.PrecursorList))
-                        {
-                            mCurrentXMLDataFileSection = CurrentMzDataFileSection.PrecursorIonSelection;
-                        }
+                        mCurrentXMLDataFileSection = CurrentMzDataFileSection.PrecursorIonSelection;
                     }
 
                     break;
 
                 case ScanSectionNames.Activation:
-                    if (GetParentElement().Equals(ScanSectionNames.Precursor))
+                    if (GetParentElement().Equals(ScanSectionNames.Precursor) &&
+                        GetParentElement(mParentElementStack.Count - 1).Equals(ScanSectionNames.PrecursorList))
                     {
-                        if (GetParentElement(mParentElementStack.Count - 1).Equals(ScanSectionNames.PrecursorList))
-                        {
-                            mCurrentXMLDataFileSection = CurrentMzDataFileSection.PrecursorActivation;
-                        }
+                        mCurrentXMLDataFileSection = CurrentMzDataFileSection.PrecursorActivation;
                     }
 
                     break;
@@ -949,30 +945,30 @@ namespace MSDataFileReader
                 var fileVersionRegEx = new System.Text.RegularExpressions.Regex(@"1\.[0-9]+", System.Text.RegularExpressions.RegexOptions.IgnoreCase);
 
                 // Validate the mzData file version
-                if (!string.IsNullOrWhiteSpace(fileVersion))
+                if (string.IsNullOrWhiteSpace(fileVersion))
+                    return;
+
+                mFileVersion = fileVersion;
+                var match = fileVersionRegEx.Match(fileVersion);
+
+                if (match.Success)
+                    return;
+
+                // Unknown version
+                // Log error and abort if mParseFilesWithUnknownVersion = False
+                var message = "Unknown mzData file version: " + mFileVersion;
+
+                if (mParseFilesWithUnknownVersion)
                 {
-                    mFileVersion = fileVersion;
-                    var match = fileVersionRegEx.Match(fileVersion);
-
-                    if (!match.Success)
-                    {
-                        // Unknown version
-                        // Log error and abort if mParseFilesWithUnknownVersion = False
-                        var message = "Unknown mzData file version: " + mFileVersion;
-
-                        if (mParseFilesWithUnknownVersion)
-                        {
-                            message += "; attempting to parse since ParseFilesWithUnknownVersion = True";
-                        }
-                        else
-                        {
-                            mAbortProcessing = true;
-                            message += "; aborting read";
-                        }
-
-                        OnErrorEvent("Error in ValidateMZDataFileVersion: {0}", message);
-                    }
+                    message += "; attempting to parse since ParseFilesWithUnknownVersion = True";
                 }
+                else
+                {
+                    mAbortProcessing = true;
+                    message += "; aborting read";
+                }
+
+                OnErrorEvent("Error in ValidateMZDataFileVersion: {0}", message);
             }
             catch (Exception ex)
             {

@@ -597,11 +597,11 @@ namespace MSDataFileReader
 
                         for (var spectrumIndex = 0; spectrumIndex <= indexEnd; spectrumIndex++)
                         {
-                            if (mCachedSpectra[spectrumIndex].ScanNumber == scanNumber)
-                            {
-                                spectrumInfo = mCachedSpectra[spectrumIndex];
-                                return true;
-                            }
+                            if (mCachedSpectra[spectrumIndex].ScanNumber != scanNumber)
+                                continue;
+
+                            spectrumInfo = mCachedSpectra[spectrumIndex];
+                            return true;
                         }
                     }
                     else

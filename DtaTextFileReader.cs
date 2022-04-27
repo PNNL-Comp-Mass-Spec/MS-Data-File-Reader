@@ -122,14 +122,7 @@ namespace MSDataFileReader
                         }
 
                         // Read the next line, which should have the parent ion MH value and charge
-                        if (mFileReader.Peek() > -1)
-                        {
-                            lineIn = mFileReader.ReadLine();
-                        }
-                        else
-                        {
-                            lineIn = string.Empty;
-                        }
+                        lineIn = mFileReader.Peek() > -1 ? mFileReader.ReadLine() : string.Empty;
 
                         if (lineIn != null)
                             mTotalBytesRead += lineIn.Length + 2;
@@ -203,40 +196,40 @@ namespace MSDataFileReader
                                     mHeaderSaved = lineIn;
                                     var compareTitle = CleanupComment(mHeaderSaved, CommentLineStartChar, true);
 
-                                    if (compareTitle.EndsWith("3.dta", StringComparison.OrdinalIgnoreCase))
+                                    if (compareTitle.EndsWith("3.dta", StringComparison.OrdinalIgnoreCase) &&
+                                        string.Equals(
+                                            mCurrentSpectrum.SpectrumTitle.Substring(0, mCurrentSpectrum.SpectrumTitle.Length - 5),
+                                            compareTitle.Substring(0, compareTitle.Length - 5), StringComparison.OrdinalIgnoreCase))
                                     {
-                                        if (string.Equals(mCurrentSpectrum.SpectrumTitle.Substring(0, mCurrentSpectrum.SpectrumTitle.Length - 5), compareTitle.Substring(0, compareTitle.Length - 5), StringComparison.OrdinalIgnoreCase))
+                                        // Yes, the spectra match
+                                        mCurrentSpectrum.ParentIonChargeCount = 2;
+                                        mCurrentSpectrum.ParentIonCharges[1] = 3;
+                                        mCurrentSpectrum.ChargeIs2And3Plus = true;
+
+                                        mHeaderSaved = string.Empty;
+
+                                        // Read the next set of lines until the next blank line or comment line is found
+                                        while (mFileReader.Peek() > -1)
                                         {
-                                            // Yes, the spectra match
-                                            mCurrentSpectrum.ParentIonChargeCount = 2;
-                                            mCurrentSpectrum.ParentIonCharges[1] = 3;
-                                            mCurrentSpectrum.ChargeIs2And3Plus = true;
+                                            lineIn = mFileReader.ReadLine();
+                                            mInFileLineNumber++;
 
-                                            mHeaderSaved = string.Empty;
+                                            // See if lineIn is blank or starts with an equals sign
+                                            if (lineIn == null)
+                                                continue;
 
-                                            // Read the next set of lines until the next blank line or comment line is found
-                                            while (mFileReader.Peek() > -1)
+                                            mTotalBytesRead += lineIn.Length + 2;
+
+                                            if (lineIn.Trim().Length == 0)
                                             {
-                                                lineIn = mFileReader.ReadLine();
-                                                mInFileLineNumber++;
-
-                                                // See if lineIn is blank or starts with an equals sign
-                                                if (lineIn != null)
-                                                {
-                                                    mTotalBytesRead += lineIn.Length + 2;
-
-                                                    if (lineIn.Trim().Length == 0)
-                                                    {
-                                                        break;
-                                                    }
-
-                                                    if (lineIn.Trim().StartsWith(CommentLineStartChar.ToString()))
-                                                    {
-                                                        mHeaderSaved = lineIn;
-                                                        break;
-                                                    }
-                                                }
+                                                break;
                                             }
+
+                                            if (!lineIn.Trim().StartsWith(CommentLineStartChar.ToString()))
+                                                continue;
+
+                                            mHeaderSaved = lineIn;
+                                            break;
                                         }
                                     }
                                 }
@@ -248,11 +241,11 @@ namespace MSDataFileReader
                         } // EndIf for spectrumFound = True
                     } // EndIf for lineIn.Trim.StartsWith(mCommentLineStartChar)
 
-                    if (mInFileLineNumber - lastProgressUpdateLine >= 250 || spectrumFound)
-                    {
-                        lastProgressUpdateLine = mInFileLineNumber;
-                        UpdateStreamReaderProgress();
-                    }
+                    if (mInFileLineNumber - lastProgressUpdateLine < 250 && !spectrumFound)
+                        continue;
+
+                    lastProgressUpdateLine = mInFileLineNumber;
+                    UpdateStreamReaderProgress();
                 }
 
                 spectrumInfo = mCurrentSpectrum;
@@ -312,28 +305,25 @@ namespace MSDataFileReader
                     if (lineIn != null)
                         mTotalBytesRead += lineIn.Length + 2;
 
-                    if (!string.IsNullOrWhiteSpace(lineIn))
+                    if (!string.IsNullOrWhiteSpace(lineIn) && char.IsDigit(lineIn.Trim(), 0))
                     {
-                        if (char.IsDigit(lineIn.Trim(), 0))
-                        {
-                            spectrumFound = ReadSingleSpectrum(
-                                fileReader,
-                                lineIn,
-                                out msMsDataList,
-                                spectrumInfoMsMsText,
-                                ref mInFileLineNumber,
-                                ref lastProgressUpdateLine,
-                                out _);
-                            break;
-                        }
+                        spectrumFound = ReadSingleSpectrum(
+                            fileReader,
+                            lineIn,
+                            out msMsDataList,
+                            spectrumInfoMsMsText,
+                            ref mInFileLineNumber,
+                            ref lastProgressUpdateLine,
+                            out _);
+
+                        break;
                     }
 
-                    if (mInFileLineNumber - lastProgressUpdateLine >= 100)
-                    {
-                        lastProgressUpdateLine = mInFileLineNumber;
-                        // MyBase.UpdateProgress(inFile.BaseStream.Position / inFile.BaseStream.Length * 100.0)
-                        UpdateProgress(mTotalBytesRead / (double)fileReader.BaseStream.Length * 100.0d);
-                    }
+                    if (mInFileLineNumber - lastProgressUpdateLine < 100)
+                        continue;
+
+                    lastProgressUpdateLine = mInFileLineNumber;
+                    UpdateProgress(mTotalBytesRead / (double)fileReader.BaseStream.Length * 100.0d);
                 }
 
                 if (spectrumFound)
@@ -461,11 +451,11 @@ namespace MSDataFileReader
                     AddNewRecentFileText(lineIn);
                 }
 
-                if (linesRead - lastProgressUpdateLine >= 250)
-                {
-                    lastProgressUpdateLine = linesRead;
-                    UpdateStreamReaderProgress();
-                }
+                if (linesRead - lastProgressUpdateLine < 250)
+                    continue;
+
+                lastProgressUpdateLine = linesRead;
+                UpdateStreamReaderProgress();
             }
 
             return true;
