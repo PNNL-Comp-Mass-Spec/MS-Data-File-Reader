@@ -376,14 +376,13 @@ namespace MSDataFileReader
         {
             try
             {
-                if (mDataReaderMode == DataReaderMode.Cached)
+                switch (mDataReaderMode)
                 {
-                    return base.GetSpectrumByIndex(spectrumIndex, out spectrumInfo);
-                }
+                    case DataReaderMode.Cached:
+                        return base.GetSpectrumByIndex(spectrumIndex, out spectrumInfo);
 
-                if (mDataReaderMode == DataReaderMode.Indexed)
-                {
-                    return GetSpectrumByIndexWork(spectrumIndex, out spectrumInfo, false);
+                    case DataReaderMode.Indexed:
+                        return GetSpectrumByIndexWork(spectrumIndex, out spectrumInfo, false);
                 }
 
                 mErrorMessage = "Cached or indexed data not in memory";

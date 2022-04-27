@@ -25,6 +25,7 @@ namespace MSDataFileReaderUnitTests
 
             // Look for the file on Proto-2
             var remoteFile = new FileInfo(Path.Combine(remoteDirPath, dataFileName));
+
             if (remoteFile.Exists)
             {
                 return remoteFile;
@@ -211,10 +212,16 @@ namespace MSDataFileReaderUnitTests
 
                 ValidateScanInfo(expectedScanInfo, spectrumInfo);
 
-                if (spectrumInfo.MSLevel == 1)
-                    scanCountMS1++;
-                else if (spectrumInfo.MSLevel > 1)
-                    scanCountMS2++;
+                switch (spectrumInfo.MSLevel)
+                {
+                    case 1:
+                        scanCountMS1++;
+                        break;
+
+                    case > 1:
+                        scanCountMS2++;
+                        break;
+                }
             }
 
             Console.WriteLine("scanCountMS1={0}", scanCountMS1);
@@ -330,10 +337,16 @@ namespace MSDataFileReaderUnitTests
                     ValidateScanInfo(expectedScanInfo, spectrumInfo);
                 }
 
-                if (spectrumInfo.MSLevel == 1)
-                    scanCountMS1++;
-                else if (spectrumInfo.MSLevel > 1)
-                    scanCountMS2++;
+                switch (spectrumInfo.MSLevel)
+                {
+                    case 1:
+                        scanCountMS1++;
+                        break;
+
+                    case > 1:
+                        scanCountMS2++;
+                        break;
+                }
 
                 scanCount++;
             }
@@ -371,10 +384,16 @@ namespace MSDataFileReaderUnitTests
                     ValidateScanInfo(expectedScanInfo, spectrumInfo);
                 }
 
-                if (spectrumInfo.MSLevel == 1)
-                    scanCountMS1++;
-                else if (spectrumInfo.MSLevel > 1)
-                    scanCountMS2++;
+                switch (spectrumInfo.MSLevel)
+                {
+                    case 1:
+                        scanCountMS1++;
+                        break;
+
+                    case > 1:
+                        scanCountMS2++;
+                        break;
+                }
 
                 scanCount++;
             }
@@ -684,45 +703,50 @@ namespace MSDataFileReaderUnitTests
 
         private static void WriteScanInfoColumnNames(MsDataFileReaderBaseClass reader)
         {
-            if (reader is DtaTextFileReader or MgfFileReader)
+            switch (reader)
             {
-                Console.WriteLine(
-                    "{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10}",
-                    "Scan", "MSLevel",
-                    "NumPeaks", "RetentionTime",
-                    "LowMass", "HighMass", "TotalIonCurrent",
-                    "BasePeakMZ", "BasePeakIntensity",
-                    "ParentIonMZ", "ParentIonMH");
-            }
-            else if (reader is MzXMLFileAccessor or MzXMLFileReader)
-            {
-                Console.WriteLine(
-                    "{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14}",
-                    "Scan", "MSLevel",
-                    "NumPeaks", "RetentionTime",
-                    "LowMass", "HighMass", "TotalIonCurrent",
-                    "BasePeakMZ", "BasePeakIntensity",
-                    "ParentIonMZ", "ActivationMethod",
-                    "Polarity", "IsCentroided",
-                    "SpectrumType", "FilterLine");
-            }
-            else if (reader is MzDataFileAccessor or MzDataFileReader)
-            {
-                Console.WriteLine(
-                    "{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15} {16} {17}",
-                    "Scan", "MSLevel",
-                    "NumPeaks", "RetentionTime",
-                    "LowMass", "HighMass", "TotalIonCurrent",
-                    "BasePeakMZ", "BasePeakIntensity",
-                    "ParentIonMZ", "CollisionMethod",
-                    "Polarity", "IsCentroided",
-                    "SpectrumType", "ScanMode",
-                    "CollisionEnergy", "CollisionEnergyUnits",
-                    "ParentIonSpectrumID");
-            }
-            else
-            {
-                Console.WriteLine("Unrecognized reader type");
+                case DtaTextFileReader or MgfFileReader:
+                    Console.WriteLine(
+                        "{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10}",
+                        "Scan", "MSLevel",
+                        "NumPeaks", "RetentionTime",
+                        "LowMass", "HighMass", "TotalIonCurrent",
+                        "BasePeakMZ", "BasePeakIntensity",
+                        "ParentIonMZ", "ParentIonMH");
+
+                    break;
+
+                case MzXMLFileAccessor or MzXMLFileReader:
+                    Console.WriteLine(
+                        "{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14}",
+                        "Scan", "MSLevel",
+                        "NumPeaks", "RetentionTime",
+                        "LowMass", "HighMass", "TotalIonCurrent",
+                        "BasePeakMZ", "BasePeakIntensity",
+                        "ParentIonMZ", "ActivationMethod",
+                        "Polarity", "IsCentroided",
+                        "SpectrumType", "FilterLine");
+
+                    break;
+
+                case MzDataFileAccessor or MzDataFileReader:
+                    Console.WriteLine(
+                        "{0} {1} {2} {3} {4} {5} {6} {7} {8} {9} {10} {11} {12} {13} {14} {15} {16} {17}",
+                        "Scan", "MSLevel",
+                        "NumPeaks", "RetentionTime",
+                        "LowMass", "HighMass", "TotalIonCurrent",
+                        "BasePeakMZ", "BasePeakIntensity",
+                        "ParentIonMZ", "CollisionMethod",
+                        "Polarity", "IsCentroided",
+                        "SpectrumType", "ScanMode",
+                        "CollisionEnergy", "CollisionEnergyUnits",
+                        "ParentIonSpectrumID");
+
+                    break;
+
+                default:
+                    Console.WriteLine("Unrecognized reader type");
+                    break;
             }
         }
     }

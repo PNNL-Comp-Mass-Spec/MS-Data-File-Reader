@@ -306,43 +306,46 @@ namespace MSDataFileReader
             }
             else
             {
-                if (currentCharge == 1)
+                switch (currentCharge)
                 {
-                    newMZ = massMZ;
-                }
-                else if (currentCharge > 1)
-                {
-                    // Convert massMZ to M+H
-                    newMZ = massMZ * currentCharge - chargeCarrierMass * (currentCharge - 1);
-                }
-                else if (currentCharge == 0)
-                {
-                    // Convert massMZ (which is neutral) to M+H and store in newMZ
-                    newMZ = massMZ + chargeCarrierMass;
-                }
-                else
-                {
-                    // Negative charges are not supported; return 0
-                    return 0d;
+                    case 1:
+                        newMZ = massMZ;
+                        break;
+
+                    case > 1:
+                        // Convert massMZ to M+H
+                        newMZ = massMZ * currentCharge - chargeCarrierMass * (currentCharge - 1);
+                        break;
+
+                    case 0:
+                        // Convert massMZ (which is neutral) to M+H and store in newMZ
+                        newMZ = massMZ + chargeCarrierMass;
+                        break;
+
+                    default:
+                        // Negative charges are not supported; return 0
+                        return 0d;
                 }
 
-                if (desiredCharge > 1)
+                switch (desiredCharge)
                 {
-                    newMZ = (newMZ + chargeCarrierMass * (desiredCharge - 1)) / desiredCharge;
-                }
-                else if (desiredCharge == 1)
-                {
-                    // Return M+H, which is currently stored in newMZ
-                }
-                else if (desiredCharge == 0)
-                {
-                    // Return the neutral mass
-                    newMZ -= chargeCarrierMass;
-                }
-                else
-                {
-                    // Negative charges are not supported; return 0
-                    newMZ = 0d;
+                    case > 1:
+                        newMZ = (newMZ + chargeCarrierMass * (desiredCharge - 1)) / desiredCharge;
+                        break;
+
+                    case 1:
+                        // Return M+H, which is currently stored in newMZ
+                        break;
+
+                    case 0:
+                        // Return the neutral mass
+                        newMZ -= chargeCarrierMass;
+                        break;
+
+                    default:
+                        // Negative charges are not supported; return 0
+                        newMZ = 0d;
+                        break;
                 }
             }
 
