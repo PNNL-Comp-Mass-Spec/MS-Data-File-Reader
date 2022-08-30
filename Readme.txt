@@ -1,4 +1,4 @@
-The MsDataFileReader DLL is a VB.NET DLL that can be used to read 
+The MsDataFileReader DLL is a C# DLL that can be used to read 
 mass spectrum data from four file formats:
  * mzXML
  * mzData
@@ -9,39 +9,39 @@ The mzXML and mzData file reader classes can be used to read the files in a
 forward-only fashion, or they can pre-cache the location of each spectrum's 
 information in the source file to allow for random access.  Key classes are:
 
-* clsDtaTextFileReader
+* DtaTextFileReader
 Reads spectra from concatenated .dta files (_dta.txt format).
 This is a forward-only reader, returning one spectrum at a time.
 
-* clsMGFFileReader
+* MGFFileReader
 Reads spectra from Mascot Generic Format (.mgf) files
 This is a forward-only reader.
 
-* clsMzXMLFileReader
+* MzXMLFileReader
 Uses a SAX Parser to read an mzXML file (.mzXML or _mzXML.xml).
 This is a forward-only reader.
 
-* clsMzDataFileReader
+* MzDataFileReader
 Uses a SAX Parser to read an mzData file (.mzData or _mzData.xml).
 This is a forward-only reader.
 
-* clsMzXMLFileAccessor
+* MzXMLFileAccessor
 Opens an mzXML file and indexes the location of each of the spectra present.  
 This does not cache the mass spectra data in memory, and therefore uses 
 little memory, but once the indexing is complete, random access to the 
 spectra is possible.  After the indexing is complete, spectra can be 
 obtained using GetSpectrumByScanNumber or GetSpectrumByIndex
 
-* clsMzDataFileAccessor
-Similar to clsMzXMLFileAccessor, but used for reading mzData files
+* MzDataFileAccessor
+Similar to MzXMLFileAccessor, but used for reading mzData files
 
-* clsSpectrumInfo
+* SpectrumInfo
 Class used to store details of each mass spectrum
 
-* clsBase64EncodeDecode
+* Base64EncodeDecode
 Class for decoding and encoding binary 64 data, as required for mzXML and mzData
 
-* clsBinaryTextReader
+* BinaryTextReader
 Class that can be used to open a Text file and read each of the lines from the 
 file, where a line of text ends with CRLF or simply LF.  In addition, the byte 
 offset at the start and end of the line is also returned.  The user can then
