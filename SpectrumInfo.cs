@@ -3,7 +3,7 @@
 // Copyright 2021, Battelle Memorial Institute.  All Rights Reserved.
 //
 // E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-// Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+// Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://www.pnnl.gov/integrative-omics
 // -------------------------------------------------------------------------------
 
 using System;
