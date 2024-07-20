@@ -25,8 +25,8 @@ xcopy MSDataFileReader.dll F:\Documents\Projects\DataMining\SpectrumLook_v2\lib\
 xcopy MSDataFileReader.dll F:\Documents\Projects\DataMining\CodeTestCS\lib\ /Y /D
 xcopy MSDataFileReader.dll F:\Documents\Projects\DataMining\CodeTestCS\bin\ /Y /D
 
-xcopy MSDataFileReader.dll F:\Documents\Projects\JoshAldrich\AScore\AScore_DLL\lib\ /Y /D
-xcopy MSDataFileReader.dll F:\Documents\Projects\JoshAldrich\AScore\AScore_DLL\bin\AnyCPU\Debug\ /Y /D
-xcopy MSDataFileReader.dll F:\Documents\Projects\JoshAldrich\AScore\AScore_Console\bin\Debug\ /Y /D
+xcopy MSDataFileReader.dll F:\Documents\Projects\Josh_Aldrich\AScore\AScore_DLL\lib\ /Y /D
+xcopy MSDataFileReader.dll F:\Documents\Projects\Josh_Aldrich\AScore\AScore_DLL\bin\AnyCPU\Debug\ /Y /D
+xcopy MSDataFileReader.dll F:\Documents\Projects\Josh_Aldrich\AScore\AScore_Console\bin\Debug\ /Y /D
 
 if not "%1"=="NoPause" pause
