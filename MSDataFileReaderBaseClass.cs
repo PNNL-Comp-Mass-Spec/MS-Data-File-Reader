@@ -263,7 +263,7 @@ namespace MSDataFileReader
             }
         }
 
-        protected float CSngSafe(string value, float defaultValue)
+        protected float CFloatSafe(string value, float defaultValue)
         {
             try
             {

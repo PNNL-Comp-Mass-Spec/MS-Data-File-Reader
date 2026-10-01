@@ -657,7 +657,7 @@ namespace MSDataFileReader
                                         break;
 
                                     case SpectrumInstrumentCVParamNames.TimeInMinutes:
-                                        mCurrentSpectrum.RetentionTimeMin = CSngSafe(cvValue, 0f);
+                                        mCurrentSpectrum.RetentionTimeMin = CFloatSafe(cvValue, 0f);
                                         break;
                                 }
                             }
@@ -695,7 +695,7 @@ namespace MSDataFileReader
                                         break;
 
                                     case PrecursorActivationCVParamNames.CollisionEnergy:
-                                        mCurrentSpectrum.CollisionEnergy = CSngSafe(cvValue, 0f);
+                                        mCurrentSpectrum.CollisionEnergy = CFloatSafe(cvValue, 0f);
                                         break;
 
                                     case PrecursorActivationCVParamNames.EnergyUnits:
