@@ -8,7 +8,7 @@ Option Strict On
 ' Program started April 16, 2006
 '
 ' E-mail: matthew.monroe@pnl.gov or proteomics@pnnl.gov
-' Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://panomics.pnnl.gov/ or https://www.pnnl.gov/integrative-omics
+' Website: https://github.com/PNNL-Comp-Mass-Spec/ or https://www.pnnl.gov/integrative-omics
 ' -------------------------------------------------------------------------------
 '
 ' Last modified April 16, 2006

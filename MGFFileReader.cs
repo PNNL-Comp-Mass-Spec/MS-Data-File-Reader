@@ -17,6 +17,8 @@ namespace MSDataFileReader
     /// </summary>
     public class MgfFileReader : MsTextFileReaderBaseClass
     {
+        // Ignore Spelling: Mgf
+
         /// <summary>
         /// Constructor
         /// </summary>
